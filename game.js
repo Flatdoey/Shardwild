@@ -49,10 +49,22 @@ function buildSprites(){
   SPR.codex=mkSprite([".bbbbbb.","byyyyyyb","byywwyyb","byyyyyyb","byywwyyb","bbbbbbbb"],{b:'#8a5a2b',y:'#ff8a3a',w:'#fff04a'});
   SPR.quiver=mkSprite(["..llll..",".llllll.","llllllll",".llllll.","..llll..","ssssssss"],{l:'#6b4a2a',s:'#c8ff7a'});
   SPR.seal=mkSprite(["..yyyy..",".ybbbby.","ybbyybby","ybbssbby","ybbyybby",".ybbbby.","..yyyy.."],{y:'#e3b33d',b:'#3d63b8',s:'#fff1a8'});
-  const pot=["...ww...","...kk...","..pppp..",".pppppp.",".ppwppp.",".pppppp.","..pppp.."];
-  SPR.hp=mkSprite(pot,{w:'#ddd',k:'#7a5236',p:'#e8304a'});
-  SPR.mp=mkSprite(pot,{w:'#ddd',k:'#7a5236',p:'#3a7aff'});
-  SPR.elixir=mkSprite(pot,{w:'#ddd',k:'#7a5236',p:'#c04aff'});
+  // Same bottle, distinct liquid. Cork (c) and neck (n) stay put; l is the brew, g the glint.
+  const pot=["...cc...","...nn...","..llll..",".llllll.",".llglll.",".llllll.","..llll.."];
+  function potSprite(liquid,glint){return mkSprite(pot,{c:'#f4f4f4',n:'#6b4428',l:liquid,g:glint});}
+  SPR.pots={
+    hp:potSprite('#ef243c','#ffd0d6'),
+    mp:potSprite('#2f6bff','#c5d8ff'),
+    att:potSprite('#d020d0','#ffb0ff'),
+    def:potSprite('#4a4a56','#d8d8e4'),
+    spd:potSprite('#22b14c','#d8ffb0'),
+    dex:potSprite('#ff8c1a','#ffe0b0'),
+    vit:potSprite('#7a1024','#ff8090'),
+    life:potSprite('#fff4f8','#ff4d8d'),
+    mana:potSprite('#241868','#9aa0ff'),
+    wis:potSprite('#12c8c0','#e7fffc')
+  };
+  SPR.hp=SPR.pots.hp;SPR.mp=SPR.pots.mp;SPR.elixir=SPR.pots.att;
   SPR.key=mkSprite(["..yyyy..","...yy...","yyyyyyyy","yy.yy.yy","yyyyyyyy","..yyyy.."],{y:'#ffd34a'});
   SPR.chest=mkSprite(["..gggg..","gggggggg","ggyyyggg","gggggggg","ggyyyggg","gggggggg"],{g:'#e3b33d',y:'#fff1a8'});
   SPR.beacon=mkSprite(["...cc...","..cwwc..","...cc...","...ll...","...ll...","..llll..","..lssl.."],{c:'#7af0ff',w:'#ffffff',l:'#d8dce8',s:'#5a6070'});
@@ -252,6 +264,8 @@ function mkAbility(cls,t){
   return {id:itemId++,kind:'ability',cls,tier:t,name:t>7?'Hollow '+noun:TPRE[Math.min(t,7)]+' '+noun,power:8+t*6};
 }
 const ELIXIR_NAME={hp:'Life',mp:'Mind',att:'Fury',def:'Stone',spd:'Wind',dex:'Grace',vit:'Vigor',wis:'Insight'};
+// Stat elixirs use their own brew. Life/Mind are not the same bottles as the HP/MP draughts.
+const ELIXIR_POT={hp:'life',mp:'mana',att:'att',def:'def',spd:'spd',dex:'dex',vit:'vit',wis:'wis'};
 function mkElixirOf(k){return {id:itemId++,kind:'elixir',tier:6,stat:k,name:'Elixir of '+ELIXIR_NAME[k]};}
 function mkElixir(){return mkElixirOf(pick(STATK));}
 function mkPot(k){return {id:itemId++,kind:k,tier:0,name:k==='hp'?'Healing Draught':'Mana Draught'};}
@@ -262,6 +276,8 @@ function itemSpr(it){
   if(it.kind==='armor')return SPR[it.a];
   if(it.kind==='ability')return SPR[it.cls==='strider'?'quiver':it.cls==='bulwark'?'seal':'codex'];
   if(it.kind==='beaconkey')return SPR.key;
+  if(it.kind==='hp'||it.kind==='mp')return SPR.pots[it.kind];
+  if(it.kind==='elixir')return SPR.pots[ELIXIR_POT[it.stat]]||SPR.pots.att;
   return SPR[it.kind]||null;
 }
 function tierLabel(it){if(it.kind==='hp'||it.kind==='mp')return '';if(it.kind==='elixir')return '★';return it.tier>7?'UT':'T'+it.tier;}
@@ -301,6 +317,7 @@ let chestTab='all',chestPage=0,chestNear=false;
 function filteredChest(){
   const all=itemCatalog();
   if(chestTab==='all')return all;
+  if(chestTab==='pots')return all.filter(it=>it.kind==='hp'||it.kind==='mp'||it.kind==='elixir');
   return all.filter(it=>it.group===chestTab||it.group==='all');
 }
 function classLocked(it){
@@ -367,7 +384,7 @@ function addFX(x,y,r0,r1,dur,col){FX.push({x,y,r0,r1,t:0,dur,col});}
 let state='title',P=null,world=null,hub=null,realm=null,toasts=[],deathInfo=null,spawnT=0,saveT=0,questT=0,quest=null,time=0;
 const input={move:{id:null,ox:0,oy:0,x:0,y:0},aim:{id:null,ox:0,oy:0,x:0,y:0},mouse:{x:0,y:0,down:false,active:false},keys:{}};
 let uiRects=[],layoutC={play:{x:0,y:0,w:1,h:1},panel:{x:0,y:0,w:0,h:1},portrait:false};
-let ptr=null;
+let ptr=null,heldTip=null;
 const SAVEK='shardwild_save_v1',RUNSK='shardwild_runs_v1';
 // Safe storage: Android Chrome opening a local file (content://) throws SecurityError on any localStorage access.
 const store=(()=>{let ls=null;try{ls=window.localStorage;const k='__sw_t';ls.setItem(k,'1');ls.removeItem(k);}catch(e){ls=null;}
@@ -433,24 +450,140 @@ function killEnemy(e){
   if(e.d.boss){P.bossKills++;wd.boss=null;wd.bossT=120;toast('MORVANE HAS FALLEN!','#ff5577');toast('He will rise again in 2 minutes...','#c46aff');addFX(e.x,e.y,4,90,1.2,'#c46aff');}
   rollLoot(e);
 }
-function rollLoot(e){
-  const items=[],z=e.zone,C=CLASSES[P.cls];
-  const chance=e.d.boss||e.elite?1:0.18+z*0.05;
-  if(Math.random()<chance){
-    const n=e.d.boss?3:e.elite?2:1;
-    for(let i=0;i<n;i++){
-      const t=e.d.boss?(Math.random()<0.4?8:irand(6,7)):clamp(z*2+irand(-1,1)+(e.elite?1:0),0,7);
-      const r=Math.random();items.push(r<0.36||t>7?mkWeapon(C.w,t):r<0.62?mkArmor(C.a,t):r<0.82?mkAbility(P.cls,t):mkRing(t));
-    }
+// Shore T0–T2, Greenmarch T1–T4, Ashen T3–T6, Starfall T5–T7. Elites shift up one tier. No UT here.
+const LOOT_SPAN=[[0,2],[1,4],[3,6],[5,7]];
+const GEAR_W=['staff','bow','sword'];
+const GEAR_A=['robe','leather','heavy'];
+function tierSpan(zone,elite){
+  const z=clamp(zone|0,0,3);
+  let lo=LOOT_SPAN[z][0],hi=LOOT_SPAN[z][1];
+  if(elite){lo=Math.min(7,lo+1);hi=Math.min(7,hi+1);}
+  return [lo,hi];
+}
+function rollTier(lo,hi){
+  let sum=0;const w=[];
+  for(let t=lo;t<=hi;t++){const v=hi-t+1;w.push(v);sum+=v;}
+  let r=Math.random()*sum;
+  for(let i=0,t=lo;t<=hi;t++,i++){r-=w[i];if(r<=0)return t;}
+  return lo;
+}
+function randomGear(tier){
+  const k=Math.random();
+  if(k<0.34)return mkWeapon(pick(GEAR_W),tier);
+  if(k<0.56)return mkArmor(pick(GEAR_A),tier);
+  if(k<0.78)return mkAbility(pick(CLASSKEYS),tier);
+  return mkRing(tier);
+}
+function lootItemsFor(e){
+  const items=[];
+  const z=clamp(e.zone|0,0,3);
+  if(e.boss){
+    const n=Math.random()<0.5?3:2;
+    for(let i=0;i<n;i++)items.push(randomGear(rollTier(6,7)));
+    if(Math.random()<0.30)items.push(randomGear(8));
+    items.push(mkElixir(),mkElixir());
+    if(Math.random()<0.75)items.push(mkPot('hp'));
+    if(Math.random()<0.55)items.push(mkPot('mp'));
+    return items;
   }
-  if(Math.random()<(e.elite||e.d.boss?0.7:0.07))items.push(mkPot('hp'));
-  if(Math.random()<(e.elite||e.d.boss?0.5:0.05))items.push(mkPot('mp'));
-  if(e.d.boss){items.push(mkElixir(),mkElixir());}else if(e.elite&&z>=2&&Math.random()<0.4)items.push(mkElixir());
+  const gearP=e.elite?0.88:(0.22+z*0.04);
+  if(Math.random()<gearP){
+    const span=tierSpan(z,!!e.elite);
+    const n=e.elite&&Math.random()<0.4?2:1;
+    for(let i=0;i<n;i++)items.push(randomGear(rollTier(span[0],span[1])));
+  }
+  if(Math.random()<(e.elite?0.62:0.14))items.push(mkPot('hp'));
+  if(Math.random()<(e.elite?0.42:0.09))items.push(mkPot('mp'));
+  if(e.elite&&z>=2&&Math.random()<0.35)items.push(mkElixir());
+  return items;
+}
+const BAG_RANK={brown:0,pink:1,purple:2,cyan:3,white:4};
+function itemBagColor(it){
+  if(!it)return 'brown';
+  if(it.tier>7)return 'white';
+  if(it.kind==='elixir')return 'cyan';
+  const t=it.tier|0;
+  if(t>=4)return 'purple';
+  if(t>=2)return 'pink';
+  return 'brown';
+}
+function bagColor(items){
+  let best='brown';
+  for(const it of items){const c=itemBagColor(it);if(BAG_RANK[c]>BAG_RANK[best])best=c;}
+  return best;
+}
+function spawnLootBag(x,y,items,life){
+  if(!world||!items||!items.length)return null;
+  const bag={x,y,items,t:life,col:bagColor(items)};
+  world.bags.push(bag);
+  return bag;
+}
+function chimeLoot(items){
+  if(!items||!items.length)return;
+  if(items.some(it=>it.tier>7)){sfxUT();toast('A white bag dropped!','#ffffff');return;}
+  if(items.some(it=>it.tier>=6))sfxHigh();
+}
+function rollLoot(e){
+  const items=lootItemsFor({zone:e.zone,elite:!!e.elite,boss:!!(e.d&&e.d.boss)});
   if(!items.length)return;
-  let best='brown';for(const it of items){const t=it.tier;const c=it.kind==='elixir'?'purple':t>7?'white':t>=6?'cyan':t>=4?'purple':t>=2?'pink':'brown';
-    const o=['brown','pink','purple','cyan','white'];if(o.indexOf(c)>o.indexOf(best))best=c;}
-  world.bags.push({x:e.x,y:e.y,items,t:90,col:best});
-  if(best==='white')toast('A white bag dropped!','#ffffff');
+  spawnLootBag(e.x,e.y,items,90);
+  chimeLoot(items);
+  if(/loot/.test(location.hash))console.log('loot',e.type||'',items.map(it=>it.name+' '+(it.tier>7?'UT':'T'+it.tier)).join(', '));
+}
+function simLoot(n){
+  n=n||500;
+  const regions=[
+    {name:'Saltmarsh Shore',zone:0},
+    {name:'Greenmarch',zone:1},
+    {name:'Ashen Wilds',zone:2},
+    {name:'Starfall Heights',zone:3}];
+  function summarize(rolls){
+    const gear={};for(let t=0;t<=8;t++)gear[t]=0;
+    let empty=0,potOnly=0,withGear=0,ut=0,elixirs=0,pots=0,rings=0;
+    const weapons={staff:0,bow:0,sword:0},armors={robe:0,leather:0,heavy:0},abilities={pyro:0,strider:0,bulwark:0};
+    let gearN=0;
+    for(const items of rolls){
+      const gs=items.filter(it=>it.kind==='weapon'||it.kind==='armor'||it.kind==='ability'||it.kind==='ring');
+      if(!items.length)empty++;
+      else if(!gs.length)potOnly++;
+      else withGear++;
+      for(const it of items){
+        if(it.kind==='hp'||it.kind==='mp')pots++;
+        else if(it.kind==='elixir')elixirs++;
+        else{
+          gear[it.tier]=(gear[it.tier]||0)+1;gearN++;
+          if(it.tier>7)ut++;
+          if(it.kind==='weapon')weapons[it.w]++;
+          else if(it.kind==='armor')armors[it.a]++;
+          else if(it.kind==='ability')abilities[it.cls]++;
+          else rings++;
+        }
+      }
+    }
+    return {n:rolls.length,empty,potOnly,withGear,ut,elixirs,pots,gear,gearN,weapons,armors,abilities,rings};
+  }
+  const out={per:n,regions:[],boss:null,utOutsideBoss:0};
+  for(const reg of regions){
+    const normal=[],elite=[];
+    for(let i=0;i<n;i++){
+      normal.push(lootItemsFor({zone:reg.zone,elite:false,boss:false}));
+      elite.push(lootItemsFor({zone:reg.zone,elite:true,boss:false}));
+    }
+    const ns=summarize(normal),es=summarize(elite);
+    out.utOutsideBoss+=ns.ut+es.ut;
+    const span=tierSpan(reg.zone,false),espan=tierSpan(reg.zone,true);
+    out.regions.push({name:reg.name,zone:reg.zone,span,eliteSpan:espan,normal:ns,elite:es});
+  }
+  const boss=[];
+  let bossSolid=0;
+  for(let i=0;i<n;i++){
+    const items=lootItemsFor({zone:3,elite:false,boss:true});
+    boss.push(items);
+    if(items.some(it=>(it.kind==='weapon'||it.kind==='armor'||it.kind==='ability'||it.kind==='ring')&&it.tier>=6&&it.tier<=7))bossSolid++;
+  }
+  out.boss=summarize(boss);
+  out.bossSolid=bossSolid;
+  return out;
 }
 function potCount(k){let n=k==='hp'?P.hpPots:P.mpPots;for(const it of P.inv)if(it&&it.kind===k)n++;return n;}
 function drinkHP(){if(P.hp>=eff('hp')-0.01)return;if(P.hpPots>0){P.hpPots--;P.potsUsed++;P.hp=Math.min(eff('hp'),P.hp+120);addPT(P.x,P.y,'#ff4a6a',14,30);addDN(P.x,P.y,'+120','#5aff7a');return;}const i=P.inv.findIndex(it=>it&&it.kind==='hp');if(i>=0)drinkRef({area:'inv',i});}
@@ -487,7 +620,14 @@ function die(from){
   store.set(RUNSK,JSON.stringify(runs.slice(0,10)));store.del(SAVEK);
   deathInfo={f,run,best,t:0};state='dead';ptr=null;addPT(P.x,P.y,'#ff4a4a',40,60,2);
 }
-function nearBag(){let b=null,bd=18;for(const g of world.bags){const d=Math.hypot(g.x-P.x,g.y-P.y);if(d<bd){bd=d;b=g;}}return b;}
+function nearBag(){
+  let b=null,bd=18;
+  for(const g of world.bags){
+    const d=Math.hypot(g.x-P.x,g.y-P.y);
+    if(d<18&&(d<bd-0.05||Math.abs(d-bd)<0.05)){bd=d;b=g;}
+  }
+  return b;
+}
 function removeBag(b){const k=world.bags.indexOf(b);if(k>=0)world.bags.splice(k,1);}
 function readItem(ref){
   if(!ref||!P)return null;
@@ -538,19 +678,72 @@ function moveToFirstEmpty(ref){
   P.inv[s]=it;
   toast('Got '+it.name+(tierLabel(it)?' ['+tierLabel(it)+']':''),TIERCOL[Math.min(it.tier,8)]);return true;
 }
+const POT_FX={hp:'#ef243c',mp:'#2f6bff',att:'#d020d0',def:'#c8c8d4',spd:'#22b14c',dex:'#ff8c1a',vit:'#ff6078',wis:'#12c8c0',life:'#ff4d8d',mana:'#9aa0ff'};
 function drinkRef(ref){
   const it=readItem(ref);if(!it)return false;
   const fromChest=ref.area==='chest';
-  if(it.kind==='hp'){if(P.hp>=eff('hp')-0.01){toast('Already at full health');return false;}if(!fromChest)writeItem(ref,null);P.hp=Math.min(eff('hp'),P.hp+120);P.potsUsed++;addPT(P.x,P.y,'#ff4a6a',14,30);addDN(P.x,P.y,'+120','#5aff7a');return true;}
-  if(it.kind==='mp'){if(P.mp>=eff('mp')-0.01){toast('Already at full mana');return false;}if(!fromChest)writeItem(ref,null);P.mp=Math.min(eff('mp'),P.mp+100);P.potsUsed++;addPT(P.x,P.y,'#4a8aff',14,30);return true;}
-  if(it.kind==='elixir'){const k=it.stat;P.stats[k]+=(k==='hp'||k==='mp')?10:1;P.elixirs++;if(!fromChest)writeItem(ref,null);toast('Drank '+it.name,'#d68cff');addPT(P.x,P.y,'#c04aff',20,40);return true;}
+  if(it.kind==='hp'){if(P.hp>=eff('hp')-0.01){toast('Already at full health');return false;}if(!fromChest)writeItem(ref,null);P.hp=Math.min(eff('hp'),P.hp+120);P.potsUsed++;addPT(P.x,P.y,'#ef243c',14,30);addDN(P.x,P.y,'+120','#5aff7a');return true;}
+  if(it.kind==='mp'){if(P.mp>=eff('mp')-0.01){toast('Already at full mana');return false;}if(!fromChest)writeItem(ref,null);P.mp=Math.min(eff('mp'),P.mp+100);P.potsUsed++;addPT(P.x,P.y,'#2f6bff',14,30);return true;}
+  if(it.kind==='elixir'){const k=it.stat;P.stats[k]+=(k==='hp'||k==='mp')?10:1;P.elixirs++;if(!fromChest)writeItem(ref,null);toast('Drank '+it.name,'#d68cff');addPT(P.x,P.y,POT_FX[ELIXIR_POT[k]]||'#d020d0',20,40);return true;}
   return false;
+}
+function nearOpenBag(){
+  let b=null,bd=18;
+  if(!world||!P)return null;
+  for(const g of world.bags){
+    if(!g.items||g.items.length>=8)continue;
+    const d=Math.hypot(g.x-P.x,g.y-P.y);
+    if(d<bd){bd=d;b=g;}
+  }
+  return b;
 }
 function dropIntoBag(ref,bag){
   const it=readItem(ref);if(!it||!bag)return false;
   if(bag.items.length>=8){toast('Bag full','#ff8a8a');return false;}
-  writeItem(ref,null);bag.items.push(it);toast('Dropped '+it.name);return true;
+  writeItem(ref,null);bag.items.push(it);bag.col=bagColor(bag.items);bag.t=Math.max(bag.t,60);
+  clampVitals();toast('Dropped '+it.name);sfxDrop();return true;
 }
+function dropOnGround(ref){
+  const it=readItem(ref);
+  if(!it||!P||!world||!ref||ref.area==='chest'||ref.area==='bag')return false;
+  const dest=nearOpenBag();
+  if(dest){
+    writeItem(ref,null);dest.items.push(it);dest.col=bagColor(dest.items);dest.t=Math.max(dest.t,60+Math.random()*30);
+    clampVitals();toast('Dropped '+it.name);sfxDrop();
+    if(it.tier>7)sfxUT();else if(it.tier>=6)sfxHigh();
+    return true;
+  }
+  writeItem(ref,null);
+  spawnLootBag(P.x,P.y,[it],60+Math.random()*30);
+  clampVitals();toast('Dropped '+it.name);sfxDrop();
+  if(it.tier>7){sfxUT();toast('A white bag dropped!','#ffffff');}
+  else if(it.tier>=6)sfxHigh();
+  return true;
+}
+let actx=null;
+function audioCtx(){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return null;
+    if(!actx)actx=new AC();
+    if(actx.state==='suspended')actx.resume();
+    return actx;
+  }catch(err){return null;}
+}
+function tone(freq,when,dur,type,gain){
+  const a=audioCtx();if(!a)return;
+  const t=a.currentTime+(when||0);
+  const o=a.createOscillator(),g=a.createGain();
+  o.type=type||'square';o.frequency.setValueAtTime(freq,t);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(gain,t+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g);g.connect(a.destination);
+  o.start(t);o.stop(t+dur+0.03);
+}
+function sfxDrop(){tone(210,0,0.07,'square',0.045);tone(120,0.04,0.1,'triangle',0.04);}
+function sfxHigh(){tone(660,0,0.12,'square',0.04);tone(990,0.08,0.16,'triangle',0.035);}
+function sfxUT(){tone(880,0,0.14,'square',0.05);tone(1175,0.1,0.16,'square',0.042);tone(1760,0.2,0.24,'triangle',0.038);}
 function tapRef(ref){
   const it=readItem(ref);if(!it)return;
   if(it.kind==='beaconkey'){
@@ -640,7 +833,7 @@ function shoveOffBeacons(e){
 }
 function openMap(){
   if(state!=='play'||layoutC.portrait)return;
-  mapOpen=true;input.move.id=null;input.aim.id=null;input.mouse.down=false;ptr=null;
+  mapOpen=true;input.move.id=null;input.aim.id=null;input.mouse.down=false;ptr=null;heldTip=null;
 }
 function closeMap(){mapOpen=false;ptr=null;input.move.id=null;input.aim.id=null;input.mouse.down=false;}
 function teleportBeacon(b){
@@ -695,6 +888,7 @@ function update(dt){
     return;
   }
   if(ptr&&ptr.ref&&!ptr.dragged&&performance.now()-ptr.t0>450)ptr.tip=true;
+  if(heldTip&&(performance.now()>heldTip.until||!readItem(heldTip.ref)))heldTip=null;
   time+=dt;
   for(const t of toasts)t.life-=dt;toasts=toasts.filter(t=>t.life>0);
   if(state==='dead'){deathInfo.t+=dt;updateParticles(dt);return;}
@@ -979,13 +1173,16 @@ function plate(s,x,y,size,col){
 function fitTxt(s,x,y,size,col,maxW,align){let n=size;font(n);while(n>8&&ctx.measureText(s).width>maxW){n-=1;font(n);}txt(s,x,y,n,col,align||'left');}
 function drawGhost(x,y,col){ctx.save();ctx.globalAlpha=0.2;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,layoutC.stickR,0,TAU);ctx.stroke();ctx.globalAlpha=0.28;ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,layoutC.stickR*0.36,0,TAU);ctx.fill();ctx.restore();}
 function slotHot(x,y,s){return !!(ptr&&ptr.dragged&&ptr.x>=x&&ptr.x<=x+s&&ptr.y>=y&&ptr.y<=y+s);}
-function drawTooltip(it){
-  const lines=itemLines(it),w=Math.min(210,Math.max(120,layoutC.play.w-16)),h=34+lines.length*14;
-  let x=layoutC.panel.x-w-8,y=clamp((ptr?ptr.y:H/2)-h-12,8,H-h-8);
+function drawTooltip(it,ref,at){
+  const lines=itemLines(it);
+  const canDrop=!!(ref&&(ref.area==='inv'||ref.area==='eq'));
+  const w=Math.min(220,Math.max(156,layoutC.play.w*0.46)),h=36+lines.length*14+(canDrop?32:8);
+  let x=layoutC.panel.x-w-8,y=clamp((at&&at.y!=null?at.y:H/2)-24,8,H-h-8);
   if(x<8)x=8;
   panel(x,y,w,h,0.96);
   fitTxt(it.name+(tierLabel(it)?'  ['+tierLabel(it)+']':''),x+8,y+14,12,TIERCOL[Math.min(it.tier,8)],w-16);
   lines.forEach((l,i)=>fitTxt(l,x+8,y+30+i*14,11,'#ddd',w-16));
+  if(canDrop)miniBtn(x+8,y+h-30,w-16,24,'Drop','#ffb347',()=>{dropOnGround(ref);heldTip=null;},{tag:'drop-item'});
 }
 function drawSidePanel(){
   const Pnl=layoutC.panel;if(Pnl.w<80)return;
@@ -1071,7 +1268,8 @@ function drawHUD(){
   const bs=world.boss;if(bs&&Math.hypot(bs.x-P.x,bs.y-P.y)<240){const w=Math.min(280,play.w*0.55),bx2=play.x+(play.w-w)/2,by=my+m+18;txt(bs.name,play.x+play.w/2,by-10,12,'#e0b0ff','center');bar(bx2,by,w,12,bs.hp/bs.maxhp,'#c46aff',null);}
   let ty2=my+m+28;for(const t of toasts){ctx.globalAlpha=Math.min(1,t.life);fitTxt(t.t,play.x+play.w/2,ty2,13,t.col,Math.max(40,play.w-24),'center');ty2+=16;}ctx.globalAlpha=1;
   drawSidePanel();
-  if(ptr&&ptr.tip&&ptr.ref){const it=readItem(ptr.ref);if(it)drawTooltip(it);}
+  const tipRef=(ptr&&ptr.tip&&ptr.ref)||(heldTip&&heldTip.ref);
+  if(tipRef){const it=readItem(tipRef);if(it)drawTooltip(it,tipRef,(ptr&&ptr.tip)?ptr:heldTip);}
   if(ptr&&ptr.dragged&&ptr.ref){const it=readItem(ptr.ref);const sp=it&&itemSpr(it);if(sp){drawSpr(sp,ptr.x-16,ptr.y-40,32,32);}}
 }
 function drawSlot(x,y,s,it,sel,label,dim){
@@ -1093,19 +1291,19 @@ function drawChestPanel(Pnl,inner,gap,x0,y0,slot){
   miniBtn(x0+inner-66,y-4,66,16,'Unlock','#7af0ff',()=>unlockAllBeacons(),{tag:'unlock-beacons'});
   y+=14;
   fitTxt('copies · never empties',x0,y+4,10,'#e7c98a',inner);y+=12;
-  const tabs=[['pyro','Pyromancer'],['strider','Strider'],['bulwark','Bulwark'],['all','All']];
-  const tw=(inner-gap)/2,th=18;
+  const tabs=[['pyro','Pyromancer'],['strider','Strider'],['bulwark','Bulwark'],['all','All'],['pots','Potions']];
+  const tw=(inner-gap)/2,th=18,trows=Math.ceil(tabs.length/2);
   for(let i=0;i<tabs.length;i++){
     const t=tabs[i],tx=x0+(i%2)*(tw+gap),ty=y+Math.floor(i/2)*(th+2);
     const on=chestTab===t[0];
-    const col=t[0]==='all'?'#ffd34a':CLASSES[t[0]].col;
+    const col=t[0]==='pots'?'#ff8ac0':t[0]==='all'?'#ffd34a':CLASSES[t[0]].col;
     ctx.fillStyle=on?'rgba(78,58,130,.96)':'rgba(26,20,44,.96)';
     ctx.fillRect(tx,ty,tw,th);
     ctx.strokeStyle=on?col:'#3a3058';ctx.lineWidth=2;ctx.strokeRect(tx+1,ty+1,tw-2,th-2);
     fitTxt(t[1],tx+tw/2,ty+th/2+1,11,on?col:'#b7b0c8',tw-8,'center');
     addRect(tx,ty,tw,th,()=>{chestTab=t[0];chestPage=0;},'button',{tag:'chest-tab',tab:t[0]});
   }
-  y+=th*2+4;
+  y+=trows*(th+2)+2;
   const bw=36,bh=20;
   let cRows=2;
   let s=slot;
@@ -1301,14 +1499,25 @@ function evXY(e){const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)
 function beginPtr(id,x,y,hit){ptr={id,x,y,sx:x,sy:y,t0:performance.now(),ref:(hit&&hit.kind==='slot'&&hit.item)?hit.ref:null,dragged:false,tip:false};}
 function resolvePtr(p){
   if(!p||!p.ref)return;
-  if(p.dragged){const hit=pickRect(p.x,p.y);if(hit&&hit.kind==='slot')dragMove(p.ref,hit.ref);return;}
-  if(p.tip||performance.now()-p.t0>=450)return;
+  if(p.dragged){
+    const hit=pickRect(p.x,p.y);
+    if(hit&&hit.kind==='slot'){dragMove(p.ref,hit.ref);return;}
+    // Released over the playfield: the item leaves the panel and hits the ground.
+    if(inPlay(p.x,p.y)&&(p.ref.area==='inv'||p.ref.area==='eq')){dropOnGround(p.ref);return;}
+    return;
+  }
+  if(p.tip||performance.now()-p.t0>=450){
+    if(p.ref.area==='inv'||p.ref.area==='eq'||p.ref.area==='bag'||p.ref.area==='chest')heldTip={ref:p.ref,x:p.x,y:p.y,until:performance.now()+6500};
+    return;
+  }
   tapRef(p.ref);
 }
 function onDown(id,type,x,y,button){
   if(layoutC.portrait){tryFS(type);return;}
   tryFS(type);
+  audioCtx();
   const hit=pickRect(x,y);
+  if(!(hit&&hit.tag==='drop-item'))heldTip=null;
   if(type==='mouse'){
     input.mouse.active=true;input.mouse.x=x;input.mouse.y=y;
     if(hit&&hit.kind==='button'&&hit.fn){safeCall(hit.fn);return;}
@@ -1389,13 +1598,31 @@ requestAnimationFrame(frame);
 window.__shardwild={get state(){return state;},get P(){return P;},get world(){return world;},startNew,enterRealm,enterHub,useAbility,get fps(){return fps;},get bullets(){return ebN;},get shots(){return pbN;},
   teleport(x,y){if(P){P.x=x;P.y=y;}},setInv(){},get invOpen(){return false;},
   get ui(){return uiRects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,kind:r.kind,tag:r.tag||'',tab:r.tab||'',beacon:r.beacon||'',unlocked:!!r.unlocked,where:r.where||''}));},
-  get slots(){return uiRects.filter(r=>r.kind==='slot').map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,area:r.ref.area,i:r.ref.i,slot:r.ref.slot,name:r.item?r.item.name:null,tier:r.item?r.item.tier:null,dim:!!(r.item&&classLocked(r.item)),tag:r.tag||''}));},
+  get slots(){return uiRects.filter(r=>r.kind==='slot').map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,area:r.ref.area,i:r.ref.i,slot:r.ref.slot,name:r.item?r.item.name:null,tier:r.item?r.item.tier:null,kind:r.item?r.item.kind:null,stat:r.item?(r.item.stat||r.item.kind||''):'',wep:r.item&&r.item.w?r.item.w:'',dim:!!(r.item&&classLocked(r.item)),tag:r.tag||''}));},
   get layout(){const L=layoutC;return {play:L.play,panel:L.panel,portrait:!!L.portrait,move:L.moveAnchor,aim:L.aimAnchor,mm:L.mm};},
   get paused(){return !!layoutC.portrait;},get overlay(){return layoutC.portrait?'rotate':null;},
   get mapOpen(){return mapOpen;},get chestOpen(){return !!nearChest();},get flash(){return tpFlash;},
   get beacons(){return P&&P.beacons?P.beacons.slice():[];},
   get catalog(){const items=itemCatalog();return {n:items.length,weapons:items.filter(i=>i.kind==='weapon').length,abilities:items.filter(i=>i.kind==='ability').length,armors:items.filter(i=>i.kind==='armor').length,rings:items.filter(i=>i.kind==='ring').length,elixirs:items.filter(i=>i.kind==='elixir').length,pots:items.filter(i=>i.kind==='hp'||i.kind==='mp').length,key:items.some(i=>i.kind==='beaconkey')};},
-  get tooltip(){if(!(ptr&&ptr.tip&&ptr.ref))return null;const it=readItem(ptr.ref);return it?it.name:null;},
-  spawnBag(list){if(!P||!world)return [];const items=[];for(const s of list||[]){if(s==='hp'||s==='mp')items.push(mkPot(s));else if(s&&s.k==='weapon')items.push(mkWeapon(s.w||CLASSES[P.cls].w,s.t||0));else if(s&&s.k==='armor')items.push(mkArmor(s.a||CLASSES[P.cls].a,s.t||0));else if(s&&s.k==='ability')items.push(mkAbility(P.cls,s.t||0));else if(s&&s.k==='ring')items.push(mkRing(s.t||0));else if(s&&s.k==='elixir')items.push(mkElixir());}const b={x:P.x,y:P.y,items,t:120,col:'purple'};world.bags.push(b);return items.map(it=>it.name);},
+  get tooltip(){const ref=(ptr&&ptr.tip&&ptr.ref)||(heldTip&&heldTip.ref);if(!ref)return null;const it=readItem(ref);return it?it.name:null;},
+  makeItem(s){
+    if(s==='hp'||s==='mp')return mkPot(s);
+    if(!s||typeof s!=='object')return null;
+    const k=s.k||s.kind;
+    if(k==='weapon')return mkWeapon(s.w||(P?CLASSES[P.cls].w:'staff'),s.t||0);
+    if(k==='armor')return mkArmor(s.a||(P?CLASSES[P.cls].a:'robe'),s.t||0);
+    if(k==='ability')return mkAbility(s.cls||(P?P.cls:'pyro'),s.t||0);
+    if(k==='ring')return mkRing(s.t||0);
+    if(k==='elixir')return s.stat?mkElixirOf(s.stat):mkElixir();
+    if(k==='hp'||k==='mp')return mkPot(k);
+    if(k==='beaconkey')return mkBeaconKey();
+    return null;
+  },
+  grant(spec){if(!P)return null;const it=this.makeItem(spec);if(!it)return null;const i=P.inv.indexOf(null);if(i<0)return null;P.inv[i]=it;return {i,name:it.name,kind:it.kind,tier:it.tier};},
+  clearInv(){if(P)P.inv=[null,null,null,null,null,null,null,null];},
+  clearBags(){if(world)world.bags.length=0;},
+  get bags(){if(!world)return [];return world.bags.map(b=>({x:b.x,y:b.y,t:b.t,col:b.col,n:b.items.length,items:b.items.map(it=>({name:it.name,tier:it.tier,kind:it.kind,w:it.w||'',a:it.a||'',cls:it.cls||'',stat:it.stat||''}))}));},
+  spawnBag(list){if(!P||!world)return [];const items=[];for(const s of list||[]){const it=this.makeItem(s);if(it)items.push(it);}if(!items.length)return [];const b=spawnLootBag(P.x,P.y,items,80);return b.items.map(it=>it.name);},
+  simLoot,
   get storagePersistent(){return store.persistent;},kill(){if(state==='play')die('a test dummy');}};
 })();

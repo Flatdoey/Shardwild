@@ -76,6 +76,38 @@ async function walkTo(page, cdp, tx, ty, until, steps) {
   }
 }
 
+async function drag(cdp, page, x1, y1, x2, y2) {
+  const pt = (x, y) => ({x: Math.round(x), y: Math.round(y), id: 1, radiusX: 2, radiusY: 2, force: 1});
+  await cdp.send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: [pt(x1, y1)]});
+  await page.waitForTimeout(40);
+  const steps = 12;
+  for (let i = 1; i <= steps; i++) {
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [pt(x1 + (x2 - x1) * i / steps, y1 + (y2 - y1) * i / steps)]
+    });
+    await page.waitForTimeout(28);
+  }
+  await cdp.send('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: []});
+  await frames(page, 3);
+}
+
+async function longPress(cdp, page, x, y) {
+  const pt = (x, y) => ({x: Math.round(x), y: Math.round(y), id: 1, radiusX: 2, radiusY: 2, force: 1});
+  await cdp.send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: [pt(x, y)]});
+  await page.waitForTimeout(700);
+  await cdp.send('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: []});
+  await frames(page, 3);
+}
+
+async function tapAt(cdp, page, x, y) {
+  const pt = (x, y) => ({x: Math.round(x), y: Math.round(y), id: 1, radiusX: 2, radiusY: 2, force: 1});
+  await cdp.send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: [pt(x, y)]});
+  await page.waitForTimeout(50);
+  await cdp.send('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: []});
+  await frames(page, 3);
+}
+
 async function tapTag(page, pred) {
   const ui = await page.evaluate(() => window.__shardwild.ui);
   const r = ui.find(pred);
@@ -116,6 +148,143 @@ async function main() {
     await page.waitForFunction(() => window.__shardwild.state === 'play');
     await frames(page, 3);
 
+    assert(await page.evaluate(() => window.__shardwild.world.isHub), 'drops should work in the Haven');
+    const feet = await page.evaluate(() => ({x: window.__shardwild.P.x, y: window.__shardwild.P.y}));
+    const playPt = await page.evaluate(() => {
+      const p = window.__shardwild.layout.play;
+      return {x: p.x + p.w * 0.4, y: p.y + 72};
+    });
+
+    const wslot = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'eq' && s.slot === 'weapon'));
+    assert(wslot && wslot.name, 'missing equipped weapon');
+    await drag(cdp, page, wslot.x + wslot.w / 2, wslot.y + wslot.h / 2, playPt.x, playPt.y);
+    const eqDrop = await page.evaluate(origin => {
+      const sw = window.__shardwild;
+      return {
+        weapon: sw.P.eq.weapon && sw.P.eq.weapon.name,
+        bags: sw.bags,
+        moved: Math.hypot(sw.P.x - origin.x, sw.P.y - origin.y),
+        hub: sw.world.isHub
+      };
+    }, feet);
+    assert(eqDrop.hub && eqDrop.moved < 2, 'equip drop moved the player or left the Haven: ' + JSON.stringify(eqDrop));
+    assert(!eqDrop.weapon, 'equipped weapon was not cleared: ' + JSON.stringify(eqDrop));
+    assert(eqDrop.bags.length === 1 && eqDrop.bags[0].items.length === 1 && eqDrop.bags[0].items[0].name === wslot.name, 'weapon did not drop into a new bag: ' + JSON.stringify(eqDrop.bags));
+    assert(eqDrop.bags[0].t >= 60 && eqDrop.bags[0].t <= 90, 'dropped bag lifetime ' + eqDrop.bags[0].t);
+    const bagSlot = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'bag' && s.name));
+    assert(bagSlot, 'dropped weapon bag did not open');
+    await tapAt(cdp, page, bagSlot.x + bagSlot.w / 2, bagSlot.y + bagSlot.h / 2);
+    const reequipped = await page.evaluate(() => ({
+      weapon: window.__shardwild.P.eq.weapon && window.__shardwild.P.eq.weapon.name,
+      bags: window.__shardwild.bags.length
+    }));
+    assert(reequipped.weapon === wslot.name && reequipped.bags === 0, 'did not pick the weapon back up: ' + JSON.stringify(reequipped));
+
+    const potSlot = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'inv' && s.name === 'Healing Draught'));
+    assert(potSlot, 'backpack is missing the healing draught');
+    await drag(cdp, page, potSlot.x + potSlot.w / 2, potSlot.y + potSlot.h / 2, playPt.x, playPt.y);
+    const potDrop = await page.evaluate(() => {
+      const sw = window.__shardwild;
+      return {bags: sw.bags, inv: sw.P.inv.map(it => it && it.name), hub: sw.world.isHub};
+    });
+    assert(potDrop.hub, 'left the Haven while dropping');
+    assert(potDrop.bags.length === 1 && potDrop.bags[0].items.length === 1 && potDrop.bags[0].items[0].name === 'Healing Draught', 'draught did not drop: ' + JSON.stringify(potDrop));
+    assert(potDrop.bags[0].t >= 60 && potDrop.bags[0].t <= 90, 'draught bag lifetime');
+    assert(potDrop.bags[0].col === 'brown', 'a plain draught should be a brown bag');
+    assert(!potDrop.inv.includes('Healing Draught'), 'draught still in the backpack');
+    await page.evaluate(() => window.__shardwild.teleport(window.__shardwild.P.x + 16, window.__shardwild.P.y));
+    await frames(page, 2);
+    await page.screenshot({path: path.join(ART, 'screenshot_dropped_bag.png')});
+    await page.evaluate(origin => window.__shardwild.teleport(origin.x, origin.y), feet);
+    await frames(page, 2);
+    const potBag = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'bag' && s.name === 'Healing Draught'));
+    assert(potBag, 'loot panel closed after stepping back onto the bag');
+    await tapAt(cdp, page, potBag.x + potBag.w / 2, potBag.y + potBag.h / 2);
+    const picked = await page.evaluate(() => ({
+      bags: window.__shardwild.bags.length,
+      inv: window.__shardwild.P.inv.map(it => it && it.name)
+    }));
+    assert(picked.bags === 0 && picked.inv.includes('Healing Draught'), 'did not pick the draught back up: ' + JSON.stringify(picked));
+
+    const offclass = await page.evaluate(() => window.__shardwild.spawnBag([
+      {k: 'weapon', w: 'bow', t: 3},
+      {k: 'weapon', w: 'sword', t: 4},
+      {k: 'ability', cls: 'strider', t: 2},
+      {k: 'armor', a: 'heavy', t: 3}
+    ]));
+    assert(offclass.length === 4, 'off-class bag failed: ' + JSON.stringify(offclass));
+    assert(await page.evaluate(() => window.__shardwild.bags[0].col === 'purple'), 'mid/high gear should be a purple bag');
+    await page.evaluate(() => window.__shardwild.teleport(window.__shardwild.P.x + 16, window.__shardwild.P.y));
+    await frames(page, 2);
+    await page.screenshot({path: path.join(ART, 'screenshot_offclass_loot.png')});
+    await page.evaluate(origin => window.__shardwild.teleport(origin.x, origin.y), feet);
+    await frames(page, 2);
+    const mergeSlot = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'inv' && s.name === 'Healing Draught'));
+    assert(mergeSlot, 'no draught to merge into the bag');
+    await longPress(cdp, page, mergeSlot.x + mergeSlot.w / 2, mergeSlot.y + mergeSlot.h / 2);
+    const tip = await page.evaluate(() => window.__shardwild.tooltip);
+    assert(tip === 'Healing Draught', 'hold did not open the tooltip: ' + tip);
+    const dropBtn = await page.evaluate(() => window.__shardwild.ui.find(r => r.tag === 'drop-item'));
+    assert(dropBtn, 'tooltip has no Drop button');
+    await tapAt(cdp, page, dropBtn.x + dropBtn.w / 2, dropBtn.y + dropBtn.h / 2);
+    const merged = await page.evaluate(() => {
+      const bags = window.__shardwild.bags;
+      return {n: bags.length, items: bags[0] ? bags[0].items.map(it => it.name) : [], col: bags[0] && bags[0].col};
+    });
+    assert(merged.n === 1 && merged.items.length === 5 && merged.items.includes('Healing Draught'), 'drop did not merge into the open bag: ' + JSON.stringify(merged));
+    assert(merged.items.some(n => n.indexOf('Bow') >= 0) && merged.items.some(n => n.indexOf('Blade') >= 0), 'off-class weapons missing: ' + JSON.stringify(merged.items));
+
+    await page.evaluate(() => {
+      const sw = window.__shardwild;
+      sw.clearBags();
+      sw.clearInv();
+      sw.grant('hp');
+      sw.grant('mp');
+      sw.spawnBag(['att', 'def', 'spd', 'dex', 'vit', 'wis', 'hp', 'mp'].map(stat => ({k: 'elixir', stat})));
+    });
+    await frames(page, 2);
+    const colors = await page.evaluate(() => {
+      const c = document.getElementById('game');
+      const g = c.getContext('2d', {alpha: false});
+      const dpr = c.width / window.innerWidth;
+      const slots = window.__shardwild.slots.filter(s => s.name && (s.area === 'inv' || s.area === 'bag'));
+      return slots.map(s => {
+        const x0 = Math.floor((s.x + s.w * 0.3) * dpr);
+        const y0 = Math.floor((s.y + s.h * 0.32) * dpr);
+        const w = Math.max(4, Math.floor(s.w * 0.4 * dpr));
+        const h = Math.max(4, Math.floor(s.h * 0.4 * dpr));
+        const img = g.getImageData(x0, y0, w, h).data;
+        let r = 0, gv = 0, b = 0, n = 0;
+        for (let i = 0; i < img.length; i += 4) {
+          const R = img[i], G = img[i + 1], B = img[i + 2];
+          if (R < 55 && G < 48 && B < 80) continue;
+          r += R; gv += G; b += B; n++;
+        }
+        return {name: s.name, area: s.area, n, rgb: n ? [Math.round(r / n), Math.round(gv / n), Math.round(b / n)] : [0, 0, 0]};
+      });
+    });
+    await page.evaluate(() => window.__shardwild.teleport(window.__shardwild.P.x + 16, window.__shardwild.P.y));
+    await frames(page, 2);
+    assert(colors.length >= 10, 'expected every potion on screen, got ' + JSON.stringify(colors));
+    for (let i = 0; i < colors.length; i++) {
+      assert(colors[i].n > 4, 'empty potion sprite ' + JSON.stringify(colors[i]));
+      for (let j = i + 1; j < colors.length; j++) {
+        const a = colors[i].rgb, b = colors[j].rgb;
+        const d = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+        assert(d > 22, 'potion colors too similar ' + colors[i].name + ' vs ' + colors[j].name + ' d=' + d.toFixed(1) + ' ' + JSON.stringify([a, b]));
+      }
+    }
+    assert(await page.evaluate(() => window.__shardwild.bags[0] && window.__shardwild.bags[0].col === 'cyan'), 'elixir bag should be cyan');
+    await page.screenshot({path: path.join(ART, 'screenshot_potion_colors.png')});
+    await page.evaluate(origin => window.__shardwild.teleport(origin.x, origin.y), feet);
+    await page.evaluate(() => {
+      const sw = window.__shardwild;
+      sw.clearBags();
+      sw.clearInv();
+      sw.grant('hp');
+    });
+    await frames(page, 2);
+
     const chest = await page.evaluate(() => window.__shardwild.world.chest);
     await walkTo(page, cdp, chest.x, chest.y, () => {
       const P = window.__shardwild.P, c = window.__shardwild.world.chest;
@@ -154,6 +323,20 @@ async function main() {
     assert(sawDim, 'other-class bows were not dimmed');
     assert(sawUsable, 'current-class staves were not shown usable');
     await page.screenshot({path: path.join(ART, 'screenshot_test_chest.png')});
+
+    await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'pots');
+    const potNames = [];
+    for (let i = 0; i < 4; i++) {
+      const slots = await page.evaluate(() => window.__shardwild.slots.filter(s => s.area === 'chest' && s.name).map(s => s.name));
+      potNames.push(...slots);
+      const more = await page.evaluate(() => window.__shardwild.ui.some(r => r.tag === 'chest-next'));
+      if (!more) break;
+      await tapTag(page, r => r.tag === 'chest-next');
+    }
+    const potSet = new Set(potNames);
+    for (const name of ['Healing Draught', 'Mana Draught', 'Elixir of Life', 'Elixir of Mind', 'Elixir of Fury', 'Elixir of Stone', 'Elixir of Wind', 'Elixir of Grace', 'Elixir of Vigor', 'Elixir of Insight']) {
+      assert(potSet.has(name), 'test chest potions missing ' + name + ' from ' + [...potSet].join(', '));
+    }
 
     const haven = await page.evaluate(() => {
       const b = window.__shardwild.world.beacons.find(x => x.id === 'haven');
