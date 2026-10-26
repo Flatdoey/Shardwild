@@ -6,7 +6,7 @@ A pixel bullet-hell realm crawler for your phone. Death is permanent. Fame is th
 
 Choose a hero — Pyromancer, Strider, or Bulwark — or continue a saved run. You start in the Haven, a safe hub. Walk into the portal (the quest arrow points at it) to enter the Shardwild.
 
-The realm gets harder from the shore toward the center: Saltmarsh Shore, Greenmarch, Ashen Wilds, then Starfall Heights, where Morvane, the Hollow King, rises. Kill monsters for experience (level 20 is the cap), take loot from bags, and drink stat elixirs. When you die, that hero is gone and the run's fame is recorded. Your best runs stay in the Hall of Fame on this device.
+The realm gets harder from the shore toward the center: Saltmarsh Shore, Greenmarch, Ashen Wilds, then Starfall Heights, where Morvane, the Hollow King, rises. Kill monsters for experience (level 20 is the cap), take loot from bags, and drink stat elixirs. Gear runs from plain T0–T2 through trimmed T3–T5 and ornate T6–T7. Boss-only untiered (UT) pieces have their own shape and a shimmer in the bag, backpack, and test chest. When you die, that hero is gone and the run's fame is recorded. Your best runs stay in the Hall of Fame on this device.
 
 ## Controls
 
@@ -20,6 +20,7 @@ Shardwild is landscape-only. Hold the phone sideways. In portrait the game pause
 - The ability button spends MP (Ember Nova, Thorn Volley, or Aegis Slam).
 - HP and MP drink a draught.
 - ⌂ returns to the Haven. AUTO toggles auto-aim.
+- The speaker under the minimap cycles sound: effects and music, effects only, then muted. The choice is saved on this device. Music is a soft loop — calm in the Haven, tenser in the realm, harder in a boss fight.
 - Stand on a loot bag and it opens under your backpack. Tap an item to take it; a clear upgrade equips itself.
 - The Haven's test chest (left of the spawn) lists every item. Tabs filter by class, arrows page the list, and taking an item copies it. Items your class can't use are dimmed. Unlock lights every beacon.
 - Tap the minimap to open a map of the whole realm. Tap outside it or Close to dismiss it. The realm pauses while the map is open.
