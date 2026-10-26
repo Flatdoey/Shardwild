@@ -85,6 +85,38 @@ async function tapTag(page, pred) {
   return r;
 }
 
+function audioOf(page) {
+  return page.evaluate(() => window.__shardwild.audio);
+}
+
+async function fireBurst(page, cdp) {
+  const aim = await page.evaluate(() => window.__shardwild.layout.aim);
+  await nudge(cdp, page, aim.x, aim.y, 46, -8);
+  await frames(page, 4);
+}
+
+async function chestNames(page) {
+  return page.evaluate(() => window.__shardwild.slots.filter(s => s.area === 'chest').map(s => s.name));
+}
+
+async function openChestTab(page, tab) {
+  await tapTag(page, r => r.tag === 'chest-tab' && r.tab === tab);
+  for (let i = 0; i < 8; i++) {
+    const names = await chestNames(page);
+    if (names[0] && names[0].indexOf('Splintered') === 0) return;
+    await tapTag(page, r => r.tag === 'chest-prev');
+  }
+}
+
+async function findChest(page, includes) {
+  for (let i = 0; i < 16; i++) {
+    const names = await chestNames(page);
+    if (includes.every(w => names.some(n => n && n.indexOf(w) >= 0))) return names;
+    await tapTag(page, r => r.tag === 'chest-next');
+  }
+  throw new Error('chest missing ' + includes.join(', '));
+}
+
 async function main() {
   fs.mkdirSync(ART, {recursive: true});
   const errors = [];
@@ -110,11 +142,93 @@ async function main() {
     assert(size.w > size.h, 'expected landscape, got ' + JSON.stringify(size));
     assert(size.touch > 0, 'expected touch, got ' + JSON.stringify(size));
 
+    const sprErr = await page.evaluate(() => {
+      const kinds = ['staff','bow','sword','codex','quiver','seal','robe','leather','heavy','ring'];
+      for (const k of kinds) {
+        const infos = [];
+        for (let t = 0; t <= 8; t++) infos.push(window.__shardwild.spriteInfo(k, t));
+        for (const t of [0, 1, 2]) if (infos[t].hot > 100) return k + ' T' + t + ' too vivid hot=' + infos[t].hot;
+        for (const t of [6, 7, 8]) if (infos[t].hot < 160) return k + ' T' + t + ' not vivid hot=' + infos[t].hot + ' ' + infos[t].name;
+        if (!(infos[6].n > infos[0].n && infos[7].n > infos[0].n)) return k + ' high tier is not more detailed';
+        const masks = [0, 4, 7, 8].map(t => infos[t].mask);
+        if (new Set(masks).size !== 4) return k + ' T0/T4/T7/UT silhouettes are not distinct';
+        if (infos[0].avg === infos[1].avg || infos[1].avg === infos[2].avg) return k + ' low tiers share a palette';
+        if (infos[3].avg === infos[4].avg || infos[4].avg === infos[5].avg) return k + ' mid tiers share a palette';
+        if (infos[6].avg === infos[7].avg) return k + ' high tiers share a palette';
+        if (k === 'staff' || k === 'bow' || k === 'sword') {
+          const cols = [0, 4, 7, 8].map(t => infos[t].col);
+          if (new Set(cols).size !== 4) return k + ' projectile colors ' + cols.join(',');
+          if (infos[0].shot !== 'dot' || infos[8].shot === 'dot') return k + ' shot shape ' + infos[8].shot;
+        }
+      }
+      const shots = ['staff','bow','sword'].map(k => window.__shardwild.spriteInfo(k, 8).shot);
+      if (new Set(shots).size !== 3) return 'UT projectiles are not distinct ' + shots.join(',');
+      return '';
+    });
+    assert(!sprErr, sprErr);
+
+    const beforeTap = await audioOf(page);
+    assert(!beforeTap.unlocked && beforeTap.state === 'none', 'audio started before a tap ' + JSON.stringify(beforeTap));
+    assert(beforeTap.sfx === true && beforeTap.music === true, 'audio defaults ' + JSON.stringify(beforeTap));
+    assert(beforeTap.played === 0 && beforeTap.notes === 0, 'audio played before unlock');
+
     const cards = await page.evaluate(() => window.__shardwild.ui.filter(r => r.kind === 'button' && r.h > 60).sort((a, b) => a.x - b.x));
     assert(cards.length >= 3, 'class cards missing');
     await page.touchscreen.tap(cards[0].x + cards[0].w / 2, cards[0].y + cards[0].h / 2);
     await page.waitForFunction(() => window.__shardwild.state === 'play');
-    await frames(page, 3);
+    await frames(page, 6);
+    let heard = await audioOf(page);
+    assert(heard.unlocked && heard.state === 'running', 'audio context after tap ' + JSON.stringify(heard));
+    const hud = await page.evaluate(() => window.__shardwild.ui);
+    const mm = hud.find(r => r.tag === 'minimap');
+    const au = hud.find(r => r.tag === 'audio');
+    const panel = await page.evaluate(() => window.__shardwild.layout.panel);
+    assert(au, 'speaker button missing');
+    assert(au.y >= mm.y + mm.h - 4 && au.y <= mm.y + mm.h + 28, 'speaker not under minimap ' + JSON.stringify({au, mm}));
+    assert(au.x + au.w / 2 >= mm.x && au.x + au.w / 2 <= mm.x + mm.w, 'speaker not aligned with minimap');
+    assert(au.x + au.w < panel.x, 'speaker overlaps the inventory panel');
+
+    await page.waitForTimeout(450);
+    heard = await audioOf(page);
+    assert(heard.notes > 0, 'haven music did not start');
+    const played0 = heard.played;
+    await fireBurst(page, cdp);
+    heard = await audioOf(page);
+    assert(heard.played > played0, 'staff shot was silent');
+    const tint = await page.evaluate(() => {
+      const col = window.__shardwild.spriteInfo('staff', 0).col;
+      const shots = window.__shardwild.projectiles;
+      return {col, shots: shots.slice(0, 6)};
+    });
+    assert(tint.shots.length > 0 && tint.shots.every(s => s.shape === 'dot' && s.col === tint.col), 'T0 projectile tint ' + JSON.stringify(tint));
+
+    await tapTag(page, r => r.tag === 'audio');
+    heard = await audioOf(page);
+    assert(heard.sfx === true && heard.music === false, 'first toggle should drop music ' + JSON.stringify(heard));
+    await tapTag(page, r => r.tag === 'audio');
+    heard = await audioOf(page);
+    assert(heard.sfx === false && heard.music === false, 'second toggle should mute ' + JSON.stringify(heard));
+    const savedMute = await page.evaluate(() => JSON.parse(localStorage.getItem('shardwild_audio_v1') || 'null'));
+    assert(savedMute && savedMute.sfx === false && savedMute.music === false, 'mute was not saved ' + JSON.stringify(savedMute));
+    const mutedPlayed = heard.played;
+    await fireBurst(page, cdp);
+    heard = await audioOf(page);
+    assert(heard.played === mutedPlayed, 'muted shot still made a sound');
+
+    await page.reload({waitUntil: 'domcontentloaded'});
+    await page.waitForFunction(() => window.__shardwild && window.__shardwild.state === 'title' && !window.__shardwild.layout.portrait);
+    const reloaded = await audioOf(page);
+    assert(!reloaded.unlocked && reloaded.state === 'none', 'reload unlocked audio ' + JSON.stringify(reloaded));
+    assert(reloaded.sfx === false && reloaded.music === false, 'reload lost the mute ' + JSON.stringify(reloaded));
+    const cont = await page.evaluate(() => window.__shardwild.ui.filter(r => r.kind === 'button').sort((a, b) => a.y - b.y)[0]);
+    await page.touchscreen.tap(cont.x + cont.w / 2, cont.y + cont.h / 2);
+    await page.waitForFunction(() => window.__shardwild.state === 'play');
+    await frames(page, 4);
+    heard = await audioOf(page);
+    assert(heard.unlocked && heard.state === 'running' && heard.sfx === false && heard.music === false, 'continue audio ' + JSON.stringify(heard));
+    await tapTag(page, r => r.tag === 'audio');
+    heard = await audioOf(page);
+    assert(heard.sfx === true && heard.music === true, 'third toggle should restore sound ' + JSON.stringify(heard));
 
     const chest = await page.evaluate(() => window.__shardwild.world.chest);
     await walkTo(page, cdp, chest.x, chest.y, () => {
@@ -154,6 +268,62 @@ async function main() {
     assert(sawDim, 'other-class bows were not dimmed');
     assert(sawUsable, 'current-class staves were not shown usable');
     await page.screenshot({path: path.join(ART, 'screenshot_test_chest.png')});
+
+    const classes = [
+      ['pyro', 'Splintered Staff', 'Starforged Staff', 'Mythic Staff', 'Hollow Crown Staff', 'Hollow Codex', 'Hollow Robe'],
+      ['strider', 'Splintered Bow', 'Starforged Bow', 'Mythic Bow', 'Kingsbane Bow', 'Hollow Quiver', 'Hollow Jerkin'],
+      ['bulwark', 'Splintered Blade', 'Starforged Blade', 'Mythic Blade', "Morvane's Edge", 'Hollow Seal', 'Hollow Plate']
+    ];
+    for (const [tab, t0, t4, t7, utW, utA, utR] of classes) {
+      await openChestTab(page, tab);
+      const low = await findChest(page, [t0, t4, t7]);
+      assert(low.indexOf(t0) >= 0 && low.indexOf(t4) >= 0 && low.indexOf(t7) >= 0, tab + ' tier row ' + low.join(','));
+      await frames(page, 3);
+      await page.screenshot({path: path.join(ART, 'screenshot_chest_' + tab + '_t0_t7.png')});
+      await findChest(page, [utW]);
+      await frames(page, 3);
+      await page.screenshot({path: path.join(ART, 'screenshot_chest_' + tab + '_ut_weapon.png')});
+      await findChest(page, [utA]);
+      await frames(page, 3);
+      await page.screenshot({path: path.join(ART, 'screenshot_chest_' + tab + '_ut_ability.png')});
+      await findChest(page, [utR]);
+      await frames(page, 3);
+      await page.screenshot({path: path.join(ART, 'screenshot_chest_' + tab + '_ut_armor.png')});
+    }
+    await findChest(page, ['Astral Band']);
+    await frames(page, 3);
+    await page.screenshot({path: path.join(ART, 'screenshot_chest_rings_ut.png')});
+
+    const utSlot = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'chest' && s.name === 'Hollow Crown Staff'));
+    if (!utSlot) {
+      await openChestTab(page, 'pyro');
+      await findChest(page, ['Hollow Crown Staff']);
+    }
+    const crown = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'chest' && s.name === 'Hollow Crown Staff'));
+    assert(crown, 'Hollow Crown Staff slot missing');
+    await page.touchscreen.tap(crown.x + crown.w / 2, crown.y + crown.h / 2);
+    await frames(page, 4);
+    const crowned = await page.evaluate(() => {
+      const w = window.__shardwild.P.eq.weapon;
+      return {name: w.name, shot: w.shot, col: w.col};
+    });
+    assert(crowned.name === 'Hollow Crown Staff' && crowned.shot === 'ring', 'UT staff equip ' + JSON.stringify(crowned));
+    await fireBurst(page, cdp);
+    const utShots = await page.evaluate(() => window.__shardwild.projectiles.filter(s => s.shape === 'ring'));
+    assert(utShots.length > 0 && utShots.every(s => s.col === crowned.col), 'UT projectile ' + JSON.stringify(utShots.slice(0, 4)) + ' want ' + crowned.col);
+    await page.screenshot({path: path.join(ART, 'screenshot_ut_projectiles.png')});
+
+    await page.waitForTimeout(500);
+    const fpsChest = await page.evaluate(() => window.__shardwild.fps);
+    assert(fpsChest > 50, 'fps while chest shimmer is up: ' + fpsChest);
+
+    await walkTo(page, cdp, chest.x + 48, chest.y, () => !window.__shardwild.chestOpen, 14);
+    const bagNames = await page.evaluate(() => window.__shardwild.spawnBag([{k:'weapon', w:'staff', t:8}, {k:'ring', t:8}]));
+    assert(bagNames.indexOf('Hollow Crown Staff') >= 0 && bagNames.indexOf('Astral Band') >= 0, 'bag ' + bagNames.join(','));
+    await frames(page, 4);
+    const bagSlots = await page.evaluate(() => window.__shardwild.slots.filter(s => s.area === 'bag').map(s => s.name + ':' + s.tier));
+    assert(bagSlots.some(s => s.indexOf('Hollow Crown Staff:8') === 0), 'loot panel ' + bagSlots.join(','));
+    await page.screenshot({path: path.join(ART, 'screenshot_loot_bag_ut.png')});
 
     const haven = await page.evaluate(() => {
       const b = window.__shardwild.world.beacons.find(x => x.id === 'haven');
