@@ -10,21 +10,26 @@ The realm gets harder from the shore toward the center: Saltmarsh Shore, Greenma
 
 ## Controls
 
+Shardwild is landscape-only. Hold the phone sideways. In portrait the game pauses and asks you to rotate.
+
 **Touch**
 
-- Drag on the left to move.
-- Drag on the right to aim. Your weapon fires while you hold.
+- The realm stays on the left. Stats, gear, and your backpack stay open on the right.
+- Drag the bottom-left of the playfield to move.
+- Drag the lower-right of the playfield to aim. Your weapon fires while you hold.
 - The ability button spends MP (Ember Nova, Thorn Volley, or Aegis Slam).
 - HP and MP drink a draught.
-- ⌂ returns to the Haven. ≡ opens your inventory. AUTO toggles auto-aim.
-- Tap items in a loot bag to take them.
+- ⌂ returns to the Haven. AUTO toggles auto-aim.
+- Stand on a loot bag and it opens under your backpack. Tap an item to take it; a clear upgrade equips itself.
+- Tap a potion or elixir in the backpack to drink it. Tap other gear to equip it, or to drop it into an open bag.
+- Drag items between the bag, backpack, and equipment. Hold a finger on an item to read it.
 
 **Keyboard and mouse**
 
 - WASD moves. Hold the mouse button to aim and fire.
 - Space uses your ability.
 - Q or 1 drinks a healing draught. E or 2 drinks a mana draught.
-- I or B opens the inventory. F takes the first item from a nearby bag.
+- F takes the first item from a nearby bag.
 - R or H returns to the Haven. T toggles auto-aim.
 - On the title screen, 1 / 2 / 3 picks a hero and Enter continues a save.
 
