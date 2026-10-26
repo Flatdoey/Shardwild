@@ -277,8 +277,14 @@ let state='title',P=null,world=null,hub=null,realm=null,toasts=[],deathInfo=null
 const input={move:{id:null,ox:0,oy:0,x:0,y:0},aim:{id:null,ox:0,oy:0,x:0,y:0},mouse:{x:0,y:0,down:false,active:false},keys:{}};
 let invOpen=false,selSlot=null,uiRects=[],layoutC={};
 const SAVEK='shardwild_save_v1',RUNSK='shardwild_runs_v1';
-function loadRuns(){try{return JSON.parse(localStorage.getItem(RUNSK))||[];}catch(e){return [];}}
-function loadSave(){try{return JSON.parse(localStorage.getItem(SAVEK));}catch(e){return null;}}
+// Safe storage: Android Chrome opening a local file (content://) throws SecurityError on any localStorage access.
+const store=(()=>{let ls=null;try{ls=window.localStorage;const k='__sw_t';ls.setItem(k,'1');ls.removeItem(k);}catch(e){ls=null;}
+  const mem={};return {persistent:!!ls,
+  get(k){try{if(ls)return ls.getItem(k);}catch(e){}return Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null;},
+  set(k,v){mem[k]=v;try{if(ls)ls.setItem(k,v);}catch(e){}},
+  del(k){delete mem[k];try{if(ls)ls.removeItem(k);}catch(e){}}};})();
+function loadRuns(){try{return JSON.parse(store.get(RUNSK))||[];}catch(e){return [];}}
+function loadSave(){try{return JSON.parse(store.get(SAVEK));}catch(e){return null;}}
 function toast(t,col){toasts.push({t,col:col||'#fff',life:2.6});if(toasts.length>4)toasts.shift();}
 
 function newPlayer(k){const C=CLASSES[k];return {cls:k,lvl:1,xp:0,xpTotal:0,stats:Object.assign({},C.base),x:0,y:0,hp:C.base.hp,mp:C.base.mp,
@@ -287,9 +293,9 @@ function newPlayer(k){const C=CLASSES[k];return {cls:k,lvl:1,xp:0,xpTotal:0,stat
 function eff(k){let v=P.stats[k];const a=P.eq.armor,r=P.eq.ring;if(a){if(k==='def')v+=a.def;if(k==='hp')v+=a.hp;if(k==='mp')v+=a.mp;}if(r&&r.st[k])v+=r.st[k];return v;}
 const attMul=()=>0.5+eff('att')*0.025;
 const need=l=>Math.round(25*Math.pow(l,1.5));
-function saveGame(){if(!P||state!=='play')return;try{const o=Object.assign({},P);localStorage.setItem(SAVEK,JSON.stringify(o));}catch(e){}}
+function saveGame(){if(!P||state!=='play')return;try{const o=Object.assign({},P);store.set(SAVEK,JSON.stringify(o));}catch(e){}}
 
-function startNew(k){P=newPlayer(k);localStorage.removeItem(SAVEK);realm=null;enterHub();state='play';toast('Welcome to the Haven, '+CLASSES[k].name+'!','#ffd34a');toast('Walk into the portal to enter the Shardwild','#9fe0ff');saveGame();}
+function startNew(k){P=newPlayer(k);store.del(SAVEK);realm=null;enterHub();state='play';toast('Welcome to the Haven, '+CLASSES[k].name+'!','#ffd34a');toast('Walk into the portal to enter the Shardwild','#9fe0ff');saveGame();}
 function continueGame(){const s=loadSave();if(!s){return;}P=Object.assign(newPlayer(s.cls),s);
   let mx=0;for(const it of [P.eq.weapon,P.eq.armor,P.eq.ring,...P.inv])if(it&&it.id>mx)mx=it.id;itemId=mx+1;realm=null;enterHub();state='play';toast('Welcome back. Lv '+P.lvl+' '+CLASSES[P.cls].name,'#ffd34a');}
 function clearBullets(){ebN=0;pbN=0;ptN=0;FX.length=0;}
@@ -377,7 +383,7 @@ function fameCalc(){
 function die(from){
   const f=fameCalc();const runs=loadRuns();const run={cls:P.cls,lvl:P.lvl,fame:f.total,kills:P.kills,by:from||'the wilds',date:new Date().toISOString().slice(0,10)};
   runs.push(run);runs.sort((a,b)=>b.fame-a.fame);const best=runs[0]===run;
-  try{localStorage.setItem(RUNSK,JSON.stringify(runs.slice(0,10)));localStorage.removeItem(SAVEK);}catch(e){}
+  store.set(RUNSK,JSON.stringify(runs.slice(0,10)));store.del(SAVEK);
   deathInfo={f,run,best,t:0};state='dead';invOpen=false;addPT(P.x,P.y,'#ff4a4a',40,60,2);
 }
 function nearBag(){let b=null,bd=11;for(const g of world.bags){const d=Math.hypot(g.x-P.x,g.y-P.y);if(d<bd){bd=d;b=g;}}return b;}
@@ -680,6 +686,7 @@ function drawTitle(){
   const land=W>H*1.15;const ts=Math.min(W/7.5,land?54:60);
   txt('SHARDWILD',W/2,safe.t+(land?ts*0.75:ts*1.2),ts,'#ffd34a','center');txt('a pocket bullet-hell realm · permadeath',W/2,safe.t+(land?ts*1.45:ts*2),Math.max(11,ts*0.24),'#c9b0ff','center');
   const save=loadSave();const runs=loadRuns();
+  if(!store.persistent)txt('Note: this viewer blocks saving — open via a web link to keep progress',W/2,H-safe.b-4-(runs.length?0:14),Math.min(10,W/60),'#ff9a6a','center');
   let top=safe.t+(land?ts*1.85:ts*2.5);
   if(save){const C=CLASSES[save.cls];sqBtn(W/2-130,top,260,38,'▶ Continue Lv '+save.lvl+' '+(C?C.name:''),'#5aff7a',continueGame);top+=48;}
   txt(save?'or start a new hero (replaces save):':'Choose your hero',W/2,top+6,12,'#aaa','center');top+=18;
@@ -712,26 +719,44 @@ function drawDeath(){
 
 /* ---------------- input ---------------- */
 let fsTried=false;
-function tryFS(e){if(fsTried||e.pointerType==='mouse')return;fsTried=true;const el=document.documentElement;const f=el.requestFullscreen||el.webkitRequestFullscreen;if(f&&!document.fullscreenElement){try{const r=f.call(el,{navigationUI:'hide'});if(r&&r.catch)r.catch(()=>{});}catch(err){}}}
-function hitUI(x,y){for(let i=uiRects.length-1;i>=0;i--){const r=uiRects[i];if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h){r.fn();return true;}}return false;}
-cv.addEventListener('pointerdown',e=>{
-  e.preventDefault();tryFS(e);const x=e.clientX,y=e.clientY;
-  if(e.pointerType==='mouse'){input.mouse.active=true;input.mouse.x=x;input.mouse.y=y;}
+function tryFS(type){if(fsTried||type==='mouse')return;fsTried=true;
+  try{const el=document.documentElement;const f=el.requestFullscreen||el.webkitRequestFullscreen;
+    if(typeof f==='function'&&!(document.fullscreenElement||document.webkitFullscreenElement)&&document.fullscreenEnabled!==false){const r=f.call(el,{navigationUI:'hide'});if(r&&typeof r.catch==='function')r.catch(()=>{});}}catch(err){}}
+function hitUI(x,y){for(let i=uiRects.length-1;i>=0;i--){const r=uiRects[i];if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h){safeCall(r.fn);return true;}}return false;}
+function safeCall(fn){try{fn();}catch(err){console.error(err);toast('Error: '+(err&&err.message||err),'#ff8a8a');}}
+function evXY(e){const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)*(W/(r.width||W)),y:(e.clientY-r.top)*(H/(r.height||H))};}
+function onDown(id,type,x,y,button){
+  tryFS(type);
+  if(type==='mouse'){input.mouse.active=true;input.mouse.x=x;input.mouse.y=y;}
   if(hitUI(x,y))return;
   if(state!=='play')return;
-  if(e.pointerType==='mouse'){if(e.button===0)input.mouse.down=true;return;}
+  if(type==='mouse'){if(button===0)input.mouse.down=true;return;}
   input.mouse.active=false;
-  const s=x<W/2?input.move:input.aim;if(s.id===null){s.id=e.pointerId;s.ox=x;s.oy=y;s.x=x;s.y=y;}
-},{passive:false});
-cv.addEventListener('pointermove',e=>{
-  if(e.pointerType==='mouse'){input.mouse.x=e.clientX;input.mouse.y=e.clientY;input.mouse.active=true;return;}
-  for(const s of [input.move,input.aim])if(s.id===e.pointerId){s.x=e.clientX;s.y=e.clientY;
+  const s=x<W/2?input.move:input.aim;if(s.id===null){s.id=id;s.ox=x;s.oy=y;s.x=x;s.y=y;}
+}
+function onMove(id,type,x,y){
+  if(type==='mouse'){input.mouse.x=x;input.mouse.y=y;input.mouse.active=true;return;}
+  for(const s of [input.move,input.aim])if(s.id===id){s.x=x;s.y=y;
     const R=layoutC.stickR*1.6,dx=s.x-s.ox,dy=s.y-s.oy,l=Math.hypot(dx,dy);if(l>R){s.ox=s.x-dx/l*R;s.oy=s.y-dy/l*R;}}
-},{passive:false});
-function up(e){if(e.pointerType==='mouse'){input.mouse.down=false;return;}for(const s of [input.move,input.aim])if(s.id===e.pointerId)s.id=null;}
-cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
-for(const ev of ['touchstart','touchmove','touchend','gesturestart','dblclick','contextmenu'])document.addEventListener(ev,e=>e.preventDefault(),{passive:false});
-window.addEventListener('keydown',e=>{
+}
+function onUp(id,type){if(type==='mouse'){input.mouse.down=false;return;}for(const s of [input.move,input.aim])if(s.id===id)s.id=null;}
+if(window.PointerEvent){
+  cv.addEventListener('pointerdown',e=>{if(e.cancelable)e.preventDefault();const p=evXY(e);safeCall(()=>onDown(e.pointerId,e.pointerType||'touch',p.x,p.y,e.button));},{passive:false});
+  cv.addEventListener('pointermove',e=>{const p=evXY(e);safeCall(()=>onMove(e.pointerId,e.pointerType||'touch',p.x,p.y));},{passive:false});
+  const up=e=>safeCall(()=>onUp(e.pointerId,e.pointerType||'touch'));
+  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+}else{
+  // very old browsers without Pointer Events: use touch + mouse events directly
+  const each=(e,f)=>{for(const t of e.changedTouches){const p=evXY(t);safeCall(()=>f(t.identifier,p));}};
+  cv.addEventListener('touchstart',e=>{e.preventDefault();each(e,(id,p)=>onDown(id,'touch',p.x,p.y,0));},{passive:false});
+  cv.addEventListener('touchmove',e=>{e.preventDefault();each(e,(id,p)=>onMove(id,'touch',p.x,p.y));},{passive:false});
+  const tend=e=>{e.preventDefault();each(e,id=>onUp(id,'touch'));};cv.addEventListener('touchend',tend,{passive:false});cv.addEventListener('touchcancel',tend,{passive:false});
+  cv.addEventListener('mousedown',e=>{const p=evXY(e);safeCall(()=>onDown('m','mouse',p.x,p.y,e.button));});
+  window.addEventListener('mousemove',e=>{const p=evXY(e);safeCall(()=>onMove('m','mouse',p.x,p.y));});
+  window.addEventListener('mouseup',()=>onUp('m','mouse'));
+}
+for(const ev of ['touchmove','gesturestart','dblclick','contextmenu'])document.addEventListener(ev,e=>{if(e.cancelable)e.preventDefault();},{passive:false});
+window.addEventListener('keydown',e=>safeCall(()=>{
   input.keys[e.code]=true;
   if(state==='title'){const i=['Digit1','Digit2','Digit3'].indexOf(e.code);if(i>=0)startNew(CLASSKEYS[i]);if(e.code==='Enter'&&loadSave())continueGame();return;}
   if(state==='dead'){if((e.code==='Enter'||e.code==='Space')&&deathInfo.t>1)state='title';return;}
@@ -742,7 +767,7 @@ window.addEventListener('keydown',e=>{
   if((e.code==='KeyR'||e.code==='KeyH')&&!world.isHub){enterHub();toast('Returned to the Haven','#ffd34a');}
   if(e.code==='KeyT'){P.auto=!P.auto;toast('Auto-aim '+(P.auto?'ON':'OFF'));}
   if(e.code==='KeyF'){const bag=nearBag();if(bag&&bag.items.length)takeFromBag(bag,0);}
-});
+}));
 window.addEventListener('keyup',e=>{input.keys[e.code]=false;});
 window.addEventListener('blur',()=>{input.keys={};input.mouse.down=false;input.move.id=null;input.aim.id=null;});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)saveGame();});
@@ -758,7 +783,7 @@ function frame(t){
 }
 requestAnimationFrame(frame);
 window.__shardwild={get state(){return state;},get P(){return P;},get world(){return world;},startNew,enterRealm,enterHub,useAbility,get fps(){return fps;},get bullets(){return ebN;},
-  teleport(x,y){P.x=x;P.y=y;},setInv(v){invOpen=v;}};
+  teleport(x,y){P.x=x;P.y=y;},setInv(v){invOpen=v;},get invOpen(){return invOpen;},get ui(){return uiRects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h}));},get storagePersistent(){return store.persistent;},kill(){if(state==='play')die('a test dummy');}};
 })();
 
 </script>

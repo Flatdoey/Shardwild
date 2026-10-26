@@ -22,7 +22,7 @@
 <canvas id="game"></canvas>
 <script src="./game.js"></script>
 <script>
-if('serviceWorker' in navigator && location.protocol!=='file:'){navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});}
+try{if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});}}catch(e){}
 </script>
 </body>
 </html>
