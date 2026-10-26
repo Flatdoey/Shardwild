@@ -2,7 +2,7 @@
   "name": "shardwild",
   "private": true,
   "scripts": {
-    "test": "node tests/touch.js"
+    "test": "node tests/loot-sim.js && node tests/touch.js"
   },
   "devDependencies": {
     "playwright": "^1.56.1"
