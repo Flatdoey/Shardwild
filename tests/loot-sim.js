@@ -59,6 +59,7 @@ async function main() {
     const sim = await page.evaluate(n => window.__shardwild.simLoot(n), N);
     assert(!errors.length, 'console errors during sim:\n' + errors.join('\n'));
     assert(sim.utOutsideBoss === 0, 'UT dropped outside the boss: ' + sim.utOutsideBoss);
+    assert(!sim.testDrops, 'admin test weapon dropped from a loot table: ' + sim.testDrops);
     assert(sim.bossSolid === N, 'boss did not always drop solid tiered loot ' + sim.bossSolid + '/' + N);
     const utRate = sim.boss.ut / N;
     assert(utRate > 0.15 && utRate < 0.45, 'boss UT rate should be modest, got ' + utRate.toFixed(3));
