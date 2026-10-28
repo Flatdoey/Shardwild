@@ -108,6 +108,26 @@ async function tapAt(cdp, page, x, y) {
   await frames(page, 3);
 }
 
+async function holdTouch(cdp, page, x, y, dx, dy, ms, afterStart) {
+  const pt = (px, py) => ({x: Math.round(px), y: Math.round(py), id: 1, radiusX: 2, radiusY: 2, force: 1});
+  await cdp.send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: [pt(x, y)]});
+  await cdp.send('Input.dispatchTouchEvent', {type: 'touchMove', touchPoints: [pt(x + dx, y + dy)]});
+  if (afterStart) await afterStart();
+  if (ms > 0) await page.waitForTimeout(ms);
+  await cdp.send('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: []});
+  await frames(page, 2);
+}
+
+function rectsOverlap(a, b) {
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function circleHitsRect(cx, cy, r, rect) {
+  const nx = Math.max(rect.x, Math.min(cx, rect.x + rect.w));
+  const ny = Math.max(rect.y, Math.min(cy, rect.y + rect.h));
+  return Math.hypot(cx - nx, cy - ny) < r;
+}
+
 async function tapTag(page, pred) {
   const ui = await page.evaluate(() => window.__shardwild.ui);
   const r = ui.find(pred);
@@ -306,6 +326,27 @@ async function charactersVaultWeapons(page, cdp) {
   assert(!after.foes.some(e => e.name.indexOf('Colossus') >= 0), 'colossus survived a godslayer hit ' + JSON.stringify(after));
   assert(after.kills === beforeKills + 1, 'expected a single killing blow, kills ' + beforeKills + ' -> ' + after.kills);
 
+  const godRates = await page.evaluate(() => window.__shardwild.testWeapons);
+  assert(godRates.length === 3, 'expected three godslayers ' + JSON.stringify(godRates));
+  for (const w of godRates) {
+    assert(w.test && w.lethal, w.name + ' left the test-chest lethal set ' + JSON.stringify(w));
+    assert(Math.abs(w.rate - 0.6) < 1e-6, w.name + ' fire rate should be 3x the old 0.2, got ' + w.rate);
+  }
+  const burst = await page.evaluate(() => {
+    window.__shardwild.P.fireCd = 0;
+    return {aim: window.__shardwild.layout.aim, shots: window.__shardwild.shotsFired, rate: window.__shardwild.P.eq.weapon.rate};
+  });
+  assert(Math.abs(burst.rate - 0.6) < 1e-6, 'equipped godslayer rate ' + burst.rate);
+  // Old rate 0.2 fires once in this window (next shot ~2.4s). 0.6 should land at least twice.
+  await holdTouch(cdp, page, burst.aim.x, burst.aim.y, 46, -8, 1600, async () => {
+    await page.waitForTimeout(320);
+    const stars = await page.evaluate(() => window.__shardwild.projectiles.filter(s => s.shape === 'star').length);
+    assert(stars > 0, 'godslayer star was not on screen');
+    await page.screenshot({path: path.join(ART, 'screenshot_godslayer_firing.png')});
+  });
+  const fired = await page.evaluate(() => window.__shardwild.shotsFired) - burst.shots;
+  assert(fired >= 2 && fired <= 6, 'godslayer fired ' + fired + ' times in ~1.9s; expected the faster 0.6 rate');
+
   await tapTag(page, r => r.tag === 'char-select');
   await page.waitForFunction(() => window.__shardwild.state === 'title');
   await tapTag(page, r => r.tag === 'char-new');
@@ -345,6 +386,73 @@ async function charactersVaultWeapons(page, cdp) {
   });
   assert(migrated.chars[0] && migrated.chars[0].cls === 'bulwark' && migrated.chars[0].lvl === 7, 'old save was not migrated into slot 1 ' + JSON.stringify(migrated));
   assert(migrated.slot === 7, 'roster did not persist the migrated hero');
+}
+
+async function homeButtonAndAim(page, cdp) {
+  const info = await page.evaluate(() => {
+    const sw = window.__shardwild;
+    const home = sw.ui.find(r => r.tag === 'home');
+    return {
+      home,
+      place: sw.place,
+      L: sw.layout,
+      buttons: sw.ui.filter(r => r.kind === 'button' && r.tag !== 'home'),
+      slots: sw.ui.filter(r => r.kind === 'slot'),
+      mm: sw.ui.find(r => r.tag === 'minimap')
+    };
+  });
+  assert(info.place === 'realm', 'home button check should start in the realm');
+  assert(info.home && info.home.w >= 56 && info.home.h >= 56, 'home touch target ' + JSON.stringify(info.home));
+  const home = info.home;
+  const play = info.L.play, panel = info.L.panel, aim = info.L.aim, stickR = info.L.stickR;
+  const hc = {x: home.x + home.w / 2, y: home.y + home.h / 2};
+  assert(hc.x > play.w * 0.7 && hc.y > play.h * 0.62, 'home button is not in the bottom-right thumb area ' + JSON.stringify(home));
+  assert(home.x >= play.x && home.y >= play.y, 'home button left the playfield');
+  assert(home.x + home.w <= panel.x - 4, 'home button crowds the inventory panel ' + JSON.stringify({home, panel}));
+  assert(hc.x > aim.x, 'home button should sit to the right of the aim stick');
+  const dist = Math.hypot(hc.x - aim.x, hc.y - aim.y);
+  assert(dist < stickR + home.w / 2 + 80, 'home button is far from the aim stick ' + dist);
+  assert(!circleHitsRect(aim.x, aim.y, stickR + 6, home), 'home button overlaps the aim stick ' + JSON.stringify({home, aim, stickR, dist}));
+  assert(info.mm && !rectsOverlap(home, info.mm), 'home button overlaps the minimap');
+  for (const s of info.slots) assert(!rectsOverlap(home, s), 'home button overlaps an inventory slot ' + JSON.stringify(s));
+  for (const b of info.buttons) assert(!rectsOverlap(home, b), 'home button overlaps ' + (b.tag || b.kind) + ' ' + JSON.stringify(b));
+
+  const sx = aim.x + (hc.x - aim.x) * 0.55;
+  const sy = aim.y + (hc.y - aim.y) * 0.55;
+  assert(sx < home.x || sx > home.x + home.w || sy < home.y || sy > home.y + home.h, 'aim sample landed on the home button');
+  await frames(page, 3);
+  await page.screenshot({path: path.join(ART, 'screenshot_home_button.png')});
+
+  const shots0 = await page.evaluate(() => window.__shardwild.shotsFired);
+  await nudge(cdp, page, sx, sy, aim.x - sx, aim.y - sy);
+  const aimed = await page.evaluate(() => ({
+    aiming: window.__shardwild.aiming,
+    shots: window.__shardwild.shotsFired,
+    place: window.__shardwild.place
+  }));
+  assert(aimed.place === 'realm', 'aim gesture left the realm');
+  assert(!aimed.aiming, 'aim stick stayed down after release');
+  assert(aimed.shots > shots0, 'aim stick near the home button did not fire ' + JSON.stringify(aimed));
+
+  const beforeTap = await page.evaluate(() => ({
+    shots: window.__shardwild.shotsFired,
+    aiming: window.__shardwild.aiming,
+    x: window.__shardwild.P.x,
+    y: window.__shardwild.P.y
+  }));
+  await tapAt(cdp, page, hc.x, hc.y);
+  const afterTap = await page.evaluate(() => ({
+    shots: window.__shardwild.shotsFired,
+    aiming: window.__shardwild.aiming,
+    place: window.__shardwild.place,
+    chest: !!window.__shardwild.world.chest,
+    x: window.__shardwild.P.x,
+    y: window.__shardwild.P.y
+  }));
+  assert(afterTap.place === 'haven' && afterTap.chest, 'home button did not return to the Haven ' + JSON.stringify(afterTap));
+  assert(Math.hypot(afterTap.x - beforeTap.x, afterTap.y - beforeTap.y) > 40, 'home tap did not move the player');
+  assert(afterTap.shots === beforeTap.shots, 'home tap fired a shot ' + JSON.stringify({beforeTap, afterTap}));
+  assert(!afterTap.aiming, 'home tap started the aim stick');
 }
 
 async function main() {
@@ -759,13 +867,24 @@ async function main() {
     await frames(page, 4);
     const realm = await page.evaluate(() => {
       const w = window.__shardwild.world;
+      const P = window.__shardwild.P;
       const half = w.w * 8 / 2;
+      const tx = Math.floor(P.x / 8), ty = Math.floor(P.y / 8);
       return {
+        w: w.w, h: w.h,
+        zone: w.zone[ty * w.w + tx],
+        boss: w.boss ? {x: w.boss.x, y: w.boss.y} : null,
         n: (w.beacons || []).length,
         ids: (w.beacons || []).map(b => b.id),
         bands: (w.beacons || []).map(b => Math.hypot(b.x - w.cx, b.y - w.cy) / half)
       };
     });
+    assert(realm.w >= 375 && realm.h >= 375, 'realm did not grow in both dimensions ' + realm.w + 'x' + realm.h);
+    assert(realm.w === realm.h, 'realm should stay square');
+    assert(realm.w * realm.h >= 250 * 250 * 1.9, 'playable area is not about double ' + (realm.w * realm.h));
+    assert(realm.w <= 520 && realm.h <= 520, 'realm grew past the mobile canvas budget ' + realm.w);
+    assert(realm.zone === 0, 'shore entry landed inland, zone ' + realm.zone);
+    assert(realm.boss && Math.hypot(realm.boss.x - realm.w * 8 / 2, realm.boss.y - realm.h * 8 / 2) < 8, 'boss is not at the center ' + JSON.stringify(realm.boss));
     assert(realm.n === 4, 'expected 4 realm beacons, got ' + JSON.stringify(realm));
     assert(realm.bands[0] > 0.72 && realm.bands[0] < 0.93, 'shore beacon band ' + realm.bands[0]);
     assert(realm.bands[3] > 0.12 && realm.bands[3] < 0.32, 'star beacon band ' + realm.bands[3]);
@@ -779,13 +898,19 @@ async function main() {
     await tapTag(page, r => r.tag === 'map-close');
     assert(!(await page.evaluate(() => window.__shardwild.mapOpen)), 'realm map did not close');
 
+    await page.waitForTimeout(600);
+    const fpsRealm = await page.evaluate(() => window.__shardwild.fps);
+    assert(fpsRealm > 50, 'fps in the larger realm: ' + fpsRealm);
+
+    await homeButtonAndAim(page, cdp);
+
     await charactersVaultWeapons(page, cdp);
 
     await page.waitForTimeout(1200);
     const fps = await page.evaluate(() => window.__shardwild.fps);
     assert(fps > 50, 'fps too low: ' + fps);
     assert(!errors.length, 'console errors:\n' + errors.join('\n'));
-    console.log('ok fps=' + fps.toFixed(1) + ' catalog=' + cat.n + ' beacons=' + realm.ids.join(','));
+    console.log('ok fps=' + fps.toFixed(1) + ' realm=' + realm.w + 'x' + realm.h + ' catalog=' + cat.n + ' beacons=' + realm.ids.join(','));
   } catch (err) {
     const fail = path.join(ART, 'screenshot_failure.png');
     try { await page.screenshot({path: fail}); } catch (e) {}
