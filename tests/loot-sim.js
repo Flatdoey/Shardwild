@@ -60,6 +60,9 @@ async function main() {
     assert(!errors.length, 'console errors during sim:\n' + errors.join('\n'));
     assert(sim.utOutsideBoss === 0, 'UT dropped outside the boss: ' + sim.utOutsideBoss);
     assert(!sim.testDrops, 'admin test weapon dropped from a loot table: ' + sim.testDrops);
+    assert(!sim.mastery, 'Potion of Mastery dropped from a loot table: ' + sim.mastery);
+    assert(sim.regions.some(r => r.name === 'Godlands'), 'Godlands missing from loot regions');
+    assert(!sim.regions.some(r => /Starfall/.test(r.name)), 'old Starfall region still in the loot sim');
     assert(sim.bossSolid === N, 'boss did not always drop solid tiered loot ' + sim.bossSolid + '/' + N);
     const utRate = sim.boss.ut / N;
     assert(utRate > 0.15 && utRate < 0.45, 'boss UT rate should be modest, got ' + utRate.toFixed(3));

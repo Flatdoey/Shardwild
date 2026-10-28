@@ -60,6 +60,9 @@ function buildSprites(){
   SPR.eye=mkSprite(["..rrrr..",".rwwwwr.","rwwkkwwr","rwkyykwr","rwkyykwr","rwwkkwwr",".rwwwwr.","..rrrr.."],{r:'#a0204a',w:'#f3e6ea',k:'#2a0d2a',y:'#ff4a6a'});
   SPR.colossus=mkSprite(["..ssss..",".sysyss.","ssssssss","sgssssgs","sgssssgs",".ssssss.",".ss..ss.",".ss..ss."],{s:'#9a9aa8',y:'#7af0ff',g:'#e3c25a'});
   SPR.king=mkSprite(["..y..y..y...","..yy.yy.yy..","..yyyyyyyy..",".kkkkkkkkkk.","kkpkkkkkkpkk","kkkwwkkwwkkk","kkkwrkkwrkkk","kkkkkkkkkkkk",".kkpkkkkpkk.","..kkpppkkk..","..kk....kk..",".kk......kk."],{y:'#ffd34a',k:'#2b1840',p:'#7a3ad0',w:'#e9e0ff',r:'#ff2a5a'});
+  SPR.oracle=mkSprite(["..wwww..",".wwwwww.","wwywwyww","wwwwwwww",".wppppw.","wwwwwwww","w.w..w.w",".w....w."],{w:'#e8e0ff',y:'#ffe14a',p:'#9a6aff'});
+  SPR.saint=mkSprite(["...yy...",".ywwwwy.","yywccwyy","ywwwwwwy",".wwccww.","..wwww..",".ww..ww.","ww....ww"],{y:'#fff6c0',w:'#d8fff8',c:'#3ec8ff'});
+  SPR.wyrm=mkSprite(["gg....gg","ggg..ggg",".gggggg.","ggyykyyg","ggkwwkgg",".gggggg.","..g..g..",".gg..gg."],{g:'#c8d0dc',y:'#7af0ff',k:'#1a2030',w:'#fff'});
   // Same bottle, distinct liquid. Cork (c) and neck (n) stay put; l is the brew, g the glint.
   const pot=["...cc...","...nn...","..llll..",".llllll.",".llglll.",".llllll.","..llll.."];
   function potSprite(liquid,glint){return mkSprite(pot,{c:'#f4f4f4',n:'#6b4428',l:liquid,g:glint});}
@@ -73,7 +76,8 @@ function buildSprites(){
     vit:potSprite('#7a1024','#ff8090'),
     life:potSprite('#fff4f8','#ff4d8d'),
     mana:potSprite('#241868','#9aa0ff'),
-    wis:potSprite('#12c8c0','#e7fffc')
+    wis:potSprite('#12c8c0','#e7fffc'),
+    mastery:potSprite('#f0c020','#fff6a0')
   };
   SPR.hp=SPR.pots.hp;SPR.mp=SPR.pots.mp;SPR.elixir=SPR.pots.att;
   SPR.key=mkSprite(["..yyyy..","...yy...","yyyyyyyy","yy.yy.yy","yyyyyyyy","..yyyy.."],{y:'#ffd34a'});
@@ -350,7 +354,7 @@ const ZONES=[
   {name:'Saltmarsh Shore',types:['crab','imp'],col:'#e4ce8c'},
   {name:'Greenmarch',types:['wolf','hexer'],col:'#7fd06a'},
   {name:'Ashen Wilds',types:['ogre','wisp'],col:'#4fe6ff'},
-  {name:'Starfall Heights',types:['eye','colossus'],col:'#ff6a8a'}];
+  {name:'Godlands',types:['eye','colossus','oracle','saint','wyrm'],col:'#ff6a8a'}];
 // Beach-to-center ramp: few slow shots on the shore, denser and nastier inland.
 // dist is how far from the player a pack may appear, kept inside the zone band.
 // Packs are player-local, so a larger realm spreads the same density across more ground
@@ -359,9 +363,9 @@ const SPAWN_CFG=[
   {cap:4, every:2.7, n:[1,1], elite:0, dist:[64,118]},
   {cap:9, every:1.55, n:[1,2], elite:0.03, dist:[90,160]},
   {cap:15, every:1.05, n:[1,2], elite:0.06, dist:[100,180]},
-  {cap:22, every:0.72, n:[2,3], elite:0.11, dist:[110,190]}];
+  {cap:5, every:2.6, n:[1,1], elite:0, dist:[130,210]}];
 // 400 tiles is 1.6x the old 250-tile realm (about 2.6x the area). Zones stay radial
-// fractions of that disc, so Saltmarsh through Starfall each grow with it.
+// fractions of that disc, so Saltmarsh through the Godlands each grow with it.
 const REALM_N=400;
 const ENTRY_SAFE=20*TS;
 function mkWorld(w,h){return {w,h,tiles:new Uint8Array(w*h),zone:new Int8Array(w*h).fill(-1),canvas:null,mini:null,enemies:[],bags:[],isHub:false};}
@@ -447,7 +451,7 @@ function genRealm(seed){
     {id:'shore',name:'Saltmarsh Shore',zone:0,ang:0.4,dd:0.82},
     {id:'green',name:'Greenmarch',zone:1,ang:2.2,dd:0.63},
     {id:'ashen',name:'Ashen Wilds',zone:2,ang:3.8,dd:0.41},
-    {id:'star',name:'Starfall Heights',zone:3,ang:5.3,dd:0.20}];
+    {id:'star',name:'Godlands',zone:3,ang:5.3,dd:0.20}];
   for(const s of spots){
     const rad=s.dd*(N/2);
     const tx=Math.round(cx+Math.cos(s.ang)*rad),ty=Math.round(cy+Math.sin(s.ang)*rad);
@@ -501,13 +505,19 @@ const STATN={hp:'HP',mp:'MP',att:'ATT',def:'DEF',spd:'SPD',dex:'DEX',vit:'VIT',w
 const CLASSES={
   pyro:{name:'Pyromancer',spr:'pyro',w:'staff',a:'robe',ability:'Ember Nova',cost:35,col:'#ff8a3a',
     desc:['Twin fire bolts, fragile robes.','Ember Nova: blast an area.'],
-    base:{hp:120,mp:120,att:14,def:0,spd:11,dex:12,vit:8,wis:13},gain:{hp:[18,26],mp:[8,14],att:[1,2],def:[0,0],spd:[0,1],dex:[1,2],vit:[0,1],wis:[1,2]}},
+    base:{hp:120,mp:120,att:14,def:0,spd:11,dex:12,vit:8,wis:13},gain:{hp:[18,26],mp:[8,14],att:[1,2],def:[0,0],spd:[0,1],dex:[1,2],vit:[0,1],wis:[1,2]},
+    // Glass cannon: high ATT / MP / WIS, low HP and DEF. Cap budget ~481.
+    max:{hp:650,mp:460,att:75,def:15,spd:50,dex:62,vit:32,wis:75}},
   strider:{name:'Strider',spr:'strider',w:'bow',a:'leather',ability:'Thorn Volley',cost:30,col:'#b8ff6a',
     desc:['Long-range piercing arrows.','Thorn Volley: fan that slows.'],
-    base:{hp:140,mp:90,att:12,def:2,spd:13,dex:11,vit:10,wis:10},gain:{hp:[20,28],mp:[5,10],att:[1,2],def:[0,1],spd:[0,2],dex:[0,2],vit:[0,1],wis:[0,1]}},
+    base:{hp:140,mp:90,att:12,def:2,spd:13,dex:11,vit:10,wis:10},gain:{hp:[20,28],mp:[5,10],att:[1,2],def:[0,1],spd:[0,2],dex:[0,2],vit:[0,1],wis:[0,1]},
+    // Archer: high DEX and SPD, middle HP. Cap budget ~488.
+    max:{hp:740,mp:310,att:62,def:28,spd:75,dex:75,vit:42,wis:42}},
   bulwark:{name:'Bulwark',spr:'bulwark',w:'sword',a:'heavy',ability:'Aegis Slam',cost:30,col:'#9fd0ff',
     desc:['Short heavy blade, thick plate.','Aegis Slam: stun + shield.'],
-    base:{hp:200,mp:70,att:12,def:7,spd:10,dex:10,vit:14,wis:7},gain:{hp:[24,32],mp:[4,8],att:[1,2],def:[0,1],spd:[0,1],dex:[0,2],vit:[1,2],wis:[0,1]}}
+    base:{hp:200,mp:70,att:12,def:7,spd:10,dex:10,vit:14,wis:7},gain:{hp:[24,32],mp:[4,8],att:[1,2],def:[0,1],spd:[0,1],dex:[0,2],vit:[1,2],wis:[0,1]},
+    // Tank: high HP / DEF / VIT, lower SPD and MP. Cap budget ~491.
+    max:{hp:960,mp:250,att:55,def:42,spd:40,dex:55,vit:75,wis:36}}
 };
 const CLASSKEYS=['pyro','strider','bulwark'];
 const TIERCOL=['#cfcfcf','#cfcfcf','#9fe07a','#9fe07a','#6ab8ff','#6ab8ff','#d68cff','#ffb347','#ff5577'];
@@ -575,6 +585,8 @@ const ELIXIR_POT={hp:'life',mp:'mana',att:'att',def:'def',spd:'spd',dex:'dex',vi
 function mkElixirOf(k){return {id:itemId++,kind:'elixir',tier:6,stat:k,name:'Elixir of '+ELIXIR_NAME[k]};}
 function mkElixir(){return mkElixirOf(pick(STATK));}
 function mkPot(k){return {id:itemId++,kind:k,tier:0,name:k==='hp'?'Healing Draught':'Mana Draught'};}
+function mkMastery(){return {id:itemId++,kind:'mastery',tier:8,name:'Potion of Mastery'};}
+function isMastery(it){return !!(it&&(it.kind==='mastery'||it.name==='Potion of Mastery'));}
 function mkBeaconKey(){return {id:itemId++,kind:'beaconkey',tier:8,name:'Beacon Key'};}
 function itemSpr(it){
   if(!it)return null;
@@ -585,12 +597,13 @@ function itemSpr(it){
   if(it.kind==='ring')return gearSpr('ring',it.tier);
   if(it.kind==='beaconkey')return SPR.key;
   if(it.kind==='hp'||it.kind==='mp')return SPR.pots[it.kind];
+  if(it.kind==='mastery')return SPR.pots.mastery;
   if(it.kind==='elixir')return SPR.pots[ELIXIR_POT[it.stat]]||SPR.pots.att;
   return SPR[it.kind]||null;
 }
 function isUTGear(it){return !!(it&&!it.test&&it.tier>7&&(it.kind==='weapon'||it.kind==='ability'||it.kind==='armor'||it.kind==='ring'));}
-function tierLabel(it){if(it.test)return 'TST';if(it.kind==='hp'||it.kind==='mp')return '';if(it.kind==='elixir')return '★';return it.tier>7?'UT':'T'+it.tier;}
-function itemColor(it){return it&&it.test?'#ffe9a0':TIERCOL[Math.min(it?it.tier:0,8)];}
+function tierLabel(it){if(it.test)return 'TST';if(it.kind==='mastery')return 'MAX';if(it.kind==='hp'||it.kind==='mp')return '';if(it.kind==='elixir')return '★';return it.tier>7?'UT':'T'+it.tier;}
+function itemColor(it){return it&&(it.test||it.kind==='mastery')?'#ffe9a0':TIERCOL[Math.min(it?it.tier:0,8)];}
 function itemLines(it){
   const L=[];
   if(it.test)L.push('Test weapon — one hit fells anything');
@@ -598,7 +611,8 @@ function itemLines(it){
   if(it.kind==='armor'){L.push('+'+it.def+' DEF'+(it.hp?'  +'+it.hp+' HP':'')+(it.mp?'  +'+it.mp+' MP':''));}
   if(it.kind==='ring'){L.push(Object.keys(it.st).map(k=>'+'+it.st[k]+' '+STATN[k]).join('  '));}
   if(it.kind==='ability'){const C=CLASSES[it.cls];L.push(C?C.ability:'Ability');L.push('Power '+(8+it.tier*6)+(it.tier?' · stronger cast':''));}
-  if(it.kind==='elixir'){L.push('Drink: permanently +'+((it.stat==='hp'||it.stat==='mp')?10:1)+' '+STATN[it.stat]);}
+  if(it.kind==='elixir'){L.push('Drink: permanently +'+((it.stat==='hp'||it.stat==='mp')?10:1)+' '+STATN[it.stat]+' (to the class cap)');}
+  if(it.kind==='mastery')L.push('Drink: raise every stat to this class\'s maximum');
   if(it.kind==='hp')L.push('Restores 120 HP');if(it.kind==='mp')L.push('Restores 100 MP');
   if(it.kind==='beaconkey')L.push('Use: unlock every region beacon');
   return L;
@@ -620,6 +634,7 @@ function itemCatalog(){
   }
   items.push(tagItem(mkPot('hp'),'all'),tagItem(mkPot('mp'),'all'));
   for(const k of STATK)items.push(tagItem(mkElixirOf(k),'all'));
+  items.push(tagItem(mkMastery(),'pots'));
   items.push(tagItem(mkBeaconKey(),'all'));
   for(const w of ['staff','bow','sword'])items.push(tagItem(mkTestWeapon(w),'test'));
   CATALOG=items;
@@ -631,7 +646,7 @@ function filteredChest(){
   if(chestTab==='test')return all.filter(it=>it.test);
   const list=all.filter(it=>!it.test);
   if(chestTab==='all')return list;
-  if(chestTab==='pots')return list.filter(it=>it.kind==='hp'||it.kind==='mp'||it.kind==='elixir');
+  if(chestTab==='pots')return list.filter(it=>it.kind==='hp'||it.kind==='mp'||it.kind==='elixir'||it.kind==='mastery');
   return list.filter(it=>it.group===chestTab||it.group==='all');
 }
 function classLocked(it){
@@ -658,23 +673,26 @@ const EN={
   // Ashen Wilds: shotguns and spirals.
   ogre:{name:'Cragmaw Ogre',spr:'ogre',hp:520,def:6,spd:20,xp:64,r:5,ai:'charge',keep:40,pats:[{t:'aim',cd:1.7,n:5,sp:13,spd:100,dmg:26,r:3.4,col:'#ff6a3a',life:1.25,slow:1}]},
   wisp:{name:'Gloamwisp',spr:'wisp',hp:420,def:4,spd:32,xp:58,r:4,ai:'orbit',keep:72,pats:[{t:'spiral',cd:0.18,arms:2,rot:0.4,spd:78,dmg:22,r:2.6,col:'#4fe6ff',life:2.1,burst:1.5,rest:1.8}]},
-  // Starfall Heights: dense rings and fast aimed volleys.
-  eye:{name:'Watcher Eye',spr:'eye',hp:2000,def:12,spd:15,xp:160,r:5,ai:'keep',keep:84,pats:[{t:'ring',cd:2.1,n:14,spd:92,dmg:40,r:3.4,col:'#ff4a6a',life:2.15},{t:'aim',cd:0.85,n:3,sp:8,spd:145,dmg:34,r:2.2,col:'#ffffff',life:1.05}]},
-  colossus:{name:'Starborn Colossus',spr:'colossus',hp:3200,def:16,spd:13,xp:200,r:5,ai:'charge',keep:48,pats:[{t:'ring',cd:1.45,n:12,spd:68,dmg:48,r:4.6,col:'#7af0ff',life:2.5,alt:1},{t:'aim',cd:2.2,n:5,sp:9,spd:128,dmg:42,r:3,col:'#e3c25a',life:1.25}]},
+  // Godlands: large gods only. Sprites render at 2x with matching hitboxes.
+  eye:{name:'Watcher Eye',spr:'eye',hp:6400,def:18,spd:16,xp:240,r:10,scale:2,god:true,ai:'keep',keep:96,pats:[{t:'ring',cd:1.8,n:16,spd:96,dmg:42,r:3.4,col:'#ff4a6a',life:2.3},{t:'aim',cd:0.7,n:5,sp:7,spd:150,dmg:36,r:2.4,col:'#ffffff',life:1.15}]},
+  colossus:{name:'Starborn Colossus',spr:'colossus',hp:8800,def:24,spd:12,xp:280,r:12,scale:2,god:true,ai:'charge',keep:56,pats:[{t:'ring',cd:1.35,n:14,spd:72,dmg:52,r:4.8,col:'#7af0ff',life:2.6,alt:1},{t:'aim',cd:1.8,n:7,sp:8,spd:120,dmg:46,r:3.2,col:'#e3c25a',life:1.4}]},
+  oracle:{name:'Pale Oracle',spr:'oracle',hp:5600,def:14,spd:20,xp:220,r:10,scale:2,god:true,ai:'orbit',keep:88,pats:[{t:'spiral',cd:0.16,arms:3,rot:0.32,spd:84,dmg:34,r:2.8,col:'#e8e0ff',life:2.2,burst:1.6,rest:1.2},{t:'ring',cd:2.4,n:18,spd:64,dmg:40,r:3.2,col:'#ffe14a',life:2.4}]},
+  saint:{name:'Glass Saint',spr:'saint',hp:6200,def:16,spd:15,xp:230,r:10,scale:2,god:true,ai:'keep',keep:78,pats:[{t:'aim',cd:0.42,n:1,spd:168,dmg:38,r:2.6,col:'#d8fff8',life:1.35},{t:'ring',cd:2.6,n:20,spd:80,dmg:44,r:3.4,col:'#3ec8ff',life:2.2,alt:1}]},
+  wyrm:{name:'Marble Wyrm',spr:'wyrm',hp:7200,def:20,spd:18,xp:250,r:11,scale:2,god:true,ai:'keep',keep:70,pats:[{t:'aim',cd:1.15,n:6,sp:11,spd:130,dmg:40,r:3,col:'#c8d0dc',life:1.3},{t:'spiral',cd:0.22,arms:2,rot:-0.45,spd:70,dmg:36,r:3.2,col:'#7af0ff',life:2.3,burst:1.4,rest:1.5}]},
   king:{name:'Morvane, the Hollow King',spr:'king',hp:60000,def:20,spd:16,xp:3000,r:9,ai:'boss',boss:true,
     phases:[
       {above:0.66,pats:[{t:'spiral',cd:0.11,arms:4,rot:0.21,spd:80,dmg:48,r:3,col:'#c46aff',life:2.6},{t:'aim',cd:2,n:5,sp:10,spd:110,dmg:52,r:4,col:'#ffd34a',life:2}]},
-      {above:0.33,pats:[{t:'ring',cd:1.2,n:24,spd:70,dmg:50,r:3.5,col:'#ff4a8a',life:3,alt:1},{t:'aim',cd:0.7,n:3,sp:6,spd:160,dmg:45,r:2.5,col:'#ffffff',life:1.6},{t:'summon',cd:8,type:'wisp',n:2}]},
+      {above:0.33,pats:[{t:'ring',cd:1.2,n:24,spd:70,dmg:50,r:3.5,col:'#ff4a8a',life:3,alt:1},{t:'aim',cd:0.7,n:3,sp:6,spd:160,dmg:45,r:2.5,col:'#ffffff',life:1.6},{t:'summon',cd:10,type:'oracle',n:1}]},
       {above:0,pats:[{t:'spiral',cd:0.09,arms:3,rot:0.26,spd:90,dmg:52,r:3,col:'#c46aff',life:2.4},{t:'spiral',cd:0.09,arms:3,rot:-0.26,spd:90,dmg:52,r:3,col:'#ff4a8a',life:2.4},{t:'ring',cd:2.2,n:12,spd:45,dmg:65,r:6,col:'#ffd34a',life:4}]}]}
 };
 let eid=1;
 function spawnEnemy(wd,type,x,y,zone,elite){
   const d=EN[type];const hpm=elite?4:1;
-  const e={id:eid++,type,d,x,y,ax:x,ay:y,zone,elite,hp:d.hp*hpm,maxhp:d.hp*hpm,dmgMul:elite?1.25:1,cd:[],cyc:[],spin:[],stun:0,slow:0,dir:Math.random()*TAU,wt:0,phase:-1,flash:0,alt:0,bob:Math.random()*6};
+  const e={id:eid++,type,d,x,y,ax:x,ay:y,homeX:x,homeY:y,zone,elite,hp:d.hp*hpm,maxhp:d.hp*hpm,dmgMul:elite?1.25:1,cd:[],cyc:[],spin:[],stun:0,slow:0,dir:Math.random()*TAU,wt:0,phase:-1,flash:0,alt:0,bob:Math.random()*6};
   const pats=d.pats||d.phases[0].pats;
   e.pats=elite?pats.concat([{t:'ring',cd:2.6,n:12,spd:65,dmg:pats[0].dmg,r:3,col:'#ffd34a',life:2}]):pats;
   resetPats(e);
-  e.name=elite?['Tidecaller','Briar Alpha','Ash Tyrant','Star Herald'][zone]+' ('+d.name+')':d.name;
+  e.name=elite?['Tidecaller','Briar Alpha','Ash Tyrant','Ascended'][zone]+' ('+d.name+')':d.name;
   wd.enemies.push(e);return e;
 }
 function resetPats(e){e.cd=e.pats.map(p=>Math.random()*p.cd+0.3);e.cyc=e.pats.map(()=>Math.random()*2);e.spin=e.pats.map(()=>Math.random()*TAU);}
@@ -938,6 +956,8 @@ function newPlayer(k){const C=CLASSES[k];return {cls:k,lvl:1,xp:0,xpTotal:0,stat
   eq:{weapon:mkWeapon(C.w,0),ability:mkAbility(k,0),armor:mkArmor(C.a,0),ring:null},inv:[mkPot('hp'),null,null,null,null,null,null,null],hpPots:2,mpPots:2,
   fireCd:0,abCd:0,slow:0,invuln:0,face:1,moving:false,aim:-Math.PI/2,kills:0,eliteKills:0,bossKills:0,elixirs:0,potsUsed:0,time:0,maxZone:0,seed:(Math.random()*1e9)|0,auto:false,beacons:[],seen:[],explored:{}};}
 function eff(k){let v=P.stats[k];const a=P.eq.armor,r=P.eq.ring;if(a){if(k==='def')v+=a.def;if(k==='hp')v+=a.hp;if(k==='mp')v+=a.mp;}if(r&&r.st[k])v+=r.st[k];return v;}
+function statCap(cls,k){const C=CLASSES[cls||(P&&P.cls)];return C&&C.max&&C.max[k]!=null?C.max[k]:9999;}
+function statMaxed(k){return !!(P&&P.stats[k]>=statCap(P.cls,k));}
 const attMul=()=>0.5+eff('att')*0.025;
 const need=l=>Math.round(25*Math.pow(l,1.5));
 function noteItemId(it){if(it&&it.id>=itemId)itemId=it.id+1;}
@@ -1052,7 +1072,7 @@ function moveEnt(o,dx,dy,r){
 }
 function gainXP(n){
   P.xpTotal+=n;if(P.lvl>=20)return;P.xp+=n;
-  while(P.lvl<20&&P.xp>=need(P.lvl)){P.xp-=need(P.lvl);P.lvl++;const C=CLASSES[P.cls];for(const k of STATK){P.stats[k]+=irand(C.gain[k][0],C.gain[k][1]);}
+  while(P.lvl<20&&P.xp>=need(P.lvl)){P.xp-=need(P.lvl);P.lvl++;const C=CLASSES[P.cls];for(const k of STATK){P.stats[k]=Math.min(statCap(P.cls,k),P.stats[k]+irand(C.gain[k][0],C.gain[k][1]));}
     P.hp=eff('hp');P.mp=eff('mp');toast('LEVEL UP! Lv '+P.lvl+(P.lvl===20?' (MAX)':''),'#ffd34a');addFX(P.x,P.y,2,30,0.6,'#ffd34a');addPT(P.x,P.y,'#ffd34a',24,60);AUD.level();}
   if(P.lvl>=20)P.xp=0;
 }
@@ -1072,7 +1092,8 @@ function killEnemy(e){
   if(e.d.boss){P.bossKills++;wd.boss=null;wd.bossT=120;toast('MORVANE HAS FALLEN!','#ff5577');toast('He will rise again in 2 minutes...','#c46aff');addFX(e.x,e.y,4,90,1.2,'#c46aff');}
   rollLoot(e);
 }
-// Shore T0–T2, Greenmarch T1–T4, Ashen T3–T6, Starfall T5–T7. Elites shift up one tier. No UT here.
+// Shore T0–T2, Greenmarch T1–T4, Ashen T3–T6, Godlands T5–T7. Elites shift up one tier. No UT here.
+// Potion of Mastery is test-chest only and must never appear in these rolls.
 const LOOT_SPAN=[[0,2],[1,4],[3,6],[5,7]];
 const GEAR_W=['staff','bow','sword'];
 const GEAR_A=['robe','leather','heavy'];
@@ -1118,11 +1139,12 @@ function lootItemsFor(e){
   if(Math.random()<(e.elite?0.62:0.14))items.push(mkPot('hp'));
   if(Math.random()<(e.elite?0.42:0.09))items.push(mkPot('mp'));
   if(e.elite&&z>=2&&Math.random()<0.35)items.push(mkElixir());
-  return items;
+  return items.filter(it=>!isMastery(it));
 }
 const BAG_RANK={brown:0,pink:1,purple:2,cyan:3,white:4};
 function itemBagColor(it){
   if(!it)return 'brown';
+  if(isMastery(it))return 'white';
   if(it.tier>7)return 'white';
   if(it.kind==='elixir')return 'cyan';
   const t=it.tier|0;
@@ -1160,10 +1182,10 @@ function simLoot(n){
     {name:'Saltmarsh Shore',zone:0},
     {name:'Greenmarch',zone:1},
     {name:'Ashen Wilds',zone:2},
-    {name:'Starfall Heights',zone:3}];
+    {name:'Godlands',zone:3}];
   function summarize(rolls){
     const gear={};for(let t=0;t<=8;t++)gear[t]=0;
-    let empty=0,potOnly=0,withGear=0,ut=0,elixirs=0,pots=0,rings=0,testN=0;
+    let empty=0,potOnly=0,withGear=0,ut=0,elixirs=0,pots=0,rings=0,testN=0,mastery=0;
     const weapons={staff:0,bow:0,sword:0},armors={robe:0,leather:0,heavy:0},abilities={pyro:0,strider:0,bulwark:0};
     let gearN=0;
     for(const items of rolls){
@@ -1172,6 +1194,7 @@ function simLoot(n){
       else if(!gs.length)potOnly++;
       else withGear++;
       for(const it of items){
+        if(isMastery(it))mastery++;
         if(it.kind==='hp'||it.kind==='mp')pots++;
         else if(it.kind==='elixir')elixirs++;
         else{
@@ -1185,9 +1208,9 @@ function simLoot(n){
         }
       }
     }
-    return {n:rolls.length,empty,potOnly,withGear,ut,elixirs,pots,gear,gearN,weapons,armors,abilities,rings,test:testN};
+    return {n:rolls.length,empty,potOnly,withGear,ut,elixirs,pots,gear,gearN,weapons,armors,abilities,rings,test:testN,mastery};
   }
-  const out={per:n,regions:[],boss:null,utOutsideBoss:0,testDrops:0};
+  const out={per:n,regions:[],boss:null,utOutsideBoss:0,testDrops:0,mastery:0};
   for(const reg of regions){
     const normal=[],elite=[];
     for(let i=0;i<n;i++){
@@ -1197,6 +1220,7 @@ function simLoot(n){
     const ns=summarize(normal),es=summarize(elite);
     out.utOutsideBoss+=ns.ut+es.ut;
     out.testDrops+=ns.test+es.test;
+    out.mastery+=ns.mastery+es.mastery;
     const span=tierSpan(reg.zone,false),espan=tierSpan(reg.zone,true);
     out.regions.push({name:reg.name,zone:reg.zone,span,eliteSpan:espan,normal:ns,elite:es});
   }
@@ -1210,6 +1234,7 @@ function simLoot(n){
   out.boss=summarize(boss);
   out.bossSolid=bossSolid;
   out.testDrops+=out.boss.test;
+  out.mastery+=out.boss.mastery;
   return out;
 }
 function potCount(k){let n=k==='hp'?P.hpPots:P.mpPots;for(const it of P.inv)if(it&&it.kind===k)n++;return n;}
@@ -1322,13 +1347,34 @@ function depositVault(ref,chest){
   writeItem(ref,null);slots[s]=it;saveVault();clampVitals();
   toast('Stored '+it.name,'#7dffe0');AUD.drop('cyan',false);saveGame();return true;
 }
-const POT_FX={hp:'#ef243c',mp:'#2f6bff',att:'#d020d0',def:'#c8c8d4',spd:'#22b14c',dex:'#ff8c1a',vit:'#ff6078',wis:'#12c8c0',life:'#ff4d8d',mana:'#9aa0ff'};
+const POT_FX={hp:'#ef243c',mp:'#2f6bff',att:'#d020d0',def:'#c8c8d4',spd:'#22b14c',dex:'#ff8c1a',vit:'#ff6078',wis:'#12c8c0',life:'#ff4d8d',mana:'#9aa0ff',mastery:'#ffd34a'};
+function raiseStat(k,gain){
+  const cap=statCap(P.cls,k);
+  if(P.stats[k]>=cap)return 0;
+  const next=Math.min(cap,P.stats[k]+gain);
+  const got=next-P.stats[k];
+  P.stats[k]=next;
+  return got;
+}
 function drinkRef(ref){
   const it=readItem(ref);if(!it)return false;
   const fromChest=ref.area==='chest';
   if(it.kind==='hp'){if(P.hp>=eff('hp')-0.01){toast('Already at full health');return false;}if(!fromChest)writeItem(ref,null);P.hp=Math.min(eff('hp'),P.hp+120);P.potsUsed++;addPT(P.x,P.y,'#ef243c',14,30);addDN(P.x,P.y,'+120','#5aff7a');AUD.potion();return true;}
   if(it.kind==='mp'){if(P.mp>=eff('mp')-0.01){toast('Already at full mana');return false;}if(!fromChest)writeItem(ref,null);P.mp=Math.min(eff('mp'),P.mp+100);P.potsUsed++;addPT(P.x,P.y,'#2f6bff',14,30);AUD.potion();return true;}
-  if(it.kind==='elixir'){const k=it.stat;P.stats[k]+=(k==='hp'||k==='mp')?10:1;P.elixirs++;if(!fromChest)writeItem(ref,null);toast('Drank '+it.name,'#d68cff');addPT(P.x,P.y,POT_FX[ELIXIR_POT[k]]||'#d020d0',20,40);AUD.potion();return true;}
+  if(it.kind==='elixir'){
+    const k=it.stat,gain=(k==='hp'||k==='mp')?10:1,got=raiseStat(k,gain);
+    if(!got){toast(STATN[k]+' maxed','#ffd34a');return false;}
+    P.elixirs++;if(!fromChest)writeItem(ref,null);
+    toast('Drank '+it.name,'#d68cff');addPT(P.x,P.y,POT_FX[ELIXIR_POT[k]]||'#d020d0',20,40);AUD.potion();return true;
+  }
+  if(it.kind==='mastery'){
+    let raised=false;
+    for(const k of STATK)if(raiseStat(k,statCap(P.cls,k)))raised=true;
+    if(!raised){toast('Already maxed','#ffd34a');return false;}
+    if(!fromChest)writeItem(ref,null);
+    P.elixirs++;P.hp=eff('hp');P.mp=eff('mp');
+    toast('Every stat is maxed','#ffd34a');addPT(P.x,P.y,POT_FX.mastery,28,50);addFX(P.x,P.y,4,36,0.6,'#ffd34a');AUD.potion();return true;
+  }
   return false;
 }
 function nearOpenBag(){
@@ -1367,7 +1413,7 @@ function tapRef(ref){
     if(ref.area==='chest'||ref.area==='bag'||ref.area==='vault'){moveToFirstEmpty(ref);return;}
     unlockAllBeacons();writeItem(ref,null);saveGame();return;
   }
-  if(it.kind==='hp'||it.kind==='mp'||it.kind==='elixir'){
+  if(it.kind==='hp'||it.kind==='mp'||it.kind==='elixir'||it.kind==='mastery'){
     if(ref.area==='bag'||ref.area==='chest'||ref.area==='vault'){moveToFirstEmpty(ref);return;}
     drinkRef(ref);saveGame();return;
   }
@@ -1618,7 +1664,23 @@ function shoot(e,p,ang,i){
   if(p.t==='aim'){const n=p.n||1,sp=(p.sp||0)*Math.PI/180;for(let k=0;k<n;k++)addEB(e.x,e.y,ang+(k-(n-1)/2)*sp,p.spd,p.dmg*dm,p.r,p.life,p.col,p.slow,nm);}
   else if(p.t==='ring'){let off=0;if(p.alt){e.alt^=1;off=e.alt*Math.PI/p.n;}for(let k=0;k<p.n;k++)addEB(e.x,e.y,off+k*TAU/p.n,p.spd,p.dmg*dm,p.r,p.life,p.col,p.slow,nm);}
   else if(p.t==='spiral'){e.spin[i]+=p.rot;for(let k=0;k<p.arms;k++)addEB(e.x,e.y,e.spin[i]+k*TAU/p.arms,p.spd,p.dmg*dm,p.r,p.life,p.col,p.slow,nm);}
-  else if(p.t==='summon'){if(world.enemies.length<40)for(let k=0;k<p.n;k++)spawnEnemy(world,p.type,e.x+rand(-20,20),e.y+rand(-20,20),2,false);}
+  else if(p.t==='summon'){if(world.enemies.length<12)for(let k=0;k<p.n;k++)spawnEnemy(world,p.type,e.x+rand(-28,28),e.y+rand(-28,28),e.zone,false);}
+}
+const LEASH_MARGIN=4*TS;
+const LEASH_DESPAWN=18*TS;
+function leashMode(e){
+  if(!world||world.isHub||world.isVault||e.zone==null||e.zone<0)return 'free';
+  if(e.homeX==null){e.homeX=e.ax;e.homeY=e.ay;}
+  if(zoneAt(world,e.x,e.y)===e.zone){e.homeX=e.x;e.homeY=e.y;return 'home';}
+  const dist=Math.hypot(e.x-e.homeX,e.y-e.homeY);
+  if(dist<=LEASH_MARGIN)return 'margin';
+  if(!e.d.boss&&dist>=LEASH_DESPAWN)return 'despawn';
+  return 'return';
+}
+function despawnLeashed(e){
+  e.dead=true;
+  const i=world.enemies.indexOf(e);
+  if(i>=0)world.enemies.splice(i,1);
 }
 function updateEnemies(dt){
   for(const e of world.enemies.slice()){
@@ -1626,9 +1688,15 @@ function updateEnemies(dt){
     const dx=P.x-e.x,dy=P.y-e.y,d=Math.hypot(dx,dy)||1;const d0=e.d;
     e.flash-=dt;e.slow-=dt;
     if(e.stun>0){e.stun-=dt;continue;}
+    const leash=leashMode(e);
+    if(leash==='despawn'){despawnLeashed(e);continue;}
     let sp=d0.spd*(e.slow>0?0.45:1),vx=0,vy=0;
     const aggro=d0.aggro||(d0.boss?150:108);
-    if(d0.ai==='boss'){
+    const returning=leash==='return';
+    if(returning){
+      const lx=e.homeX-e.x,ly=e.homeY-e.y,ld=Math.hypot(lx,ly)||1;
+      vx=lx/ld*sp;vy=ly/ld*sp;
+    }else if(d0.ai==='boss'){
       const f=e.hp/e.maxhp;let ph=0;while(ph<d0.phases.length-1&&f<=d0.phases[ph].above)ph++;
       if(ph!==e.phase){const prev=e.phase;e.phase=ph;e.pats=d0.phases[ph].pats;resetPats(e);if(ph>0)toast(ph===1?'Morvane: "You dare wound me?"':'Morvane: "THE CROWN DEMANDS YOUR SOUL!"','#c46aff');if(prev>=0&&ph>prev)AUD.phase();}
       const a=time*0.4;vx=(world.cx+Math.cos(a)*22-e.x);vy=(world.cy+Math.sin(a*1.3)*16-e.y);const l=Math.hypot(vx,vy)||1;const s=Math.min(sp,l*2);vx=vx/l*s;vy=vy/l*s;
@@ -1640,6 +1708,7 @@ function updateEnemies(dt){
     }else{e.wt-=dt;if(e.wt<=0){e.wt=rand(1,3);e.dir=Math.random()*TAU;}vx=Math.cos(e.dir)*sp*0.4;vy=Math.sin(e.dir)*sp*0.4;}
     if(!moveEnt(e,vx*dt,vy*dt,d0.r*0.6)&&(vx||vy))e.dir=Math.random()*TAU;
     shoveOffBeacons(e);
+    if(returning)continue;
     if(d<aggro&&!peaceful()){
       const ang=Math.atan2(dy,dx);
       for(let i=0;i<e.pats.length;i++){const p=e.pats[i];
@@ -1690,35 +1759,21 @@ function layout(){
   const play={x:0,y:0,w:Math.max(1,W-panelW),h:H};
   const panel={x:play.w,y:0,w:panelW,h:H};
   const stickR=u*1.05;
-  const moveAnchor={x:safe.l+u*1.6,y:H-safe.b-u*1.6};
-  // Right-thumb Haven button: at least 56px across, in the bottom-right corner of the
-  // playfield, just beside the aim stick and on the playfield side of the inventory.
-  const homeR=Math.max(28,Math.round(clamp(u*0.8,28,36)));
-  const margin=8,gap=14;
-  const home={x:play.x+play.w-margin-homeR,y:play.y+play.h-safe.b-margin-homeR,r:homeR};
-  let aimAnchor={x:home.x-homeR-gap-stickR,y:home.y};
-  const minAim=moveAnchor.x+stickR*2+28;
-  if(aimAnchor.x<minAim){
-    aimAnchor={x:play.x+play.w-margin-stickR,y:H-safe.b-u*1.6};
-    home.x=play.x+play.w-margin-homeR;
-    home.y=aimAnchor.y-stickR-gap-homeR;
-  }
-  const ab={x:aimAnchor.x,y:aimAnchor.y-u*2.2,r:u*0.56};
-  const hp={x:ab.x-u*1.4,y:ab.y+u*0.2,r:u*0.4};
-  const mp={x:ab.x-u*0.1,y:ab.y-u*1.3,r:u*0.4};
-  const edge=8;
-  for(const b of [ab,hp,mp]){
-    for(let n=0;n<4;n++){
-      const hd=Math.hypot(b.x-home.x,b.y-home.y),needH=b.r+home.r+gap;
-      if(hd<needH){b.x-=needH-hd+1;b.y-=(needH-hd)*0.35;}
-      const ad=Math.hypot(b.x-aimAnchor.x,b.y-aimAnchor.y),needA=b.r+stickR+10;
-      if(ad<needA)b.y-=needA-ad+1;
-    }
-    b.x=clamp(b.x,play.x+b.r+edge,play.x+play.w-b.r-edge);
-    b.y=clamp(b.y,b.r+edge,H-b.r-edge);
-  }
+  const edge=12;
+  const moveAnchor={x:safe.l+stickR+edge,y:H-safe.b-stickR-edge};
+  // Aim stick sits at the bottom-right of the playfield, just left of the inventory.
+  const aimAnchor={x:play.x+play.w-stickR-edge,y:H-safe.b-stickR-edge};
+  const havenR=Math.round(clamp(u*0.9,36,44));
+  const gap=14;
+  const haven={x:aimAnchor.x,y:aimAnchor.y-stickR-havenR-gap,r:havenR};
+  // Ability stays in the right thumb's reach, left of the stick so it does not cover Haven.
+  const ab={x:aimAnchor.x-stickR-u*0.56-gap,y:aimAnchor.y-u*0.08,r:u*0.56};
+  haven.x=clamp(haven.x,play.x+haven.r+edge,play.x+play.w-haven.r-edge);
+  haven.y=clamp(haven.y,haven.r+edge,aimAnchor.y-stickR-haven.r-gap);
+  ab.x=clamp(ab.x,play.x+ab.r+edge,haven.x-haven.r-ab.r-gap);
+  ab.y=clamp(ab.y,ab.r+edge,H-ab.r-edge);
   const mm=Math.round(clamp(Math.min(play.w,play.h)*0.2,64,108));
-  layoutC={u,stickR,play,panel,moveAnchor,aimAnchor,ab,hp,mp,mm,portrait,panelW,home};
+  layoutC={u,stickR,play,panel,moveAnchor,aimAnchor,haven,ab,mm,portrait,panelW};
 }
 function measureSafe(){const d=document.createElement('div');d.style.cssText='position:fixed;left:0;top:0;visibility:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';document.body.appendChild(d);const s=getComputedStyle(d);safe={t:parseFloat(s.paddingTop)||0,r:parseFloat(s.paddingRight)||0,b:parseFloat(s.paddingBottom)||0,l:parseFloat(s.paddingLeft)||0};d.remove();}
 function resize(){
@@ -1796,13 +1851,14 @@ function render(){
   }
   for(const b of world.bags){if(b.x<x0||b.x>x1||b.y<y0||b.y>y1)continue;const s=SPR.bags[b.col];ctx.globalAlpha=b.t<10&&(time*6|0)%2?0.4:1;drawSpr(s,b.x-5,b.y-6+Math.sin(time*3)*0.6,s.w,s.h);}
   ctx.globalAlpha=1;
-  for(const e of world.enemies){if(e.x<x0-20||e.x>x1+20||e.y<y0-20||e.y>y1+20)continue;
-    const s=SPR[e.d.spr],sc=e.d.boss?2.2:e.elite?1.5:1,w=s.w*sc,h=s.h*sc;const bob=Math.floor((time*5+e.bob)%2);
+  for(const e of world.enemies){if(e.x<x0-40||e.x>x1+40||e.y<y0-40||e.y>y1+40)continue;
+    const s=SPR[e.d.spr],sc=e.d.boss?2.2:(e.d.scale||(e.elite?1.5:1)),w=s.w*sc,h=s.h*sc;const bob=Math.floor((time*5+e.bob)%2);
     ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(e.x-w*0.35,e.y+h*0.4,w*0.7,2);
+    if(e.d.god){ctx.globalAlpha=0.35;ctx.fillStyle='#ffd34a';ctx.beginPath();ctx.arc(e.x,e.y,e.d.r+2+Math.sin(time*3+e.id)*0.6,0,TAU);ctx.fill();ctx.globalAlpha=1;}
     if(e.flash>0)ctx.globalAlpha=0.55;drawSpr(s,Math.round(e.x-w/2),Math.round(e.y-h/2-bob),w,h,P.x<e.x);ctx.globalAlpha=1;
     if(e.stun>0){ctx.fillStyle='#ffd34a';ctx.fillRect(e.x-3+Math.sin(time*8)*3,e.y-h/2-4,2,2);}
-    if(e.hp<e.maxhp&&!e.d.boss){ctx.fillStyle='#200';ctx.fillRect(e.x-6,e.y+h/2+1,12,2);ctx.fillStyle=e.elite?'#ffd34a':'#e8304a';ctx.fillRect(e.x-6,e.y+h/2+1,12*e.hp/e.maxhp,2);}
-    if(e.elite||e.d.boss)labels.push([e.x,e.y-h/2-5,e.d.boss?e.name:e.name.split(' (')[0],e.d.boss?'#e0b0ff':'#ffd34a']);
+    if(e.hp<e.maxhp&&!e.d.boss){const bw=Math.max(12,Math.round(e.d.r*1.6));ctx.fillStyle='#200';ctx.fillRect(e.x-bw/2,e.y+h/2+1,bw,2);ctx.fillStyle=e.d.god?'#ffd34a':e.elite?'#ffd34a':'#e8304a';ctx.fillRect(e.x-bw/2,e.y+h/2+1,bw*e.hp/e.maxhp,2);}
+    if(e.elite||e.d.boss||e.d.god)labels.push([e.x,e.y-h/2-5,e.d.boss?e.name:e.name.split(' (')[0],e.d.boss?'#e0b0ff':e.d.god?'#ffe9a0':'#ffd34a']);
   }
   // player
   {const s=SPR[CLASSES[P.cls].spr];const bob=P.moving?Math.floor(time*8)%2:0;
@@ -1853,27 +1909,11 @@ function drawAudioBtn(x,y,r){
   }
   addRect(x-r,y-r,r*2,r*2,()=>AUD.cycle(),'button',{tag:'audio'});
 }
-function drawHomeButton(){
-  const b=layoutC.home;if(!b)return;
-  const dim=!!(world&&world.isHub);
-  ctx.save();
-  ctx.globalAlpha=dim?0.5:0.96;
-  ctx.fillStyle='rgba(16,12,28,.86)';
-  ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,TAU);ctx.fill();
-  ctx.lineWidth=3;ctx.strokeStyle=dim?'#6a6678':'#ffd34a';
-  ctx.beginPath();ctx.arc(b.x,b.y,b.r-2,0,TAU);ctx.stroke();
-  ctx.globalAlpha=1;
-  txt('⌂',b.x,b.y-b.r*0.16,Math.round(b.r*0.62),'#fff','center');
-  txt('HAVEN',b.x,b.y+b.r*0.42,Math.max(11,Math.round(b.r*0.3)),dim?'#9a96a8':'#ffd34a','center');
-  ctx.restore();
-  // Same guard as the R/H keys: the Haven itself does not warp again.
-  addRect(b.x-b.r,b.y-b.r,b.r*2,b.r*2,()=>{if(world&&!world.isHub){enterHub();toast('Returned to the Haven','#ffd34a');}},'button',{tag:'home'});
-}
-function circBtn(b,label,sub,col,fn,dim){
+function circBtn(b,label,sub,col,fn,dim,extra){
   ctx.globalAlpha=dim?0.45:0.9;ctx.fillStyle='rgba(16,12,28,.7)';ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,TAU);ctx.fill();
   ctx.strokeStyle=col;ctx.lineWidth=3;ctx.beginPath();ctx.arc(b.x,b.y,b.r-2,0,TAU);ctx.stroke();ctx.globalAlpha=1;
-  txt(label,b.x,b.y-(sub?b.r*0.18:0),b.r*0.42,'#fff','center');if(sub)txt(sub,b.x,b.y+b.r*0.4,Math.max(10,b.r*0.34),col,'center');
-  addRect(b.x-b.r,b.y-b.r,b.r*2,b.r*2,fn);
+  txt(label,b.x,b.y-(sub?b.r*0.18:0),Math.max(13,b.r*0.5),'#fff','center');if(sub)txt(sub,b.x,b.y+b.r*0.4,Math.max(10,b.r*0.34),col,'center');
+  addRect(b.x-b.r,b.y-b.r,b.r*2,b.r*2,fn,'button',extra);
 }
 function sqBtn(x,y,w,h,label,col,fn,extra){ctx.fillStyle='rgba(16,12,28,.8)';ctx.fillRect(x,y,w,h);ctx.strokeStyle=col||'#8a7ad0';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,h-2);fitTxt(label,x+w/2,y+h/2+1,Math.min(14,Math.max(11,h*0.36)),col||'#fff',w-8,'center');addRect(x,y,w,h,fn,'button',extra);}
 function miniBtn(x,y,w,h,label,col,fn,extra){
@@ -1901,6 +1941,28 @@ function drawTooltip(it,ref,at){
   lines.forEach((l,i)=>fitTxt(l,x+8,y+30+i*14,11,'#ddd',w-16));
   if(canDrop)miniBtn(x+8,y+h-30,w-16,24,'Drop','#ffb347',()=>{dropOnGround(ref);heldTip=null;},{tag:'drop-item'});
 }
+function drawStatBlock(x,y,inner){
+  const rows=[STATK.slice(0,2),STATK.slice(2,5),STATK.slice(5)];
+  for(const row of rows){
+    const labels=row.map(k=>{
+      const cap=statCap(P.cls,k),maxed=P.stats[k]>=cap;
+      return {k,s:STATN[k]+' '+P.stats[k]+'/'+cap,col:maxed?'#ffd34a':'#d7d0ea',maxed};
+    });
+    let size=10,gap=6;
+    const widthAt=n=>{font(n);return labels.reduce((w,l)=>w+ctx.measureText(l.s).width,0)+gap*(labels.length-1);};
+    while(size>8&&widthAt(size)>inner)size--;
+    font(size);
+    let cx=x;
+    for(const l of labels){
+      const tw=ctx.measureText(l.s).width;
+      txt(l.s,cx,y,size,l.col,'left');
+      addRect(cx,y-6,Math.max(8,tw),12,null,'label',{tag:'stat',stat:l.k,maxed:l.maxed});
+      cx+=tw+gap;
+    }
+    y+=13;
+  }
+  return y+2;
+}
 function drawSidePanel(){
   const Pnl=layoutC.panel;if(Pnl.w<80)return;
   // Registered before the slots. Hit testing walks newest-first, so a slot wins over this backdrop.
@@ -1918,7 +1980,7 @@ function drawSidePanel(){
   const vaultRows=vchest?2:0;
   const rows=3+bagRows+chestRows+vaultRows;
   const reserve=(bag?18:0)+(chest?96:0)+(vchest?40:0);
-  let slot=Math.floor(Math.min((inner-3*gap)/4,(Pnl.h-118-reserve-rows*gap)/rows));
+  let slot=Math.floor(Math.min((inner-3*gap)/4,(Pnl.h-136-reserve-rows*gap)/rows));
   slot=clamp(slot,18,chest?40:46);
   let y=Pnl.y+8;
   const C=CLASSES[P.cls];
@@ -1927,10 +1989,8 @@ function drawSidePanel(){
   fitTxt(z.name+'   Fame '+fameCalc().total,x0,y+5,10,z.col,inner);y+=14;
   bar(x0,y,inner,13,P.hp/Math.max(1,eff('hp')),'#e8304a',Math.ceil(P.hp)+'/'+eff('hp'));y+=15;
   bar(x0,y,inner,11,P.mp/Math.max(1,eff('mp')),'#3a7aff',Math.floor(P.mp)+'/'+eff('mp'));y+=13;
-  bar(x0,y,inner,5,P.lvl>=20?1:P.xp/Math.max(1,need(P.lvl)),P.lvl>=20?'#ffb347':'#5aff7a');y+=10;
-  const st=STATK.slice(2).map(k=>STATN[k]+' '+eff(k));
-  fitTxt(st.slice(0,3).join('  '),x0,y+5,10,'#d7d0ea',inner);y+=13;
-  fitTxt(st.slice(3).join('  '),x0,y+5,10,'#d7d0ea',inner);y+=14;
+  bar(x0,y,inner,5,P.lvl>=20?1:P.xp/Math.max(1,need(P.lvl)),P.lvl>=20?'#ffb347':'#5aff7a');y+=12;
+  y=drawStatBlock(x0,y,inner);
   const eqs=[['weapon','wpn'],['ability','abl'],['armor','arm'],['ring','rng']];
   const sxAt=i=>x0+(i%4)*(slot+gap);
   for(let i=0;i<4;i++){const ix=sxAt(i),it=P.eq[eqs[i][0]];drawSlot(ix,y,slot,it,slotHot(ix,y,slot),eqs[i][1]);addRect(ix,y,slot,slot,null,'slot',{ref:{area:'eq',slot:eqs[i][0]},item:it});}
@@ -1957,7 +2017,7 @@ function drawHUD(){
     const s0x=Math.max(0,tx),s0y=Math.max(0,ty),s1x=Math.min(world.w,tx+span),s1y=Math.min(world.h,ty+span);
     if(s1x>s0x&&s1y>s0y)ctx.drawImage(world.mini,s0x,s0y,s1x-s0x,s1y-s0y,mx+(s0x-tx)*m/span,my+(s0y-ty)*m/span,(s1x-s0x)*m/span,(s1y-s0y)*m/span);
     const k=m/span/TS;
-    for(const e of world.enemies){const ex=mx+(e.x-P.x)*k+m/2,ey=my+(e.y-P.y)*k+m/2;if(ex<mx||ey<my||ex>mx+m||ey>my+m)continue;ctx.fillStyle=e.d.boss?'#e040ff':e.elite?'#ffd34a':'#ff3030';const s=e.d.boss?5:e.elite?4:2;ctx.fillRect(ex-s/2,ey-s/2,s,s);}
+    for(const e of world.enemies){const ex=mx+(e.x-P.x)*k+m/2,ey=my+(e.y-P.y)*k+m/2;if(ex<mx||ey<my||ex>mx+m||ey>my+m)continue;ctx.fillStyle=e.d.boss?'#e040ff':e.d.god?'#ffe9a0':e.elite?'#ffd34a':'#ff3030';const s=e.d.boss?5:e.d.god?4:e.elite?4:2;ctx.fillRect(ex-s/2,ey-s/2,s,s);}
     for(const b of world.bags){const ex=mx+(b.x-P.x)*k+m/2,ey=my+(b.y-P.y)*k+m/2;if(ex<mx||ey<my||ex>mx+m||ey>my+m)continue;ctx.fillStyle='#fff';ctx.fillRect(ex-1,ey-1,2,2);}
   }
   if(world.beacons){
@@ -1972,25 +2032,23 @@ function drawHUD(){
   ctx.strokeStyle='#ffe9a0';ctx.lineWidth=1;ctx.strokeRect(mx+m-7,my+m-7,5,5);
   addRect(mx-2,my-2,m+4,m+4,()=>openMap(),'button',{tag:'minimap'});
   const sb=Math.round(clamp(u*0.4,16,24)),bx=Math.min(mx+m+sb+12,play.x+play.w-sb-6);
-  circBtn({x:bx,y:my+sb*3.2,r:sb},'AUTO',null,P.auto?'#5aff7a':'#666',()=>{P.auto=!P.auto;toast('Auto-aim '+(P.auto?'ON':'OFF'));});
-  sqBtn(bx-sb,my+sb*4.7,Math.max(72,sb*3.6),40,'Heroes','#c9b0ff',openCharSelect,{tag:'char-select'});
+  circBtn({x:bx,y:my+sb,r:sb},'AUTO',null,P.auto?'#5aff7a':'#666',()=>{P.auto=!P.auto;toast('Auto-aim '+(P.auto?'ON':'OFF'));},{tag:'auto'});
+  sqBtn(bx-sb,my+sb*3.2,Math.max(72,sb*3.6),40,'Heroes','#c9b0ff',openCharSelect,{tag:'char-select'});
   if(world.isHub&&world.vault)offerPortal(world.vault.x,world.vault.y,'Enter','#7dffe0',enterVault,'portal-vault');
   if(world.isVault&&world.portal)offerPortal(world.portal.x,world.portal.y,'Exit','#ffd34a',leaveVault,'portal-exit');
   drawAudioBtn(mx+Math.max(12,sb*0.85), my+m+Math.max(12,sb*0.85)+5, Math.max(12,Math.round(sb*0.85)));
   const cost=abCost();
-  circBtn(L.ab,(C.ability.split(' ')[1]||C.ability),cost+' MP',C.col,useAbility,P.mp<cost||!P.eq.ability);
-  circBtn(L.hp,'HP',''+potCount('hp'),'#e8304a',drinkHP,potCount('hp')<=0);
-  circBtn(L.mp,'MP',''+potCount('mp'),'#3a7aff',drinkMP,potCount('mp')<=0);
+  circBtn(L.ab,(C.ability.split(' ')[1]||C.ability),cost+' MP',C.col,useAbility,P.mp<cost||!P.eq.ability,{tag:'ability'});
+  circBtn(L.haven,'⌂',null,'#ffd34a',()=>{if(!world.isHub){enterHub();toast('Returned to the Haven','#ffd34a');}},false,{tag:'haven'});
   for(const k of ['move','aim']){const s=input[k];if(s.id===null)continue;ctx.globalAlpha=0.35;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(s.ox,s.oy,L.stickR,0,TAU);ctx.fill();
     let dx=s.x-s.ox,dy=s.y-s.oy;const l=Math.hypot(dx,dy);if(l>L.stickR){dx*=L.stickR/l;dy*=L.stickR/l;}ctx.globalAlpha=0.75;ctx.fillStyle=k==='aim'?'#ff8a3a':'#9fe0ff';ctx.beginPath();ctx.arc(s.ox+dx,s.oy+dy,L.stickR*0.45,0,TAU);ctx.fill();ctx.globalAlpha=1;}
-  if(input.move.id===null&&input.aim.id===null&&!input.mouse.active&&P.time<25&&state==='play'){ctx.globalAlpha=0.55+0.2*Math.sin(time*3);txt('◀ move',play.x+play.w*0.22,H-safe.b-16,12,'#9fe0ff','center');const hintX=L.home?Math.min(L.aimAnchor.x,L.home.x-L.home.r-40):L.aimAnchor.x;txt('aim + fire ▶',hintX,H-safe.b-16,12,'#ff8a3a','center');ctx.globalAlpha=1;}
-  if(quest){const p=w2s(quest.x,quest.y);const hb=L.home;const left=play.x+18,top=my+m+Math.max(12,sb)*2+10,right=hb?hb.x-hb.r-12:play.x+play.w-18,bot=play.h-18;
+  if(input.move.id===null&&input.aim.id===null&&!input.mouse.active&&P.time<25&&state==='play'){ctx.globalAlpha=0.55+0.2*Math.sin(time*3);txt('◀ move',play.x+play.w*0.22,H-safe.b-16,12,'#9fe0ff','center');const hintX=L.haven?Math.min(L.aimAnchor.x,L.haven.x-L.haven.r-40):L.aimAnchor.x;txt('aim + fire ▶',hintX,H-safe.b-16,12,'#ff8a3a','center');ctx.globalAlpha=1;}
+  if(quest){const p=w2s(quest.x,quest.y);const hb=L.haven;const left=play.x+18,top=my+m+Math.max(12,sb)*2+10,right=hb?hb.x-hb.r-12:play.x+play.w-18,bot=play.h-18;
     if(p.x<left||p.y<top||p.x>right||p.y>bot){const c=w2s(P.x,P.y),a=Math.atan2(p.y-c.y,p.x-c.x);const rx=Math.min(play.w,play.h)*0.3;let ax=clamp(c.x+Math.cos(a)*rx,left,right),ay=clamp(c.y+Math.sin(a)*rx,top,bot);
       ctx.save();ctx.translate(ax,ay);ctx.rotate(a);ctx.fillStyle='#ff3050';ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(-6,-7);ctx.lineTo(-3,0);ctx.lineTo(-6,7);ctx.closePath();ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.stroke();ctx.restore();
       txt(quest.label,ax,ay+14,10,'#ff8090','center');}}
   const bs=world.boss;if(bs&&Math.hypot(bs.x-P.x,bs.y-P.y)<240){const w=Math.min(280,play.w*0.55),bx2=play.x+(play.w-w)/2,by=my+m+18;txt(bs.name,play.x+play.w/2,by-10,12,'#e0b0ff','center');bar(bx2,by,w,12,bs.hp/bs.maxhp,'#c46aff',null);}
   let ty2=my+m+28;for(const t of toasts){ctx.globalAlpha=Math.min(1,t.life);fitTxt(t.t,play.x+play.w/2,ty2,13,t.col,Math.max(40,play.w-24),'center');ty2+=16;}ctx.globalAlpha=1;
-  drawHomeButton();
   drawSidePanel();
   const tipRef=(ptr&&ptr.tip&&ptr.ref)||(heldTip&&heldTip.ref);
   if(tipRef){const it=readItem(tipRef);if(it)drawTooltip(it,tipRef,(ptr&&ptr.tip)?ptr:heldTip);}
@@ -2133,7 +2191,7 @@ function drawBigMap(){
   if(!world.isHub&&!world.isVault){
     const cc=mxy(world.cx,world.cy);
     const rings=[
-      {r:0.30,name:'Starfall Heights',col:'#ff6a8a'},
+      {r:0.30,name:'Godlands',col:'#ff6a8a'},
       {r:0.52,name:'Ashen Wilds',col:'#4fe6ff'},
       {r:0.74,name:'Greenmarch',col:'#7fd06a'},
       {r:0.90,name:'Saltmarsh Shore',col:'#e4ce8c'}];
@@ -2178,7 +2236,7 @@ function drawBigMap(){
     ?[['#ffff60','You'],['#ffd34a','Exit'],['#e7c98a','Chest'],['#ffe9a0','Discovered']]
     :world.isHub
     ?[['#ffff60','You'],['#7af0ff','Unlocked beacon'],['#6c6a78','Locked beacon'],['#ffe9a0','Discovered']]
-    :[['#ffff60','You'],['#e040ff','Boss'],['#7af0ff','Unlocked beacon'],['#6c6a78','Locked beacon'],['#ffe9a0','Discovered'],['#e4ce8c','Saltmarsh Shore'],['#7fd06a','Greenmarch'],['#4fe6ff','Ashen Wilds'],['#ff6a8a','Starfall Heights']];
+    :[['#ffff60','You'],['#e040ff','Boss'],['#7af0ff','Unlocked beacon'],['#6c6a78','Locked beacon'],['#ffe9a0','Discovered'],['#e4ce8c','Saltmarsh Shore'],['#7fd06a','Greenmarch'],['#4fe6ff','Ashen Wilds'],['#ff6a8a','Godlands']];
   for(const [c,n] of lines){ctx.fillStyle=c;ctx.fillRect(lx,yy-4,8,8);fitTxt(n,lx+12,yy,10,'#ddd',legendW-18);yy+=13;}
   yy+=4;txt('Beacons',lx,yy,12,'#7af0ff','left');yy+=14;
   for(const b of world.beacons||[]){
@@ -2358,7 +2416,7 @@ function resolvePtr(p){
   tapRef(p.ref);
 }
 function overHome(x,y){
-  const b=layoutC.home;if(!b)return false;
+  const b=layoutC.haven;if(!b)return false;
   return x>=b.x-b.r&&x<=b.x+b.r&&y>=b.y-b.r&&y<=b.y+b.r;
 }
 function onDown(id,type,x,y,button){
@@ -2384,6 +2442,9 @@ function onDown(id,type,x,y,button){
   // The button's square is not an aim-stick origin, so a tap there cannot shoot.
   if(overHome(x,y))return;
   if(state!=='play'||!inPlay(x,y))return;
+  const haven=layoutC.haven,ab=layoutC.ab;
+  if(haven&&Math.hypot(x-haven.x,y-haven.y)<=haven.r)return;
+  if(ab&&Math.hypot(x-ab.x,y-ab.y)<=ab.r)return;
   const mid=layoutC.play.x+layoutC.play.w*0.5;
   const s=x<mid?input.move:input.aim;
   if(s.id===null){s.id=id;s.ox=x;s.oy=y;s.x=x;s.y=y;}
@@ -2471,9 +2532,9 @@ function frame(t){
 requestAnimationFrame(frame);
 window.__shardwild={get state(){return state;},get P(){return P;},get world(){return world;},startNew,enterRealm,enterHub,useAbility,get fps(){return fps;},get bullets(){return ebN;},get shots(){return pbN;},
   teleport(x,y){if(P){P.x=x;P.y=y;}},setInv(){},get invOpen(){return false;},
-  get ui(){return uiRects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,kind:r.kind,tag:r.tag||'',tab:r.tab||'',beacon:r.beacon||'',unlocked:!!r.unlocked,where:r.where||'',slot:r.slot==null?-1:r.slot}));},
+  get ui(){return uiRects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,kind:r.kind,tag:r.tag||'',tab:r.tab||'',beacon:r.beacon||'',unlocked:!!r.unlocked,where:r.where||'',slot:r.slot==null?-1:r.slot,stat:r.stat||'',maxed:!!r.maxed}));},
   get slots(){return uiRects.filter(r=>r.kind==='slot').map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,area:r.ref.area,i:r.ref.i,slot:r.ref.slot,name:r.item?r.item.name:null,tier:r.item?r.item.tier:null,kind:r.item?r.item.kind:null,stat:r.item?(r.item.stat||r.item.kind||''):'',wep:r.item&&r.item.w?r.item.w:'',dim:!!(r.item&&classLocked(r.item)),tag:r.tag||''}));},
-  get layout(){const L=layoutC;return {play:L.play,panel:L.panel,portrait:!!L.portrait,move:L.moveAnchor,aim:L.aimAnchor,mm:L.mm,stickR:L.stickR};},
+  get layout(){const L=layoutC;return {play:L.play,panel:L.panel,portrait:!!L.portrait,move:L.moveAnchor,aim:L.aimAnchor,haven:L.haven,ab:L.ab,stickR:L.stickR,mm:L.mm};},
   get shotsFired(){return shotsFired;},
   get aiming(){return input.aim.id!==null;},
   get testWeapons(){return ['staff','bow','sword'].map(w=>{const it=mkTestWeapon(w);return {name:it.name,w:w,rate:it.rate,lethal:!!it.lethal,test:!!it.test};});},
@@ -2483,8 +2544,47 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
   get vaultOpen(){const c=nearVaultChest();return c?c.i:-1;},
   get vaultItems(){return loadVault().chests.map(c=>c.map(it=>it?it.name:null));},
   get chars(){const r=ensureRoster();return r.slots.map((s,i)=>{const live=i===activeSlot&&P&&state==='play';const src=live?P:s;return src?{cls:src.cls,lvl:src.lvl,inv:(src.inv||[]).map(it=>it&&it.name),weapon:src.eq&&src.eq.weapon?src.eq.weapon.name:null}:null;});},
-  get foes(){return world?world.enemies.map(e=>({name:e.name,hp:e.hp,max:e.maxhp,boss:!!e.d.boss})):[]},
-  spawnFoe(type){if(!P||!world)return null;const ang=Math.atan2(-8,46);const e=spawnEnemy(world,type||'colossus',P.x+Math.cos(ang)*42,P.y+Math.sin(ang)*42,3,false);return {name:e.name,hp:e.hp,max:e.maxhp,boss:!!e.d.boss};},
+  get foes(){return world?world.enemies.map((e,i)=>({i,name:e.name,type:e.type,hp:e.hp,max:e.maxhp,boss:!!e.d.boss,god:!!e.d.god,x:e.x,y:e.y,r:e.d.r,scale:e.d.scale||1,zone:e.zone,homeX:e.homeX,homeY:e.homeY})):[]},
+  spawnFoe(type){if(!P||!world)return null;const ang=Math.atan2(-8,46);const e=spawnEnemy(world,type||'colossus',P.x+Math.cos(ang)*42,P.y+Math.sin(ang)*42,3,false);return {name:e.name,hp:e.hp,max:e.maxhp,boss:!!e.d.boss,god:!!e.d.god,scale:e.d.scale||1,r:e.d.r};},
+  spawnAt(type,x,y,zone){if(!world)return null;const z=zone==null?zoneAt(world,x,y):zone;const e=spawnEnemy(world,type,x,y,z,false);return {i:world.enemies.indexOf(e),name:e.name,type:e.type,god:!!e.d.god,scale:e.d.scale||1,r:e.d.r,x:e.x,y:e.y,zone:e.zone,homeX:e.homeX,homeY:e.homeY};},
+  moveFoe(i,x,y){const e=world&&world.enemies[i];if(!e)return false;e.x=x;e.y=y;return true;},
+  clearFoes(){if(!world)return;world.enemies=world.enemies.filter(e=>e.d.boss);ebN=0;},
+  pump(n){const steps=n||1;for(let i=0;i<steps;i++)update(0.05);},
+  zoneAt(x,y){return world?zoneAt(world,x,y):-1;},
+  blocked(x,y){return !world||solidBox(world,x,y,6);},
+  findLeashPull(){
+    if(!world||world.isHub)return null;
+    const wd=world,cx=wd.cx,cy=wd.cy;
+    function openSeg(x0,y0,x1,y1){
+      for(let s=0;s<=8;s++){
+        const t=s/8,x=x0+(x1-x0)*t,y=y0+(y1-y0)*t;
+        if(solidBox(wd,x,y,4))return false;
+      }
+      return true;
+    }
+    for(let a=0;a<TAU;a+=0.35){
+      let prev=null;
+      const reach=wd.w*TS*0.48;
+      for(let dist=140;dist<reach;dist+=8){
+        const x=cx+Math.cos(a)*dist,y=cy+Math.sin(a)*dist;
+        const z=zoneAt(wd,x,y);
+        if(z<0||solidBox(wd,x,y,5)){prev=null;continue;}
+        if(prev&&prev.z===1&&z===0){
+          const hx=prev.x,hy=prev.y;
+          const ox=x+Math.cos(a)*48,oy=y+Math.sin(a)*48;
+          const fx=ox+Math.cos(a)*48,fy=oy+Math.sin(a)*48;
+          const pull=Math.hypot(ox-hx,oy-hy);
+          if(pull>LEASH_MARGIN+12&&pull<LEASH_DESPAWN-20&&zoneAt(wd,hx,hy)===1&&zoneAt(wd,ox,oy)!==1&&!solidBox(wd,ox,oy,5)&&!solidBox(wd,fx,fy,4)&&openSeg(ox,oy,hx,hy)){
+            return {hx,hy,x:ox,y:oy,px:fx,py:fy,homeZone:1,outZone:zoneAt(wd,ox,oy)};
+          }
+        }
+        prev=(z===0||z===1)?{x,y,z}:null;
+      }
+    }
+    return null;
+  },
+  godInfo(){const z=ZONES[3],c=SPAWN_CFG[3];return {name:z.name,types:z.types.slice(),cap:c.cap,elite:c.elite,kinds:z.types.map(t=>({type:t,name:EN[t].name,god:!!EN[t].god,scale:EN[t].scale||1,r:EN[t].r,hp:EN[t].hp}))};},
+  get capTable(){const o={};for(const k of CLASSKEYS)o[k]=Object.assign({},CLASSES[k].max);return o;},
   enterVault,leaveVault,openCharSelect,
   get audio(){return {unlocked:AUD.unlocked,state:AUD.state(),sfx:AUD.sfxOn,music:AUD.musicOn,played:AUD.played,notes:AUD.notes};},
   get projectiles(){const out=[];for(let i=0;i<pbN;i++)out.push({col:PB[i].col,shape:PB[i].shape});return out;},
@@ -2500,7 +2600,13 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
     return {name:it.name,tier:it.tier,col:it.col||null,shot:it.shot||null,mask:mask,n:n,avg:(n?(r/n|0):0)*65536+(n?(g/n|0):0)*256+(n?(b/n|0):0),hot:hot};
   },
   get beacons(){return P&&P.beacons?P.beacons.slice():[];},
-  get catalog(){const items=itemCatalog();const test=items.filter(isTestItem);return {n:items.length,weapons:items.filter(i=>i.kind==='weapon').length,abilities:items.filter(i=>i.kind==='ability').length,armors:items.filter(i=>i.kind==='armor').length,rings:items.filter(i=>i.kind==='ring').length,elixirs:items.filter(i=>i.kind==='elixir').length,pots:items.filter(i=>i.kind==='hp'||i.kind==='mp').length,key:items.some(i=>i.kind==='beaconkey'),test:test.length,testNames:test.map(i=>i.name)};},
+  get catalog(){const items=itemCatalog();const test=items.filter(isTestItem);return {n:items.length,weapons:items.filter(i=>i.kind==='weapon').length,abilities:items.filter(i=>i.kind==='ability').length,armors:items.filter(i=>i.kind==='armor').length,rings:items.filter(i=>i.kind==='ring').length,elixirs:items.filter(i=>i.kind==='elixir').length,pots:items.filter(i=>i.kind==='hp'||i.kind==='mp').length,mastery:items.filter(i=>i.kind==='mastery').length,key:items.some(i=>i.kind==='beaconkey'),test:test.length,testNames:test.map(i=>i.name)};},
+  get caps(){return P?Object.assign({},CLASSES[P.cls].max):null;},
+  get statText(){if(!P)return [];return STATK.map(k=>{const cap=statCap(P.cls,k);return {k,text:STATN[k]+' '+P.stats[k]+'/'+cap,base:P.stats[k],eff:eff(k),cap,maxed:P.stats[k]>=cap};});},
+  get toasts(){return toasts.map(t=>t.t);},
+  get sticks(){return {move:input.move.id!==null,aim:input.aim.id!==null,shots:pbN};},
+  setStat(k,v){if(P&&STATK.indexOf(k)>=0)P.stats[k]=v;},
+  save(){saveGame();},
   get tooltip(){const ref=(ptr&&ptr.tip&&ptr.ref)||(heldTip&&heldTip.ref);if(!ref)return null;const it=readItem(ref);return it?it.name:null;},
   makeItem(s){
     if(s==='hp'||s==='mp')return mkPot(s);
@@ -2511,6 +2617,7 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
     if(k==='ability')return mkAbility(s.cls||(P?P.cls:'pyro'),s.t||0);
     if(k==='ring')return mkRing(s.t||0);
     if(k==='elixir')return s.stat?mkElixirOf(s.stat):mkElixir();
+    if(k==='mastery')return mkMastery();
     if(k==='hp'||k==='mp')return mkPot(k);
     if(k==='beaconkey')return mkBeaconKey();
     return null;
@@ -2523,6 +2630,7 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
   simLoot,
   get storagePersistent(){return store.persistent;},kill(){if(state==='play')die('a test dummy');}};
 })();
+
 </script>
 </body>
 </html>

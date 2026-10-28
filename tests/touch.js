@@ -391,12 +391,12 @@ async function charactersVaultWeapons(page, cdp) {
 async function homeButtonAndAim(page, cdp) {
   const info = await page.evaluate(() => {
     const sw = window.__shardwild;
-    const home = sw.ui.find(r => r.tag === 'home');
+    const home = sw.ui.find(r => r.tag === 'haven');
     return {
       home,
       place: sw.place,
       L: sw.layout,
-      buttons: sw.ui.filter(r => r.kind === 'button' && r.tag !== 'home'),
+      buttons: sw.ui.filter(r => r.kind === 'button' && r.tag !== 'haven'),
       slots: sw.ui.filter(r => r.kind === 'slot'),
       mm: sw.ui.find(r => r.tag === 'minimap')
     };
@@ -406,10 +406,11 @@ async function homeButtonAndAim(page, cdp) {
   const home = info.home;
   const play = info.L.play, panel = info.L.panel, aim = info.L.aim, stickR = info.L.stickR;
   const hc = {x: home.x + home.w / 2, y: home.y + home.h / 2};
-  assert(hc.x > play.w * 0.7 && hc.y > play.h * 0.62, 'home button is not in the bottom-right thumb area ' + JSON.stringify(home));
+  assert(hc.x > play.w * 0.7 && hc.y > play.h * 0.45, 'home button is not in the right-thumb area ' + JSON.stringify(home));
   assert(home.x >= play.x && home.y >= play.y, 'home button left the playfield');
   assert(home.x + home.w <= panel.x - 4, 'home button crowds the inventory panel ' + JSON.stringify({home, panel}));
-  assert(hc.x > aim.x, 'home button should sit to the right of the aim stick');
+  assert(home.y + home.h <= aim.y - stickR + 1, 'Haven is not above the aim stick ' + JSON.stringify({home, aim, stickR}));
+  assert(Math.abs(hc.x - aim.x) < home.w * 0.45, 'Haven should sit above the aim stick, not beside it');
   const dist = Math.hypot(hc.x - aim.x, hc.y - aim.y);
   assert(dist < stickR + home.w / 2 + 80, 'home button is far from the aim stick ' + dist);
   assert(!circleHitsRect(aim.x, aim.y, stickR + 6, home), 'home button overlaps the aim stick ' + JSON.stringify({home, aim, stickR, dist}));
@@ -515,6 +516,50 @@ async function main() {
     await page.touchscreen.tap(cards[0].x + cards[0].w / 2, cards[0].y + cards[0].h / 2);
     await page.waitForFunction(() => window.__shardwild.state === 'play');
     await frames(page, 6);
+
+    const hudLayout = await page.evaluate(() => {
+      const sw = window.__shardwild;
+      const L = sw.layout;
+      const ui = sw.ui;
+      const haven = ui.find(r => r.tag === 'haven');
+      const ability = ui.find(r => r.tag === 'ability');
+      const mm = ui.find(r => r.tag === 'minimap');
+      const stick = L.stickR;
+      const aim = {x: L.aim.x - stick, y: L.aim.y - stick, w: stick * 2, h: stick * 2};
+      const move = {x: L.move.x - stick, y: L.move.y - stick, w: stick * 2, h: stick * 2};
+      return {haven, ability, mm, aim, move, panel: L.panel, play: L.play, stick, aimC: L.aim, havenC: L.haven, quick: ui.filter(r => r.tag === 'hp' || r.tag === 'mp').length};
+    });
+    function boxesOverlap(a, b) {
+      return a.x < b.x + b.w - 0.5 && a.x + a.w > b.x + 0.5 && a.y < b.y + b.h - 0.5 && a.y + a.h > b.y + 0.5;
+    }
+    assert(hudLayout.haven && hudLayout.ability && hudLayout.mm, 'HUD controls missing ' + JSON.stringify(hudLayout));
+    assert(hudLayout.quick === 0, 'HP/MP quick buttons are still on the HUD');
+    assert(hudLayout.haven.w >= 72 && hudLayout.haven.h >= 72, 'Haven button is too small ' + JSON.stringify(hudLayout.haven));
+    assert(hudLayout.haven.y + hudLayout.haven.h <= hudLayout.aim.y + 0.5, 'Haven is not above the aim stick ' + JSON.stringify({haven: hudLayout.haven, aim: hudLayout.aim}));
+    assert(Math.abs((hudLayout.haven.x + hudLayout.haven.w / 2) - hudLayout.aimC.x) < hudLayout.haven.w * 0.45, 'Haven is beside the aim stick instead of above it');
+    assert(hudLayout.aimC.x > hudLayout.play.x + hudLayout.play.w * 0.7, 'aim stick is not on the right of the playfield');
+    assert(hudLayout.aim.x + hudLayout.aim.w <= hudLayout.panel.x + 0.5, 'aim stick overlaps the inventory');
+    assert(hudLayout.haven.x + hudLayout.haven.w <= hudLayout.panel.x + 0.5, 'Haven overlaps the inventory');
+    assert(!boxesOverlap(hudLayout.haven, hudLayout.aim), 'Haven overlaps the aim stick');
+    assert(!boxesOverlap(hudLayout.haven, hudLayout.ability), 'Haven overlaps the ability button');
+    assert(!boxesOverlap(hudLayout.ability, hudLayout.aim), 'ability overlaps the aim stick');
+    assert(!boxesOverlap(hudLayout.haven, hudLayout.mm), 'Haven overlaps the minimap');
+    assert(!boxesOverlap(hudLayout.aim, hudLayout.mm), 'aim stick overlaps the minimap');
+    assert(!boxesOverlap(hudLayout.move, hudLayout.aim), 'move stick overlaps the aim stick');
+    assert(hudLayout.havenC.x > hudLayout.play.w * 0.55, 'Haven is not in right-thumb reach');
+    await page.screenshot({path: path.join(ART, 'screenshot_hud_layout.png')});
+
+    const havenPress = await page.evaluate(() => ({place: window.__shardwild.place, shots: window.__shardwild.sticks.shots}));
+    const havenBtn = hudLayout.haven;
+    await cdp.send('Input.dispatchTouchEvent', {type: 'touchStart', touchPoints: [{x: Math.round(havenBtn.x + havenBtn.w / 2), y: Math.round(havenBtn.y + havenBtn.h / 2), id: 1, radiusX: 2, radiusY: 2, force: 1}]});
+    await page.waitForTimeout(40);
+    const havenDown = await page.evaluate(() => window.__shardwild.sticks);
+    await cdp.send('Input.dispatchTouchEvent', {type: 'touchEnd', touchPoints: []});
+    await frames(page, 2);
+    assert(havenPress.place === 'haven', 'HUD check left the Haven');
+    assert(!havenDown.aim && !havenDown.move, 'Haven press started a stick ' + JSON.stringify(havenDown));
+    assert(havenDown.shots === havenPress.shots, 'Haven press fired a shot ' + JSON.stringify({before: havenPress, down: havenDown}));
+
     let heard = await audioOf(page);
     assert(heard.unlocked && heard.state === 'running', 'audio context after tap ' + JSON.stringify(heard));
     const hud = await page.evaluate(() => window.__shardwild.ui);
@@ -712,7 +757,7 @@ async function main() {
     }, 16);
     assert(await page.evaluate(() => window.__shardwild.chestOpen), 'chest did not open');
     const cat = await page.evaluate(() => window.__shardwild.catalog);
-    assert(cat.weapons === 30 && cat.abilities === 27 && cat.armors === 27 && cat.rings === 9 && cat.elixirs === 8 && cat.pots === 2 && cat.key && cat.test === 3 && cat.n === 104, 'catalog ' + JSON.stringify(cat));
+    assert(cat.weapons === 30 && cat.abilities === 27 && cat.armors === 27 && cat.rings === 9 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.test === 3 && cat.n === 105, 'catalog ' + JSON.stringify(cat));
     assert(cat.testNames && cat.testNames.join(',') === 'Godslayer Staff,Godslayer Bow,Godslayer Blade', 'test weapons ' + JSON.stringify(cat.testNames));
 
     let staff = null;
@@ -755,9 +800,123 @@ async function main() {
       await tapTag(page, r => r.tag === 'chest-next');
     }
     const potSet = new Set(potNames);
-    for (const name of ['Healing Draught', 'Mana Draught', 'Elixir of Life', 'Elixir of Mind', 'Elixir of Fury', 'Elixir of Stone', 'Elixir of Wind', 'Elixir of Grace', 'Elixir of Vigor', 'Elixir of Insight']) {
+    for (const name of ['Healing Draught', 'Mana Draught', 'Elixir of Life', 'Elixir of Mind', 'Elixir of Fury', 'Elixir of Stone', 'Elixir of Wind', 'Elixir of Grace', 'Elixir of Vigor', 'Elixir of Insight', 'Potion of Mastery']) {
       assert(potSet.has(name), 'test chest potions missing ' + name + ' from ' + [...potSet].join(', '));
     }
+
+    const caps = await page.evaluate(() => window.__shardwild.capTable);
+    assert(caps.pyro.att === 75 && caps.pyro.mp === 460 && caps.pyro.def === 15 && caps.pyro.hp === 650, 'pyro caps ' + JSON.stringify(caps.pyro));
+    assert(caps.strider.dex === 75 && caps.strider.spd === 75 && caps.strider.hp === 740, 'strider caps ' + JSON.stringify(caps.strider));
+    assert(caps.bulwark.hp === 960 && caps.bulwark.def === 42 && caps.bulwark.mp === 250 && caps.bulwark.spd === 40, 'bulwark caps ' + JSON.stringify(caps.bulwark));
+    assert(caps.pyro.att > caps.strider.att && caps.strider.att > caps.bulwark.att, 'attack caps should fall off from the caster');
+    assert(caps.pyro.hp < caps.strider.hp && caps.strider.hp < caps.bulwark.hp, 'HP caps should rise toward the tank');
+    assert(caps.pyro.def < caps.strider.def && caps.strider.def < caps.bulwark.def, 'defense caps should rise toward the tank');
+    assert(caps.strider.dex > caps.pyro.dex && caps.strider.dex > caps.bulwark.dex, 'strider should cap dexterity highest');
+    assert(caps.strider.spd > caps.pyro.spd && caps.pyro.spd > caps.bulwark.spd, 'speed caps ' + JSON.stringify(caps));
+    assert(caps.pyro.mp > caps.strider.mp && caps.strider.mp > caps.bulwark.mp, 'MP caps should fall off from the caster');
+
+    await page.evaluate(() => {
+      const sw = window.__shardwild;
+      sw.clearInv();
+      sw.setStat('att', sw.caps.att);
+      sw.grant({k: 'elixir', stat: 'att'});
+    });
+    await frames(page, 2);
+    let fury = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'inv' && s.name === 'Elixir of Fury'));
+    assert(fury, 'Elixir of Fury was not in the backpack');
+    const capped = await page.evaluate(() => window.__shardwild.statText.find(s => s.k === 'att'));
+    await tapAt(cdp, page, fury.x + fury.w / 2, fury.y + fury.h / 2);
+    const blocked = await page.evaluate(() => {
+      const sw = window.__shardwild;
+      return {
+        att: sw.statText.find(s => s.k === 'att'),
+        left: sw.P.inv.filter(it => it && it.name === 'Elixir of Fury').length,
+        toasts: sw.toasts
+      };
+    });
+    assert(blocked.att.base === capped.base && blocked.att.maxed, 'capped attack still changed ' + JSON.stringify(blocked));
+    assert(blocked.left === 1, 'maxed elixir was consumed');
+    assert(blocked.toasts.some(t => /maxed/i.test(t)), 'no maxed message ' + JSON.stringify(blocked.toasts));
+
+    await page.evaluate(cap => window.__shardwild.setStat('att', cap - 4), blocked.att.cap);
+    fury = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'inv' && s.name === 'Elixir of Fury'));
+    assert(fury, 'elixir disappeared before the under-cap drink');
+    await tapAt(cdp, page, fury.x + fury.w / 2, fury.y + fury.h / 2);
+    const drank = await page.evaluate(() => {
+      const sw = window.__shardwild;
+      return {att: sw.statText.find(s => s.k === 'att').base, left: sw.P.inv.filter(it => it && it.name === 'Elixir of Fury').length};
+    });
+    assert(drank.att === blocked.att.cap - 3 && drank.left === 0, 'inventory elixir did not drink ' + JSON.stringify(drank));
+
+    await page.evaluate(() => {
+      const sw = window.__shardwild;
+      sw.clearInv();
+      for (const k of Object.keys(sw.caps)) sw.setStat(k, sw.caps[k] - (k === 'hp' || k === 'mp' ? 30 : 4));
+      sw.grant({k: 'mastery'});
+    });
+    await frames(page, 2);
+    const mastery = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'inv' && s.name === 'Potion of Mastery'));
+    assert(mastery, 'Potion of Mastery was not in the backpack');
+    await tapAt(cdp, page, mastery.x + mastery.w / 2, mastery.y + mastery.h / 2);
+    const maxed = await page.evaluate(() => {
+      const sw = window.__shardwild;
+      sw.save();
+      const saved = JSON.parse(localStorage.getItem('shardwild_chars_v1') || '{}');
+      const slot = saved.slots && saved.slots.find(s => s && s.cls === 'pyro');
+      return {
+        lines: sw.statText,
+        left: sw.P.inv.filter(it => it && it.name === 'Potion of Mastery').length,
+        saved: slot && slot.stats
+      };
+    });
+    assert(maxed.left === 0, 'mastery potion was not consumed');
+    assert(maxed.lines.every(s => s.maxed && s.base === s.cap), 'mastery did not max every stat ' + JSON.stringify(maxed.lines));
+    assert(maxed.saved && maxed.saved.att === caps.pyro.att && maxed.saved.hp === caps.pyro.hp, 'maxed stats were not saved ' + JSON.stringify(maxed.saved));
+    await frames(page, 2);
+    const gold = await page.evaluate(() => {
+      const c = document.getElementById('game');
+      const g = c.getContext('2d', {alpha: false});
+      const dpr = c.width / window.innerWidth;
+      const rows = window.__shardwild.ui.filter(r => r.tag === 'stat' && r.maxed);
+      let n = 0;
+      for (const r of rows) {
+        const x0 = Math.max(0, Math.floor(r.x * dpr));
+        const y0 = Math.max(0, Math.floor(r.y * dpr));
+        const w = Math.max(1, Math.floor(r.w * dpr));
+        const h = Math.max(1, Math.floor(r.h * dpr));
+        const img = g.getImageData(x0, y0, w, h).data;
+        for (let i = 0; i < img.length; i += 4) {
+          if (img[i] > 200 && img[i + 1] > 150 && img[i + 2] < 140) n++;
+        }
+      }
+      return {rows: rows.length, gold: n};
+    });
+    assert(gold.rows >= 8 && gold.gold > 12, 'maxed stats are not drawn in gold ' + JSON.stringify(gold));
+    await page.screenshot({path: path.join(ART, 'screenshot_stats_maxed.png')});
+
+    await page.evaluate(() => {
+      const sw = window.__shardwild;
+      sw.grant({k: 'mastery'});
+    });
+    await frames(page, 2);
+    const again = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'inv' && s.name === 'Potion of Mastery'));
+    assert(again, 'second mastery missing');
+    await tapAt(cdp, page, again.x + again.w / 2, again.y + again.h / 2);
+    const kept = await page.evaluate(() => ({
+      left: window.__shardwild.P.inv.filter(it => it && it.kind === 'mastery').length,
+      toasts: window.__shardwild.toasts
+    }));
+    assert(kept.left === 1, 'mastery was consumed when already maxed');
+    assert(kept.toasts.some(t => /maxed/i.test(t)), 'already maxed had no message ' + JSON.stringify(kept.toasts));
+    await page.evaluate(() => {
+      const sw = window.__shardwild;
+      const base = {hp: 120, mp: 120, att: 14, def: 0, spd: 11, dex: 12, vit: 8, wis: 13};
+      for (const k of Object.keys(base)) sw.setStat(k, base[k]);
+      sw.P.hp = Math.min(sw.P.hp, base.hp);
+      sw.P.mp = Math.min(sw.P.mp, base.mp);
+      sw.clearInv();
+      sw.grant('hp');
+    });
 
     const classes = [
       ['pyro', 'Splintered Staff', 'Starforged Staff', 'Mythic Staff', 'Hollow Crown Staff', 'Hollow Codex', 'Hollow Robe'],
@@ -901,6 +1060,79 @@ async function main() {
     await page.waitForTimeout(600);
     const fpsRealm = await page.evaluate(() => window.__shardwild.fps);
     assert(fpsRealm > 50, 'fps in the larger realm: ' + fpsRealm);
+
+    const gods = await page.evaluate(() => {
+      const sw = window.__shardwild;
+      const info = sw.godInfo();
+      sw.enterRealm();
+      const w = sw.world;
+      let x = w.cx + 150, y = w.cy - 20;
+      for (let i = 0; i < 12 && sw.zoneAt(x, y) !== 3; i++) { x -= 8; y += 4; }
+      sw.teleport(x, y);
+      sw.P.invuln = 30;
+      sw.clearFoes();
+      const spawned = info.types.map((type, i) => sw.spawnAt(type, x + ((i % 3) - 1) * 36, y + (Math.floor(i / 3) - 0.5) * 34, 3));
+      const foes = sw.foes.filter(f => !f.boss);
+      return {info, zone: sw.zoneAt(sw.P.x, sw.P.y), spawned, foes, names: (w.beacons || []).map(b => b.name)};
+    });
+    assert(gods.info.name === 'Godlands' && gods.names.indexOf('Godlands') >= 0, 'Godlands name missing ' + JSON.stringify({info: gods.info.name, names: gods.names}));
+    assert(gods.names.indexOf('Starfall Heights') < 0, 'Starfall beacon name remains');
+    assert(gods.info.cap <= 6 && gods.info.elite === 0, 'Godlands still spawns a crowd ' + JSON.stringify(gods.info));
+    assert(gods.info.types.length >= 3 && gods.info.kinds.every(k => k.god && k.scale >= 2 && k.r >= 8 && k.hp >= 4000), 'Godlands kinds ' + JSON.stringify(gods.info.kinds));
+    assert(!gods.info.types.some(t => ['crab', 'imp', 'wolf', 'hexer', 'ogre', 'wisp'].indexOf(t) >= 0), 'trash still lives in the Godlands');
+    assert(gods.zone === 3, 'player did not stand in the Godlands ' + gods.zone);
+    assert(gods.foes.length >= 3 && gods.foes.every(f => f.god && f.scale >= 2 && f.r >= 8), 'spawned foes are not large gods ' + JSON.stringify(gods.foes));
+    await frames(page, 3);
+    await page.screenshot({path: path.join(ART, 'screenshot_godlands.png')});
+    const spawnedMore = await page.evaluate(() => {
+      const sw = window.__shardwild;
+      sw.P.invuln = 30;
+      for (let n = 0; n < 8; n++) sw.pump(10);
+      return sw.foes.filter(f => !f.boss).map(f => ({type: f.type, god: f.god, scale: f.scale, r: f.r}));
+    });
+    assert(spawnedMore.length >= 3 && spawnedMore.every(f => f.god && f.scale >= 2 && f.r >= 8), 'spawner added something that is not a large god ' + JSON.stringify(spawnedMore));
+
+    const leash = await page.evaluate(() => {
+      const sw = window.__shardwild;
+      sw.enterRealm();
+      sw.clearFoes();
+      const spot = sw.findLeashPull();
+      if (!spot) return {error: 'no border'};
+      const foe = sw.spawnAt('wolf', spot.hx, spot.hy, spot.homeZone);
+      sw.moveFoe(foe.i, spot.x, spot.y);
+      const boss = sw.foes.find(f => f.boss);
+      const bossHome = boss ? {x: boss.homeX, y: boss.homeY} : null;
+      let bossPull = null;
+      if (boss) {
+        const w = sw.world;
+        for (let dist = 24; dist < w.w * 4 && !bossPull; dist += 8) {
+          const x = w.cx + dist, y = w.cy;
+          if (sw.zoneAt(x, y) === 3 || sw.blocked(x, y)) continue;
+          // Far enough past the border that the soft margin no longer lets the boss chase.
+          if (Math.hypot(x - boss.homeX, y - boss.homeY) > 48) bossPull = {x, y};
+        }
+        if (!bossPull) bossPull = {x: spot.x + 20, y: spot.y};
+        sw.moveFoe(boss.i, bossPull.x, bossPull.y);
+      }
+      sw.teleport(spot.px, spot.py);
+      sw.P.invuln = 30;
+      const before = sw.foes.find(f => f.i === foe.i);
+      const beforeBoss = boss ? sw.foes.find(f => f.boss) : null;
+      const d0 = Math.hypot(before.x - before.homeX, before.y - before.homeY);
+      const bd0 = beforeBoss ? Math.hypot(beforeBoss.x - beforeBoss.homeX, beforeBoss.y - beforeBoss.homeY) : 0;
+      sw.pump(18);
+      const after = sw.foes.find(f => f.type === 'wolf' && !f.boss);
+      const afterBoss = sw.foes.find(f => f.boss);
+      const d1 = after ? Math.hypot(after.x - after.homeX, after.y - after.homeY) : 1e9;
+      const bd1 = afterBoss ? Math.hypot(afterBoss.x - afterBoss.homeX, afterBoss.y - afterBoss.homeY) : 1e9;
+      if (boss) sw.moveFoe(boss.i, bossHome.x, bossHome.y);
+      return {spot, d0, d1, bd0, bd1, homeZone: before.zone, outZone: spot.outZone, playerZone: sw.zoneAt(sw.P.x, sw.P.y)};
+    });
+    assert(!leash.error, 'leash setup failed ' + JSON.stringify(leash));
+    assert(leash.outZone !== leash.homeZone, 'pull did not cross a region border ' + JSON.stringify(leash));
+    assert(leash.d1 < leash.d0 - 8, 'leashed enemy did not walk home ' + JSON.stringify(leash));
+    assert(leash.bd1 < leash.bd0 - 8, 'boss did not walk back toward the Godlands ' + JSON.stringify(leash));
+    assert(leash.playerZone !== leash.homeZone, 'player should still be across the border');
 
     await homeButtonAndAim(page, cdp);
 
