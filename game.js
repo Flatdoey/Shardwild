@@ -335,11 +335,16 @@ const ZONES=[
   {name:'Godlands',types:['eye','colossus','oracle','saint','wyrm'],col:'#ff6a8a'}];
 // Beach-to-center ramp: few slow shots on the shore, denser and nastier inland.
 // dist is how far from the player a pack may appear, kept inside the zone band.
+// Packs are player-local, so a larger realm spreads the same density across more ground
+// instead of piling extra monsters into the old footprint. The shore cap stays at 4.
 const SPAWN_CFG=[
   {cap:4, every:2.7, n:[1,1], elite:0, dist:[64,118]},
   {cap:9, every:1.55, n:[1,2], elite:0.03, dist:[90,160]},
   {cap:15, every:1.05, n:[1,2], elite:0.06, dist:[100,180]},
   {cap:5, every:2.6, n:[1,1], elite:0, dist:[130,210]}];
+// 400 tiles is 1.6x the old 250-tile realm (about 2.6x the area). Zones stay radial
+// fractions of that disc, so Saltmarsh through the Godlands each grow with it.
+const REALM_N=400;
 const ENTRY_SAFE=20*TS;
 function mkWorld(w,h){return {w,h,tiles:new Uint8Array(w*h),zone:new Int8Array(w*h).fill(-1),canvas:null,mini:null,enemies:[],bags:[],isHub:false};}
 function tileAt(wd,x,y){const tx=Math.floor(x/TS),ty=Math.floor(y/TS);if(tx<0||ty<0||tx>=wd.w||ty>=wd.h)return T_WATER;return wd.tiles[ty*wd.w+tx];}
@@ -399,7 +404,7 @@ function renderWorld(wd,R){
 }
 
 function genRealm(seed){
-  const R=mulberry(seed),N=250,wd=mkWorld(N,N),cx=N/2,cy=N/2;
+  const R=mulberry(seed),N=REALM_N,wd=mkWorld(N,N),cx=N/2,cy=N/2;
   const G=26,grid=new Float32Array((G+2)*(G+2));for(let i=0;i<grid.length;i++)grid[i]=R();
   function noise(x,y){const gx=x*G,gy=y*G,ix=Math.floor(gx),iy=Math.floor(gy),fx=gx-ix,fy=gy-iy,sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy),q=G+2;
     const a=grid[iy*q+ix],b=grid[iy*q+ix+1],c=grid[(iy+1)*q+ix],d=grid[(iy+1)*q+ix+1];return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy;}
@@ -525,7 +530,8 @@ function mkTestWeapon(w){
   it.shots=1;
   it.spread=0;
   it.pierce=true;
-  it.rate=0.2;
+  // 3x the old 0.2. Dex still scales this, and the bullet pool stays comfortable.
+  it.rate=0.6;
   it.range=w==='sword'?72:140;
   it.r=w==='sword'?5:3.5;
   it.col='#fff6c0';
@@ -676,7 +682,7 @@ for(let i=0;i<EBMAX;i++)EB.push({x:0,y:0,vx:0,vy:0,ang:0,spd:0,life:0,dmg:0,r:2,
 for(let i=0;i<PBMAX;i++)PB.push({x:0,y:0,vx:0,vy:0,life:0,dmg:0,r:2,spr:null,pierce:false,hits:[],slow:0,col:'#fff',shape:'dot'});
 for(let i=0;i<PTMAX;i++)PT.push({x:0,y:0,vx:0,vy:0,t:0,col:'#fff',s:1});
 for(let i=0;i<DNMAX;i++)DN.push({x:0,y:0,t:0,txt:'',col:'#fff'});
-let ebN=0,pbN=0,ptN=0,dnN=0;
+let ebN=0,pbN=0,ptN=0,dnN=0,shotsFired=0;
 function addEB(x,y,a,spd,dmg,r,life,col,slow,from){if(ebN>=EBMAX)return;const b=EB[ebN++];b.x=x;b.y=y;b.ang=a;b.spd=spd;b.vx=Math.cos(a)*spd;b.vy=Math.sin(a)*spd;b.life=life;b.dmg=dmg;b.r=r;b.spr=bulletSpr(col,r);b.slow=slow||0;b.from=from;}
 function addPB(x,y,a,spd,dmg,r,life,col,pierce,slow,shape,lethal){if(pbN>=PBMAX)return;const b=PB[pbN++];b.x=x;b.y=y;b.vx=Math.cos(a)*spd;b.vy=Math.sin(a)*spd;b.life=life;b.dmg=dmg;b.r=r;b.shape=shape||'dot';b.col=col;b.spr=bulletSpr(col,r,b.shape);b.pierce=pierce;b.hits.length=0;b.slow=slow||0;b.lethal=!!lethal;}
 function addPT(x,y,col,n,sp,s){for(let i=0;i<n;i++){if(ptN>=PTMAX)return;const p=PT[ptN++];const a=Math.random()*TAU,v=rand(0.3,1)*sp;p.x=x;p.y=y;p.vx=Math.cos(a)*v;p.vy=Math.sin(a)*v;p.t=rand(0.3,0.7);p.col=col;p.s=s||1;}}
@@ -1573,6 +1579,7 @@ function update(dt){
     const rate=(1.5+eff('dex')*0.05)*w.rate;P.fireCd=1/rate;const am=attMul();
     for(let i=0;i<w.shots;i++){const o=i-(w.shots-1)/2;const a=P.aim+o*w.spread*Math.PI/180;const px=-Math.sin(P.aim)*o*w.par,py=Math.cos(P.aim)*o*w.par;
       addPB(P.x+px,P.y+py,a,w.speed,rand(w.dmin,w.dmax)*am,w.r,w.range/w.speed,w.col,w.pierce,0,w.shot,!!w.lethal);}
+    shotsFired++;
     AUD.shoot(P.cls);
   }
   // regen & timers
@@ -2013,8 +2020,8 @@ function drawHUD(){
   circBtn(L.haven,'⌂',null,'#ffd34a',()=>{if(!world.isHub){enterHub();toast('Returned to the Haven','#ffd34a');}},false,{tag:'haven'});
   for(const k of ['move','aim']){const s=input[k];if(s.id===null)continue;ctx.globalAlpha=0.35;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(s.ox,s.oy,L.stickR,0,TAU);ctx.fill();
     let dx=s.x-s.ox,dy=s.y-s.oy;const l=Math.hypot(dx,dy);if(l>L.stickR){dx*=L.stickR/l;dy*=L.stickR/l;}ctx.globalAlpha=0.75;ctx.fillStyle=k==='aim'?'#ff8a3a':'#9fe0ff';ctx.beginPath();ctx.arc(s.ox+dx,s.oy+dy,L.stickR*0.45,0,TAU);ctx.fill();ctx.globalAlpha=1;}
-  if(input.move.id===null&&input.aim.id===null&&!input.mouse.active&&P.time<25&&state==='play'){ctx.globalAlpha=0.55+0.2*Math.sin(time*3);txt('◀ move',play.x+play.w*0.22,H-safe.b-16,12,'#9fe0ff','center');txt('aim + fire ▶',play.x+play.w*0.72,H-safe.b-16,12,'#ff8a3a','center');ctx.globalAlpha=1;}
-  if(quest){const p=w2s(quest.x,quest.y);const left=play.x+18,top=my+m+Math.max(12,sb)*2+10,right=play.x+play.w-18,bot=play.h-18;
+  if(input.move.id===null&&input.aim.id===null&&!input.mouse.active&&P.time<25&&state==='play'){ctx.globalAlpha=0.55+0.2*Math.sin(time*3);txt('◀ move',play.x+play.w*0.22,H-safe.b-16,12,'#9fe0ff','center');const hintX=L.haven?Math.min(L.aimAnchor.x,L.haven.x-L.haven.r-40):L.aimAnchor.x;txt('aim + fire ▶',hintX,H-safe.b-16,12,'#ff8a3a','center');ctx.globalAlpha=1;}
+  if(quest){const p=w2s(quest.x,quest.y);const hb=L.haven;const left=play.x+18,top=my+m+Math.max(12,sb)*2+10,right=hb?hb.x-hb.r-12:play.x+play.w-18,bot=play.h-18;
     if(p.x<left||p.y<top||p.x>right||p.y>bot){const c=w2s(P.x,P.y),a=Math.atan2(p.y-c.y,p.x-c.x);const rx=Math.min(play.w,play.h)*0.3;let ax=clamp(c.x+Math.cos(a)*rx,left,right),ay=clamp(c.y+Math.sin(a)*rx,top,bot);
       ctx.save();ctx.translate(ax,ay);ctx.rotate(a);ctx.fillStyle='#ff3050';ctx.beginPath();ctx.moveTo(10,0);ctx.lineTo(-6,-7);ctx.lineTo(-3,0);ctx.lineTo(-6,7);ctx.closePath();ctx.fill();ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.stroke();ctx.restore();
       txt(quest.label,ax,ay+14,10,'#ff8090','center');}}
@@ -2138,7 +2145,7 @@ function drawBigMap(){
   panel(x,y,w,h,0.98);
   const title=world.isVault?'The Vault':world.isHub?'The Haven — full map':'Shardwild — full map';
   txt(title,x+12,y+16,15,'#ffd34a','left');
-  fitTxt(world.isVault?'Storage shared by every hero. The gold portal leaves.':world.isHub?'Tap a lit beacon to warp. Locked pillars stay dim.':'Shore to center. Tap a lit beacon to warp.',x+12,y+34,11,'#b7b0d0',w-150);
+  fitTxt(world.isVault?'Storage shared by every hero. The gold portal leaves.':world.isHub?'Tap a lit beacon to warp. Locked pillars stay dim.':'Shore to center. Tap a lit beacon to warp. '+world.w+' tiles across.',x+12,y+34,11,'#b7b0d0',w-150);
   const legendW=Math.min(200,Math.max(140,w*0.26));
   const vx=x+8,vy=y+46,vw=w-legendW-22,vh=h-56;
   const sc=Math.min(vw/world.w,vh/world.h);
@@ -2386,6 +2393,10 @@ function resolvePtr(p){
   }
   tapRef(p.ref);
 }
+function overHome(x,y){
+  const b=layoutC.haven;if(!b)return false;
+  return x>=b.x-b.r&&x<=b.x+b.r&&y>=b.y-b.r&&y<=b.y+b.r;
+}
 function onDown(id,type,x,y,button){
   AUD.unlock();
   if(layoutC.portrait){tryFS(type);return;}
@@ -2397,6 +2408,8 @@ function onDown(id,type,x,y,button){
     if(hit&&hit.kind==='button'&&hit.fn){safeCall(hit.fn);return;}
     if(hit&&(hit.kind==='slot'||hit.kind==='panel')){beginPtr(id,x,y,hit);return;}
     if(mapOpen)return;
+    // A click on the Haven button must not hold-to-fire.
+    if(overHome(x,y))return;
     if(state==='play'&&button===0&&inPlay(x,y))input.mouse.down=true;
     return;
   }
@@ -2404,6 +2417,8 @@ function onDown(id,type,x,y,button){
   if(hit&&hit.kind==='button'&&hit.fn){safeCall(hit.fn);return;}
   if(hit&&(hit.kind==='slot'||hit.kind==='panel')){beginPtr(id,x,y,hit);return;}
   if(mapOpen)return;
+  // The button's square is not an aim-stick origin, so a tap there cannot shoot.
+  if(overHome(x,y))return;
   if(state!=='play'||!inPlay(x,y))return;
   const haven=layoutC.haven,ab=layoutC.ab;
   if(haven&&Math.hypot(x-haven.x,y-haven.y)<=haven.r)return;
@@ -2498,6 +2513,9 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
   get ui(){return uiRects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,kind:r.kind,tag:r.tag||'',tab:r.tab||'',beacon:r.beacon||'',unlocked:!!r.unlocked,where:r.where||'',slot:r.slot==null?-1:r.slot,stat:r.stat||'',maxed:!!r.maxed}));},
   get slots(){return uiRects.filter(r=>r.kind==='slot').map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,area:r.ref.area,i:r.ref.i,slot:r.ref.slot,name:r.item?r.item.name:null,tier:r.item?r.item.tier:null,kind:r.item?r.item.kind:null,stat:r.item?(r.item.stat||r.item.kind||''):'',wep:r.item&&r.item.w?r.item.w:'',dim:!!(r.item&&classLocked(r.item)),tag:r.tag||''}));},
   get layout(){const L=layoutC;return {play:L.play,panel:L.panel,portrait:!!L.portrait,move:L.moveAnchor,aim:L.aimAnchor,haven:L.haven,ab:L.ab,stickR:L.stickR,mm:L.mm};},
+  get shotsFired(){return shotsFired;},
+  get aiming(){return input.aim.id!==null;},
+  get testWeapons(){return ['staff','bow','sword'].map(w=>{const it=mkTestWeapon(w);return {name:it.name,w:w,rate:it.rate,lethal:!!it.lethal,test:!!it.test};});},
   get paused(){return !!layoutC.portrait;},get overlay(){return layoutC.portrait?'rotate':null;},
   get mapOpen(){return mapOpen;},get chestOpen(){return !!nearChest();},get flash(){return tpFlash;},
   get place(){return !world?'':world.isVault?'vault':world.isHub?'haven':'realm';},
@@ -2524,7 +2542,8 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
     }
     for(let a=0;a<TAU;a+=0.35){
       let prev=null;
-      for(let dist=140;dist<940;dist+=8){
+      const reach=wd.w*TS*0.48;
+      for(let dist=140;dist<reach;dist+=8){
         const x=cx+Math.cos(a)*dist,y=cy+Math.sin(a)*dist;
         const z=zoneAt(wd,x,y);
         if(z<0||solidBox(wd,x,y,5)){prev=null;continue;}
