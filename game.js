@@ -637,7 +637,7 @@ function genRealm(seed){
     if(tdist<18){t=T_ARENA;z=3;}
     else if(tdist>22){
       if(z===1&&t===T_GRASS){if(R()<0.032)t=T_TREE;else if(R()<0.01)t=T_FLOWER;else if(R()<0.0035)t=T_STUMP;}
-      else if(z===2&&t===T_DARK){if(R()<0.016)t=T_TREE;else if(R()<0.014)t=T_BOULDER;else if(R()<0.006)t=T_VENT;else if(R()<0.0025)t=T_RUIN;}
+      else if(z===2&&t===T_DARK){if(R()<0.018)t=T_BOULDER;else if(R()<0.008)t=T_STUMP;else if(R()<0.006)t=T_VENT;else if(R()<0.004)t=T_RUIN;}
       else if(z===3&&t===T_ROCK&&R()<0.008)t=T_BOULDER;
       else if(z===0&&t===T_WET&&R()<0.01)t=T_REED;
       else if(z===0&&t===T_SAND&&R()<0.0012)t=T_DRIFT;

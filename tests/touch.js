@@ -622,10 +622,15 @@ async function tideclawAndStatus(page, cdp) {
     return {
       inv: sw.P.inv.filter(Boolean).map(it => it.name),
       ring: sw.P.eq.ring && sw.P.eq.ring.name,
-      weapon: sw.P.eq.weapon && sw.P.eq.weapon.name
+      armor: sw.P.eq.armor && sw.P.eq.armor.name,
+      ability: sw.P.eq.ability && sw.P.eq.ability.name,
+      weapon: sw.P.eq.weapon && sw.P.eq.weapon.name,
+      bag: sw.bags[0] ? sw.bags[0].n : 0
     };
   });
-  assert(taken.inv.length > 0 || (taken.ring && taken.ring !== 'Tidepearl' ? true : !!taken.ring) || (taken.weapon && taken.weapon.indexOf('Godslayer') < 0), 'did not take dungeon loot ' + JSON.stringify(taken));
+  // A clear upgrade equips itself, so armor or a ring can leave the bag without sitting in the backpack.
+  const took = taken.inv.length > 0 || !!taken.ring || (taken.weapon && taken.weapon.indexOf('Godslayer') < 0) || (taken.armor && taken.armor.indexOf('Splintered') < 0);
+  assert(took, 'did not take dungeon loot ' + JSON.stringify(taken));
   await page.evaluate(() => {
     const sw = window.__shardwild;
     sw.teleport(sw.world.exit.x, sw.world.exit.y);
