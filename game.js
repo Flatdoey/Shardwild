@@ -59,7 +59,7 @@ function buildSprites(){
   SPR.serpent=mkSprite(["y..cc..y",".ccyycc.","ccwwwwcc",".cckkcc.","..cccc..",".c....c.","cc....cc","c......c"],{y:'#ffd34a',c:'#7a9a38',w:'#e8ffc0',k:EY});
   SPR.tidematron=mkSprite([".r.rr.r.",".rrrrrr.","rrwrrwrr","rrrrrrrr",".rppppr.","rr.rr.rr","r..r..r."],{r:'#e07040',w:'#fff',p:'#7ee0c8'});
   // Same bottle, distinct liquid. Cork (c) and neck (n) stay put; l is the brew, g the glint.
-  const pot=["...cc...","...nn...","..llll..",".llllll.",".llglll.",".llllll.","..llll.."];
+  const pot=["......cc......","......cc......",".....nnnn.....","....nlllln....","...nlllllln...","...nlllllln...","...nllgllln...","...nlllllln...","...nlllllln...","...nlllllln...","....nlllln....",".....nnnn.....","......nn......","................","................","................"];
   function potSprite(liquid,glint){return mkSprite(pot,{c:'#f4f4f4',n:'#6b4428',l:liquid,g:glint});}
   SPR.pots={
     hp:potSprite('#ef243c','#ffd0d6'),
@@ -75,7 +75,7 @@ function buildSprites(){
     mastery:potSprite('#f0c020','#fff6a0')
   };
   SPR.hp=SPR.pots.hp;SPR.mp=SPR.pots.mp;SPR.elixir=SPR.pots.att;
-  SPR.key=mkSprite(["..yyyy..","...yy...","yyyyyyyy","yy.yy.yy","yyyyyyyy","..yyyy.."],{y:'#ffd34a'});
+  SPR.key=mkSprite(["......yyyy......",".......yy.......","....yyyyyyyy....","...yy.yyyy.yy...","...yyyyyyyyyy...","....yyyyyyyy....",".....yyyyyy.....","......yyyy......","................","................","................","................","................","................","................","................"],{y:'#ffd34a',d:'#c89820'});
   SPR.chest=mkSprite(["..gggg..","gggggggg","ggyyyggg","gggggggg","ggyyyggg","gggggggg"],{g:'#e3b33d',y:'#fff1a8'});
   SPR.beacon=mkSprite(["...cc...","..cwwc..","...cc...","...ll...","...ll...","..llll..","..lssl.."],{c:'#7af0ff',w:'#ffffff',l:'#d8dce8',s:'#5a6070'});
   const bag=["..kk....","...k....","..bbbb..",".bbbbbb.","bbbbbbbb","bbbbbbbb",".bbbbbb."];
@@ -95,8 +95,8 @@ function buildSprites(){
   SPR.barnacle=mkSprite(["..ggg..",".gwwgw.",".gggggg.","gkgkgkg",".ggggg."],{g:'#6a8a84',w:'#e8fff8',k:'#243430'});
   SPR.shellguard=mkSprite(["r.rr.rr.r","rrrrrrrrr",".rrwkkwrr","rrrrrrrrr","r.rr.rr.r","rr.....rr"],{r:'#c44828',w:'#fff',k:EY});
   SPR.tideclaw=mkSprite(["r..rr..rr..r","rrr.rrrr.rrr",".rrrrrrrrrr.","rrrwkkrrwrrr","rrrrrrrrrrrr",".rrrrrrrrrr.","rr.rr..rr.rr","r..r....r..r"],{r:'#e25a32',w:'#fff4ea',k:'#1a1210'});
-  SPR.tidepearl=mkSprite(["..oooo..",".owwwwo.","owpwwpwo","owwwwwwo",".owwwwo.","..oooo.."],{o:'#e25a32',w:'#e9fffb',p:'#fff'});
-  SPR.keyTide=mkSprite(["..cccc..","...cc...","ccookkcc","cc.cc.cc","cccccc..","..cccc.."],{c:'#7ee0c8',o:'#e25a32',k:'#fff6e0'});
+  SPR.tidepearl=mkSprite(["................","......oooo......","....oowwwwoo....","...owwwwwwwwo...","..owwppwwppwwo..","..owwwwwwwwwwo..","...owwwwwwwwo...","....oowwwwoo....","......oooo......","................","................","................","................","................","................","................"],{o:'#e25a32',w:'#e9fffb',p:'#fff6c0'});
+  SPR.keyTide=mkSprite(["......cccc......",".......cc.......","....cccccc......","...ccooookkcc...","...cc.cc.cccc...","....cccccccc....",".....ccccc......","......cccc......","................","................","................","................","................","................","................","................"],{c:'#7ee0c8',o:'#e25a32',k:'#fff6e0'});
 }
 
 /* ---------------- tiered gear sprites ---------------- */
@@ -105,10 +105,22 @@ const GEARSPR={};
 const GEAR={
   staff:{
     rows:{
-      low:["......oo",".....ooo","....bb..","...bb...","..bb....",".bb.....","bb......","b......."],
-      mid:["....ghhg","...ghhhg","....gtg.","....bt..","...bb...","..bb....",".bb.....","bb......"],
-      high:["...hhhh.","..hgttgh","...gbbg.","..tbtbt.","...b.b..","..b...b.",".b.....b","b......b"],
-      ut:[".y.yyyy.","yyyyyyyy",".ykppky.","..kppk..","...kk...","...kk...","..k..k..",".k....k."]
+      low:[
+        "................","................",".....oooo.......","....oobboo......","....oobboo......",".....oooo.......",
+        "......bb........","......bb........","......bb........","......bb........","......bb........","......bb........",
+        "......bb........",".....bbbb.......","....bbbbbb......",".....bbbb......."],
+      mid:[
+        "................","....gggggggg....","...ghhhhhhhhg...","...ghhhtthhhg...","...ghhhhhhhhg...","....gggggggg....",
+        ".......tt.......","......tbbt......",".......bb.......","......tbbt......",".......bb.......","......tbbt......",
+        ".......bb.......","......bbbb......",".....bbbbbb.....","......bbbb......"],
+      high:[
+        "..h..g....g..h..",".h.gggggggggg.h.","..gghhhhhhhhgg..",".g.ghhhtthhhg.g.","..gghhhhhhhhgg..","...gggggggggg...",
+        "......gttg......",".....ttbbtt.....","......tbbt......",".....ttbbtt.....","......tbbt......",".....ttbbtt.....",
+        ".....tbbbbt.....","....bbbbbbbb....","...bbbbbbbbbb...","....bbbbbbbb...."],
+      ut:[
+        ".y.yyyyyyyyyy.y.","yyyyyyyyyyyyyyyy",".ykkyyyyyyyykk..","..kyypppppppyyk.","...ypppppppppy..","....ppppppppp...",
+        ".....ppppppp....","......ppppp.....",".......pp.......","......kppk......",".....kkppkk.....","......kppk......",
+        ".....kk..kk.....","....kk....kk....","...yy......yy...","..y..........y.."]
     },
     pal:[
       {b:'#6b4a2a',o:'#8a6240'},
@@ -124,16 +136,31 @@ const GEAR={
     shot:['#c07840','#a8adb8','#8a7048','#e88830','#3ad4f0','#b070e8','#ff9a1a','#ff3868'],
     utShot:'#ff4aa0',utShape:'ring',
     test:{
-      rows:["wwwwwwww","wyyyyyyw","wywrrwyw","..yrry..","...ww...","...ww...","..yyyy..",".wwyyww."],
+      rows:[
+        "....wwwwwwww....","...wwyyyyyyww...","..wwyyrrrrwwww..",".wwyyrwwwwryyw..","wwyrwwwwwwwwryw.","wwyrwwwwwwwwryw.",
+        ".wwyyrwwwwryyw..","..wwyyrrrrwwww..","...wwyyyyyyww...","......wwww......","......wwww......",".....wwwwww.....",
+        "....wwyyyyww....","...wwyyyyyyww...","..wwwwyyyywwww..","....wwwwwwww...."],
       pal:{w:'#ffffff',y:'#ffd34a',r:'#ff3355'}
     }
   },
   bow:{
     rows:{
-      low:["..bb....",".b..s...","b....s..","b.....s.","b.....s.","b....s..",".b..s...","..bb...."],
-      mid:[".tbb....","b..gs...","b...ss..","bg...ss.","bg...ss.","b...ss..","b..gs...",".tbb...."],
-      high:["gtbbbg..","b..gss..","b....ss.","bg....s.","bg....s.","b....ss.","b..gss..","gtbbbg.."],
-      ut:["p....k..",".p..kk..","..p.k.k.","...pk.gk","...pk.gk","..p.k.k.",".p..kk..","p....k.."]
+      low:[
+        "................","..bb............",".b..b..s........","b.....s.........","b......s........","b.......s.......",
+        "b.......s.......","b.......s.......","b.......s.......","b.......s.......","b......s........","b.....s.........",
+        ".b..b..s........","..bb............","................","................"],
+      mid:[
+        ".t............t.",".tbb..........t.",".b..b..gs.....t.","b.....ss......t.","b......gs....gt.","bg......s....t..",
+        "bg.......s...t..","bg.......s...t..","bg......s....t..","b......gs....t..","b.....ss......t.","b....gs.......t.",
+        ".b..b..gs.....t.",".tbb..........t.",".t............t.","................"],
+      high:[
+        "gt..........tg..","gtbb........tg..","gb..b..gss..tg..","b.....ssss..gtg.","b......gss..gtb.","bg......ss.gtbb.",
+        "bg.......s.gtbb.","bg.......s.gtbb.","bg......ss.gtbb.","b......gss..gtb.","b.....ssss..gtg.","b....gss....tg..",
+        "gb..b..gss..tg..","gtbb........tg..","gt..........tg..","g..............g"],
+      ut:[
+        "p..............p",".p............p.","..p...kk.....p..","...p.kkkk....p..","....pkk.gk..p...","...pk....gk.p...",
+        "..pk......gkpp..","..pk......gkpp..","...pk....gk.p...","....pkk.gk..p...","...p.kkkk....p..","..p...kk.....p..",
+        ".p............p.","p..............p","..pp........pp..","....p......p...."]
     },
     pal:[
       {b:'#7a5a38',s:'#a09888'},
@@ -149,16 +176,31 @@ const GEAR={
     shot:['#c4b49a','#c8ccd4','#a89878','#e0b050','#5ad4c8','#c090e0','#ffe04a','#ff5050'],
     utShot:'#ffd34a',utShape:'diamond',
     test:{
-      rows:["rwwwwwwr","w.yyyy.w","w..gg..w","w.ywwy.w","w.ywwy.w","w..gg..w","w.yyyy.w","rwwwwwwr"],
+      rows:[
+        "r..............r","rww..........wwr","rw.yyyyyyyyy.wwr","w...yyyyyyyy...w","w....yyggggy....w","w.....yggggy....w",
+        "w.....ywwwwy....w","w.....ywwwwy....w","w.....yggggy....w","w....yyggggy....w","w...yyyyyyyy...w","rw.yyyyyyyyy.wwr",
+        "rww..........wwr","r..............r","..rr........rr..","....rwwwwwwr...."],
       pal:{w:'#ffffff',y:'#ffd34a',r:'#ff3355',g:'#3aa0ff'}
     }
   },
   sword:{
     rows:{
-      low:[".......b","......bb",".....bb.","....bb..","...bb...","..bt....",".btt....","bb......"],
-      mid:[".......h","......bb",".....bb.","....bbt.","...tgbt.","..tggt..",".b.tt...","bb......"],
-      high:["......hh",".....bbb","....bbb.","...tbbt.","..tgbbt.",".ttggtt.","b..tt...","bb......"],
-      ut:["......hr",".....rkk","....krk.","...khrk.","..tkkkt.",".ptkk...","p.tt....","pp......"]
+      low:[
+        "................",".......bb.......","......bbbb......","......bbbb......","......bbbb......","......bbbb......",
+        "......bbbb......","....ttbbbbtt....","...ttttbbtttt...","......tttt......",".......bb.......",".......bb.......",
+        "......bbbb......",".......bb.......","................","................"],
+      mid:[
+        ".......hh.......","......hhhh......","......bbbb......","......bbbb......","......bbbb......","......hbbh......",
+        ".....hbbbbh.....","...ttgbbbbgtt...","..ttttggggtttt..","......tttt......","......hbbh......",".......bb.......",
+        "......bbbb......",".......bb.......","......bbbb......","................"],
+      high:[
+        "......hhhh......",".....hhhhhh.....",".....hbbbbh.....","......bbbb......",".....hbbbbh.....","....hhbbbbhh....",
+        "...hhtbbbbthh...","..tttgbbbbgttt..",".tttttggggttttt.","...ttttggtttt...","......hbbh......","......bbbb......",
+        ".....bbbbbb.....","......bbbb......",".....bbbbbb.....","......bbbb......"],
+      ut:[
+        "......hhhh......",".....hrrrrh.....",".....hrkkkrh....","......rkkkr.....",".....hrkkkrh....","....hhrkkkrhh...",
+        "...tthtkkkthht..","..pttttkkkttttp.",".ppttttkkkttttpp","...ptttkktttp...","......tkkt......","......kkkk......",
+        ".....kkkkkk.....","......kkkk......",".....pppppp.....","......pppp......"]
     },
     pal:[
       {b:'#8a8074',t:'#6b5340'},
@@ -174,16 +216,31 @@ const GEAR={
     shot:['#c8c0b4','#d0d6e0','#aeb6c0','#f0e0b0','#8ec8ff','#d8b8ff','#ffe070','#ff5058'],
     utShot:'#ff2a5a',utShape:'slash',
     test:{
-      rows:["....wwww","...wwyyw","..wwyrrw",".wwyrrg.","wwyrrw..","wyrrw...","wrrw....","wwww...."],
+      rows:[
+        ".......wwww.....","......wwyyww....",".....wwyrrww....","....wwyrrgww....","...wwyrrgwww....","..wwyrrgwwww....",
+        ".wwyrrgwwwww....","wwyrrgwwwwww....","wyrrgwwwwwww....","yrrgwwwwwwww....","rrgwwwwwwwww....","rgwwwwwwwwww....",
+        "gwwwwwwwwwww....","wwwwwwwwwwww....","..wwwwwwww......","....wwww........"],
       pal:{w:'#ffffff',y:'#ffd34a',r:'#ff3355',g:'#3dffa0'}
     }
   },
   robe:{
     rows:{
-      low:[".bb..bb.","bbbbbbbb","bbbbbbbb",".bbbbbb.",".b....b.",".bb..bb."],
-      mid:[".bt..tb.","btbbbbtb","bbbbgbbb",".bbbbbb.",".btbbtb.",".bb..bb.",".b....b."],
-      high:["hht..thh","tbbbbbbt","bbbghbbb",".btggbt.",".b.gg.b.",".btbbtb.","tbb..bbt"],
-      ut:["..hhhh..",".kppppk.","kppgyppk",".kppppk.","..kppk..",".k.pp.k.","k..pp..k",".k....k."]
+      low:[
+        "................","......bbbb......","....bbbbbbbb....","...bb.bbbb.bb...","...bbbbbbbbbb...","..bbbbbbbbbbbb..",
+        "..bbbbbbbbbbbb..","...bbbbbbbbbb...","....bbbbbbbb....",".....bbbbbb.....","....bb....bb....","...bb......bb...",
+        "..bb........bb..",".bb..........bb.","bb............bb","................"],
+      mid:[
+        "......tttt......","....tbbbbbbt....","...bb.bbbb.bb...","..tbbbbbbbbbbt..","..bbbbgbbbbbbb..","..bbbbgbbbbbbb..",
+        "..tbbbbbbbbbbt..","...bbbbbbbbbb...","....tbbbbbbt....",".....bbbbbb.....","....bb....bb....","...bb......bb...",
+        "..bb........bb..",".bb..........bb.","bb............bb","t..............t"],
+      high:[
+        "..h...tttt...h..",".hh.tbbbbbbt.hh.","..tbb.bbbb.bbt..",".htbbbbbbbbbbth.","..bbbbghhgbbbb..","h.bbbbghhgbbbb.h",
+        "..tbbbbbbbbbbt..",".htbbbbbbbbbbth.","...tbbbbbbbbt...","....tbbbbbbt....","....bb....bb....","...bb......bb...",
+        "..tbb......bbt..",".bb..........bb.","hbb..........bbh","t..............t"],
+      ut:[
+        "..hhhhhhhhhhhh..","..hkppppppppkh..",".kppppyyyyypppk.","kppp.yyyyyy.pppk","kppppyyyyyyppppk","kppppgypypgppppk",
+        ".kppppyyyyypppk.","..kppppppppppk..","...kppppppppk...","....kppppppk....","....pp....pp....","...pp......pp...",
+        "..kpp......ppk..",".pp..........pp.","kpp..........ppk","k..............k"]
     },
     pal:[
       {b:'#6a5870'},{b:'#6a6e78'},{b:'#5a4838'},
@@ -197,10 +254,22 @@ const GEAR={
   },
   leather:{
     rows:{
-      low:[".b....b.","bbbbbbbb","bbbddbbb",".bbbbbb.",".dddddd.",".b.bb.b.",".bb..bb."],
-      mid:["tbt..tbt","bbbbbbbb","bbbggbbb",".btbbtb.",".dddddd.",".btbbtb.",".bb..bb."],
-      high:["hhtbbthh","tbbbbbbt","bbbghbbb","tbtggtbt",".bddd.b.",".btbbtb.","tbb..bbt"],
-      ut:["h.k..k.h","kkppppkk","kppgyppk",".kppppk.","..kppk..",".p.kk.p.","p..kk..p",".p....p."]
+      low:[
+        "................",".......bb.......","......bbbb......",".....b....b.....","....bbbbbbbb....","....bbbddbbb....",
+        "....bbbbbbbb....",".....dddddd.....","......bbbb......",".....bb..bb.....","....bb....bb....","...bb......bb...",
+        "...dd......dd...","..dd........dd..","................","................"],
+      mid:[
+        "..t..........t..","...t..bbbb..t...","....tbbbbbbt....","...tb......bt...","...bbbbbbbbbb...","...bbbbggbbbb...",
+        "...tbbbbbbbbt...","....tddddddt....",".....tbbbbt.....","....tbb..bbt....","...tbb....bbt...","...bb......bb...",
+        "...dd......dd...","..dd........dd..","..t..........t..","................"],
+      high:[
+        "hht..........thh","..ht.bbbbbb.th..","...tbbbbbbbbt...","..htb......bth..","..tbbbbbbbbbbt..","..tbbbghhgbbbt..",
+        "..htbbbbbbbbth..","...tdddddddt....","....htbbbbth....","...tbb....bbt...","..tbb......bbt..","..bb........bb..",
+        "..dd........dd..",".dd..........dd.",".h............h.","t..............t"],
+      ut:[
+        "h.k..........k.h","..kkppppppppkk..",".kppppppppppppk.","kkpp.yyyyy.ppkk.","kppppyyyyyyppppk","kppppgypypgppppk",
+        ".kppppyyyyypppk.","..kppppppppppk..","...kppppppppk...","....pp....pp....","...pp......pp...","..p........p....",
+        "..k........k....",".p..........p...","p............p..","................"]
     },
     pal:[
       {b:'#7a5a38',d:'#5a3c22'},{b:'#747880',d:'#4a4e56'},{b:'#5a4630',d:'#3a2c1c'},
@@ -214,10 +283,22 @@ const GEAR={
   },
   heavy:{
     rows:{
-      low:["bb....bb","bbbbbbbb","bbbddbbb",".bbbbbb.",".bbbbbb.",".b.bb.b.",".bb..bb."],
-      mid:["bbt..tbb","bbbbbbbb","bbbggbbb",".btbbtb.",".bbbbbb.",".btbbtb.",".bb..bb."],
-      high:["hhtbbthh","tbbbbbbt","bbbghbbb","tbtggtbt",".bbbbbb.",".btbbtb.","tbb..bbt"],
-      ut:["h......h",".kkppkk.","kkpggpkk",".kppppk.","..kppk..",".k.pp.k.","kk.pp.kk",".k....k."]
+      low:[
+        "................","......dddd......",".....dbbbbd.....",".....bbbbbb.....","...bbbbbbbbbb...","..bbbbbbbbbbbb..",
+        "..bbbddddddbbb..","..bbbbbbbbbbbb..","...bbbbbbbbbb...","...bbbbbbbbbb...","....bbbbbbbb....","....bb....bb....",
+        "...bbb....bbb...","..bbb......bbb..","................","................"],
+      mid:[
+        "....tttttttt....","...tbbbbbbbbt...","..tbbb....bbbt..","..bbbbbbbbbbbb..",".bbbbbbbbbbbbbb.","..bbbbbggbbbbb..",
+        "..tbbbbbbbbbbt..","..bbbbbbbbbbbb..","...bbbbbbbbbb...","...tbbbbbbbbt...","....bbbbbbbb....","....bb....bb....",
+        "...bbb....bbb...","..tbb......bbt..","................","................"],
+      high:[
+        "..hhhhhhhhhhhh..",".htbbbbbbbbbbth.","htbbb......bbbth","hbbbbbbbbbbbbbbh","hbbbbbghhgbbbbbh","htbbbbghhgbbbbth",
+        ".tbbbbbbbbbbbbt.","..bbbbbbbbbbbb..","...bbbbbbbbbb...","...tbbbbbbbbt...","....bbbbbbbb....","...tbb....bbt...",
+        "..tbbb....bbbt..",".tbbb......bbbt.","h..............h","................"],
+      ut:[
+        "h..............h",".kkkkkkkkkkkkk..","kkppppppppppppkk","kppp........pppk","kppppppggppppppk","kkppppghhgppppkk",
+        ".kppppppggppppk.","..kppppppppppk..","...kppppppppk...","....kppppppk....","....pp....pp....","...kpp....ppk...",
+        "..kpp......ppk..",".kp..........pk.","k..............k","................"]
     },
     pal:[
       {b:'#8a8680',d:'#5c5854'},{b:'#9aa0a8',d:'#5a6068'},{b:'#6a7078',d:'#3e444c'},
@@ -231,10 +312,22 @@ const GEAR={
   },
   codex:{
     rows:{
-      low:[".bbbbbb.","bbbbbbbb","b......b","b......b","b......b","bbbbbbbb"],
-      mid:[".btbbtb.","bbbbbbbb","b..gg..b","b......b","b..gg..b","bbbbbbbb"],
-      high:["gttbbttg","tbbbbbbt","b.ghhg.b","b......b","b.ghhg.b","gbbbbbbg"],
-      ut:[".kkkkkk.","kppppppk","kp.ww.pk","kpwyywpk","kp.ww.pk","kppppppk",".kkkkkk.","..k..k.."]
+      low:[
+        "................","................","....bbbbbbbb....","...bbbbbbbbbb...","..bb........bb..",".bb..........bb.",
+        ".bb..........bb.",".bb..........bb.",".bb..........bb.","..bb........bb..","...bbbbbbbbbb...","....bbbbbbbb....",
+        "................","................","................","................"],
+      mid:[
+        "......gggg......",".....gggggg.....","....gggggggg....","...btbbbbbbtb...","..bb..gggg..bb..",".bb..gggggg..bb.",
+        ".bb..........bb.",".bb..gggggg..bb.","..bb..gggg..bb..","...bbbbbbbbbb...","....tbbbbbbt....",".....bbbbbb.....",
+        "......tttt......","................","................","................"],
+      high:[
+        "..h...gggg...h..",".hh.ghhhhhhg.hh.","..gghhhhhhhhgg..",".htbbbbbbbbbbth.","hbb..ghhhhg..bbh","bb..ghhhhhhg..bb",
+        "bb............bb","bb..ghhhhhhg..bb","hbb..ghhhhg..bbh",".htbbbbbbbbbbth.","...tbbbbbbbbt...","....gbbbbbbg....",
+        "...h.gggggg.h...","....h......h....","................","................"],
+      ut:[
+        "....yyyyyyyy....","...yyppppppyy...","..yppwwwwwwppy..",".kppwwwwwwwwppk.","kppw.yyyyyy.wppk","kppwyyyppyyywppk",
+        "kppw.yyyyyy.wppk",".kppwwwwwwwwppk.","..kppwwwwwwppk..","...kkppppppkk...","....kkppppkk....",".....k....k.....",
+        "......k..k......","................","................","................"]
     },
     pal:[
       {b:'#6b4a2a'},{b:'#5c6068'},{b:'#4a3828'},
@@ -248,10 +341,22 @@ const GEAR={
   },
   quiver:{
     rows:{
-      low:["..bbbb..",".bbbbbb.","bbbbbbbb",".bbbbbb.","..bbbb..","ssssssss"],
-      mid:["gbtbbtbg",".bbbbbb.","bbbghbbb",".bbbbbb.",".btbbtb.","gssssssg"],
-      high:["gbtbbtbg","hbbbbbbh","bbggggbb","hbbbbbbh",".btbbtb.","gssssssg"],
-      ut:["p..kk..p",".kkppkk.","kkpggpkk",".kppppk.","kkpggpkk",".kkppkk.","p..kk..p",".ssssss."]
+      low:[
+        "................","...s.s.s.s......","..ss.ss.ss.s....","...s.s.s.s......","....bbbbbb......","...bbbbbbbb.....",
+        "...bb....bb.....","...bb....bb.....","...bb....bb.....","...bb....bb.....","...bbbbbbbb.....","....bbbbbb......",
+        ".....bbbb.......","......bb........","................","................"],
+      mid:[
+        "..gs.gs.gs.g....",".gss.gss.gss.g..","..gs.gs.gs.g....","...tbbbbbbt.....","..tbbbbbbbbbt...","..tbb.hhhh.bbt..",
+        "..tbb....bbt....","..tbb....bbt....","..tbb.hhhh.bbt..","...bbbbbbbbb....","....tbbbbbt.....",".....bbbbb......",
+        ".....tbbt.......","......ss........",".....ssss.......","................"],
+      high:[
+        "hgs.hgs.hgs.gh..","gsssgsssgsssg...","hgs.hgs.hgs.gh..","..htbbbbbbbth...","..tbbbbbbbbbbt..","..tbbghhhhgbbt..",
+        ".htbb......bbth.","..tbb......bbt..",".htbbghhhhgbbth.","..tbbbbbbbbbbt..","...htbbbbbbth...","....tbbbbbbt....",
+        ".....htbbth.....","......hssh......",".....ssssss.....","......ssss......"],
+      ut:[
+        "p.s.p.s.p.s..p..","sssksssksssks...","p.s.p.s.p.s..p..",".kkppppppppkk...",".kppppppppppppk.","kkpp.gggg.ppkk..",
+        "kpp........ppk..","kkpp.gggg.ppkk..",".kppppppppppppk.",".kkppppppppkk...","...kkppppkk.....","....kppppk......",
+        ".....kppk.......","......ss........",".....ssss.......","......ss........"]
     },
     pal:[
       {b:'#6b4a2a',s:'#908878'},{b:'#5c6068',s:'#a8acb4'},{b:'#4a3828',s:'#b0a088'},
@@ -265,10 +370,22 @@ const GEAR={
   },
   seal:{
     rows:{
-      low:["..bbbb..",".bbbbbb.","bbbbbbbb","bbbbbbbb",".bbbbbb.","..bbbb.."],
-      mid:["..tbbt..",".bbbbbb.","bbgbbgbb","bbbbbbbb","bbgbbgbb",".bbbbbb.","..tbbt.."],
-      high:["hgttttgh","gtbbbbtg","tbghhgbt","tbghhgbt","gtbbbbtg","hgttttgh"],
-      ut:["...hh...","h.kkkk.h","kkpggpkk","hpgwwgph","kkpggpkk","h.kkkk.h","...hh..."]
+      low:[
+        "................","....bbbbbbbb....","...bbbbbbbbbb...","..bbbbbbbbbbbb..","..bbbbbbbbbbbb..","..bbbbbbbbbbbb..",
+        "...bbbbbbbbbb...","...bbbbbbbbbb...","....bbbbbbbb....","....bbbbbbbb....",".....bbbbbb.....","......bbbb......",
+        ".......bb.......","........b.......","................","................"],
+      mid:[
+        "...ttbbbbbbtt...","..tbbbbbbbbbbt..","..bbbbbggbbbbb..","..bbbbbggbbbbb..","..bbbbbbbbbbbb..","..bbbbbggbbbbb..",
+        "...tbbbbbbbbt...","...bbbbbbbbbb...","....tbbbbbbt....","....bbbbbbbb....",".....tbbbtt.....","......bbbb......",
+        ".......bb.......","........t.......","................","................"],
+      high:[
+        ".hhtbbbbbbbhtth.",".htbbbbbbbbbbth.","hbbbbbbggbbbbbbh","hbbbbbghhgbbbbbh","htbbbbghhgbbbbth","hbbbbbbggbbbbbbh",
+        ".htbbbbbbbbbbth.","..tbbbbbbbbbbt..","...htbbbbbbth...","....tbbbbbbt....",".....htbbth.....","......tbbt......",
+        ".......hh.......","........h.......","................","................"],
+      ut:[
+        "...hhhhhhhhhh...","..hkkkkkkkkkkh..",".kkppppppppppkk.","kkppppgwwgppppkk","kpppppgwwgpppppk","kkppppgwwgppppkk",
+        ".kkppppppppppkk.","..hkkppppppkkh..","...hkkppppkkh...","....hkkppkkh....",".....hkkkkh.....","......hkkh......",
+        ".......hh.......","................","................","................"]
     },
     pal:[
       {b:'#8a7a58'},{b:'#7a7e86'},{b:'#5a5448'},
@@ -282,10 +399,22 @@ const GEAR={
   },
   ring:{
     rows:{
-      low:["...bb...","..b..b..",".b....b.",".b....b.","..b..b..","...bb..."],
-      mid:["...gg...","..bhhb..",".b....b.",".b....b.","..b..b..","...bb..."],
-      high:["..hghh..",".bthhtb.","bt....tb","bt....tb",".bthhtb.","..bbbb.."],
-      ut:["....h...",".g.ttt.g","..tpppt.","htpggpth","..tpppt.",".g.ttt.g","....h..."]
+      low:[
+        "................","................","................","......bbbb......","....bb....bb....","...b........b...",
+        "...b........b...","...b........b...","...b........b...","....bb....bb....","......bbbb......","................",
+        "................","................","................","................"],
+      mid:[
+        "................",".......gg.......","......ghhg......","......bbbb......","....bb....bb....","...b........b...",
+        "...b........b...","...b........b...","...b........b...","....bb....bb....","......bbbb......",".......gg.......",
+        "................","................","................","................"],
+      high:[
+        "......hhhh......",".....hgttgh.....","......ghhg......",".....tbbbbt.....","....bb....bb....","...bt......tb...",
+        "...b........b...","...bt......tb...","....bb....bb....",".....tbbbbt.....","......ghhg......",".....hgttgh.....",
+        "......hhhh......","................","................","................"],
+      ut:[
+        ".......hh.......","......hppph.....",".....hpttph.....","......gggg......","....tt....tt....","...t........t...",
+        "..gt........tg..","...t........t...","....tt....tt....","......gggg......",".....hpttph.....","......hppph.....",
+        ".......hh.......","................","................","................"]
     },
     pal:[
       {b:'#a06840'},{b:'#d8d0c4'},{b:'#6a8a62'},
@@ -2354,7 +2483,7 @@ function resize(){
 function addRect(x,y,w,h,fn,kind,extra){const r={x,y,w,h,fn,kind:kind||'button'};if(extra)Object.assign(r,extra);uiRects.push(r);}
 function txt(s,x,y,size,col,align,shadow){font(size);ctx.textAlign=align||'left';ctx.textBaseline='middle';if(shadow!==false){ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillText(s,x+1,y+1);}ctx.fillStyle=col||'#fff';ctx.fillText(s,x,y);}
 function panel(x,y,w,h,a){ctx.fillStyle='rgba(16,12,28,'+(a||0.88)+')';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#5a4a8a';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,h-2);}
-function drawSpr(s,x,y,w,h,flip){ctx.drawImage(flip?s.f:s.c,x,y,w,h);}
+function drawSpr(s,x,y,w,h,flip){ctx.imageSmoothingEnabled=false;ctx.drawImage(flip?s.f:s.c,Math.round(x),Math.round(y),w,h);}
 
 function render(){
   ctx.setTransform(1,0,0,1,0,0);ctx.imageSmoothingEnabled=false;uiRects=[];
@@ -2427,7 +2556,8 @@ function render(){
     ctx.globalAlpha=1;
     labels.push([b.x,b.y-42,on?'Beacon: '+b.name:'Locked beacon',on?'#bff6ff':'#c8c8d8']);
   }
-  for(const b of world.bags){if(b.x<x0||b.x>x1||b.y<y0||b.y>y1)continue;const s=SPR.bags[b.col];ctx.globalAlpha=b.t<10&&(time*6|0)%2?0.4:1;drawSpr(s,b.x-5,b.y-6+Math.sin(time*3)*0.6,s.w,s.h);}
+  for(const b of world.bags){if(b.x<x0||b.x>x1||b.y<y0||b.y>y1)continue;const s=SPR.bags[b.col];ctx.globalAlpha=b.t<10&&(time*6|0)%2?0.4:1;drawSpr(s,b.x-5,b.y-6+Math.sin(time*3)*0.6,s.w,s.h);
+    const shown=b.items&&b.items[0]&&itemSpr(b.items[0]);if(shown){ctx.globalAlpha=1;drawSpr(shown,b.x-6,b.y-18,12,12);}}
   ctx.globalAlpha=1;
   for(const e of world.enemies){if(e.x<x0-40||e.x>x1+40||e.y<y0-40||e.y>y1+40)continue;
     const s=SPR[e.d.spr],sc=e.d.boss?2.2:(e.d.scale||(e.elite?1.5:1)),w=s.w*sc,h=s.h*sc;const bob=Math.floor((time*5+e.bob)%2);
@@ -2523,12 +2653,14 @@ function slotHot(x,y,s){return !!(ptr&&ptr.dragged&&ptr.x>=x&&ptr.x<=x+s&&ptr.y>
 function drawTooltip(it,ref,at){
   const lines=itemLines(it);
   const canDrop=!!(ref&&(ref.area==='inv'||ref.area==='eq'));
-  const w=Math.min(220,Math.max(156,layoutC.play.w*0.46)),h=36+lines.length*14+(canDrop?32:8);
+  const sp=itemSpr(it);
+  const w=Math.min(240,Math.max(176,layoutC.play.w*0.48)),h=40+lines.length*14+(canDrop?32:8);
   let x=layoutC.panel.x-w-8,y=clamp((at&&at.y!=null?at.y:H/2)-24,8,H-h-8);
   if(x<8)x=8;
   panel(x,y,w,h,0.96);
-  fitTxt(it.name+(tierLabel(it)?'  ['+tierLabel(it)+']':''),x+8,y+14,12,itemColor(it),w-16);
-  lines.forEach((l,i)=>fitTxt(l,x+8,y+30+i*14,11,'#ddd',w-16));
+  if(sp)drawSpr(sp,x+8,y+8,28,28);
+  fitTxt(it.name+(tierLabel(it)?'  ['+tierLabel(it)+']':''),x+(sp?42:8),y+16,12,itemColor(it),w-(sp?50:16));
+  lines.forEach((l,i)=>fitTxt(l,x+8,y+40+i*14,11,'#ddd',w-16));
   if(canDrop)miniBtn(x+8,y+h-30,w-16,24,'Drop','#ffb347',()=>{dropOnGround(ref);heldTip=null;},{tag:'drop-item'});
 }
 function drawStatBlock(x,y,inner){
