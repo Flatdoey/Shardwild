@@ -63,8 +63,25 @@ function buildSprites(){
   SPR.oracle=mkSprite(["..wwww..",".wwwwww.","wwywwyww","wwwwwwww",".wppppw.","wwwwwwww","w.w..w.w",".w....w."],{w:'#e8e0ff',y:'#ffe14a',p:'#9a6aff'});
   SPR.saint=mkSprite(["...yy...",".ywwwwy.","yywccwyy","ywwwwwwy",".wwccww.","..wwww..",".ww..ww.","ww....ww"],{y:'#fff6c0',w:'#d8fff8',c:'#3ec8ff'});
   SPR.wyrm=mkSprite(["gg....gg","ggg..ggg",".gggggg.","ggyykyyg","ggkwwkgg",".gggggg.","..g..g..",".gg..gg."],{g:'#c8d0dc',y:'#7af0ff',k:'#1a2030',w:'#fff'});
+  SPR.gull=mkSprite(["..wwww..",".wwwwww.","wwywwyww",".wwwwww.","w.w..w.w",".ww..ww."],{w:'#f4f7fb',y:'#e2b13a'});
+  SPR.slime=mkSprite(["..gggg..",".gggggg.","ggwgwg..","gggggggg",".gggggg.","..gggg.."],{g:'#6ecf4a',w:'#e8ffe0'});
+  SPR.hermit=mkSprite(["..ssss..",".ssosss.","ssossoss",".ssssss.","r.r..r.r","rr....rr"],{s:'#d07a48',o:'#f0c090',r:'#e0603a'});
+  SPR.jelly=mkSprite(["..cccc..",".cccccc.","ccwccwcc",".cccccc.","c.c..c.c","..c..c.."],{c:'#7ee0c8',w:'#f4fffc'});
+  SPR.dire=mkSprite(["b.....bb","bbb.bbbb","bbbbbbyb",".bbbbbbb",".b.b.b.b","bb.b.b.b"],{b:'#3a2418',y:'#ff6040'});
+  SPR.treant=mkSprite([".gggggg.","gggdgggg","ggwggwgg",".gggggg.","..ttt...","tt.tt.tt"],{g:'#3f8a32',d:'#6fbf48',w:'#e8ffc0',t:'#6b4a2a'});
+  SPR.bandit=mkSprite(["..hhh...","hhshhhh.","hweehhh.","hhhhhhh.","h.hhh.hd","..h..h.."],{h:'#4a6740',s:SK,e:EY,w:'#fff',d:'#c8c0b0'});
+  SPR.moss=mkSprite([".mmmmmm.","mmwmmwmm","mmmmmmmm",".mmmmmm.","m.m..m.m",".m....m."],{m:'#5a8a48',w:'#d8ffb0'});
+  SPR.cinder=mkSprite([".r.rr.r.","rrroorrr","rryrryrr",".rrrrrr.","r.rr.r.r","r..r..r."],{r:'#ff5a28',o:'#ffd34a',y:'#fff0c0'});
+  SPR.wraith=mkSprite(["..aaaa..",".aawwaa.","aaayyaaa",".aaaaaa.","a..aa..a",".a....a."],{a:'#6a646c',w:'#fff',y:'#ff9a3a'});
+  SPR.beetle=mkSprite(["..oooo..",".orrroo.","orroorro","oooooooo",".o.oo.o.","o..o..o."],{o:'#c84820',r:'#ffb060'});
+  SPR.hound=mkSprite(["r.....rr","rrr.rrrr","rrrrryyr",".rrrrrrr",".r.r.r.r","rr.r.r.r"],{r:'#e07030',y:'#ffe14a'});
+  SPR.titan=mkSprite(["..yyyy..",".yywyywy","yyyyyyyy",".oyyyyo.","ooyyyoo.",".yy..yy.",".y....y.","y......y"],{y:'#ffd34a',w:'#fff6c0',o:'#ff6a28'});
+  SPR.herald=mkSprite(["..pppp..",".ppwwpp.","ppkyykpp",".pppppp.","p.pppp.p",".p.pp.p.","pp....pp",".p....p."],{p:'#3a1860',w:'#e8d8ff',k:'#ff4ad0',y:'#fff'});
+  SPR.idol=mkSprite(["..wwww..",".wwyyww.","wwwwwwww",".wwwwww.","wwwwwwww",".ww..ww.",".ww..ww.","ww....ww"],{w:'#e8e4dc',y:'#ffd34a'});
+  SPR.serpent=mkSprite(["y..cc..y",".ccyycc.","ccwwwwcc",".cckkcc.","..cccc..",".c....c.","cc....cc","c......c"],{y:'#ffd34a',c:'#7a9a38',w:'#e8ffc0',k:EY});
+  SPR.tidematron=mkSprite([".r.rr.r.",".rrrrrr.","rrwrrwrr","rrrrrrrr",".rppppr.","rr.rr.rr","r..r..r."],{r:'#e07040',w:'#fff',p:'#7ee0c8'});
   // Same bottle, distinct liquid. Cork (c) and neck (n) stay put; l is the brew, g the glint.
-  const pot=["...cc...","...nn...","..llll..",".llllll.",".llglll.",".llllll.","..llll.."];
+  const pot=["......cc......","......cc......",".....nnnn.....","....nlllln....","...nlllllln...","...nlllllln...","...nllgllln...","...nlllllln...","...nlllllln...","...nlllllln...","....nlllln....",".....nnnn.....","......nn......","................","................","................"];
   function potSprite(liquid,glint){return mkSprite(pot,{c:'#f4f4f4',n:'#6b4428',l:liquid,g:glint});}
   SPR.pots={
     hp:potSprite('#ef243c','#ffd0d6'),
@@ -80,7 +97,7 @@ function buildSprites(){
     mastery:potSprite('#f0c020','#fff6a0')
   };
   SPR.hp=SPR.pots.hp;SPR.mp=SPR.pots.mp;SPR.elixir=SPR.pots.att;
-  SPR.key=mkSprite(["..yyyy..","...yy...","yyyyyyyy","yy.yy.yy","yyyyyyyy","..yyyy.."],{y:'#ffd34a'});
+  SPR.key=mkSprite(["......yyyy......",".......yy.......","....yyyyyyyy....","...yy.yyyy.yy...","...yyyyyyyyyy...","....yyyyyyyy....",".....yyyyyy.....","......yyyy......","................","................","................","................","................","................","................","................"],{y:'#ffd34a',d:'#c89820'});
   SPR.chest=mkSprite(["..gggg..","gggggggg","ggyyyggg","gggggggg","ggyyyggg","gggggggg"],{g:'#e3b33d',y:'#fff1a8'});
   SPR.beacon=mkSprite(["...cc...","..cwwc..","...cc...","...ll...","...ll...","..llll..","..lssl.."],{c:'#7af0ff',w:'#ffffff',l:'#d8dce8',s:'#5a6070'});
   const bag=["..kk....","...k....","..bbbb..",".bbbbbb.","bbbbbbbb","bbbbbbbb",".bbbbbb."];
@@ -100,8 +117,8 @@ function buildSprites(){
   SPR.barnacle=mkSprite(["..ggg..",".gwwgw.",".gggggg.","gkgkgkg",".ggggg."],{g:'#6a8a84',w:'#e8fff8',k:'#243430'});
   SPR.shellguard=mkSprite(["r.rr.rr.r","rrrrrrrrr",".rrwkkwrr","rrrrrrrrr","r.rr.rr.r","rr.....rr"],{r:'#c44828',w:'#fff',k:EY});
   SPR.tideclaw=mkSprite(["r..rr..rr..r","rrr.rrrr.rrr",".rrrrrrrrrr.","rrrwkkrrwrrr","rrrrrrrrrrrr",".rrrrrrrrrr.","rr.rr..rr.rr","r..r....r..r"],{r:'#e25a32',w:'#fff4ea',k:'#1a1210'});
-  SPR.tidepearl=mkSprite(["..oooo..",".owwwwo.","owpwwpwo","owwwwwwo",".owwwwo.","..oooo.."],{o:'#e25a32',w:'#e9fffb',p:'#fff'});
-  SPR.keyTide=mkSprite(["..cccc..","...cc...","ccookkcc","cc.cc.cc","cccccc..","..cccc.."],{c:'#7ee0c8',o:'#e25a32',k:'#fff6e0'});
+  SPR.tidepearl=mkSprite(["................","......oooo......","....oowwwwoo....","...owwwwwwwwo...","..owwppwwppwwo..","..owwwwwwwwwwo..","...owwwwwwwwo...","....oowwwwoo....","......oooo......","................","................","................","................","................","................","................"],{o:'#e25a32',w:'#e9fffb',p:'#fff6c0'});
+  SPR.keyTide=mkSprite(["......cccc......",".......cc.......","....cccccc......","...ccooookkcc...","...cc.cc.cccc...","....cccccccc....",".....ccccc......","......cccc......","................","................","................","................","................","................","................","................"],{c:'#7ee0c8',o:'#e25a32',k:'#fff6e0'});
 }
 
 /* ---------------- tiered gear sprites ---------------- */
@@ -110,10 +127,22 @@ const GEARSPR={};
 const GEAR={
   staff:{
     rows:{
-      low:["......oo",".....ooo","....bb..","...bb...","..bb....",".bb.....","bb......","b......."],
-      mid:["....ghhg","...ghhhg","....gtg.","....bt..","...bb...","..bb....",".bb.....","bb......"],
-      high:["...hhhh.","..hgttgh","...gbbg.","..tbtbt.","...b.b..","..b...b.",".b.....b","b......b"],
-      ut:[".y.yyyy.","yyyyyyyy",".ykppky.","..kppk..","...kk...","...kk...","..k..k..",".k....k."]
+      low:[
+        "................","................",".....oooo.......","....oobboo......","....oobboo......",".....oooo.......",
+        "......bb........","......bb........","......bb........","......bb........","......bb........","......bb........",
+        "......bb........",".....bbbb.......","....bbbbbb......",".....bbbb......."],
+      mid:[
+        "................","....gggggggg....","...ghhhhhhhhg...","...ghhhtthhhg...","...ghhhhhhhhg...","....gggggggg....",
+        ".......tt.......","......tbbt......",".......bb.......","......tbbt......",".......bb.......","......tbbt......",
+        ".......bb.......","......bbbb......",".....bbbbbb.....","......bbbb......"],
+      high:[
+        "..h..g....g..h..",".h.gggggggggg.h.","..gghhhhhhhhgg..",".g.ghhhtthhhg.g.","..gghhhhhhhhgg..","...gggggggggg...",
+        "......gttg......",".....ttbbtt.....","......tbbt......",".....ttbbtt.....","......tbbt......",".....ttbbtt.....",
+        ".....tbbbbt.....","....bbbbbbbb....","...bbbbbbbbbb...","....bbbbbbbb...."],
+      ut:[
+        ".y.yyyyyyyyyy.y.","yyyyyyyyyyyyyyyy",".ykkyyyyyyyykk..","..kyypppppppyyk.","...ypppppppppy..","....ppppppppp...",
+        ".....ppppppp....","......ppppp.....",".......pp.......","......kppk......",".....kkppkk.....","......kppk......",
+        ".....kk..kk.....","....kk....kk....","...yy......yy...","..y..........y.."]
     },
     pal:[
       {b:'#6b4a2a',o:'#8a6240'},
@@ -129,16 +158,31 @@ const GEAR={
     shot:['#c07840','#a8adb8','#8a7048','#e88830','#3ad4f0','#b070e8','#ff9a1a','#ff3868'],
     utShot:'#ff4aa0',utShape:'ring',
     test:{
-      rows:["wwwwwwww","wyyyyyyw","wywrrwyw","..yrry..","...ww...","...ww...","..yyyy..",".wwyyww."],
+      rows:[
+        "....wwwwwwww....","...wwyyyyyyww...","..wwyyrrrrwwww..",".wwyyrwwwwryyw..","wwyrwwwwwwwwryw.","wwyrwwwwwwwwryw.",
+        ".wwyyrwwwwryyw..","..wwyyrrrrwwww..","...wwyyyyyyww...","......wwww......","......wwww......",".....wwwwww.....",
+        "....wwyyyyww....","...wwyyyyyyww...","..wwwwyyyywwww..","....wwwwwwww...."],
       pal:{w:'#ffffff',y:'#ffd34a',r:'#ff3355'}
     }
   },
   bow:{
     rows:{
-      low:["..bb....",".b..s...","b....s..","b.....s.","b.....s.","b....s..",".b..s...","..bb...."],
-      mid:[".tbb....","b..gs...","b...ss..","bg...ss.","bg...ss.","b...ss..","b..gs...",".tbb...."],
-      high:["gtbbbg..","b..gss..","b....ss.","bg....s.","bg....s.","b....ss.","b..gss..","gtbbbg.."],
-      ut:["p....k..",".p..kk..","..p.k.k.","...pk.gk","...pk.gk","..p.k.k.",".p..kk..","p....k.."]
+      low:[
+        "................","..bb............",".b..b..s........","b.....s.........","b......s........","b.......s.......",
+        "b.......s.......","b.......s.......","b.......s.......","b.......s.......","b......s........","b.....s.........",
+        ".b..b..s........","..bb............","................","................"],
+      mid:[
+        ".t............t.",".tbb..........t.",".b..b..gs.....t.","b.....ss......t.","b......gs....gt.","bg......s....t..",
+        "bg.......s...t..","bg.......s...t..","bg......s....t..","b......gs....t..","b.....ss......t.","b....gs.......t.",
+        ".b..b..gs.....t.",".tbb..........t.",".t............t.","................"],
+      high:[
+        "gt..........tg..","gtbb........tg..","gb..b..gss..tg..","b.....ssss..gtg.","b......gss..gtb.","bg......ss.gtbb.",
+        "bg.......s.gtbb.","bg.......s.gtbb.","bg......ss.gtbb.","b......gss..gtb.","b.....ssss..gtg.","b....gss....tg..",
+        "gb..b..gss..tg..","gtbb........tg..","gt..........tg..","g..............g"],
+      ut:[
+        "p..............p",".p............p.","..p...kk.....p..","...p.kkkk....p..","....pkk.gk..p...","...pk....gk.p...",
+        "..pk......gkpp..","..pk......gkpp..","...pk....gk.p...","....pkk.gk..p...","...p.kkkk....p..","..p...kk.....p..",
+        ".p............p.","p..............p","..pp........pp..","....p......p...."]
     },
     pal:[
       {b:'#7a5a38',s:'#a09888'},
@@ -154,16 +198,31 @@ const GEAR={
     shot:['#c4b49a','#c8ccd4','#a89878','#e0b050','#5ad4c8','#c090e0','#ffe04a','#ff5050'],
     utShot:'#ffd34a',utShape:'diamond',
     test:{
-      rows:["rwwwwwwr","w.yyyy.w","w..gg..w","w.ywwy.w","w.ywwy.w","w..gg..w","w.yyyy.w","rwwwwwwr"],
+      rows:[
+        "r..............r","rww..........wwr","rw.yyyyyyyyy.wwr","w...yyyyyyyy...w","w....yyggggy....w","w.....yggggy....w",
+        "w.....ywwwwy....w","w.....ywwwwy....w","w.....yggggy....w","w....yyggggy....w","w...yyyyyyyy...w","rw.yyyyyyyyy.wwr",
+        "rww..........wwr","r..............r","..rr........rr..","....rwwwwwwr...."],
       pal:{w:'#ffffff',y:'#ffd34a',r:'#ff3355',g:'#3aa0ff'}
     }
   },
   sword:{
     rows:{
-      low:[".......b","......bb",".....bb.","....bb..","...bb...","..bt....",".btt....","bb......"],
-      mid:[".......h","......bb",".....bb.","....bbt.","...tgbt.","..tggt..",".b.tt...","bb......"],
-      high:["......hh",".....bbb","....bbb.","...tbbt.","..tgbbt.",".ttggtt.","b..tt...","bb......"],
-      ut:["......hr",".....rkk","....krk.","...khrk.","..tkkkt.",".ptkk...","p.tt....","pp......"]
+      low:[
+        "................",".......bb.......","......bbbb......","......bbbb......","......bbbb......","......bbbb......",
+        "......bbbb......","....ttbbbbtt....","...ttttbbtttt...","......tttt......",".......bb.......",".......bb.......",
+        "......bbbb......",".......bb.......","................","................"],
+      mid:[
+        ".......hh.......","......hhhh......","......bbbb......","......bbbb......","......bbbb......","......hbbh......",
+        ".....hbbbbh.....","...ttgbbbbgtt...","..ttttggggtttt..","......tttt......","......hbbh......",".......bb.......",
+        "......bbbb......",".......bb.......","......bbbb......","................"],
+      high:[
+        "......hhhh......",".....hhhhhh.....",".....hbbbbh.....","......bbbb......",".....hbbbbh.....","....hhbbbbhh....",
+        "...hhtbbbbthh...","..tttgbbbbgttt..",".tttttggggttttt.","...ttttggtttt...","......hbbh......","......bbbb......",
+        ".....bbbbbb.....","......bbbb......",".....bbbbbb.....","......bbbb......"],
+      ut:[
+        "......hhhh......",".....hrrrrh.....",".....hrkkkrh....","......rkkkr.....",".....hrkkkrh....","....hhrkkkrhh...",
+        "...tthtkkkthht..","..pttttkkkttttp.",".ppttttkkkttttpp","...ptttkktttp...","......tkkt......","......kkkk......",
+        ".....kkkkkk.....","......kkkk......",".....pppppp.....","......pppp......"]
     },
     pal:[
       {b:'#8a8074',t:'#6b5340'},
@@ -179,16 +238,31 @@ const GEAR={
     shot:['#c8c0b4','#d0d6e0','#aeb6c0','#f0e0b0','#8ec8ff','#d8b8ff','#ffe070','#ff5058'],
     utShot:'#ff2a5a',utShape:'slash',
     test:{
-      rows:["....wwww","...wwyyw","..wwyrrw",".wwyrrg.","wwyrrw..","wyrrw...","wrrw....","wwww...."],
+      rows:[
+        ".......wwww.....","......wwyyww....",".....wwyrrww....","....wwyrrgww....","...wwyrrgwww....","..wwyrrgwwww....",
+        ".wwyrrgwwwww....","wwyrrgwwwwww....","wyrrgwwwwwww....","yrrgwwwwwwww....","rrgwwwwwwwww....","rgwwwwwwwwww....",
+        "gwwwwwwwwwww....","wwwwwwwwwwww....","..wwwwwwww......","....wwww........"],
       pal:{w:'#ffffff',y:'#ffd34a',r:'#ff3355',g:'#3dffa0'}
     }
   },
   robe:{
     rows:{
-      low:[".bb..bb.","bbbbbbbb","bbbbbbbb",".bbbbbb.",".b....b.",".bb..bb."],
-      mid:[".bt..tb.","btbbbbtb","bbbbgbbb",".bbbbbb.",".btbbtb.",".bb..bb.",".b....b."],
-      high:["hht..thh","tbbbbbbt","bbbghbbb",".btggbt.",".b.gg.b.",".btbbtb.","tbb..bbt"],
-      ut:["..hhhh..",".kppppk.","kppgyppk",".kppppk.","..kppk..",".k.pp.k.","k..pp..k",".k....k."]
+      low:[
+        "................","......bbbb......","....bbbbbbbb....","...bb.bbbb.bb...","...bbbbbbbbbb...","..bbbbbbbbbbbb..",
+        "..bbbbbbbbbbbb..","...bbbbbbbbbb...","....bbbbbbbb....",".....bbbbbb.....","....bb....bb....","...bb......bb...",
+        "..bb........bb..",".bb..........bb.","bb............bb","................"],
+      mid:[
+        "......tttt......","....tbbbbbbt....","...bb.bbbb.bb...","..tbbbbbbbbbbt..","..bbbbgbbbbbbb..","..bbbbgbbbbbbb..",
+        "..tbbbbbbbbbbt..","...bbbbbbbbbb...","....tbbbbbbt....",".....bbbbbb.....","....bb....bb....","...bb......bb...",
+        "..bb........bb..",".bb..........bb.","bb............bb","t..............t"],
+      high:[
+        "..h...tttt...h..",".hh.tbbbbbbt.hh.","..tbb.bbbb.bbt..",".htbbbbbbbbbbth.","..bbbbghhgbbbb..","h.bbbbghhgbbbb.h",
+        "..tbbbbbbbbbbt..",".htbbbbbbbbbbth.","...tbbbbbbbbt...","....tbbbbbbt....","....bb....bb....","...bb......bb...",
+        "..tbb......bbt..",".bb..........bb.","hbb..........bbh","t..............t"],
+      ut:[
+        "..hhhhhhhhhhhh..","..hkppppppppkh..",".kppppyyyyypppk.","kppp.yyyyyy.pppk","kppppyyyyyyppppk","kppppgypypgppppk",
+        ".kppppyyyyypppk.","..kppppppppppk..","...kppppppppk...","....kppppppk....","....pp....pp....","...pp......pp...",
+        "..kpp......ppk..",".pp..........pp.","kpp..........ppk","k..............k"]
     },
     pal:[
       {b:'#6a5870'},{b:'#6a6e78'},{b:'#5a4838'},
@@ -202,10 +276,22 @@ const GEAR={
   },
   leather:{
     rows:{
-      low:[".b....b.","bbbbbbbb","bbbddbbb",".bbbbbb.",".dddddd.",".b.bb.b.",".bb..bb."],
-      mid:["tbt..tbt","bbbbbbbb","bbbggbbb",".btbbtb.",".dddddd.",".btbbtb.",".bb..bb."],
-      high:["hhtbbthh","tbbbbbbt","bbbghbbb","tbtggtbt",".bddd.b.",".btbbtb.","tbb..bbt"],
-      ut:["h.k..k.h","kkppppkk","kppgyppk",".kppppk.","..kppk..",".p.kk.p.","p..kk..p",".p....p."]
+      low:[
+        "................",".......bb.......","......bbbb......",".....b....b.....","....bbbbbbbb....","....bbbddbbb....",
+        "....bbbbbbbb....",".....dddddd.....","......bbbb......",".....bb..bb.....","....bb....bb....","...bb......bb...",
+        "...dd......dd...","..dd........dd..","................","................"],
+      mid:[
+        "..t..........t..","...t..bbbb..t...","....tbbbbbbt....","...tb......bt...","...bbbbbbbbbb...","...bbbbggbbbb...",
+        "...tbbbbbbbbt...","....tddddddt....",".....tbbbbt.....","....tbb..bbt....","...tbb....bbt...","...bb......bb...",
+        "...dd......dd...","..dd........dd..","..t..........t..","................"],
+      high:[
+        "hht..........thh","..ht.bbbbbb.th..","...tbbbbbbbbt...","..htb......bth..","..tbbbbbbbbbbt..","..tbbbghhgbbbt..",
+        "..htbbbbbbbbth..","...tdddddddt....","....htbbbbth....","...tbb....bbt...","..tbb......bbt..","..bb........bb..",
+        "..dd........dd..",".dd..........dd.",".h............h.","t..............t"],
+      ut:[
+        "h.k..........k.h","..kkppppppppkk..",".kppppppppppppk.","kkpp.yyyyy.ppkk.","kppppyyyyyyppppk","kppppgypypgppppk",
+        ".kppppyyyyypppk.","..kppppppppppk..","...kppppppppk...","....pp....pp....","...pp......pp...","..p........p....",
+        "..k........k....",".p..........p...","p............p..","................"]
     },
     pal:[
       {b:'#7a5a38',d:'#5a3c22'},{b:'#747880',d:'#4a4e56'},{b:'#5a4630',d:'#3a2c1c'},
@@ -219,10 +305,22 @@ const GEAR={
   },
   heavy:{
     rows:{
-      low:["bb....bb","bbbbbbbb","bbbddbbb",".bbbbbb.",".bbbbbb.",".b.bb.b.",".bb..bb."],
-      mid:["bbt..tbb","bbbbbbbb","bbbggbbb",".btbbtb.",".bbbbbb.",".btbbtb.",".bb..bb."],
-      high:["hhtbbthh","tbbbbbbt","bbbghbbb","tbtggtbt",".bbbbbb.",".btbbtb.","tbb..bbt"],
-      ut:["h......h",".kkppkk.","kkpggpkk",".kppppk.","..kppk..",".k.pp.k.","kk.pp.kk",".k....k."]
+      low:[
+        "................","......dddd......",".....dbbbbd.....",".....bbbbbb.....","...bbbbbbbbbb...","..bbbbbbbbbbbb..",
+        "..bbbddddddbbb..","..bbbbbbbbbbbb..","...bbbbbbbbbb...","...bbbbbbbbbb...","....bbbbbbbb....","....bb....bb....",
+        "...bbb....bbb...","..bbb......bbb..","................","................"],
+      mid:[
+        "....tttttttt....","...tbbbbbbbbt...","..tbbb....bbbt..","..bbbbbbbbbbbb..",".bbbbbbbbbbbbbb.","..bbbbbggbbbbb..",
+        "..tbbbbbbbbbbt..","..bbbbbbbbbbbb..","...bbbbbbbbbb...","...tbbbbbbbbt...","....bbbbbbbb....","....bb....bb....",
+        "...bbb....bbb...","..tbb......bbt..","................","................"],
+      high:[
+        "..hhhhhhhhhhhh..",".htbbbbbbbbbbth.","htbbb......bbbth","hbbbbbbbbbbbbbbh","hbbbbbghhgbbbbbh","htbbbbghhgbbbbth",
+        ".tbbbbbbbbbbbbt.","..bbbbbbbbbbbb..","...bbbbbbbbbb...","...tbbbbbbbbt...","....bbbbbbbb....","...tbb....bbt...",
+        "..tbbb....bbbt..",".tbbb......bbbt.","h..............h","................"],
+      ut:[
+        "h..............h",".kkkkkkkkkkkkk..","kkppppppppppppkk","kppp........pppk","kppppppggppppppk","kkppppghhgppppkk",
+        ".kppppppggppppk.","..kppppppppppk..","...kppppppppk...","....kppppppk....","....pp....pp....","...kpp....ppk...",
+        "..kpp......ppk..",".kp..........pk.","k..............k","................"]
     },
     pal:[
       {b:'#8a8680',d:'#5c5854'},{b:'#9aa0a8',d:'#5a6068'},{b:'#6a7078',d:'#3e444c'},
@@ -236,10 +334,22 @@ const GEAR={
   },
   codex:{
     rows:{
-      low:[".bbbbbb.","bbbbbbbb","b......b","b......b","b......b","bbbbbbbb"],
-      mid:[".btbbtb.","bbbbbbbb","b..gg..b","b......b","b..gg..b","bbbbbbbb"],
-      high:["gttbbttg","tbbbbbbt","b.ghhg.b","b......b","b.ghhg.b","gbbbbbbg"],
-      ut:[".kkkkkk.","kppppppk","kp.ww.pk","kpwyywpk","kp.ww.pk","kppppppk",".kkkkkk.","..k..k.."]
+      low:[
+        "................","................","....bbbbbbbb....","...bbbbbbbbbb...","..bb........bb..",".bb..........bb.",
+        ".bb..........bb.",".bb..........bb.",".bb..........bb.","..bb........bb..","...bbbbbbbbbb...","....bbbbbbbb....",
+        "................","................","................","................"],
+      mid:[
+        "......gggg......",".....gggggg.....","....gggggggg....","...btbbbbbbtb...","..bb..gggg..bb..",".bb..gggggg..bb.",
+        ".bb..........bb.",".bb..gggggg..bb.","..bb..gggg..bb..","...bbbbbbbbbb...","....tbbbbbbt....",".....bbbbbb.....",
+        "......tttt......","................","................","................"],
+      high:[
+        "..h...gggg...h..",".hh.ghhhhhhg.hh.","..gghhhhhhhhgg..",".htbbbbbbbbbbth.","hbb..ghhhhg..bbh","bb..ghhhhhhg..bb",
+        "bb............bb","bb..ghhhhhhg..bb","hbb..ghhhhg..bbh",".htbbbbbbbbbbth.","...tbbbbbbbbt...","....gbbbbbbg....",
+        "...h.gggggg.h...","....h......h....","................","................"],
+      ut:[
+        "....yyyyyyyy....","...yyppppppyy...","..yppwwwwwwppy..",".kppwwwwwwwwppk.","kppw.yyyyyy.wppk","kppwyyyppyyywppk",
+        "kppw.yyyyyy.wppk",".kppwwwwwwwwppk.","..kppwwwwwwppk..","...kkppppppkk...","....kkppppkk....",".....k....k.....",
+        "......k..k......","................","................","................"]
     },
     pal:[
       {b:'#6b4a2a'},{b:'#5c6068'},{b:'#4a3828'},
@@ -253,10 +363,22 @@ const GEAR={
   },
   quiver:{
     rows:{
-      low:["..bbbb..",".bbbbbb.","bbbbbbbb",".bbbbbb.","..bbbb..","ssssssss"],
-      mid:["gbtbbtbg",".bbbbbb.","bbbghbbb",".bbbbbb.",".btbbtb.","gssssssg"],
-      high:["gbtbbtbg","hbbbbbbh","bbggggbb","hbbbbbbh",".btbbtb.","gssssssg"],
-      ut:["p..kk..p",".kkppkk.","kkpggpkk",".kppppk.","kkpggpkk",".kkppkk.","p..kk..p",".ssssss."]
+      low:[
+        "................","...s.s.s.s......","..ss.ss.ss.s....","...s.s.s.s......","....bbbbbb......","...bbbbbbbb.....",
+        "...bb....bb.....","...bb....bb.....","...bb....bb.....","...bb....bb.....","...bbbbbbbb.....","....bbbbbb......",
+        ".....bbbb.......","......bb........","................","................"],
+      mid:[
+        "..gs.gs.gs.g....",".gss.gss.gss.g..","..gs.gs.gs.g....","...tbbbbbbt.....","..tbbbbbbbbbt...","..tbb.hhhh.bbt..",
+        "..tbb....bbt....","..tbb....bbt....","..tbb.hhhh.bbt..","...bbbbbbbbb....","....tbbbbbt.....",".....bbbbb......",
+        ".....tbbt.......","......ss........",".....ssss.......","................"],
+      high:[
+        "hgs.hgs.hgs.gh..","gsssgsssgsssg...","hgs.hgs.hgs.gh..","..htbbbbbbbth...","..tbbbbbbbbbbt..","..tbbghhhhgbbt..",
+        ".htbb......bbth.","..tbb......bbt..",".htbbghhhhgbbth.","..tbbbbbbbbbbt..","...htbbbbbbth...","....tbbbbbbt....",
+        ".....htbbth.....","......hssh......",".....ssssss.....","......ssss......"],
+      ut:[
+        "p.s.p.s.p.s..p..","sssksssksssks...","p.s.p.s.p.s..p..",".kkppppppppkk...",".kppppppppppppk.","kkpp.gggg.ppkk..",
+        "kpp........ppk..","kkpp.gggg.ppkk..",".kppppppppppppk.",".kkppppppppkk...","...kkppppkk.....","....kppppk......",
+        ".....kppk.......","......ss........",".....ssss.......","......ss........"]
     },
     pal:[
       {b:'#6b4a2a',s:'#908878'},{b:'#5c6068',s:'#a8acb4'},{b:'#4a3828',s:'#b0a088'},
@@ -270,10 +392,22 @@ const GEAR={
   },
   seal:{
     rows:{
-      low:["..bbbb..",".bbbbbb.","bbbbbbbb","bbbbbbbb",".bbbbbb.","..bbbb.."],
-      mid:["..tbbt..",".bbbbbb.","bbgbbgbb","bbbbbbbb","bbgbbgbb",".bbbbbb.","..tbbt.."],
-      high:["hgttttgh","gtbbbbtg","tbghhgbt","tbghhgbt","gtbbbbtg","hgttttgh"],
-      ut:["...hh...","h.kkkk.h","kkpggpkk","hpgwwgph","kkpggpkk","h.kkkk.h","...hh..."]
+      low:[
+        "................","....bbbbbbbb....","...bbbbbbbbbb...","..bbbbbbbbbbbb..","..bbbbbbbbbbbb..","..bbbbbbbbbbbb..",
+        "...bbbbbbbbbb...","...bbbbbbbbbb...","....bbbbbbbb....","....bbbbbbbb....",".....bbbbbb.....","......bbbb......",
+        ".......bb.......","........b.......","................","................"],
+      mid:[
+        "...ttbbbbbbtt...","..tbbbbbbbbbbt..","..bbbbbggbbbbb..","..bbbbbggbbbbb..","..bbbbbbbbbbbb..","..bbbbbggbbbbb..",
+        "...tbbbbbbbbt...","...bbbbbbbbbb...","....tbbbbbbt....","....bbbbbbbb....",".....tbbbtt.....","......bbbb......",
+        ".......bb.......","........t.......","................","................"],
+      high:[
+        ".hhtbbbbbbbhtth.",".htbbbbbbbbbbth.","hbbbbbbggbbbbbbh","hbbbbbghhgbbbbbh","htbbbbghhgbbbbth","hbbbbbbggbbbbbbh",
+        ".htbbbbbbbbbbth.","..tbbbbbbbbbbt..","...htbbbbbbth...","....tbbbbbbt....",".....htbbth.....","......tbbt......",
+        ".......hh.......","........h.......","................","................"],
+      ut:[
+        "...hhhhhhhhhh...","..hkkkkkkkkkkh..",".kkppppppppppkk.","kkppppgwwgppppkk","kpppppgwwgpppppk","kkppppgwwgppppkk",
+        ".kkppppppppppkk.","..hkkppppppkkh..","...hkkppppkkh...","....hkkppkkh....",".....hkkkkh.....","......hkkh......",
+        ".......hh.......","................","................","................"]
     },
     pal:[
       {b:'#8a7a58'},{b:'#7a7e86'},{b:'#5a5448'},
@@ -287,10 +421,22 @@ const GEAR={
   },
   ring:{
     rows:{
-      low:["...bb...","..b..b..",".b....b.",".b....b.","..b..b..","...bb..."],
-      mid:["...gg...","..bhhb..",".b....b.",".b....b.","..b..b..","...bb..."],
-      high:["..hghh..",".bthhtb.","bt....tb","bt....tb",".bthhtb.","..bbbb.."],
-      ut:["....h...",".g.ttt.g","..tpppt.","htpggpth","..tpppt.",".g.ttt.g","....h..."]
+      low:[
+        "................","................","................","......bbbb......","....bb....bb....","...b........b...",
+        "...b........b...","...b........b...","...b........b...","....bb....bb....","......bbbb......","................",
+        "................","................","................","................"],
+      mid:[
+        "................",".......gg.......","......ghhg......","......bbbb......","....bb....bb....","...b........b...",
+        "...b........b...","...b........b...","...b........b...","....bb....bb....","......bbbb......",".......gg.......",
+        "................","................","................","................"],
+      high:[
+        "......hhhh......",".....hgttgh.....","......ghhg......",".....tbbbbt.....","....bb....bb....","...bt......tb...",
+        "...b........b...","...bt......tb...","....bb....bb....",".....tbbbbt.....","......ghhg......",".....hgttgh.....",
+        "......hhhh......","................","................","................"],
+      ut:[
+        ".......hh.......","......hppph.....",".....hpttph.....","......gggg......","....tt....tt....","...t........t...",
+        "..gt........tg..","...t........t...","....tt....tt....","......gggg......",".....hpttph.....","......hppph.....",
+        ".......hh.......","................","................","................"]
     },
     pal:[
       {b:'#a06840'},{b:'#d8d0c4'},{b:'#6a8a62'},
@@ -376,19 +522,18 @@ const DECO_SPR={
   [T_STUMP]:'stump',[T_VENT]:'vent',[T_PILLAR]:'pillar',[T_RUIN]:'ruin',[T_BCORAL]:'coral'
 };
 const ZONES=[
-  {name:'Saltmarsh Shore',types:['crab','imp'],col:'#e4ce8c'},
-  {name:'Greenmarch',types:['wolf','hexer'],col:'#7fd06a'},
-  {name:'Ashen Wilds',types:['ogre','wisp'],col:'#4fe6ff'},
-  {name:'Godlands',types:['eye','colossus','oracle','saint','wyrm'],col:'#ff6a8a'}];
-// Beach-to-center ramp: few slow shots on the shore, denser and nastier inland.
-// dist is how far from the player a pack may appear, kept inside the zone band.
-// Packs are player-local, so a larger realm spreads the same density across more ground
-// instead of piling extra monsters into the old footprint. The shore cap stays at 4.
+  {name:'Saltmarsh Shore',types:['crab','imp','gull','slime','hermit','jelly'],col:'#e4ce8c'},
+  {name:'Greenmarch',types:['wolf','hexer','dire','treant','bandit','moss'],col:'#7fd06a'},
+  {name:'Ashen Wilds',types:['ogre','wisp','cinder','wraith','beetle','hound'],col:'#4fe6ff'},
+  {name:'Godlands',types:['eye','colossus','oracle','saint','wyrm','titan','herald','idol','serpent'],col:'#ff6a8a'}];
+// Beach-to-center ramp. Caps are about 1.6–1.8× the v11 counts so a region feels lived-in,
+// while the shore stays the smallest and slowest. Packs are player-local. Far enemies are
+// culled, and the global cap below keeps the bullet pool inside a 60 fps budget.
 const SPAWN_CFG=[
-  {cap:4, every:2.7, n:[1,1], elite:0, dist:[64,118]},
-  {cap:9, every:1.55, n:[1,2], elite:0.03, dist:[90,160]},
-  {cap:15, every:1.05, n:[1,2], elite:0.06, dist:[100,180]},
-  {cap:5, every:2.6, n:[1,1], elite:0, dist:[130,210]}];
+  {cap:7, every:1.7, n:[1,2], elite:0, dist:[58,112]},
+  {cap:16, every:0.95, n:[2,3], elite:0.04, dist:[78,150]},
+  {cap:26, every:0.68, n:[2,3], elite:0.07, dist:[88,165]},
+  {cap:8, every:1.6, n:[1,2], elite:0, dist:[120,200]}];
 // 800 tiles on a side is four times the area of the 400-tile realm. Zones stay radial
 // fractions of that disc, so each band grows and the shore stays a thin outer ring.
 const REALM_N=800;
@@ -785,50 +930,246 @@ const DUNGEONS={
     utName:'Tidepearl'
   }
 };
-function genTideclaw(){
-  const w=52,h=44,wd=mkWorld(w,h);
-  wd.isDungeon=true;wd.dungeonId='tideclaw';wd.dname='Tideclaw Burrow';
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++){wd.tiles[y*w+x]=T_BWALL;wd.zone[y*w+x]=0;}
-  const carve=(x,y,rw,rh,t)=>{
-    for(let yy=y;yy<y+rh;yy++)for(let xx=x;xx<x+rw;xx++){
-      if(xx<1||yy<1||xx>=w-1||yy>=h-1)continue;
-      wd.tiles[yy*w+xx]=t;
+const BCOLS=7,BROWS=7,BCELL=16,BPAD=3;
+function burrowShuffle(a,R){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=(R()*(i+1))|0;const t=b[i];b[i]=b[j];b[j]=t;}return b;}
+function burrowOrigin(cx,cy){return {x:BPAD+cx*BCELL,y:BPAD+cy*BCELL};}
+function burrowCenter(cx,cy){const p=burrowOrigin(cx,cy);return {x:p.x+((BCELL/2)|0),y:p.y+((BCELL/2)|0)};}
+function attachBurrowSides(path,occ,sideN,R){
+  const cols=BCOLS,rows=BROWS,at=(x,y)=>y*cols+x,sides=[];
+  const order=[];
+  for(let i=1;i<=path.length-3;i++)order.push(i);
+  for(const i of burrowShuffle(order,R)){
+    if(sides.length>=sideN)break;
+    const room=path[i];
+    for(const d of burrowShuffle([[1,0],[-1,0],[0,1],[0,-1]],R)){
+      const nx=room.x+d[0],ny=room.y+d[1];
+      if(nx<0||ny<0||nx>=cols||ny>=rows||occ[at(nx,ny)])continue;
+      occ[at(nx,ny)]=1;
+      sides.push({x:nx,y:ny,parent:i});
+      break;
     }
-  };
-  const F=T_BFLOOR,Q=T_BPEARL;
-  carve(8,2,36,12,Q);
-  carve(22,13,8,4,F);
-  carve(14,16,24,8,F);
-  carve(22,23,8,4,F);
-  carve(4,26,44,4,F);
-  carve(4,26,14,12,F);
-  carve(34,26,14,12,F);
-  carve(16,29,20,12,F);
-  for(const [x,y] of [[11,32],[13,35],[40,31],[43,35],[17,19],[33,20],[12,6],[39,6],[17,9],[34,8]]){
-    if(wd.tiles[y*w+x]!==T_BWALL)wd.tiles[y*w+x]=T_BPOOL;
   }
-  for(const [x,y] of [[6,28],[6,36],[15,28],[36,28],[45,28],[45,36],[10,4],[41,4],[10,12],[41,12]]){
-    if(wd.tiles[y*w+x]!==T_BWALL)wd.tiles[y*w+x]=T_BCORAL;
+  return sides;
+}
+function carveBurrow(R,path,sides,pathN,sideN){
+  const w=BPAD*2+BCOLS*BCELL,h=BPAD*2+BROWS*BCELL,tiles=new Uint8Array(w*h),spine=new Uint8Array(w*h);
+  tiles.fill(T_BWALL);
+  const rooms=[];
+  function set(x,y,t){if(x>0&&y>0&&x<w-1&&y<h-1)tiles[y*w+x]=t;}
+  function disk(cx,cy,rad,t,mark){
+    for(let y=cy-rad;y<=cy+rad;y++)for(let x=cx-rad;x<=cx+rad;x++){
+      if((x-cx)*(x-cx)+(y-cy)*(y-cy)<=rad*rad){set(x,y,t);if(mark&&x>0&&y>0&&x<w-1&&y<h-1)spine[y*w+x]=1;}
+    }
   }
-  wd.spawn={x:26*TS+4,y:37*TS+4};
-  wd.exit={x:26*TS+4,y:6*TS+4};
-  wd.exitOpen=false;
-  wd.anchor={x:26*TS+4,y:7*TS+4};
-  wd.beacons=[];
-  wd.encounters=[
-    {type:'pincer',x:8*TS+4,y:32*TS+4},
-    {type:'pincer',x:11*TS+4,y:34*TS+4},
-    {type:'pincer',x:9*TS+4,y:30*TS+4},
-    {type:'barnacle',x:40*TS+4,y:32*TS+4},
-    {type:'barnacle',x:44*TS+4,y:34*TS+4},
-    {type:'shellguard',x:41*TS+4,y:30*TS+4},
-    {type:'shellguard',x:18*TS+4,y:19*TS+4},
-    {type:'shellguard',x:32*TS+4,y:20*TS+4},
-    {type:'pincer',x:8*TS+4,y:27*TS+4},
-    {type:'pincer',x:43*TS+4,y:27*TS+4}
-  ];
+  function line(a,b,rad){
+    const steps=Math.max(Math.abs(b.x-a.x),Math.abs(b.y-a.y),1);
+    for(let i=0;i<=steps;i++){
+      const x=Math.round(a.x+(b.x-a.x)*i/Math.max(1,steps)),y=Math.round(a.y+(b.y-a.y)*i/Math.max(1,steps));
+      disk(x,y,rad,T_BFLOOR,true);
+    }
+  }
+  const shapes=['round','tunnel','chamber'];
+  function addRoom(cell,role){
+    const c=burrowCenter(cell.x,cell.y),p=burrowOrigin(cell.x,cell.y);
+    let shape=shapes[(R()*shapes.length)|0];
+    if(role==='start')shape='chamber';
+    if(role==='boss')shape='round';
+    const room={cx:cell.x,cy:cell.y,role,shape,x0:p.x,y0:p.y,x1:p.x+BCELL,y1:p.y+BCELL,links:[],enc:''};
+    rooms.push(room);
+    if(shape==='round')disk(c.x,c.y,role==='boss'?6:5,role==='boss'?T_BPEARL:T_BFLOOR,false);
+    else if(shape==='tunnel')disk(c.x,c.y,3,T_BFLOOR,false);
+    else for(let y=c.y-5;y<=c.y+5;y++)for(let x=c.x-5;x<=c.x+5;x++)set(x,y,T_BFLOOR);
+    disk(c.x,c.y,2,role==='boss'?T_BPEARL:T_BFLOOR,true);
+    return room;
+  }
+  for(let i=0;i<path.length;i++)addRoom(path[i],i===0?'start':i===path.length-1?'boss':'path');
+  for(let i=0;i<path.length-1;i++){
+    rooms[i].links.push(i+1);rooms[i+1].links.push(i);
+    line(burrowCenter(path[i].x,path[i].y),burrowCenter(path[i+1].x,path[i+1].y),1);
+  }
+  sides.forEach((cell,s)=>{
+    const role=s===0?'chest':s===1?'mini':'side';
+    const room=addRoom(cell,role);
+    const id=rooms.length-1,pi=cell.parent;
+    room.links.push(pi);rooms[pi].links.push(id);
+    line(burrowCenter(cell.x,cell.y),burrowCenter(path[pi].x,path[pi].y),1);
+  });
+  for(const room of rooms){
+    if(room.role==='boss'||room.role==='start')continue;
+    const c=burrowCenter(room.cx,room.cy);
+    for(let n=0;n<5;n++){
+      const x=c.x+((R()*9)|0)-4,y=c.y+((R()*9)|0)-4;
+      if(x<=1||y<=1||x>=w-2||y>=h-2)continue;
+      const i=y*w+x;
+      if(tiles[i]===T_BWALL||spine[i])continue;
+      if(Math.abs(x-c.x)+Math.abs(y-c.y)<3)continue;
+      tiles[i]=R()<0.45?T_BPOOL:T_BCORAL;
+    }
+  }
+  function walkable(tx,ty){
+    if(tx<=0||ty<=0||tx>=w-1||ty>=h-1)return false;
+    const t=tiles[ty*w+tx];
+    return t!==T_BWALL&&t!==T_BCORAL;
+  }
+  function pix(tx,ty){return {x:(tx+0.5)*TS,y:(ty+0.5)*TS};}
+  function findSpot(cx,cy,avoid){
+    const c=burrowCenter(cx,cy);
+    for(let r=0;r<8;r++){
+      for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
+        if(r&&Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;
+        const x=c.x+dx,y=c.y+dy;
+        if(!walkable(x,y))continue;
+        if(spine[y*w+x]&&r<2)continue;
+        const p=pix(x,y);let bad=false;
+        for(const a of avoid)if(Math.hypot(p.x-a.x,p.y-a.y)<16)bad=true;
+        if(!bad)return p;
+      }
+    }
+    return walkable(c.x,c.y)?pix(c.x,c.y):null;
+  }
+  const startC=burrowCenter(path[0].x,path[0].y),bossC=burrowCenter(path[path.length-1].x,path[path.length-1].y);
+  const prev=burrowCenter(path[path.length-2].x,path[path.length-2].y);
+  const spawn=pix(startC.x,startC.y),anchor=pix(bossC.x,bossC.y);
+  let ex=bossC.x+(Math.sign(prev.x-bossC.x)||1)*4,ey=bossC.y+(Math.sign(prev.y-bossC.y)||0)*3;
+  if(!walkable(ex,ey)){ex=bossC.x+3;ey=bossC.y;}
+  if(!walkable(ex,ey)){ex=bossC.x;ey=bossC.y+3;}
+  if(!walkable(ex,ey)){ex=bossC.x;ey=bossC.y;}
+  const exit=pix(ex,ey);
+  const encounters=[],chests=[],taken=[spawn,anchor,exit];
+  function place(type,room){
+    const p=findSpot(room.cx,room.cy,taken);
+    if(!p)return false;
+    encounters.push({type,x:p.x,y:p.y});taken.push(p);return true;
+  }
+  for(const room of rooms){
+    if(room.role==='start'||room.role==='boss')continue;
+    if(room.role==='chest'){
+      const p=findSpot(room.cx,room.cy,taken);
+      if(!p)return null;
+      chests.push({x:p.x,y:p.y,open:false});taken.push(p);continue;
+    }
+    if(room.role==='mini'){
+      room.enc='mini';
+      if(!place('tidematron',room)||!place('pincer',room)||!place('pincer',room))return null;
+      continue;
+    }
+    const kind=['swarm','turrets','pack','mixed'][(R()*4)|0];
+    room.enc=kind;
+    const plan=kind==='swarm'?[['pincer',3]]:kind==='turrets'?[['barnacle',2]]:kind==='pack'?[['shellguard',2]]:[['pincer',2],['shellguard',1]];
+    for(const [type,n] of plan)for(let i=0;i<n;i++)if(!place(type,room))return null;
+  }
+  const dist=new Array(rooms.length).fill(-1),queue=[0];
+  dist[0]=0;
+  for(let qi=0;qi<queue.length;qi++){
+    const i=queue[qi];
+    for(const j of rooms[i].links)if(dist[j]<0){dist[j]=dist[i]+1;queue.push(j);}
+  }
+  let bossD=-1,maxD=-1,ties=0;
+  for(let i=0;i<rooms.length;i++){
+    if(dist[i]<0)return null;
+    if(dist[i]>maxD){maxD=dist[i];ties=1;}
+    else if(dist[i]===maxD)ties++;
+    if(rooms[i].role==='boss')bossD=dist[i];
+  }
+  if(bossD!==maxD||ties!==1)return null;
+  const seen=new Uint8Array(w*h),stack=[startC.y*w+startC.x];
+  seen[startC.y*w+startC.x]=1;
+  while(stack.length){
+    const i=stack.pop(),x=i%w,y=(i/w)|0;
+    for(const d of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const nx=x+d[0],ny=y+d[1];
+      if(nx<0||ny<0||nx>=w||ny>=h)continue;
+      const j=ny*w+nx,t=tiles[j];
+      if(seen[j]||t===T_BWALL||t===T_BCORAL)continue;
+      seen[j]=1;stack.push(j);
+    }
+  }
+  function reached(tx,ty){return tx>0&&ty>0&&tx<w&&ty<h&&seen[ty*w+tx]===1;}
+  if(!reached(startC.x,startC.y)||!reached(bossC.x,bossC.y)||!reached(ex,ey))return null;
+  for(const room of rooms){const c=burrowCenter(room.cx,room.cy);if(!reached(c.x,c.y))return null;}
+  function clearPoint(p){const tx=Math.floor(p.x/TS),ty=Math.floor(p.y/TS);return reached(tx,ty);}
+  if(!clearPoint(spawn)||!clearPoint(anchor)||!clearPoint(exit))return null;
+  for(const e of encounters)if(!clearPoint(e))return null;
+  for(const c of chests)if(!clearPoint(c))return null;
+  let sig=rooms.map(r=>r.cx+','+r.cy+':'+r.shape+':'+r.role+':'+r.enc).join('|'),hash=0;
+  for(let i=0;i<tiles.length;i+=5)hash=Math.imul(hash,33)+tiles[i]|0;
+  sig+='#'+(hash>>>0);
+  return {w,h,tiles,rooms,pathN,sideN,spawn,anchor,exit,encounters,chests,sig,bossDist:bossD,maxDist:maxD,connected:queue.length===rooms.length};
+}
+function tryBurrow(R){
+  const pathN=8+((R()*7)|0),sideN=2+((R()*3)|0),occ=new Uint8Array(BCOLS*BROWS);
+  const at=(x,y)=>y*BCOLS+x;
+  const sx=(R()*BCOLS)|0,sy=(R()*BROWS)|0,path=[{x:sx,y:sy}];
+  occ[at(sx,sy)]=1;
+  function grow(){
+    if(path.length===pathN)return true;
+    const last=path[path.length-1];
+    for(const d of burrowShuffle([[1,0],[-1,0],[0,1],[0,-1]],R)){
+      const nx=last.x+d[0],ny=last.y+d[1];
+      if(nx<0||ny<0||nx>=BCOLS||ny>=BROWS||occ[at(nx,ny)])continue;
+      occ[at(nx,ny)]=1;path.push({x:nx,y:ny});
+      if(grow())return true;
+      path.pop();occ[at(nx,ny)]=0;
+    }
+    return false;
+  }
+  if(!grow())return null;
+  const sides=attachBurrowSides(path,occ,sideN,R);
+  if(sides.length!==sideN)return null;
+  return carveBurrow(R,path,sides,pathN,sideN);
+}
+function snakeBurrow(R){
+  const pathN=11,sideN=3,path=[],occ=new Uint8Array(BCOLS*BROWS);
+  let x=0,y=0,dir=1;
+  for(let i=0;i<pathN;i++){
+    path.push({x,y});occ[y*BCOLS+x]=1;
+    const nx=x+dir;
+    if(nx<0||nx>=BCOLS){y++;dir=-dir;}
+    else x=nx;
+  }
+  const sides=attachBurrowSides(path,occ,sideN,R);
+  if(sides.length!==sideN)return null;
+  return carveBurrow(R,path,sides,pathN,sideN);
+}
+function layoutTideclaw(seed){
+  const base=seed|0;
+  for(let attempt=0;attempt<8;attempt++){
+    const L=tryBurrow(mulberry((base+Math.imul(attempt+1,0x9E3779B9))|0));
+    if(L)return L;
+  }
+  return snakeBurrow(mulberry(base^0x51f15e));
+}
+function genTideclaw(seed){
+  if(seed==null)seed=(Math.random()*0x7fffffff)|0;
+  seed|=0;
+  const L=layoutTideclaw(seed);
+  const wd=mkWorld(L.w,L.h);
+  wd.isDungeon=true;wd.dungeonId='tideclaw';wd.dname='Tideclaw Burrow';
+  wd.tiles.set(L.tiles);
+  for(let i=0;i<wd.zone.length;i++)wd.zone[i]=L.tiles[i]===T_BWALL?-1:0;
+  wd.spawn=L.spawn;wd.exit=L.exit;wd.exitOpen=false;wd.anchor=L.anchor;
+  wd.beacons=[];wd.encounters=L.encounters;wd.lootChests=L.chests;wd.rooms=L.rooms;
+  wd.layoutSig=L.sig;wd.seed=seed;wd.pathRooms=L.pathN;wd.roomCount=L.rooms.length;
   renderWorld(wd);
   return wd;
+}
+function auditBurrows(n){
+  n=n||200;const fails=[];let prev='';
+  for(let s=1;s<=n;s++){
+    const L=layoutTideclaw(s);
+    if(!L){fails.push(s+':no layout');continue;}
+    if(L.pathN<8||L.pathN>14)fails.push(s+':path '+L.pathN);
+    if(L.rooms.length<10||L.rooms.length>18)fails.push(s+':rooms '+L.rooms.length);
+    if(L.sideN<2||L.sideN>4)fails.push(s+':sides '+L.sideN);
+    if(!L.connected||L.bossDist!==L.maxDist)fails.push(s+':reach '+L.bossDist+'/'+L.maxDist);
+    if(L.sig===prev)fails.push(s+':duplicate');
+    prev=L.sig;
+    const bad=p=>{const tx=Math.floor(p.x/TS),ty=Math.floor(p.y/TS),t=L.tiles[ty*L.w+tx];return t===T_BWALL||t===T_BCORAL;};
+    if(bad(L.spawn)||bad(L.anchor)||bad(L.exit))fails.push(s+':anchor in wall');
+    for(const e of L.encounters)if(bad(e)){fails.push(s+':enemy in wall');break;}
+    for(const c of L.chests)if(bad(c)){fails.push(s+':chest in wall');break;}
+  }
+  return {n,ok:!fails.length,failCount:fails.length,fails:fails.slice(0,8)};
 }
 
 /* ---------------- classes & items ---------------- */
@@ -1043,21 +1384,38 @@ const EN={
   // Shore: slow, single, easy-to-sidestep shots.
   crab:{name:'Shellsnapper',spr:'crab',hp:42,def:0,spd:11,xp:6,r:4,aggro:76,ai:'wander',pats:[{t:'aim',cd:2.5,n:1,spd:38,dmg:5,r:3.2,col:'#ffd27a',life:2.5}]},
   imp:{name:'Dune Imp',spr:'imp',hp:32,def:0,spd:16,xp:8,r:4,aggro:82,ai:'keep',keep:62,pats:[{t:'aim',cd:2.3,n:1,spd:44,dmg:5,r:3,col:'#ff9a4a',life:2.3}]},
-  // Greenmarch: small fans and a slow ring.
+  gull:{name:'Salt Gull',spr:'gull',hp:28,def:0,spd:30,xp:7,r:3.4,aggro:88,ai:'orbit',keep:74,pats:[{t:'aim',cd:2.15,n:1,spd:56,dmg:4,r:2.4,col:'#f4f7fb',life:1.8}]},
+  slime:{name:'Brine Slime',spr:'slime',hp:56,def:1,spd:10,xp:8,r:4.2,aggro:70,ai:'wander',pats:[{t:'aim',cd:2.45,n:1,spd:34,dmg:6,r:3.6,col:'#8ee060',life:2.4,slow:1.6}]},
+  hermit:{name:'Hermit Crab',spr:'hermit',hp:50,def:2,spd:15,xp:9,r:4,aggro:72,ai:'charge',keep:14,pats:[{t:'aim',cd:2.05,n:2,sp:11,spd:44,dmg:6,r:2.8,col:'#ffb070',life:1.7}]},
+  jelly:{name:'Drift Jelly',spr:'jelly',hp:36,def:0,spd:15,xp:7,r:3.6,aggro:80,ai:'chase',pats:[{t:'aim',cd:2.55,n:1,spd:32,dmg:5,r:3.2,col:'#7ee0c8',life:2.5,slow:1.3}]},
+  // Greenmarch: small fans and a slow ring, plus packs that close in.
   wolf:{name:'Briar Hound',spr:'wolf',hp:150,def:1,spd:30,xp:20,r:4,ai:'charge',keep:14,pats:[{t:'aim',cd:1.25,n:2,sp:12,spd:86,dmg:14,r:2.6,col:'#ffe04a',life:0.85}]},
   hexer:{name:'Mire Hexer',spr:'hexer',hp:190,def:2,spd:18,xp:26,r:4,ai:'keep',keep:72,pats:[{t:'aim',cd:1.4,n:1,spd:92,dmg:16,r:3,col:'#d8a0ff',life:1.35,para:1.2},{t:'ring',cd:3.5,n:6,spd:52,dmg:12,r:3,col:'#b46aff',life:2.2}]},
+  dire:{name:'Dire Wolf',spr:'dire',hp:175,def:2,spd:36,xp:24,r:4.2,ai:'charge',keep:16,pats:[{t:'aim',cd:1.05,n:2,sp:8,spd:100,dmg:15,r:2.6,col:'#ff6040',life:0.8}]},
+  treant:{name:'Briar Treant',spr:'treant',hp:270,def:5,spd:9,xp:32,r:5.2,ai:'wander',pats:[{t:'ring',cd:2.9,n:8,spd:46,dmg:12,r:3.1,col:'#7fd06a',life:2.3,slow:2.2},{t:'aim',cd:2.3,n:1,spd:70,dmg:14,r:3.2,col:'#c6a15a',life:1.8}]},
+  bandit:{name:'Road Bandit',spr:'bandit',hp:145,def:1,spd:26,xp:22,r:4,ai:'orbit',keep:80,pats:[{t:'aim',cd:1.25,n:1,spd:128,dmg:15,r:2.4,col:'#e8d8a0',life:1.15,slow:1.2}]},
+  moss:{name:'Moss Lurker',spr:'moss',hp:210,def:3,spd:18,xp:26,r:4.4,ai:'chase',pats:[{t:'aim',cd:1.55,n:3,sp:12,spd:72,dmg:13,r:2.8,col:'#9fe07a',life:1.5,weak:2}]},
   // Ashen Wilds: shotguns and spirals.
   ogre:{name:'Cragmaw Ogre',spr:'ogre',hp:520,def:6,spd:20,xp:64,r:5,ai:'charge',keep:40,pats:[{t:'aim',cd:1.7,n:5,sp:13,spd:100,dmg:26,r:3.4,col:'#7eb6ff',life:1.25,slow:2}]},
   wisp:{name:'Gloamwisp',spr:'wisp',hp:420,def:4,spd:32,xp:58,r:4,ai:'orbit',keep:72,pats:[{t:'spiral',cd:0.18,arms:2,rot:0.4,spd:78,dmg:22,r:2.6,col:'#c6d67a',life:2.1,burst:1.5,rest:1.8,weak:2.5}]},
-  // Godlands: large gods only. Sprites render at 2x with matching hitboxes.
+  cinder:{name:'Cinderling',spr:'cinder',hp:340,def:3,spd:32,xp:52,r:3.8,ai:'orbit',keep:66,pats:[{t:'spiral',cd:0.28,arms:2,rot:0.36,spd:82,dmg:18,r:2.5,col:'#ff6a28',life:1.9,burst:1.3,rest:1.5,weak:1.6}]},
+  wraith:{name:'Ash Wraith',spr:'wraith',hp:310,def:2,spd:26,xp:50,r:4,ai:'wander',pats:[{t:'aim',cd:1.15,n:1,spd:108,dmg:20,r:2.8,col:'#c8c0d0',life:1.5,weak:2.4},{t:'ring',cd:3.2,n:8,spd:58,dmg:16,r:2.8,col:'#ff9a3a',life:2}]},
+  beetle:{name:'Magma Beetle',spr:'beetle',hp:490,def:8,spd:16,xp:62,r:4.6,ai:'charge',keep:22,pats:[{t:'aim',cd:1.5,n:4,sp:14,spd:92,dmg:24,r:3.2,col:'#ffb060',life:1.2,slow:1.8}]},
+  hound:{name:'Ember Hound',spr:'hound',hp:370,def:4,spd:38,xp:56,r:4,ai:'chase',pats:[{t:'aim',cd:0.9,n:2,sp:9,spd:118,dmg:21,r:2.6,col:'#ff7030',life:0.9}]},
+  // Godlands: large gods only. Sprites render at 2x with matching hitboxes. No small trash.
   eye:{name:'Watcher Eye',spr:'eye',hp:6400,def:18,spd:16,xp:240,r:10,scale:2,god:true,ai:'keep',keep:96,pats:[{t:'ring',cd:1.8,n:16,spd:96,dmg:42,r:3.4,col:'#7eb6ff',life:2.3,slow:2},{t:'aim',cd:0.7,n:5,sp:7,spd:150,dmg:36,r:2.4,col:'#ffffff',life:1.15}]},
   colossus:{name:'Starborn Colossus',spr:'colossus',hp:8800,def:24,spd:12,xp:280,r:12,scale:2,god:true,ai:'charge',keep:56,pats:[{t:'ring',cd:1.35,n:14,spd:72,dmg:52,r:4.8,col:'#7af0ff',life:2.6,alt:1},{t:'aim',cd:1.8,n:7,sp:8,spd:120,dmg:46,r:3.2,col:'#ffe14a',life:1.4,stun:0.5}]},
   oracle:{name:'Pale Oracle',spr:'oracle',hp:5600,def:14,spd:20,xp:220,r:10,scale:2,god:true,ai:'orbit',keep:88,pats:[{t:'spiral',cd:0.16,arms:3,rot:0.32,spd:84,dmg:34,r:2.8,col:'#e8e0ff',life:2.2,burst:1.6,rest:1.2},{t:'ring',cd:2.4,n:18,spd:64,dmg:40,r:3.2,col:'#ffe14a',life:2.4},{t:'aim',cd:2.8,n:1,spd:70,dmg:28,r:3.4,col:'#d090ff',life:2.2,para:1.4}]},
   saint:{name:'Glass Saint',spr:'saint',hp:6200,def:16,spd:15,xp:230,r:10,scale:2,god:true,ai:'keep',keep:78,pats:[{t:'aim',cd:0.42,n:1,spd:168,dmg:38,r:2.6,col:'#d8fff8',life:1.35},{t:'ring',cd:2.6,n:20,spd:80,dmg:44,r:3.4,col:'#c6d67a',life:2.2,alt:1,weak:2}]},
   wyrm:{name:'Marble Wyrm',spr:'wyrm',hp:7200,def:20,spd:18,xp:250,r:11,scale:2,god:true,ai:'keep',keep:70,pats:[{t:'aim',cd:1.15,n:6,sp:11,spd:130,dmg:40,r:3,col:'#9ec0ff',life:1.3,slow:1.5},{t:'spiral',cd:0.22,arms:2,rot:-0.45,spd:70,dmg:36,r:3.2,col:'#7af0ff',life:2.3,burst:1.4,rest:1.5}]},
+  titan:{name:'Solar Titan',spr:'titan',hp:7800,def:22,spd:13,xp:265,r:12,scale:2,god:true,ai:'charge',keep:50,pats:[{t:'ring',cd:1.6,n:12,spd:68,dmg:48,r:4.2,col:'#ffd34a',life:2.4,stun:0.45},{t:'aim',cd:1.5,n:5,sp:9,spd:110,dmg:44,r:3.2,col:'#ff6a28',life:1.4}]},
+  herald:{name:'Void Herald',spr:'herald',hp:5400,def:14,spd:22,xp:225,r:10,scale:2,god:true,ai:'orbit',keep:92,pats:[{t:'spiral',cd:0.2,arms:3,rot:-0.28,spd:78,dmg:32,r:2.7,col:'#c46aff',life:2.1,burst:1.4,rest:1.3},{t:'aim',cd:2.6,n:1,spd:64,dmg:30,r:3.4,col:'#ff4ad0',life:2.2,para:1.3}]},
+  idol:{name:'Marble Idol',spr:'idol',hp:9200,def:26,spd:8,xp:275,r:12,scale:2,god:true,ai:'wander',pats:[{t:'ring',cd:2.1,n:16,spd:60,dmg:50,r:3.6,col:'#e8e4dc',life:2.6,slow:2.2,alt:1},{t:'aim',cd:1.9,n:3,sp:8,spd:90,dmg:42,r:3.4,col:'#ffd34a',life:1.8,weak:2}]},
+  serpent:{name:'Crown Serpent',spr:'serpent',hp:7000,def:18,spd:24,xp:255,r:11,scale:2,god:true,ai:'chase',pats:[{t:'aim',cd:1.05,n:6,sp:10,spd:124,dmg:40,r:2.9,col:'#b6e060',life:1.25,slow:1.6},{t:'ring',cd:2.8,n:10,spd:70,dmg:38,r:3.2,col:'#ffd34a',life:2.2}]},
   pincer:{name:'Pincerling',spr:'pincer',hp:48,def:0,spd:14,xp:8,r:3.6,aggro:70,ai:'wander',pats:[{t:'aim',cd:2.3,n:1,spd:46,dmg:6,r:2.8,col:'#ffb070',life:2.1}]},
   barnacle:{name:'Barnacle Spit',spr:'barnacle',hp:70,def:2,spd:0,xp:10,r:4,aggro:96,ai:'keep',keep:1,pats:[{t:'aim',cd:2.6,n:1,spd:40,dmg:7,r:3.2,col:'#7ee0c8',life:2.5,slow:2}]},
   shellguard:{name:'Shellguard',spr:'shellguard',hp:130,def:2,spd:13,xp:16,r:5,aggro:78,ai:'keep',keep:46,pats:[{t:'aim',cd:1.8,n:3,sp:14,spd:54,dmg:8,r:3,col:'#ff7a4a',life:1.6}]},
+  tidematron:{name:'Tide Matron',spr:'tidematron',hp:380,def:4,spd:16,xp:55,r:7,aggro:96,ai:'chase',mini:true,pats:[{t:'aim',cd:1.35,n:3,sp:14,spd:68,dmg:9,r:3,col:'#ffb070',life:1.6},{t:'ring',cd:2.7,n:8,spd:46,dmg:8,r:3.1,col:'#7ee0c8',life:2.2,slow:2},{t:'summon',cd:9,type:'pincer',n:2,cap:20}]},
   tideclaw:{name:'Old Tideclaw',spr:'tideclaw',hp:1100,def:3,spd:20,xp:160,r:11,ai:'boss',boss:true,dungeonBoss:true,
     phases:[
       {above:0.62,pats:[{t:'aim',cd:1.55,n:3,sp:16,spd:72,dmg:9,r:3.1,col:'#ffb070',life:1.7},{t:'aim',cd:2.7,n:1,spd:48,dmg:7,r:3.6,col:'#7ee0c8',life:2.4,slow:2}]},
@@ -1438,7 +1796,7 @@ function startNew(k){
   titleMode='roster';
   enterHub();
   toast('Welcome to the Haven, '+CLASSES[k].name+'!','#ffd34a');
-  toast('Walk into the portal to enter the Shardwild','#9fe0ff');
+  toast('Stand on the portal and tap Enter','#9fe0ff');
   saveGame();
 }
 function continueGame(slotIndex){
@@ -1482,15 +1840,16 @@ function enterRealm(){
   AUD.portal();
 }
 function spawnBoss(wd){wd.boss=spawnEnemy(wd,'king',wd.cx,wd.cy,3,false);AUD.roar();}
-function enterDungeon(id){
+function enterDungeon(id,seed){
   const d=DUNGEONS[id]||DUNGEONS.tideclaw;
-  dungeon=genTideclaw();
+  dungeon=genTideclaw(seed);
   world=dungeon;
   P.x=dungeon.spawn.x;P.y=dungeon.spawn.y;
   clearBullets();
   for(const s of dungeon.encounters||[])spawnEnemy(dungeon,s.type,s.x,s.y,0,false);
   dungeon.boss=spawnEnemy(dungeon,'tideclaw',dungeon.anchor.x,dungeon.anchor.y,0,false);
   quest=null;questT=0;
+  revealDungeonRoom();
   AUD.portal();
   toast('Entered '+d.name,'#ffb070');
   saveGame();
@@ -1621,6 +1980,11 @@ function dungeonLoot(boss){
   }
   return items.filter(it=>it&&!isTestItem(it)&&!isMastery(it));
 }
+function tideChestLoot(){
+  const items=[randomGear(rollTier(2,3))];
+  if(Math.random()<0.55)items.push(mkPot('hp'));
+  return items.filter(it=>it&&!isTestItem(it)&&!isMastery(it)&&!isDungeonUt(it)&&it.kind!=='dungeonkey');
+}
 const BAG_RANK={brown:0,pink:1,purple:2,cyan:3,white:4};
 function itemBagColor(it){
   if(!it)return 'brown';
@@ -1721,9 +2085,19 @@ function simLoot(n){
   out.mastery+=out.boss.mastery;
   out.dungeonUtOutside+=out.boss.dungeonUt;
   out.keysOutside+=out.boss.keys;
-  const portalTypes=['crab','imp','wolf','hexer','ogre','wisp','eye','colossus','oracle','saint','wyrm','king','pincer','barnacle','shellguard','tideclaw'];
+  const portalTypes=Object.keys(EN);
   out.portalByType={};
   for(const t of portalTypes){let c=0;for(let i=0;i<n;i++)if(rollPortal(t))c++;out.portalByType[t]=c;}
+  // Each realm enemy rolls its region's band. UT stays on bosses (and the dungeon boss).
+  out.enemyBands=[];
+  for(const reg of regions){
+    for(const type of ZONES[reg.zone].types){
+      const rolls=[];
+      for(let i=0;i<n;i++)rolls.push(lootItemsFor({zone:reg.zone,elite:false,boss:false}));
+      const s=summarize(rolls);
+      out.enemyBands.push({type,name:EN[type].name,zone:reg.zone,region:reg.name,ai:EN[type].ai,god:!!EN[type].god,span:tierSpan(reg.zone,false),ut:s.ut,gear:s.gear,test:s.test,mastery:s.mastery,dungeonUt:s.dungeonUt,keys:s.keys});
+    }
+  }
   const dBoss=[],dMin=[];
   let dGear=0;
   for(let i=0;i<n;i++){
@@ -2076,6 +2450,17 @@ function worldPOIs(){
   return list;
 }
 function poiSeen(id){return !!(P&&P.seen&&P.seen.indexOf(id)>=0);}
+function revealDungeonRoom(){
+  if(!P||!world||!world.isDungeon||!world.rooms)return;
+  if(!P.explored||typeof P.explored!=='object')P.explored={};
+  const tx=P.x/TS,ty=P.y/TS,CELL=16;
+  for(const r of world.rooms){
+    if(r.seen||tx<r.x0||ty<r.y0||tx>=r.x1||ty>=r.y1)continue;
+    r.seen=true;
+    for(let y=r.y0;y<r.y1;y++)for(let x=r.x0;x<r.x1;x++)P.explored['d:'+Math.floor(x/CELL)+','+Math.floor(y/CELL)]=1;
+    return;
+  }
+}
 function noteDiscoveries(){
   if(!P||!world)return;
   if(!Array.isArray(P.seen))P.seen=[];
@@ -2083,6 +2468,7 @@ function noteDiscoveries(){
   const prefix=explorePrefix();
   const CELL=16;
   P.explored[prefix+Math.floor(P.x/TS/CELL)+','+Math.floor(P.y/TS/CELL)]=1;
+  revealDungeonRoom();
   for(const poi of worldPOIs()){
     if(poi.always||poi.boss)continue;
     if(Math.hypot(poi.x-P.x,poi.y-P.y)<30&&P.seen.indexOf(poi.id)<0){P.seen.push(poi.id);toast('Discovered '+poi.name,'#ffe9a0');}
@@ -2139,13 +2525,15 @@ function update(dt){
   touchChest();noteDiscoveries();
   if(world.isHub){
     if(Math.hypot(P.x-world.fountain.x,P.y-world.fountain.y)<22){P.hp=Math.min(eff('hp'),P.hp+150*dt);P.mp=Math.min(eff('mp'),P.mp+150*dt);}
-    if(world.vault&&Math.hypot(P.x-world.vault.x,P.y-world.vault.y)<9){enterVault();return;}
-    if(Math.hypot(P.x-world.portal.x,P.y-world.portal.y)<9){enterRealm();return;}
-  }else if(world.isVault){
-    if(world.portal&&Math.hypot(P.x-world.portal.x,P.y-world.portal.y)<9){leaveVault();return;}
   }else if(world.isDungeon){
-    if(world.exitOpen&&world.exit&&Math.hypot(P.x-world.exit.x,P.y-world.exit.y)<10){enterHub();toast('Returned to the Haven','#ffd34a');return;}
-  }else{
+    for(const c of world.lootChests||[]){
+      if(c.open||Math.hypot(P.x-c.x,P.y-c.y)>=16)continue;
+      c.open=true;
+      const items=tideChestLoot();
+      if(items.length){spawnLootBag(c.x,c.y,items,120);playDropSound(items);}
+      toast('A tide chest cracks open','#ffd34a');
+    }
+  }else if(!world.isVault){
     const z=zoneAt(world,P.x,P.y);if(z>P.maxZone){P.maxZone=z;toast('Now entering '+ZONES[z].name,ZONES[z].col);}
     spawner(dt);
     if(!world.boss){world.bossT-=dt;if(world.bossT<=0){spawnBoss(world);toast('Morvane, the Hollow King has risen!','#c46aff');}}
@@ -2153,8 +2541,7 @@ function update(dt){
       for(let i=world.portals.length-1;i>=0;i--){
         const p=world.portals[i];
         p.t-=dt;p.delay-=dt;
-        if(p.t<=0){world.portals.splice(i,1);continue;}
-        if(p.delay<=0&&Math.hypot(P.x-p.x,P.y-p.y)<11){enterDungeon(p.dungeon);return;}
+        if(p.t<=0)world.portals.splice(i,1);
       }
     }
   }
@@ -2177,7 +2564,7 @@ function spawner(dt){
   if(spawnT>0)return;
   spawnT=cfg.every*(0.85+Math.random()*0.3);
   let alive=0;for(const e of wd.enemies)if(!e.d.boss)alive++;
-  if(alive>=36||zoneCount(z)>=cfg.cap)return;
+  if(alive>=58||zoneCount(z)>=cfg.cap)return;
   for(let t=0;t<8;t++){
     const a=Math.random()*TAU,dist=rand(cfg.dist[0],cfg.dist[1]);
     const x=P.x+Math.cos(a)*dist,y=P.y+Math.sin(a)*dist;
@@ -2189,7 +2576,8 @@ function spawner(dt){
     const n=irand(cfg.n[0],cfg.n[1]);
     let spawned=0;
     for(let k=0;k<n&&zoneCount(z)<cfg.cap;k++){
-      const ex=x+rand(-12,12),ey=y+rand(-12,12);
+      const spread=n>2?22:16;
+      const ex=x+rand(-spread,spread),ey=y+rand(-spread,spread);
       if(solidBox(wd,ex,ey,4)||inSafe(ex,ey)||inBeaconSafe(ex,ey)||zoneAt(wd,ex,ey)!==z)continue;
       spawnEnemy(wd,type,ex,ey,z,k===0&&cfg.elite>0&&Math.random()<cfg.elite);
       spawned++;
@@ -2252,6 +2640,7 @@ function updateEnemies(dt){
       else if(d0.ai==='charge'){if(d>d0.keep){vx=dx/d*sp;vy=dy/d*sp;}}
       else if(d0.ai==='keep'){const s=d>d0.keep+10?1:d<d0.keep-10?-1:0;vx=dx/d*sp*s-dy/d*sp*0.5*Math.sin(time+e.id);vy=dy/d*sp*s+dx/d*sp*0.5*Math.sin(time+e.id);}
       else if(d0.ai==='orbit'){const s=d>d0.keep?0.7:-0.4;vx=dx/d*sp*s-dy/d*sp;vy=dy/d*sp*s+dx/d*sp;}
+      else if(d0.ai==='chase'){vx=dx/d*sp;vy=dy/d*sp;}
     }else{e.wt-=dt;if(e.wt<=0){e.wt=rand(1,3);e.dir=Math.random()*TAU;}vx=Math.cos(e.dir)*sp*0.4;vy=Math.sin(e.dir)*sp*0.4;}
     if(!moveEnt(e,vx*dt,vy*dt,d0.r*0.6)&&(vx||vy))e.dir=Math.random()*TAU;
     shoveOffBeacons(e);
@@ -2339,7 +2728,7 @@ function resize(){
 function addRect(x,y,w,h,fn,kind,extra){const r={x,y,w,h,fn,kind:kind||'button'};if(extra)Object.assign(r,extra);uiRects.push(r);}
 function txt(s,x,y,size,col,align,shadow){font(size);ctx.textAlign=align||'left';ctx.textBaseline='middle';if(shadow!==false){ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillText(s,x+1,y+1);}ctx.fillStyle=col||'#fff';ctx.fillText(s,x,y);}
 function panel(x,y,w,h,a){ctx.fillStyle='rgba(16,12,28,'+(a||0.88)+')';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#5a4a8a';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,h-2);}
-function drawSpr(s,x,y,w,h,flip){ctx.drawImage(flip?s.f:s.c,x,y,w,h);}
+function drawSpr(s,x,y,w,h,flip){ctx.imageSmoothingEnabled=false;ctx.drawImage(flip?s.f:s.c,Math.round(x),Math.round(y),w,h);}
 
 function render(){
   ctx.setTransform(1,0,0,1,0,0);ctx.imageSmoothingEnabled=false;uiRects=[];
@@ -2389,6 +2778,11 @@ function render(){
       labels.push([p.x,p.y-16,'Haven','#ffd34a']);
     }
     labels.push([world.spawn.x,world.spawn.y+16,world.dname||'Dungeon','#ffb070']);
+    for(const c of world.lootChests||[]){
+      if(c.open||c.x<x0-16||c.x>x1+16||c.y<y0-16||c.y>y1+16)continue;
+      const bob=Math.sin(time*2)*0.5;
+      drawSpr(SPR.chest,c.x-9,c.y-11+bob,18,16);
+    }
   }
   for(const p of world.portals||[]){
     if(p.x<x0-20||p.x>x1+20||p.y<y0-24||p.y>y1+20)continue;
@@ -2412,7 +2806,8 @@ function render(){
     ctx.globalAlpha=1;
     labels.push([b.x,b.y-42,on?'Beacon: '+b.name:'Locked beacon',on?'#bff6ff':'#c8c8d8']);
   }
-  for(const b of world.bags){if(b.x<x0||b.x>x1||b.y<y0||b.y>y1)continue;const s=SPR.bags[b.col];ctx.globalAlpha=b.t<10&&(time*6|0)%2?0.4:1;drawSpr(s,b.x-5,b.y-6+Math.sin(time*3)*0.6,s.w,s.h);}
+  for(const b of world.bags){if(b.x<x0||b.x>x1||b.y<y0||b.y>y1)continue;const s=SPR.bags[b.col];ctx.globalAlpha=b.t<10&&(time*6|0)%2?0.4:1;drawSpr(s,b.x-5,b.y-6+Math.sin(time*3)*0.6,s.w,s.h);
+    const shown=b.items&&b.items[0]&&itemSpr(b.items[0]);if(shown){ctx.globalAlpha=1;drawSpr(shown,b.x-6,b.y-18,12,12);}}
   ctx.globalAlpha=1;
   for(const e of world.enemies){if(e.x<x0-40||e.x>x1+40||e.y<y0-40||e.y>y1+40)continue;
     const s=SPR[e.d.spr],sc=e.d.boss?2.2:(e.d.scale||(e.elite?1.5:1)),w=s.w*sc,h=s.h*sc;const bob=Math.floor((time*5+e.bob)%2);
@@ -2508,12 +2903,14 @@ function slotHot(x,y,s){return !!(ptr&&ptr.dragged&&ptr.x>=x&&ptr.x<=x+s&&ptr.y>
 function drawTooltip(it,ref,at){
   const lines=itemLines(it);
   const canDrop=!!(ref&&(ref.area==='inv'||ref.area==='eq'));
-  const w=Math.min(220,Math.max(156,layoutC.play.w*0.46)),h=36+lines.length*14+(canDrop?32:8);
+  const sp=itemSpr(it);
+  const w=Math.min(240,Math.max(176,layoutC.play.w*0.48)),h=40+lines.length*14+(canDrop?32:8);
   let x=layoutC.panel.x-w-8,y=clamp((at&&at.y!=null?at.y:H/2)-24,8,H-h-8);
   if(x<8)x=8;
   panel(x,y,w,h,0.96);
-  fitTxt(it.name+(tierLabel(it)?'  ['+tierLabel(it)+']':''),x+8,y+14,12,itemColor(it),w-16);
-  lines.forEach((l,i)=>fitTxt(l,x+8,y+30+i*14,11,'#ddd',w-16));
+  if(sp)drawSpr(sp,x+8,y+8,28,28);
+  fitTxt(it.name+(tierLabel(it)?'  ['+tierLabel(it)+']':''),x+(sp?42:8),y+16,12,itemColor(it),w-(sp?50:16));
+  lines.forEach((l,i)=>fitTxt(l,x+8,y+40+i*14,11,'#ddd',w-16));
   if(canDrop)miniBtn(x+8,y+h-30,w-16,24,'Drop','#ffb347',()=>{dropOnGround(ref);heldTip=null;},{tag:'drop-item'});
 }
 function drawStatBlock(x,y,inner){
@@ -2595,6 +2992,14 @@ function drawHUD(){
     for(const e of world.enemies){const ex=mx+(e.x-P.x)*k+m/2,ey=my+(e.y-P.y)*k+m/2;if(ex<mx||ey<my||ex>mx+m||ey>my+m)continue;ctx.fillStyle=e.d.boss?'#e040ff':e.d.god?'#ffe9a0':e.elite?'#ffd34a':'#ff3030';const s=e.d.boss?5:e.d.god?4:e.elite?4:2;ctx.fillRect(ex-s/2,ey-s/2,s,s);}
     for(const b of world.bags){const ex=mx+(b.x-P.x)*k+m/2,ey=my+(b.y-P.y)*k+m/2;if(ex<mx||ey<my||ex>mx+m||ey>my+m)continue;ctx.fillStyle='#fff';ctx.fillRect(ex-1,ey-1,2,2);}
     for(const p of world.portals||[]){const ex=mx+(p.x-P.x)*k+m/2,ey=my+(p.y-P.y)*k+m/2;if(ex<mx||ey<my||ex>mx+m||ey>my+m)continue;ctx.fillStyle='#7ee0c8';ctx.fillRect(ex-2,ey-2,4,4);}
+    if(world.isDungeon&&P&&P.explored){
+      const CELL=16,tx0=P.x/TS-span/2,ty0=P.y/TS-span/2;
+      ctx.fillStyle='rgba(6,4,14,.82)';
+      for(let cy=Math.floor(ty0/CELL)*CELL;cy<ty0+span;cy+=CELL)for(let cx=Math.floor(tx0/CELL)*CELL;cx<tx0+span;cx+=CELL){
+        if(P.explored['d:'+Math.floor(cx/CELL)+','+Math.floor(cy/CELL)])continue;
+        ctx.fillRect(mx+(cx-tx0)*m/span,my+(cy-ty0)*m/span,CELL*m/span+0.6,CELL*m/span+0.6);
+      }
+    }
   }
   if(world.beacons){
     for(const b of world.beacons){
@@ -2610,12 +3015,6 @@ function drawHUD(){
   const sb=Math.round(clamp(u*0.4,16,24)),bx=Math.min(mx+m+sb+12,play.x+play.w-sb-6);
   circBtn({x:bx,y:my+sb,r:sb},'AUTO',null,P.auto?'#5aff7a':'#666',()=>{P.auto=!P.auto;toast('Auto-aim '+(P.auto?'ON':'OFF'));},{tag:'auto'});
   if(world.isHub)sqBtn(bx-sb,my+sb*3.2,Math.max(72,sb*3.6),40,'Heroes','#c9b0ff',openCharSelect,{tag:'char-select'});
-  if(world.isHub&&world.vault)offerPortal(world.vault.x,world.vault.y,'Enter','#7dffe0',enterVault,'portal-vault');
-  if(world.isVault&&world.portal)offerPortal(world.portal.x,world.portal.y,'Exit','#ffd34a',leaveVault,'portal-exit');
-  if(world.isDungeon&&world.exitOpen&&world.exit)offerPortal(world.exit.x,world.exit.y,'Haven','#ffd34a',()=>{enterHub();toast('Returned to the Haven','#ffd34a');},'portal-exit');
-  if(!world.isHub&&!world.isVault&&!world.isDungeon){
-    for(const p of world.portals||[])offerPortal(p.x,p.y,'Enter','#7ee0c8',()=>enterDungeon(p.dungeon),'portal-dungeon');
-  }
   drawAudioBtn(mx+Math.max(12,sb*0.85), my+m+Math.max(12,sb*0.85)+5, Math.max(12,Math.round(sb*0.85)));
   const cost=abCost();
   circBtn(L.ab,(C.ability.split(' ')[1]||C.ability),cost+' MP',C.col,useAbility,P.mp<cost||!P.eq.ability,{tag:'ability'});
@@ -2630,17 +3029,52 @@ function drawHUD(){
   const bs=world.boss;if(bs&&Math.hypot(bs.x-P.x,bs.y-P.y)<240){const w=Math.min(280,play.w*0.55),bx2=play.x+(play.w-w)/2,by=my+m+18;txt(bs.name,play.x+play.w/2,by-10,12,'#e0b0ff','center');bar(bx2,by,w,12,bs.hp/bs.maxhp,'#c46aff',null);}
   let ty2=my+m+28;for(const t of toasts){ctx.globalAlpha=Math.min(1,t.life);fitTxt(t.t,play.x+play.w/2,ty2,13,t.col,Math.max(40,play.w-24),'center');ty2+=16;}ctx.globalAlpha=1;
   drawSidePanel();
+  drawEnterButton();
   const tipRef=(ptr&&ptr.tip&&ptr.ref)||(heldTip&&heldTip.ref);
   if(tipRef){const it=readItem(tipRef);if(it)drawTooltip(it,tipRef,(ptr&&ptr.tip)?ptr:heldTip);}
   if(ptr&&ptr.dragged&&ptr.ref){const it=readItem(ptr.ref);const sp=it&&itemSpr(it);if(sp){if(isUTGear(it)){ctx.fillStyle='rgba(140,50,210,.4)';ctx.fillRect(ptr.x-18,ptr.y-42,36,36);}drawSpr(sp,ptr.x-16,ptr.y-40,32,32);}}
 }
-function offerPortal(wx,wy,label,col,fn,tag){
-  if(!P)return;
-  const d=Math.hypot(P.x-wx,P.y-wy);
-  if(d<10||d>36)return;
-  const p=w2s(wx,wy),bw=72,bh=44;
-  const x=clamp(p.x-bw/2,8,layoutC.play.w-bw-8),y=clamp(p.y-52,8,layoutC.play.h-bh-8);
-  sqBtn(x,y,bw,bh,label,col,fn,{tag});
+const PORTAL_REACH=26;
+function rectsHit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
+function portalChoices(){
+  if(!P||!world)return [];
+  const list=[];
+  const add=(x,y,name,col,fn)=>{
+    if(x==null||y==null||!name)return;
+    const d=Math.hypot(P.x-x,P.y-y);
+    if(d>PORTAL_REACH)return;
+    list.push({x,y,name,col,fn,d});
+  };
+  if(world.isHub){
+    if(world.portal)add(world.portal.x,world.portal.y,'Shardwild','#c9b0ff',enterRealm);
+    if(world.vault)add(world.vault.x,world.vault.y,'Vault','#7dffe0',enterVault);
+  }else if(world.isVault){
+    if(world.portal)add(world.portal.x,world.portal.y,'Haven','#ffd34a',leaveVault);
+  }else if(world.isDungeon){
+    if(world.exitOpen&&world.exit)add(world.exit.x,world.exit.y,'Haven','#ffd34a',()=>{enterHub();toast('Returned to the Haven','#ffd34a');});
+  }else{
+    for(const p of world.portals||[])if(!(p.delay>0))add(p.x,p.y,p.name,'#7ee0c8',()=>enterDungeon(p.dungeon));
+  }
+  list.sort((a,b)=>a.d-b.d||(a.name<b.name?-1:1));
+  return list;
+}
+function drawEnterButton(){
+  const list=portalChoices();
+  if(!list.length)return;
+  const p=list[0],play=layoutC.play,label='Enter '+p.name;
+  font(15);
+  const bw=clamp(Math.ceil(ctx.measureText(label).width+48),180,Math.min(300,play.w-20));
+  const bh=54;
+  let x=Math.round(play.x+(play.w-bw)/2),y=Math.round(play.h-safe.b-bh-14);
+  const L=layoutC;
+  const circ=(c,r)=>c?{x:c.x-r,y:c.y-r,w:r*2,h:r*2}:null;
+  const blocks=[circ(L.moveAnchor,L.stickR+4),circ(L.aimAnchor,L.stickR+4),circ(L.haven,L.haven.r+4),circ(L.ab,L.ab.r+4),
+    {x:play.x+6+safe.l,y:4,w:(L.mm||70)+12,h:(L.mm||70)+40},
+    {x:play.x+play.w-1,y:0,w:Math.max(8,L.panel.w+4),h:H}].filter(Boolean);
+  for(let i=0;i<14&&blocks.some(b=>rectsHit({x,y,w:bw,h:bh},b));i++)y-=8;
+  if(y<8)y=8;
+  x=clamp(x,play.x+6,Math.max(play.x+6,play.x+play.w-bw-6));
+  sqBtn(x,y,bw,bh,label,p.col,p.fn,{tag:'portal-enter',label});
 }
 function drawVaultPanel(Pnl,inner,gap,x0,y0,slot,chest){
   const bottom=Pnl.y+Pnl.h-4;
@@ -3175,7 +3609,7 @@ function sampleTerrain(){
 }
 window.__shardwild={get state(){return state;},get P(){return P;},get world(){return world;},startNew,enterRealm,enterHub,useAbility,sampleTerrain,get fps(){return fps;},get bullets(){return ebN;},get shots(){return pbN;},
   teleport(x,y){if(P){P.x=x;P.y=y;}},setInv(){},get invOpen(){return false;},
-  get ui(){return uiRects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,kind:r.kind,tag:r.tag||'',tab:r.tab||'',beacon:r.beacon||'',unlocked:!!r.unlocked,where:r.where||'',slot:r.slot==null?-1:r.slot,stat:r.stat||'',maxed:!!r.maxed}));},
+  get ui(){return uiRects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,kind:r.kind,tag:r.tag||'',tab:r.tab||'',beacon:r.beacon||'',unlocked:!!r.unlocked,where:r.where||'',slot:r.slot==null?-1:r.slot,stat:r.stat||'',maxed:!!r.maxed,label:r.label||''}));},
   get slots(){return uiRects.filter(r=>r.kind==='slot').map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,area:r.ref.area,i:r.ref.i,slot:r.ref.slot,name:r.item?r.item.name:null,tier:r.item?r.item.tier:null,kind:r.item?r.item.kind:null,stat:r.item?(r.item.stat||r.item.kind||''):'',wep:r.item&&r.item.w?r.item.w:'',dim:!!(r.item&&classLocked(r.item)),tag:r.tag||''}));},
   get layout(){const L=layoutC;return {play:L.play,panel:L.panel,portrait:!!L.portrait,move:L.moveAnchor,aim:L.aimAnchor,haven:L.haven,ab:L.ab,stickR:L.stickR,mm:L.mm};},
   get shotsFired(){return shotsFired;},
@@ -3261,7 +3695,24 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
   },
   debugStatus(fx){if(!P)return;addEB(P.x,P.y,0,0,0,4,0.4,'#d8a0ff',fx,'test');},
   holdKey(code,on){input.keys[code]=!!on;},
-  enterDungeon,
+  enterDungeon,auditBurrows,
+  spawnInfo(){return SPAWN_CFG.map((c,z)=>({name:ZONES[z].name,cap:c.cap,every:c.every,n:c.n.slice(),elite:c.elite,types:ZONES[z].types.slice()}));},
+  zoneSpot(z){
+    if(!world||world.isHub||world.cx==null)return null;
+    const wd=world;
+    for(let dist=56;dist<wd.w*TS*0.48;dist+=18){
+      for(let k=0;k<20;k++){
+        const a=k/20*TAU+dist*0.002;
+        const x=wd.cx+Math.cos(a)*dist,y=wd.cy+Math.sin(a)*dist;
+        if(zoneAt(wd,x,y)!==z||solidBox(wd,x,y,8))continue;
+        if(inSafe(x,y)||inBeaconSafe(x,y))continue;
+        if(z===3&&Math.hypot(x-wd.cx,y-wd.cy)<30*TS)continue;
+        return {x,y};
+      }
+    }
+    return null;
+  },
+  setPortals(list){if(!world)return;world.portals=(list||[]).map(p=>({id:'tideclaw',name:p.name||'Tideclaw Burrow',dungeon:p.dungeon||'tideclaw',x:p.x,y:p.y,t:80,delay:0}));},
   makeItem(s){
     if(s==='hp'||s==='mp')return mkPot(s);
     if(!s||typeof s!=='object')return null;

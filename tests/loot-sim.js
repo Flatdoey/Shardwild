@@ -131,6 +131,9 @@ async function main() {
     for (const t of [0, 1, 4, 5, 6, 7, 8]) assert(!den.minion.gear[t], 'minion tier ' + t + ' ' + fmtGear(den.minion.gear));
     assert(den.minion.gear[2] > 0 && den.minion.gear[3] > 0, 'minion gear ' + fmtGear(den.minion.gear));
     console.log('Tideclaw portal from crabs ' + portals.crab + '/' + N + '  UT ' + den.boss.dungeonUt + '  keys ' + den.boss.keys);
+    const burrows = await page.evaluate(() => window.__shardwild.auditBurrows(200));
+    assert(burrows && burrows.ok && burrows.n === 200, 'Tideclaw layouts ' + JSON.stringify(burrows));
+    console.log('Tideclaw layouts ' + burrows.n + ' seeds connected, in range, boss farthest, no duplicate neighbors');
     const bands = sim.enemyBands || [];
     assert(bands.length >= 24, 'enemy loot bands missing ' + bands.length);
     const byRegion = {};

@@ -129,9 +129,10 @@ function circleHitsRect(cx, cy, r, rect) {
 }
 
 async function walkOntoPortal(page, cdp, x, y) {
+  await page.evaluate(({x, y}) => { window.__shardwild._walk = {x, y}; }, {x, y});
   await walkTo(page, cdp, x, y, () => {
-    const P = window.__shardwild.P;
-    return Math.hypot(P.x - x, P.y - y) < 8;
+    const P = window.__shardwild.P, t = window.__shardwild._walk;
+    return Math.hypot(P.x - t.x, P.y - t.y) < 8;
   }, 28);
   await frames(page, 4);
 }
@@ -674,6 +675,153 @@ async function tideclawAndStatus(page, cdp) {
   assert(await page.evaluate(() => window.__shardwild.place === 'haven'), 'exit portal did not return to the Haven');
   const fpsDen = await page.evaluate(() => window.__shardwild.fps);
   assert(fpsDen > 45, 'fps through the dungeon: ' + fpsDen);
+}
+
+async function v12Coverage(page, cdp) {
+  const OLD = [4, 9, 15, 5];
+  const density = await page.evaluate(() => {
+    const sw = window.__shardwild;
+    sw.enterRealm();
+    sw.P.invuln = 90;
+    const info = sw.spawnInfo();
+    const filled = [];
+    for (let z = 0; z < 4; z++) {
+      const spot = sw.zoneSpot(z);
+      if (!spot) { filled.push({z, error: 'no spot'}); continue; }
+      sw.teleport(spot.x, spot.y);
+      sw.clearFoes();
+      sw.P.invuln = 90;
+      let best = 0;
+      const seen = {};
+      for (let i = 0; i < 18; i++) {
+        sw.pump(15);
+        const here = sw.foes.filter(f => !f.boss && f.zone === z);
+        best = Math.max(best, here.length);
+        for (const f of here) seen[f.type] = 1;
+      }
+      filled.push({z, best, types: Object.keys(seen), cap: info[z].cap});
+    }
+    return {info, filled};
+  });
+  assert(density.info.length === 4, 'spawn info ' + JSON.stringify(density.info));
+  for (let z = 0; z < 4; z++) {
+    const row = density.info[z];
+    const lo = Math.ceil(OLD[z] * 1.5), hi = OLD[z] * 2;
+    assert(row.cap >= lo && row.cap <= hi, row.name + ' cap ' + row.cap + ' not about 1.5-2x ' + OLD[z]);
+    assert(row.types.length >= (z === 3 ? 8 : 6), row.name + ' types ' + row.types.join(','));
+    if (z === 0) assert(row.cap <= density.info[1].cap && row.every >= density.info[1].every, 'shore is not the gentlest ' + JSON.stringify(row));
+    if (z === 3) assert(row.elite === 0, 'Godlands elites ' + JSON.stringify(row));
+    const got = density.filled[z];
+    assert(!got.error && got.best >= Math.min(row.cap, OLD[z] + 2), row.name + ' did not fill ' + JSON.stringify(got));
+  }
+  const packs = [
+    [0, ['gull', 'slime', 'hermit', 'jelly'], 'screenshot_enemies_shore.png'],
+    [1, ['dire', 'treant', 'bandit', 'moss'], 'screenshot_enemies_greenmarch.png'],
+    [2, ['cinder', 'wraith', 'beetle', 'hound'], 'screenshot_enemies_ashen.png'],
+    [3, ['titan', 'herald', 'idol', 'serpent'], 'screenshot_enemies_godlands.png']
+  ];
+  for (const [z, types, file] of packs) {
+    const spawned = await page.evaluate(({z, types}) => {
+      const sw = window.__shardwild;
+      const spot = sw.zoneSpot(z);
+      sw.teleport(spot.x, spot.y);
+      sw.clearFoes();
+      sw.P.invuln = 30;
+      const made = types.map((type, i) => sw.spawnAt(type, spot.x + (i - 1.5) * 28, spot.y + 10, z));
+      return {zone: sw.zoneAt(sw.P.x, sw.P.y), made};
+    }, {z, types});
+    assert(spawned.zone === z && spawned.made.every(Boolean), 'new foes ' + file + ' ' + JSON.stringify(spawned));
+    await frames(page, 4);
+    await page.screenshot({path: path.join(ART, file)});
+  }
+
+  const shapes = await page.evaluate(() => {
+    const sw = window.__shardwild;
+    const mask = (k) => sw.spriteInfo(k, 4).mask;
+    const weapons = ['staff', 'bow', 'sword'].map(mask);
+    const armor = ['robe', 'leather', 'heavy'].map(mask);
+    const abil = ['codex', 'quiver', 'seal'].map(mask);
+    const ring = mask('ring');
+    return {
+      weapons: new Set(weapons).size,
+      armor: new Set(armor).size,
+      abil: new Set(abil).size,
+      ringDistinct: weapons.concat(armor, abil).every(m => m !== ring)
+    };
+  });
+  assert(shapes.weapons === 3 && shapes.armor === 3 && shapes.abil === 3 && shapes.ringDistinct, 'class silhouettes ' + JSON.stringify(shapes));
+  const classes = [
+    ['pyro', 'staff', 'robe', 'screenshot_gear_pyro.png'],
+    ['strider', 'bow', 'leather', 'screenshot_gear_strider.png'],
+    ['bulwark', 'sword', 'heavy', 'screenshot_gear_bulwark.png']
+  ];
+  for (const [cls, w, a, file] of classes) {
+    await page.evaluate(({cls, w, a}) => {
+      const sw = window.__shardwild;
+      sw.enterHub();
+      sw.clearBags();
+      sw.P.eq.weapon = sw.makeItem({k: 'weapon', w, t: 7});
+      sw.P.eq.ability = sw.makeItem({k: 'ability', cls, t: 7});
+      sw.P.eq.armor = sw.makeItem({k: 'armor', a, t: 7});
+      sw.P.eq.ring = sw.makeItem({k: 'ring', t: 7});
+      sw.clearInv();
+      sw.grant({k: 'weapon', w, t: 0});
+      sw.grant({k: 'weapon', w, t: 8});
+      if (cls === 'pyro') sw.grant({k: 'tidepearl'});
+      if (cls === 'strider') sw.grant({k: 'test', w});
+    }, {cls, w, a});
+    await frames(page, 3);
+    await page.screenshot({path: path.join(ART, file)});
+  }
+
+  const layouts = [];
+  for (const seed of [101, 202]) {
+    await page.evaluate(s => window.__shardwild.enterDungeon('tideclaw', s), seed);
+    await frames(page, 3);
+    const sig = await page.evaluate(() => {
+      const sw = window.__shardwild;
+      const CELL = 16;
+      for (const r of sw.world.rooms || []) {
+        for (let y = r.y0; y < r.y1; y++) for (let x = r.x0; x < r.x1; x++) {
+          sw.P.explored['d:' + ((x / CELL) | 0) + ',' + ((y / CELL) | 0)] = 1;
+        }
+      }
+      return {
+        sig: sw.world.layoutSig,
+        rooms: sw.world.roomCount,
+        path: sw.world.pathRooms,
+        place: sw.place,
+        blocked: sw.blocked(sw.P.x, sw.P.y),
+        boss: sw.foes.some(f => f.dungeonBoss),
+        foes: sw.foes.filter(f => !f.boss).length
+      };
+    });
+    assert(sig.place === 'dungeon' && !sig.blocked && sig.boss && sig.foes >= 4, 'dungeon run ' + JSON.stringify(sig));
+    assert(sig.rooms >= 10 && sig.rooms <= 18 && sig.path >= 8 && sig.path <= 14, 'room counts ' + JSON.stringify(sig));
+    layouts.push(sig.sig);
+    await tapTag(page, r => r.tag === 'minimap');
+    await frames(page, 2);
+    await page.screenshot({path: path.join(ART, seed === 101 ? 'screenshot_dungeon_map_a.png' : 'screenshot_dungeon_map_b.png')});
+    await tapTag(page, r => r.tag === 'map-close');
+  }
+  assert(layouts[0] && layouts[1] && layouts[0] !== layouts[1], 'two dungeon entries matched ' + layouts.join(' == '));
+  await page.evaluate(() => window.__shardwild.enterHub());
+  await frames(page, 4);
+  const crowd = await page.evaluate(() => {
+    const sw = window.__shardwild;
+    sw.enterRealm();
+    const spot = sw.zoneSpot(2);
+    sw.teleport(spot.x, spot.y);
+    sw.P.invuln = 40;
+    for (let i = 0; i < 12; i++) sw.pump(10);
+    return sw.foes.filter(f => !f.boss).length;
+  });
+  assert(crowd >= 12, 'ashen crowd ' + crowd);
+  await frames(page, 8);
+  await page.waitForTimeout(700);
+  const crowdedFps = await page.evaluate(() => window.__shardwild.fps);
+  assert(crowdedFps > 50, 'fps in a crowded region: ' + crowdedFps);
+  console.log('v12 crowd=' + crowd + ' fps=' + crowdedFps.toFixed(1));
 }
 
 function colorDist(a, b) {
@@ -1537,6 +1685,8 @@ async function main() {
     await charactersVaultWeapons(page, cdp);
 
     await tideclawAndStatus(page, cdp);
+
+    await v12Coverage(page, cdp);
 
     await page.waitForTimeout(1200);
     const fps = await page.evaluate(() => window.__shardwild.fps);

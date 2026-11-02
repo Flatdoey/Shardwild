@@ -908,50 +908,246 @@ const DUNGEONS={
     utName:'Tidepearl'
   }
 };
-function genTideclaw(){
-  const w=52,h=44,wd=mkWorld(w,h);
-  wd.isDungeon=true;wd.dungeonId='tideclaw';wd.dname='Tideclaw Burrow';
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++){wd.tiles[y*w+x]=T_BWALL;wd.zone[y*w+x]=0;}
-  const carve=(x,y,rw,rh,t)=>{
-    for(let yy=y;yy<y+rh;yy++)for(let xx=x;xx<x+rw;xx++){
-      if(xx<1||yy<1||xx>=w-1||yy>=h-1)continue;
-      wd.tiles[yy*w+xx]=t;
+const BCOLS=7,BROWS=7,BCELL=16,BPAD=3;
+function burrowShuffle(a,R){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=(R()*(i+1))|0;const t=b[i];b[i]=b[j];b[j]=t;}return b;}
+function burrowOrigin(cx,cy){return {x:BPAD+cx*BCELL,y:BPAD+cy*BCELL};}
+function burrowCenter(cx,cy){const p=burrowOrigin(cx,cy);return {x:p.x+((BCELL/2)|0),y:p.y+((BCELL/2)|0)};}
+function attachBurrowSides(path,occ,sideN,R){
+  const cols=BCOLS,rows=BROWS,at=(x,y)=>y*cols+x,sides=[];
+  const order=[];
+  for(let i=1;i<=path.length-3;i++)order.push(i);
+  for(const i of burrowShuffle(order,R)){
+    if(sides.length>=sideN)break;
+    const room=path[i];
+    for(const d of burrowShuffle([[1,0],[-1,0],[0,1],[0,-1]],R)){
+      const nx=room.x+d[0],ny=room.y+d[1];
+      if(nx<0||ny<0||nx>=cols||ny>=rows||occ[at(nx,ny)])continue;
+      occ[at(nx,ny)]=1;
+      sides.push({x:nx,y:ny,parent:i});
+      break;
     }
-  };
-  const F=T_BFLOOR,Q=T_BPEARL;
-  carve(8,2,36,12,Q);
-  carve(22,13,8,4,F);
-  carve(14,16,24,8,F);
-  carve(22,23,8,4,F);
-  carve(4,26,44,4,F);
-  carve(4,26,14,12,F);
-  carve(34,26,14,12,F);
-  carve(16,29,20,12,F);
-  for(const [x,y] of [[11,32],[13,35],[40,31],[43,35],[17,19],[33,20],[12,6],[39,6],[17,9],[34,8]]){
-    if(wd.tiles[y*w+x]!==T_BWALL)wd.tiles[y*w+x]=T_BPOOL;
   }
-  for(const [x,y] of [[6,28],[6,36],[15,28],[36,28],[45,28],[45,36],[10,4],[41,4],[10,12],[41,12]]){
-    if(wd.tiles[y*w+x]!==T_BWALL)wd.tiles[y*w+x]=T_BCORAL;
+  return sides;
+}
+function carveBurrow(R,path,sides,pathN,sideN){
+  const w=BPAD*2+BCOLS*BCELL,h=BPAD*2+BROWS*BCELL,tiles=new Uint8Array(w*h),spine=new Uint8Array(w*h);
+  tiles.fill(T_BWALL);
+  const rooms=[];
+  function set(x,y,t){if(x>0&&y>0&&x<w-1&&y<h-1)tiles[y*w+x]=t;}
+  function disk(cx,cy,rad,t,mark){
+    for(let y=cy-rad;y<=cy+rad;y++)for(let x=cx-rad;x<=cx+rad;x++){
+      if((x-cx)*(x-cx)+(y-cy)*(y-cy)<=rad*rad){set(x,y,t);if(mark&&x>0&&y>0&&x<w-1&&y<h-1)spine[y*w+x]=1;}
+    }
   }
-  wd.spawn={x:26*TS+4,y:37*TS+4};
-  wd.exit={x:26*TS+4,y:6*TS+4};
-  wd.exitOpen=false;
-  wd.anchor={x:26*TS+4,y:7*TS+4};
-  wd.beacons=[];
-  wd.encounters=[
-    {type:'pincer',x:8*TS+4,y:32*TS+4},
-    {type:'pincer',x:11*TS+4,y:34*TS+4},
-    {type:'pincer',x:9*TS+4,y:30*TS+4},
-    {type:'barnacle',x:40*TS+4,y:32*TS+4},
-    {type:'barnacle',x:44*TS+4,y:34*TS+4},
-    {type:'shellguard',x:41*TS+4,y:30*TS+4},
-    {type:'shellguard',x:18*TS+4,y:19*TS+4},
-    {type:'shellguard',x:32*TS+4,y:20*TS+4},
-    {type:'pincer',x:8*TS+4,y:27*TS+4},
-    {type:'pincer',x:43*TS+4,y:27*TS+4}
-  ];
+  function line(a,b,rad){
+    const steps=Math.max(Math.abs(b.x-a.x),Math.abs(b.y-a.y),1);
+    for(let i=0;i<=steps;i++){
+      const x=Math.round(a.x+(b.x-a.x)*i/Math.max(1,steps)),y=Math.round(a.y+(b.y-a.y)*i/Math.max(1,steps));
+      disk(x,y,rad,T_BFLOOR,true);
+    }
+  }
+  const shapes=['round','tunnel','chamber'];
+  function addRoom(cell,role){
+    const c=burrowCenter(cell.x,cell.y),p=burrowOrigin(cell.x,cell.y);
+    let shape=shapes[(R()*shapes.length)|0];
+    if(role==='start')shape='chamber';
+    if(role==='boss')shape='round';
+    const room={cx:cell.x,cy:cell.y,role,shape,x0:p.x,y0:p.y,x1:p.x+BCELL,y1:p.y+BCELL,links:[],enc:''};
+    rooms.push(room);
+    if(shape==='round')disk(c.x,c.y,role==='boss'?6:5,role==='boss'?T_BPEARL:T_BFLOOR,false);
+    else if(shape==='tunnel')disk(c.x,c.y,3,T_BFLOOR,false);
+    else for(let y=c.y-5;y<=c.y+5;y++)for(let x=c.x-5;x<=c.x+5;x++)set(x,y,T_BFLOOR);
+    disk(c.x,c.y,2,role==='boss'?T_BPEARL:T_BFLOOR,true);
+    return room;
+  }
+  for(let i=0;i<path.length;i++)addRoom(path[i],i===0?'start':i===path.length-1?'boss':'path');
+  for(let i=0;i<path.length-1;i++){
+    rooms[i].links.push(i+1);rooms[i+1].links.push(i);
+    line(burrowCenter(path[i].x,path[i].y),burrowCenter(path[i+1].x,path[i+1].y),1);
+  }
+  sides.forEach((cell,s)=>{
+    const role=s===0?'chest':s===1?'mini':'side';
+    const room=addRoom(cell,role);
+    const id=rooms.length-1,pi=cell.parent;
+    room.links.push(pi);rooms[pi].links.push(id);
+    line(burrowCenter(cell.x,cell.y),burrowCenter(path[pi].x,path[pi].y),1);
+  });
+  for(const room of rooms){
+    if(room.role==='boss'||room.role==='start')continue;
+    const c=burrowCenter(room.cx,room.cy);
+    for(let n=0;n<5;n++){
+      const x=c.x+((R()*9)|0)-4,y=c.y+((R()*9)|0)-4;
+      if(x<=1||y<=1||x>=w-2||y>=h-2)continue;
+      const i=y*w+x;
+      if(tiles[i]===T_BWALL||spine[i])continue;
+      if(Math.abs(x-c.x)+Math.abs(y-c.y)<3)continue;
+      tiles[i]=R()<0.45?T_BPOOL:T_BCORAL;
+    }
+  }
+  function walkable(tx,ty){
+    if(tx<=0||ty<=0||tx>=w-1||ty>=h-1)return false;
+    const t=tiles[ty*w+tx];
+    return t!==T_BWALL&&t!==T_BCORAL;
+  }
+  function pix(tx,ty){return {x:(tx+0.5)*TS,y:(ty+0.5)*TS};}
+  function findSpot(cx,cy,avoid){
+    const c=burrowCenter(cx,cy);
+    for(let r=0;r<8;r++){
+      for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
+        if(r&&Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;
+        const x=c.x+dx,y=c.y+dy;
+        if(!walkable(x,y))continue;
+        if(spine[y*w+x]&&r<2)continue;
+        const p=pix(x,y);let bad=false;
+        for(const a of avoid)if(Math.hypot(p.x-a.x,p.y-a.y)<16)bad=true;
+        if(!bad)return p;
+      }
+    }
+    return walkable(c.x,c.y)?pix(c.x,c.y):null;
+  }
+  const startC=burrowCenter(path[0].x,path[0].y),bossC=burrowCenter(path[path.length-1].x,path[path.length-1].y);
+  const prev=burrowCenter(path[path.length-2].x,path[path.length-2].y);
+  const spawn=pix(startC.x,startC.y),anchor=pix(bossC.x,bossC.y);
+  let ex=bossC.x+(Math.sign(prev.x-bossC.x)||1)*4,ey=bossC.y+(Math.sign(prev.y-bossC.y)||0)*3;
+  if(!walkable(ex,ey)){ex=bossC.x+3;ey=bossC.y;}
+  if(!walkable(ex,ey)){ex=bossC.x;ey=bossC.y+3;}
+  if(!walkable(ex,ey)){ex=bossC.x;ey=bossC.y;}
+  const exit=pix(ex,ey);
+  const encounters=[],chests=[],taken=[spawn,anchor,exit];
+  function place(type,room){
+    const p=findSpot(room.cx,room.cy,taken);
+    if(!p)return false;
+    encounters.push({type,x:p.x,y:p.y});taken.push(p);return true;
+  }
+  for(const room of rooms){
+    if(room.role==='start'||room.role==='boss')continue;
+    if(room.role==='chest'){
+      const p=findSpot(room.cx,room.cy,taken);
+      if(!p)return null;
+      chests.push({x:p.x,y:p.y,open:false});taken.push(p);continue;
+    }
+    if(room.role==='mini'){
+      room.enc='mini';
+      if(!place('tidematron',room)||!place('pincer',room)||!place('pincer',room))return null;
+      continue;
+    }
+    const kind=['swarm','turrets','pack','mixed'][(R()*4)|0];
+    room.enc=kind;
+    const plan=kind==='swarm'?[['pincer',3]]:kind==='turrets'?[['barnacle',2]]:kind==='pack'?[['shellguard',2]]:[['pincer',2],['shellguard',1]];
+    for(const [type,n] of plan)for(let i=0;i<n;i++)if(!place(type,room))return null;
+  }
+  const dist=new Array(rooms.length).fill(-1),queue=[0];
+  dist[0]=0;
+  for(let qi=0;qi<queue.length;qi++){
+    const i=queue[qi];
+    for(const j of rooms[i].links)if(dist[j]<0){dist[j]=dist[i]+1;queue.push(j);}
+  }
+  let bossD=-1,maxD=-1,ties=0;
+  for(let i=0;i<rooms.length;i++){
+    if(dist[i]<0)return null;
+    if(dist[i]>maxD){maxD=dist[i];ties=1;}
+    else if(dist[i]===maxD)ties++;
+    if(rooms[i].role==='boss')bossD=dist[i];
+  }
+  if(bossD!==maxD||ties!==1)return null;
+  const seen=new Uint8Array(w*h),stack=[startC.y*w+startC.x];
+  seen[startC.y*w+startC.x]=1;
+  while(stack.length){
+    const i=stack.pop(),x=i%w,y=(i/w)|0;
+    for(const d of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const nx=x+d[0],ny=y+d[1];
+      if(nx<0||ny<0||nx>=w||ny>=h)continue;
+      const j=ny*w+nx,t=tiles[j];
+      if(seen[j]||t===T_BWALL||t===T_BCORAL)continue;
+      seen[j]=1;stack.push(j);
+    }
+  }
+  function reached(tx,ty){return tx>0&&ty>0&&tx<w&&ty<h&&seen[ty*w+tx]===1;}
+  if(!reached(startC.x,startC.y)||!reached(bossC.x,bossC.y)||!reached(ex,ey))return null;
+  for(const room of rooms){const c=burrowCenter(room.cx,room.cy);if(!reached(c.x,c.y))return null;}
+  function clearPoint(p){const tx=Math.floor(p.x/TS),ty=Math.floor(p.y/TS);return reached(tx,ty);}
+  if(!clearPoint(spawn)||!clearPoint(anchor)||!clearPoint(exit))return null;
+  for(const e of encounters)if(!clearPoint(e))return null;
+  for(const c of chests)if(!clearPoint(c))return null;
+  let sig=rooms.map(r=>r.cx+','+r.cy+':'+r.shape+':'+r.role+':'+r.enc).join('|'),hash=0;
+  for(let i=0;i<tiles.length;i+=5)hash=Math.imul(hash,33)+tiles[i]|0;
+  sig+='#'+(hash>>>0);
+  return {w,h,tiles,rooms,pathN,sideN,spawn,anchor,exit,encounters,chests,sig,bossDist:bossD,maxDist:maxD,connected:queue.length===rooms.length};
+}
+function tryBurrow(R){
+  const pathN=8+((R()*7)|0),sideN=2+((R()*3)|0),occ=new Uint8Array(BCOLS*BROWS);
+  const at=(x,y)=>y*BCOLS+x;
+  const sx=(R()*BCOLS)|0,sy=(R()*BROWS)|0,path=[{x:sx,y:sy}];
+  occ[at(sx,sy)]=1;
+  function grow(){
+    if(path.length===pathN)return true;
+    const last=path[path.length-1];
+    for(const d of burrowShuffle([[1,0],[-1,0],[0,1],[0,-1]],R)){
+      const nx=last.x+d[0],ny=last.y+d[1];
+      if(nx<0||ny<0||nx>=BCOLS||ny>=BROWS||occ[at(nx,ny)])continue;
+      occ[at(nx,ny)]=1;path.push({x:nx,y:ny});
+      if(grow())return true;
+      path.pop();occ[at(nx,ny)]=0;
+    }
+    return false;
+  }
+  if(!grow())return null;
+  const sides=attachBurrowSides(path,occ,sideN,R);
+  if(sides.length!==sideN)return null;
+  return carveBurrow(R,path,sides,pathN,sideN);
+}
+function snakeBurrow(R){
+  const pathN=11,sideN=3,path=[],occ=new Uint8Array(BCOLS*BROWS);
+  let x=0,y=0,dir=1;
+  for(let i=0;i<pathN;i++){
+    path.push({x,y});occ[y*BCOLS+x]=1;
+    const nx=x+dir;
+    if(nx<0||nx>=BCOLS){y++;dir=-dir;}
+    else x=nx;
+  }
+  const sides=attachBurrowSides(path,occ,sideN,R);
+  if(sides.length!==sideN)return null;
+  return carveBurrow(R,path,sides,pathN,sideN);
+}
+function layoutTideclaw(seed){
+  const base=seed|0;
+  for(let attempt=0;attempt<8;attempt++){
+    const L=tryBurrow(mulberry((base+Math.imul(attempt+1,0x9E3779B9))|0));
+    if(L)return L;
+  }
+  return snakeBurrow(mulberry(base^0x51f15e));
+}
+function genTideclaw(seed){
+  if(seed==null)seed=(Math.random()*0x7fffffff)|0;
+  seed|=0;
+  const L=layoutTideclaw(seed);
+  const wd=mkWorld(L.w,L.h);
+  wd.isDungeon=true;wd.dungeonId='tideclaw';wd.dname='Tideclaw Burrow';
+  wd.tiles.set(L.tiles);
+  for(let i=0;i<wd.zone.length;i++)wd.zone[i]=L.tiles[i]===T_BWALL?-1:0;
+  wd.spawn=L.spawn;wd.exit=L.exit;wd.exitOpen=false;wd.anchor=L.anchor;
+  wd.beacons=[];wd.encounters=L.encounters;wd.lootChests=L.chests;wd.rooms=L.rooms;
+  wd.layoutSig=L.sig;wd.seed=seed;wd.pathRooms=L.pathN;wd.roomCount=L.rooms.length;
   renderWorld(wd);
   return wd;
+}
+function auditBurrows(n){
+  n=n||200;const fails=[];let prev='';
+  for(let s=1;s<=n;s++){
+    const L=layoutTideclaw(s);
+    if(!L){fails.push(s+':no layout');continue;}
+    if(L.pathN<8||L.pathN>14)fails.push(s+':path '+L.pathN);
+    if(L.rooms.length<10||L.rooms.length>18)fails.push(s+':rooms '+L.rooms.length);
+    if(L.sideN<2||L.sideN>4)fails.push(s+':sides '+L.sideN);
+    if(!L.connected||L.bossDist!==L.maxDist)fails.push(s+':reach '+L.bossDist+'/'+L.maxDist);
+    if(L.sig===prev)fails.push(s+':duplicate');
+    prev=L.sig;
+    const bad=p=>{const tx=Math.floor(p.x/TS),ty=Math.floor(p.y/TS),t=L.tiles[ty*L.w+tx];return t===T_BWALL||t===T_BCORAL;};
+    if(bad(L.spawn)||bad(L.anchor)||bad(L.exit))fails.push(s+':anchor in wall');
+    for(const e of L.encounters)if(bad(e)){fails.push(s+':enemy in wall');break;}
+    for(const c of L.chests)if(bad(c)){fails.push(s+':chest in wall');break;}
+  }
+  return {n,ok:!fails.length,failCount:fails.length,fails:fails.slice(0,8)};
 }
 
 /* ---------------- classes & items ---------------- */
@@ -1197,6 +1393,7 @@ const EN={
   pincer:{name:'Pincerling',spr:'pincer',hp:48,def:0,spd:14,xp:8,r:3.6,aggro:70,ai:'wander',pats:[{t:'aim',cd:2.3,n:1,spd:46,dmg:6,r:2.8,col:'#ffb070',life:2.1}]},
   barnacle:{name:'Barnacle Spit',spr:'barnacle',hp:70,def:2,spd:0,xp:10,r:4,aggro:96,ai:'keep',keep:1,pats:[{t:'aim',cd:2.6,n:1,spd:40,dmg:7,r:3.2,col:'#7ee0c8',life:2.5,slow:2}]},
   shellguard:{name:'Shellguard',spr:'shellguard',hp:130,def:2,spd:13,xp:16,r:5,aggro:78,ai:'keep',keep:46,pats:[{t:'aim',cd:1.8,n:3,sp:14,spd:54,dmg:8,r:3,col:'#ff7a4a',life:1.6}]},
+  tidematron:{name:'Tide Matron',spr:'tidematron',hp:380,def:4,spd:16,xp:55,r:7,aggro:96,ai:'chase',mini:true,pats:[{t:'aim',cd:1.35,n:3,sp:14,spd:68,dmg:9,r:3,col:'#ffb070',life:1.6},{t:'ring',cd:2.7,n:8,spd:46,dmg:8,r:3.1,col:'#7ee0c8',life:2.2,slow:2},{t:'summon',cd:9,type:'pincer',n:2,cap:20}]},
   tideclaw:{name:'Old Tideclaw',spr:'tideclaw',hp:1100,def:3,spd:20,xp:160,r:11,ai:'boss',boss:true,dungeonBoss:true,
     phases:[
       {above:0.62,pats:[{t:'aim',cd:1.55,n:3,sp:16,spd:72,dmg:9,r:3.1,col:'#ffb070',life:1.7},{t:'aim',cd:2.7,n:1,spd:48,dmg:7,r:3.6,col:'#7ee0c8',life:2.4,slow:2}]},
@@ -1621,15 +1818,16 @@ function enterRealm(){
   AUD.portal();
 }
 function spawnBoss(wd){wd.boss=spawnEnemy(wd,'king',wd.cx,wd.cy,3,false);AUD.roar();}
-function enterDungeon(id){
+function enterDungeon(id,seed){
   const d=DUNGEONS[id]||DUNGEONS.tideclaw;
-  dungeon=genTideclaw();
+  dungeon=genTideclaw(seed);
   world=dungeon;
   P.x=dungeon.spawn.x;P.y=dungeon.spawn.y;
   clearBullets();
   for(const s of dungeon.encounters||[])spawnEnemy(dungeon,s.type,s.x,s.y,0,false);
   dungeon.boss=spawnEnemy(dungeon,'tideclaw',dungeon.anchor.x,dungeon.anchor.y,0,false);
   quest=null;questT=0;
+  revealDungeonRoom();
   AUD.portal();
   toast('Entered '+d.name,'#ffb070');
   saveGame();
@@ -1759,6 +1957,11 @@ function dungeonLoot(boss){
     if(Math.random()<0.3)items.push(mkPot('hp'));
   }
   return items.filter(it=>it&&!isTestItem(it)&&!isMastery(it));
+}
+function tideChestLoot(){
+  const items=[randomGear(rollTier(2,3))];
+  if(Math.random()<0.55)items.push(mkPot('hp'));
+  return items.filter(it=>it&&!isTestItem(it)&&!isMastery(it)&&!isDungeonUt(it)&&it.kind!=='dungeonkey');
 }
 const BAG_RANK={brown:0,pink:1,purple:2,cyan:3,white:4};
 function itemBagColor(it){
@@ -2225,6 +2428,17 @@ function worldPOIs(){
   return list;
 }
 function poiSeen(id){return !!(P&&P.seen&&P.seen.indexOf(id)>=0);}
+function revealDungeonRoom(){
+  if(!P||!world||!world.isDungeon||!world.rooms)return;
+  if(!P.explored||typeof P.explored!=='object')P.explored={};
+  const tx=P.x/TS,ty=P.y/TS,CELL=16;
+  for(const r of world.rooms){
+    if(r.seen||tx<r.x0||ty<r.y0||tx>=r.x1||ty>=r.y1)continue;
+    r.seen=true;
+    for(let y=r.y0;y<r.y1;y++)for(let x=r.x0;x<r.x1;x++)P.explored['d:'+Math.floor(x/CELL)+','+Math.floor(y/CELL)]=1;
+    return;
+  }
+}
 function noteDiscoveries(){
   if(!P||!world)return;
   if(!Array.isArray(P.seen))P.seen=[];
@@ -2232,6 +2446,7 @@ function noteDiscoveries(){
   const prefix=explorePrefix();
   const CELL=16;
   P.explored[prefix+Math.floor(P.x/TS/CELL)+','+Math.floor(P.y/TS/CELL)]=1;
+  revealDungeonRoom();
   for(const poi of worldPOIs()){
     if(poi.always||poi.boss)continue;
     if(Math.hypot(poi.x-P.x,poi.y-P.y)<30&&P.seen.indexOf(poi.id)<0){P.seen.push(poi.id);toast('Discovered '+poi.name,'#ffe9a0');}
@@ -2288,7 +2503,15 @@ function update(dt){
   touchChest();noteDiscoveries();
   if(world.isHub){
     if(Math.hypot(P.x-world.fountain.x,P.y-world.fountain.y)<22){P.hp=Math.min(eff('hp'),P.hp+150*dt);P.mp=Math.min(eff('mp'),P.mp+150*dt);}
-  }else if(!world.isVault&&!world.isDungeon){
+  }else if(world.isDungeon){
+    for(const c of world.lootChests||[]){
+      if(c.open||Math.hypot(P.x-c.x,P.y-c.y)>=16)continue;
+      c.open=true;
+      const items=tideChestLoot();
+      if(items.length){spawnLootBag(c.x,c.y,items,120);playDropSound(items);}
+      toast('A tide chest cracks open','#ffd34a');
+    }
+  }else if(!world.isVault){
     const z=zoneAt(world,P.x,P.y);if(z>P.maxZone){P.maxZone=z;toast('Now entering '+ZONES[z].name,ZONES[z].col);}
     spawner(dt);
     if(!world.boss){world.bossT-=dt;if(world.bossT<=0){spawnBoss(world);toast('Morvane, the Hollow King has risen!','#c46aff');}}
@@ -2533,6 +2756,11 @@ function render(){
       labels.push([p.x,p.y-16,'Haven','#ffd34a']);
     }
     labels.push([world.spawn.x,world.spawn.y+16,world.dname||'Dungeon','#ffb070']);
+    for(const c of world.lootChests||[]){
+      if(c.open||c.x<x0-16||c.x>x1+16||c.y<y0-16||c.y>y1+16)continue;
+      const bob=Math.sin(time*2)*0.5;
+      drawSpr(SPR.chest,c.x-9,c.y-11+bob,18,16);
+    }
   }
   for(const p of world.portals||[]){
     if(p.x<x0-20||p.x>x1+20||p.y<y0-24||p.y>y1+20)continue;
@@ -2742,6 +2970,14 @@ function drawHUD(){
     for(const e of world.enemies){const ex=mx+(e.x-P.x)*k+m/2,ey=my+(e.y-P.y)*k+m/2;if(ex<mx||ey<my||ex>mx+m||ey>my+m)continue;ctx.fillStyle=e.d.boss?'#e040ff':e.d.god?'#ffe9a0':e.elite?'#ffd34a':'#ff3030';const s=e.d.boss?5:e.d.god?4:e.elite?4:2;ctx.fillRect(ex-s/2,ey-s/2,s,s);}
     for(const b of world.bags){const ex=mx+(b.x-P.x)*k+m/2,ey=my+(b.y-P.y)*k+m/2;if(ex<mx||ey<my||ex>mx+m||ey>my+m)continue;ctx.fillStyle='#fff';ctx.fillRect(ex-1,ey-1,2,2);}
     for(const p of world.portals||[]){const ex=mx+(p.x-P.x)*k+m/2,ey=my+(p.y-P.y)*k+m/2;if(ex<mx||ey<my||ex>mx+m||ey>my+m)continue;ctx.fillStyle='#7ee0c8';ctx.fillRect(ex-2,ey-2,4,4);}
+    if(world.isDungeon&&P&&P.explored){
+      const CELL=16,tx0=P.x/TS-span/2,ty0=P.y/TS-span/2;
+      ctx.fillStyle='rgba(6,4,14,.82)';
+      for(let cy=Math.floor(ty0/CELL)*CELL;cy<ty0+span;cy+=CELL)for(let cx=Math.floor(tx0/CELL)*CELL;cx<tx0+span;cx+=CELL){
+        if(P.explored['d:'+Math.floor(cx/CELL)+','+Math.floor(cy/CELL)])continue;
+        ctx.fillRect(mx+(cx-tx0)*m/span,my+(cy-ty0)*m/span,CELL*m/span+0.6,CELL*m/span+0.6);
+      }
+    }
   }
   if(world.beacons){
     for(const b of world.beacons){
@@ -3437,7 +3673,23 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
   },
   debugStatus(fx){if(!P)return;addEB(P.x,P.y,0,0,0,4,0.4,'#d8a0ff',fx,'test');},
   holdKey(code,on){input.keys[code]=!!on;},
-  enterDungeon,
+  enterDungeon,auditBurrows,
+  spawnInfo(){return SPAWN_CFG.map((c,z)=>({name:ZONES[z].name,cap:c.cap,every:c.every,n:c.n.slice(),elite:c.elite,types:ZONES[z].types.slice()}));},
+  zoneSpot(z){
+    if(!world||world.isHub||world.cx==null)return null;
+    const wd=world;
+    for(let dist=56;dist<wd.w*TS*0.48;dist+=18){
+      for(let k=0;k<20;k++){
+        const a=k/20*TAU+dist*0.002;
+        const x=wd.cx+Math.cos(a)*dist,y=wd.cy+Math.sin(a)*dist;
+        if(zoneAt(wd,x,y)!==z||solidBox(wd,x,y,8))continue;
+        if(inSafe(x,y)||inBeaconSafe(x,y))continue;
+        if(z===3&&Math.hypot(x-wd.cx,y-wd.cy)<30*TS)continue;
+        return {x,y};
+      }
+    }
+    return null;
+  },
   setPortals(list){if(!world)return;world.portals=(list||[]).map(p=>({id:'tideclaw',name:p.name||'Tideclaw Burrow',dungeon:p.dungeon||'tideclaw',x:p.x,y:p.y,t:80,delay:0}));},
   makeItem(s){
     if(s==='hp'||s==='mp')return mkPot(s);
