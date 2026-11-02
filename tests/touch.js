@@ -1385,8 +1385,8 @@ async function main() {
     });
     assert(gods.info.name === 'Godlands' && gods.names.indexOf('Godlands') >= 0, 'Godlands name missing ' + JSON.stringify({info: gods.info.name, names: gods.names}));
     assert(gods.names.indexOf('Starfall Heights') < 0, 'Starfall beacon name remains');
-    assert(gods.info.cap <= 6 && gods.info.elite === 0, 'Godlands still spawns a crowd ' + JSON.stringify(gods.info));
-    assert(gods.info.types.length >= 3 && gods.info.kinds.every(k => k.god && k.scale >= 2 && k.r >= 8 && k.hp >= 4000), 'Godlands kinds ' + JSON.stringify(gods.info.kinds));
+    assert(gods.info.cap >= 7 && gods.info.cap <= 10 && gods.info.elite === 0, 'Godlands density ' + JSON.stringify(gods.info));
+    assert(gods.info.types.length >= 8 && gods.info.kinds.every(k => k.god && k.scale >= 2 && k.r >= 8 && k.hp >= 4000), 'Godlands kinds ' + JSON.stringify(gods.info.kinds));
     assert(!gods.info.types.some(t => ['crab', 'imp', 'wolf', 'hexer', 'ogre', 'wisp'].indexOf(t) >= 0), 'trash still lives in the Godlands');
     assert(gods.zone === 3, 'player did not stand in the Godlands ' + gods.zone);
     assert(gods.foes.length >= 3 && gods.foes.every(f => f.god && f.scale >= 2 && f.r >= 8), 'spawned foes are not large gods ' + JSON.stringify(gods.foes));

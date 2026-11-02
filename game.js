@@ -41,6 +41,23 @@ function buildSprites(){
   SPR.oracle=mkSprite(["..wwww..",".wwwwww.","wwywwyww","wwwwwwww",".wppppw.","wwwwwwww","w.w..w.w",".w....w."],{w:'#e8e0ff',y:'#ffe14a',p:'#9a6aff'});
   SPR.saint=mkSprite(["...yy...",".ywwwwy.","yywccwyy","ywwwwwwy",".wwccww.","..wwww..",".ww..ww.","ww....ww"],{y:'#fff6c0',w:'#d8fff8',c:'#3ec8ff'});
   SPR.wyrm=mkSprite(["gg....gg","ggg..ggg",".gggggg.","ggyykyyg","ggkwwkgg",".gggggg.","..g..g..",".gg..gg."],{g:'#c8d0dc',y:'#7af0ff',k:'#1a2030',w:'#fff'});
+  SPR.gull=mkSprite(["..wwww..",".wwwwww.","wwywwyww",".wwwwww.","w.w..w.w",".ww..ww."],{w:'#f4f7fb',y:'#e2b13a'});
+  SPR.slime=mkSprite(["..gggg..",".gggggg.","ggwgwg..","gggggggg",".gggggg.","..gggg.."],{g:'#6ecf4a',w:'#e8ffe0'});
+  SPR.hermit=mkSprite(["..ssss..",".ssosss.","ssossoss",".ssssss.","r.r..r.r","rr....rr"],{s:'#d07a48',o:'#f0c090',r:'#e0603a'});
+  SPR.jelly=mkSprite(["..cccc..",".cccccc.","ccwccwcc",".cccccc.","c.c..c.c","..c..c.."],{c:'#7ee0c8',w:'#f4fffc'});
+  SPR.dire=mkSprite(["b.....bb","bbb.bbbb","bbbbbbyb",".bbbbbbb",".b.b.b.b","bb.b.b.b"],{b:'#3a2418',y:'#ff6040'});
+  SPR.treant=mkSprite([".gggggg.","gggdgggg","ggwggwgg",".gggggg.","..ttt...","tt.tt.tt"],{g:'#3f8a32',d:'#6fbf48',w:'#e8ffc0',t:'#6b4a2a'});
+  SPR.bandit=mkSprite(["..hhh...","hhshhhh.","hweehhh.","hhhhhhh.","h.hhh.hd","..h..h.."],{h:'#4a6740',s:SK,e:EY,w:'#fff',d:'#c8c0b0'});
+  SPR.moss=mkSprite([".mmmmmm.","mmwmmwmm","mmmmmmmm",".mmmmmm.","m.m..m.m",".m....m."],{m:'#5a8a48',w:'#d8ffb0'});
+  SPR.cinder=mkSprite([".r.rr.r.","rrroorrr","rryrryrr",".rrrrrr.","r.rr.r.r","r..r..r."],{r:'#ff5a28',o:'#ffd34a',y:'#fff0c0'});
+  SPR.wraith=mkSprite(["..aaaa..",".aawwaa.","aaayyaaa",".aaaaaa.","a..aa..a",".a....a."],{a:'#6a646c',w:'#fff',y:'#ff9a3a'});
+  SPR.beetle=mkSprite(["..oooo..",".orrroo.","orroorro","oooooooo",".o.oo.o.","o..o..o."],{o:'#c84820',r:'#ffb060'});
+  SPR.hound=mkSprite(["r.....rr","rrr.rrrr","rrrrryyr",".rrrrrrr",".r.r.r.r","rr.r.r.r"],{r:'#e07030',y:'#ffe14a'});
+  SPR.titan=mkSprite(["..yyyy..",".yywyywy","yyyyyyyy",".oyyyyo.","ooyyyoo.",".yy..yy.",".y....y.","y......y"],{y:'#ffd34a',w:'#fff6c0',o:'#ff6a28'});
+  SPR.herald=mkSprite(["..pppp..",".ppwwpp.","ppkyykpp",".pppppp.","p.pppp.p",".p.pp.p.","pp....pp",".p....p."],{p:'#3a1860',w:'#e8d8ff',k:'#ff4ad0',y:'#fff'});
+  SPR.idol=mkSprite(["..wwww..",".wwyyww.","wwwwwwww",".wwwwww.","wwwwwwww",".ww..ww.",".ww..ww.","ww....ww"],{w:'#e8e4dc',y:'#ffd34a'});
+  SPR.serpent=mkSprite(["y..cc..y",".ccyycc.","ccwwwwcc",".cckkcc.","..cccc..",".c....c.","cc....cc","c......c"],{y:'#ffd34a',c:'#7a9a38',w:'#e8ffc0',k:EY});
+  SPR.tidematron=mkSprite([".r.rr.r.",".rrrrrr.","rrwrrwrr","rrrrrrrr",".rppppr.","rr.rr.rr","r..r..r."],{r:'#e07040',w:'#fff',p:'#7ee0c8'});
   // Same bottle, distinct liquid. Cork (c) and neck (n) stay put; l is the brew, g the glint.
   const pot=["...cc...","...nn...","..llll..",".llllll.",".llglll.",".llllll.","..llll.."];
   function potSprite(liquid,glint){return mkSprite(pot,{c:'#f4f4f4',n:'#6b4428',l:liquid,g:glint});}
@@ -354,19 +371,18 @@ const DECO_SPR={
   [T_STUMP]:'stump',[T_VENT]:'vent',[T_PILLAR]:'pillar',[T_RUIN]:'ruin',[T_BCORAL]:'coral'
 };
 const ZONES=[
-  {name:'Saltmarsh Shore',types:['crab','imp'],col:'#e4ce8c'},
-  {name:'Greenmarch',types:['wolf','hexer'],col:'#7fd06a'},
-  {name:'Ashen Wilds',types:['ogre','wisp'],col:'#4fe6ff'},
-  {name:'Godlands',types:['eye','colossus','oracle','saint','wyrm'],col:'#ff6a8a'}];
-// Beach-to-center ramp: few slow shots on the shore, denser and nastier inland.
-// dist is how far from the player a pack may appear, kept inside the zone band.
-// Packs are player-local, so a larger realm spreads the same density across more ground
-// instead of piling extra monsters into the old footprint. The shore cap stays at 4.
+  {name:'Saltmarsh Shore',types:['crab','imp','gull','slime','hermit','jelly'],col:'#e4ce8c'},
+  {name:'Greenmarch',types:['wolf','hexer','dire','treant','bandit','moss'],col:'#7fd06a'},
+  {name:'Ashen Wilds',types:['ogre','wisp','cinder','wraith','beetle','hound'],col:'#4fe6ff'},
+  {name:'Godlands',types:['eye','colossus','oracle','saint','wyrm','titan','herald','idol','serpent'],col:'#ff6a8a'}];
+// Beach-to-center ramp. Caps are about 1.6–1.8× the v11 counts so a region feels lived-in,
+// while the shore stays the smallest and slowest. Packs are player-local. Far enemies are
+// culled, and the global cap below keeps the bullet pool inside a 60 fps budget.
 const SPAWN_CFG=[
-  {cap:4, every:2.7, n:[1,1], elite:0, dist:[64,118]},
-  {cap:9, every:1.55, n:[1,2], elite:0.03, dist:[90,160]},
-  {cap:15, every:1.05, n:[1,2], elite:0.06, dist:[100,180]},
-  {cap:5, every:2.6, n:[1,1], elite:0, dist:[130,210]}];
+  {cap:7, every:1.7, n:[1,2], elite:0, dist:[58,112]},
+  {cap:16, every:0.95, n:[2,3], elite:0.04, dist:[78,150]},
+  {cap:26, every:0.68, n:[2,3], elite:0.07, dist:[88,165]},
+  {cap:8, every:1.6, n:[1,2], elite:0, dist:[120,200]}];
 // 800 tiles on a side is four times the area of the 400-tile realm. Zones stay radial
 // fractions of that disc, so each band grows and the shore stays a thin outer ring.
 const REALM_N=800;
@@ -1021,18 +1037,34 @@ const EN={
   // Shore: slow, single, easy-to-sidestep shots.
   crab:{name:'Shellsnapper',spr:'crab',hp:42,def:0,spd:11,xp:6,r:4,aggro:76,ai:'wander',pats:[{t:'aim',cd:2.5,n:1,spd:38,dmg:5,r:3.2,col:'#ffd27a',life:2.5}]},
   imp:{name:'Dune Imp',spr:'imp',hp:32,def:0,spd:16,xp:8,r:4,aggro:82,ai:'keep',keep:62,pats:[{t:'aim',cd:2.3,n:1,spd:44,dmg:5,r:3,col:'#ff9a4a',life:2.3}]},
-  // Greenmarch: small fans and a slow ring.
+  gull:{name:'Salt Gull',spr:'gull',hp:28,def:0,spd:30,xp:7,r:3.4,aggro:88,ai:'orbit',keep:74,pats:[{t:'aim',cd:2.15,n:1,spd:56,dmg:4,r:2.4,col:'#f4f7fb',life:1.8}]},
+  slime:{name:'Brine Slime',spr:'slime',hp:56,def:1,spd:10,xp:8,r:4.2,aggro:70,ai:'wander',pats:[{t:'aim',cd:2.45,n:1,spd:34,dmg:6,r:3.6,col:'#8ee060',life:2.4,slow:1.6}]},
+  hermit:{name:'Hermit Crab',spr:'hermit',hp:50,def:2,spd:15,xp:9,r:4,aggro:72,ai:'charge',keep:14,pats:[{t:'aim',cd:2.05,n:2,sp:11,spd:44,dmg:6,r:2.8,col:'#ffb070',life:1.7}]},
+  jelly:{name:'Drift Jelly',spr:'jelly',hp:36,def:0,spd:15,xp:7,r:3.6,aggro:80,ai:'chase',pats:[{t:'aim',cd:2.55,n:1,spd:32,dmg:5,r:3.2,col:'#7ee0c8',life:2.5,slow:1.3}]},
+  // Greenmarch: small fans and a slow ring, plus packs that close in.
   wolf:{name:'Briar Hound',spr:'wolf',hp:150,def:1,spd:30,xp:20,r:4,ai:'charge',keep:14,pats:[{t:'aim',cd:1.25,n:2,sp:12,spd:86,dmg:14,r:2.6,col:'#ffe04a',life:0.85}]},
   hexer:{name:'Mire Hexer',spr:'hexer',hp:190,def:2,spd:18,xp:26,r:4,ai:'keep',keep:72,pats:[{t:'aim',cd:1.4,n:1,spd:92,dmg:16,r:3,col:'#d8a0ff',life:1.35,para:1.2},{t:'ring',cd:3.5,n:6,spd:52,dmg:12,r:3,col:'#b46aff',life:2.2}]},
+  dire:{name:'Dire Wolf',spr:'dire',hp:175,def:2,spd:36,xp:24,r:4.2,ai:'charge',keep:16,pats:[{t:'aim',cd:1.05,n:2,sp:8,spd:100,dmg:15,r:2.6,col:'#ff6040',life:0.8}]},
+  treant:{name:'Briar Treant',spr:'treant',hp:270,def:5,spd:9,xp:32,r:5.2,ai:'wander',pats:[{t:'ring',cd:2.9,n:8,spd:46,dmg:12,r:3.1,col:'#7fd06a',life:2.3,slow:2.2},{t:'aim',cd:2.3,n:1,spd:70,dmg:14,r:3.2,col:'#c6a15a',life:1.8}]},
+  bandit:{name:'Road Bandit',spr:'bandit',hp:145,def:1,spd:26,xp:22,r:4,ai:'orbit',keep:80,pats:[{t:'aim',cd:1.25,n:1,spd:128,dmg:15,r:2.4,col:'#e8d8a0',life:1.15,slow:1.2}]},
+  moss:{name:'Moss Lurker',spr:'moss',hp:210,def:3,spd:18,xp:26,r:4.4,ai:'chase',pats:[{t:'aim',cd:1.55,n:3,sp:12,spd:72,dmg:13,r:2.8,col:'#9fe07a',life:1.5,weak:2}]},
   // Ashen Wilds: shotguns and spirals.
   ogre:{name:'Cragmaw Ogre',spr:'ogre',hp:520,def:6,spd:20,xp:64,r:5,ai:'charge',keep:40,pats:[{t:'aim',cd:1.7,n:5,sp:13,spd:100,dmg:26,r:3.4,col:'#7eb6ff',life:1.25,slow:2}]},
   wisp:{name:'Gloamwisp',spr:'wisp',hp:420,def:4,spd:32,xp:58,r:4,ai:'orbit',keep:72,pats:[{t:'spiral',cd:0.18,arms:2,rot:0.4,spd:78,dmg:22,r:2.6,col:'#c6d67a',life:2.1,burst:1.5,rest:1.8,weak:2.5}]},
-  // Godlands: large gods only. Sprites render at 2x with matching hitboxes.
+  cinder:{name:'Cinderling',spr:'cinder',hp:340,def:3,spd:32,xp:52,r:3.8,ai:'orbit',keep:66,pats:[{t:'spiral',cd:0.28,arms:2,rot:0.36,spd:82,dmg:18,r:2.5,col:'#ff6a28',life:1.9,burst:1.3,rest:1.5,weak:1.6}]},
+  wraith:{name:'Ash Wraith',spr:'wraith',hp:310,def:2,spd:26,xp:50,r:4,ai:'wander',pats:[{t:'aim',cd:1.15,n:1,spd:108,dmg:20,r:2.8,col:'#c8c0d0',life:1.5,weak:2.4},{t:'ring',cd:3.2,n:8,spd:58,dmg:16,r:2.8,col:'#ff9a3a',life:2}]},
+  beetle:{name:'Magma Beetle',spr:'beetle',hp:490,def:8,spd:16,xp:62,r:4.6,ai:'charge',keep:22,pats:[{t:'aim',cd:1.5,n:4,sp:14,spd:92,dmg:24,r:3.2,col:'#ffb060',life:1.2,slow:1.8}]},
+  hound:{name:'Ember Hound',spr:'hound',hp:370,def:4,spd:38,xp:56,r:4,ai:'chase',pats:[{t:'aim',cd:0.9,n:2,sp:9,spd:118,dmg:21,r:2.6,col:'#ff7030',life:0.9}]},
+  // Godlands: large gods only. Sprites render at 2x with matching hitboxes. No small trash.
   eye:{name:'Watcher Eye',spr:'eye',hp:6400,def:18,spd:16,xp:240,r:10,scale:2,god:true,ai:'keep',keep:96,pats:[{t:'ring',cd:1.8,n:16,spd:96,dmg:42,r:3.4,col:'#7eb6ff',life:2.3,slow:2},{t:'aim',cd:0.7,n:5,sp:7,spd:150,dmg:36,r:2.4,col:'#ffffff',life:1.15}]},
   colossus:{name:'Starborn Colossus',spr:'colossus',hp:8800,def:24,spd:12,xp:280,r:12,scale:2,god:true,ai:'charge',keep:56,pats:[{t:'ring',cd:1.35,n:14,spd:72,dmg:52,r:4.8,col:'#7af0ff',life:2.6,alt:1},{t:'aim',cd:1.8,n:7,sp:8,spd:120,dmg:46,r:3.2,col:'#ffe14a',life:1.4,stun:0.5}]},
   oracle:{name:'Pale Oracle',spr:'oracle',hp:5600,def:14,spd:20,xp:220,r:10,scale:2,god:true,ai:'orbit',keep:88,pats:[{t:'spiral',cd:0.16,arms:3,rot:0.32,spd:84,dmg:34,r:2.8,col:'#e8e0ff',life:2.2,burst:1.6,rest:1.2},{t:'ring',cd:2.4,n:18,spd:64,dmg:40,r:3.2,col:'#ffe14a',life:2.4},{t:'aim',cd:2.8,n:1,spd:70,dmg:28,r:3.4,col:'#d090ff',life:2.2,para:1.4}]},
   saint:{name:'Glass Saint',spr:'saint',hp:6200,def:16,spd:15,xp:230,r:10,scale:2,god:true,ai:'keep',keep:78,pats:[{t:'aim',cd:0.42,n:1,spd:168,dmg:38,r:2.6,col:'#d8fff8',life:1.35},{t:'ring',cd:2.6,n:20,spd:80,dmg:44,r:3.4,col:'#c6d67a',life:2.2,alt:1,weak:2}]},
   wyrm:{name:'Marble Wyrm',spr:'wyrm',hp:7200,def:20,spd:18,xp:250,r:11,scale:2,god:true,ai:'keep',keep:70,pats:[{t:'aim',cd:1.15,n:6,sp:11,spd:130,dmg:40,r:3,col:'#9ec0ff',life:1.3,slow:1.5},{t:'spiral',cd:0.22,arms:2,rot:-0.45,spd:70,dmg:36,r:3.2,col:'#7af0ff',life:2.3,burst:1.4,rest:1.5}]},
+  titan:{name:'Solar Titan',spr:'titan',hp:7800,def:22,spd:13,xp:265,r:12,scale:2,god:true,ai:'charge',keep:50,pats:[{t:'ring',cd:1.6,n:12,spd:68,dmg:48,r:4.2,col:'#ffd34a',life:2.4,stun:0.45},{t:'aim',cd:1.5,n:5,sp:9,spd:110,dmg:44,r:3.2,col:'#ff6a28',life:1.4}]},
+  herald:{name:'Void Herald',spr:'herald',hp:5400,def:14,spd:22,xp:225,r:10,scale:2,god:true,ai:'orbit',keep:92,pats:[{t:'spiral',cd:0.2,arms:3,rot:-0.28,spd:78,dmg:32,r:2.7,col:'#c46aff',life:2.1,burst:1.4,rest:1.3},{t:'aim',cd:2.6,n:1,spd:64,dmg:30,r:3.4,col:'#ff4ad0',life:2.2,para:1.3}]},
+  idol:{name:'Marble Idol',spr:'idol',hp:9200,def:26,spd:8,xp:275,r:12,scale:2,god:true,ai:'wander',pats:[{t:'ring',cd:2.1,n:16,spd:60,dmg:50,r:3.6,col:'#e8e4dc',life:2.6,slow:2.2,alt:1},{t:'aim',cd:1.9,n:3,sp:8,spd:90,dmg:42,r:3.4,col:'#ffd34a',life:1.8,weak:2}]},
+  serpent:{name:'Crown Serpent',spr:'serpent',hp:7000,def:18,spd:24,xp:255,r:11,scale:2,god:true,ai:'chase',pats:[{t:'aim',cd:1.05,n:6,sp:10,spd:124,dmg:40,r:2.9,col:'#b6e060',life:1.25,slow:1.6},{t:'ring',cd:2.8,n:10,spd:70,dmg:38,r:3.2,col:'#ffd34a',life:2.2}]},
   pincer:{name:'Pincerling',spr:'pincer',hp:48,def:0,spd:14,xp:8,r:3.6,aggro:70,ai:'wander',pats:[{t:'aim',cd:2.3,n:1,spd:46,dmg:6,r:2.8,col:'#ffb070',life:2.1}]},
   barnacle:{name:'Barnacle Spit',spr:'barnacle',hp:70,def:2,spd:0,xp:10,r:4,aggro:96,ai:'keep',keep:1,pats:[{t:'aim',cd:2.6,n:1,spd:40,dmg:7,r:3.2,col:'#7ee0c8',life:2.5,slow:2}]},
   shellguard:{name:'Shellguard',spr:'shellguard',hp:130,def:2,spd:13,xp:16,r:5,aggro:78,ai:'keep',keep:46,pats:[{t:'aim',cd:1.8,n:3,sp:14,spd:54,dmg:8,r:3,col:'#ff7a4a',life:1.6}]},
@@ -1699,9 +1731,19 @@ function simLoot(n){
   out.mastery+=out.boss.mastery;
   out.dungeonUtOutside+=out.boss.dungeonUt;
   out.keysOutside+=out.boss.keys;
-  const portalTypes=['crab','imp','wolf','hexer','ogre','wisp','eye','colossus','oracle','saint','wyrm','king','pincer','barnacle','shellguard','tideclaw'];
+  const portalTypes=Object.keys(EN);
   out.portalByType={};
   for(const t of portalTypes){let c=0;for(let i=0;i<n;i++)if(rollPortal(t))c++;out.portalByType[t]=c;}
+  // Each realm enemy rolls its region's band. UT stays on bosses (and the dungeon boss).
+  out.enemyBands=[];
+  for(const reg of regions){
+    for(const type of ZONES[reg.zone].types){
+      const rolls=[];
+      for(let i=0;i<n;i++)rolls.push(lootItemsFor({zone:reg.zone,elite:false,boss:false}));
+      const s=summarize(rolls);
+      out.enemyBands.push({type,name:EN[type].name,zone:reg.zone,region:reg.name,ai:EN[type].ai,god:!!EN[type].god,span:tierSpan(reg.zone,false),ut:s.ut,gear:s.gear,test:s.test,mastery:s.mastery,dungeonUt:s.dungeonUt,keys:s.keys});
+    }
+  }
   const dBoss=[],dMin=[];
   let dGear=0;
   for(let i=0;i<n;i++){
@@ -2155,7 +2197,7 @@ function spawner(dt){
   if(spawnT>0)return;
   spawnT=cfg.every*(0.85+Math.random()*0.3);
   let alive=0;for(const e of wd.enemies)if(!e.d.boss)alive++;
-  if(alive>=36||zoneCount(z)>=cfg.cap)return;
+  if(alive>=58||zoneCount(z)>=cfg.cap)return;
   for(let t=0;t<8;t++){
     const a=Math.random()*TAU,dist=rand(cfg.dist[0],cfg.dist[1]);
     const x=P.x+Math.cos(a)*dist,y=P.y+Math.sin(a)*dist;
@@ -2167,7 +2209,8 @@ function spawner(dt){
     const n=irand(cfg.n[0],cfg.n[1]);
     let spawned=0;
     for(let k=0;k<n&&zoneCount(z)<cfg.cap;k++){
-      const ex=x+rand(-12,12),ey=y+rand(-12,12);
+      const spread=n>2?22:16;
+      const ex=x+rand(-spread,spread),ey=y+rand(-spread,spread);
       if(solidBox(wd,ex,ey,4)||inSafe(ex,ey)||inBeaconSafe(ex,ey)||zoneAt(wd,ex,ey)!==z)continue;
       spawnEnemy(wd,type,ex,ey,z,k===0&&cfg.elite>0&&Math.random()<cfg.elite);
       spawned++;
@@ -2230,6 +2273,7 @@ function updateEnemies(dt){
       else if(d0.ai==='charge'){if(d>d0.keep){vx=dx/d*sp;vy=dy/d*sp;}}
       else if(d0.ai==='keep'){const s=d>d0.keep+10?1:d<d0.keep-10?-1:0;vx=dx/d*sp*s-dy/d*sp*0.5*Math.sin(time+e.id);vy=dy/d*sp*s+dx/d*sp*0.5*Math.sin(time+e.id);}
       else if(d0.ai==='orbit'){const s=d>d0.keep?0.7:-0.4;vx=dx/d*sp*s-dy/d*sp;vy=dy/d*sp*s+dx/d*sp;}
+      else if(d0.ai==='chase'){vx=dx/d*sp;vy=dy/d*sp;}
     }else{e.wt-=dt;if(e.wt<=0){e.wt=rand(1,3);e.dir=Math.random()*TAU;}vx=Math.cos(e.dir)*sp*0.4;vy=Math.sin(e.dir)*sp*0.4;}
     if(!moveEnt(e,vx*dt,vy*dt,d0.r*0.6)&&(vx||vy))e.dir=Math.random()*TAU;
     shoveOffBeacons(e);
