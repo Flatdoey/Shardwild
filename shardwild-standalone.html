@@ -95,6 +95,13 @@ function buildSprites(){
   SPR.vent=mkSprite(["...cc...","..cggc..",".cggggc.","cggggggc",".cggggc."],{c:'#5a6a72',g:'#9fd0d8'});
   SPR.pillar=mkSprite(["..cccc..",".cwwwc..","..cccc..","..cccc..","..cccc..",".cccccc.",".cssssc."],{c:'#c8b8d0',w:'#fff6e0',s:'#6a5a78'});
   SPR.ruin=mkSprite(["rr.rr.rr","rrrrrrrr",".rrrrrr.","..r..r.."],{r:'#6a5a68'});
+  SPR.coral=mkSprite([".o.o.o.",".oooooo.",".o.o.o.","..ooo.."],{o:'#e25a32'});
+  SPR.pincer=mkSprite([".r.r.r.","rrrrrrr.",".rwkrwr.",".rrrrrr.","r.r.r.r."],{r:'#f0a070',w:'#fff',k:EY});
+  SPR.barnacle=mkSprite(["..ggg..",".gwwgw.",".gggggg.","gkgkgkg",".ggggg."],{g:'#6a8a84',w:'#e8fff8',k:'#243430'});
+  SPR.shellguard=mkSprite(["r.rr.rr.r","rrrrrrrrr",".rrwkkwrr","rrrrrrrrr","r.rr.rr.r","rr.....rr"],{r:'#c44828',w:'#fff',k:EY});
+  SPR.tideclaw=mkSprite(["r..rr..rr..r","rrr.rrrr.rrr",".rrrrrrrrrr.","rrrwkkrrwrrr","rrrrrrrrrrrr",".rrrrrrrrrr.","rr.rr..rr.rr","r..r....r..r"],{r:'#e25a32',w:'#fff4ea',k:'#1a1210'});
+  SPR.tidepearl=mkSprite(["..oooo..",".owwwwo.","owpwwpwo","owwwwwwo",".owwwwo.","..oooo.."],{o:'#e25a32',w:'#e9fffb',p:'#fff'});
+  SPR.keyTide=mkSprite(["..cccc..","...cc...","ccookkcc","cc.cc.cc","cccccc..","..cccc.."],{c:'#7ee0c8',o:'#e25a32',k:'#fff6e0'});
 }
 
 /* ---------------- tiered gear sprites ---------------- */
@@ -356,15 +363,17 @@ function bulletSpr(col,r,shape){
 // tile types
 const T_WATER=0,T_WET=1,T_SAND=2,T_GRASS=3,T_DARK=4,T_ROCK=5,T_ARENA=6,T_TREE=7,T_BOULDER=8,T_FLOOR=10,T_WALL=11,T_CARPET=12;
 const T_REED=13,T_DRIFT=14,T_FLOWER=15,T_STUMP=16,T_VENT=17,T_PILLAR=18,T_RUIN=19;
+const T_BFLOOR=30,T_BWALL=31,T_BPOOL=32,T_BCORAL=33,T_BPEARL=34;
 const TCOL={
   0:[38,78,160],1:[196,182,120],2:[228,206,140],3:[86,150,70],4:[58,108,58],5:[104,102,120],6:[92,48,72],
   10:[118,116,134],11:[52,48,64],12:[120,40,56],
-  13:[168,150,86],14:[190,160,110],15:[96,168,78],16:[70,120,62],17:[72,96,108],18:[150,130,150],19:[78,68,88]
+  13:[168,150,86],14:[190,160,110],15:[96,168,78],16:[70,120,62],17:[72,96,108],18:[150,130,150],19:[78,68,88],
+  30:[176,132,84],31:[96,58,48],32:[36,118,132],33:[196,92,64],34:[214,168,120]
 };
-const SOLID=new Set([T_WATER,T_TREE,T_BOULDER,T_WALL,T_PILLAR,T_RUIN]);
+const SOLID=new Set([T_WATER,T_TREE,T_BOULDER,T_WALL,T_PILLAR,T_RUIN,T_BWALL,T_BCORAL]);
 const DECO_SPR={
   [T_TREE]:'tree',[T_BOULDER]:'boulder',[T_REED]:'reed',[T_DRIFT]:'drift',[T_FLOWER]:'flower',
-  [T_STUMP]:'stump',[T_VENT]:'vent',[T_PILLAR]:'pillar',[T_RUIN]:'ruin'
+  [T_STUMP]:'stump',[T_VENT]:'vent',[T_PILLAR]:'pillar',[T_RUIN]:'ruin',[T_BCORAL]:'coral'
 };
 const ZONES=[
   {name:'Saltmarsh Shore',types:['crab','imp'],col:'#e4ce8c'},
@@ -429,6 +438,7 @@ function tileBase(wd,i,t){
   if(t===T_DRIFT)return T_SAND;
   if(t===T_VENT)return T_DARK;
   if(t===T_PILLAR||t===T_RUIN)return T_ROCK;
+  if(t===T_BCORAL)return T_BFLOOR;
   return t;
 }
 function colorOf(wd,i,base){
@@ -440,11 +450,11 @@ function colorOf(wd,i,base){
 function tileJitter(tx,ty,px,py,base){
   const h=hash2(tx*13+px,ty*17+py);
   let j=(h-0.5)*18;
-  if(base===T_WATER)j=((px+ty*3+py*2)%7===0)?26:j*0.5;
-  if(base===T_GRASS||base===T_DARK){if(h<0.06)j-=28;}
-  if(base===T_ARENA){if(px===0||py===0)j-=22;if(((tx+ty)&1)===0)j+=8;}
+  if(base===T_WATER||base===T_BPOOL)j=((px+ty*3+py*2)%7===0)?26:j*0.5;
+  if(base===T_GRASS||base===T_DARK||base===T_BFLOOR){if(h<0.06)j-=28;}
+  if(base===T_ARENA||base===T_BPEARL){if(px===0||py===0)j-=22;if(((tx+ty)&1)===0)j+=8;}
   if(base===T_FLOOR){if(px===0||py===0)j-=26;if(((tx+ty)&1)===0)j+=10;}
-  if(base===T_WALL){if(py===0)j+=30;if(px===0||py===TS-1)j-=18;}
+  if(base===T_WALL||base===T_BWALL){if(py===0)j+=30;if(px===0||py===TS-1)j-=18;}
   if(base===T_CARPET){if(px===0||px===TS-1)j+=40;}
   return j;
 }
@@ -645,6 +655,63 @@ function genVault(){
   return wd;
 }
 
+const DUNGEONS={
+  tideclaw:{
+    id:'tideclaw',
+    name:'Tideclaw Burrow',
+    enemy:'crab',
+    portalRate:0.03,
+    keyName:'Tideclaw Burrow Key',
+    blurb:'A flooded warren of the saltmarsh crabs.',
+    utName:'Tidepearl'
+  }
+};
+function genTideclaw(){
+  const w=52,h=44,wd=mkWorld(w,h);
+  wd.isDungeon=true;wd.dungeonId='tideclaw';wd.dname='Tideclaw Burrow';
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){wd.tiles[y*w+x]=T_BWALL;wd.zone[y*w+x]=0;}
+  const carve=(x,y,rw,rh,t)=>{
+    for(let yy=y;yy<y+rh;yy++)for(let xx=x;xx<x+rw;xx++){
+      if(xx<1||yy<1||xx>=w-1||yy>=h-1)continue;
+      wd.tiles[yy*w+xx]=t;
+    }
+  };
+  const F=T_BFLOOR,Q=T_BPEARL;
+  carve(8,2,36,12,Q);
+  carve(22,13,8,4,F);
+  carve(14,16,24,8,F);
+  carve(22,23,8,4,F);
+  carve(4,26,44,4,F);
+  carve(4,26,14,12,F);
+  carve(34,26,14,12,F);
+  carve(16,29,20,12,F);
+  for(const [x,y] of [[11,32],[13,35],[40,31],[43,35],[17,19],[33,20],[12,6],[39,6],[17,9],[34,8]]){
+    if(wd.tiles[y*w+x]!==T_BWALL)wd.tiles[y*w+x]=T_BPOOL;
+  }
+  for(const [x,y] of [[6,28],[6,36],[15,28],[36,28],[45,28],[45,36],[10,4],[41,4],[10,12],[41,12]]){
+    if(wd.tiles[y*w+x]!==T_BWALL)wd.tiles[y*w+x]=T_BCORAL;
+  }
+  wd.spawn={x:26*TS+4,y:37*TS+4};
+  wd.exit={x:26*TS+4,y:6*TS+4};
+  wd.exitOpen=false;
+  wd.anchor={x:26*TS+4,y:7*TS+4};
+  wd.beacons=[];
+  wd.encounters=[
+    {type:'pincer',x:8*TS+4,y:32*TS+4},
+    {type:'pincer',x:11*TS+4,y:34*TS+4},
+    {type:'pincer',x:9*TS+4,y:30*TS+4},
+    {type:'barnacle',x:40*TS+4,y:32*TS+4},
+    {type:'barnacle',x:44*TS+4,y:34*TS+4},
+    {type:'shellguard',x:41*TS+4,y:30*TS+4},
+    {type:'shellguard',x:18*TS+4,y:19*TS+4},
+    {type:'shellguard',x:32*TS+4,y:20*TS+4},
+    {type:'pincer',x:8*TS+4,y:27*TS+4},
+    {type:'pincer',x:43*TS+4,y:27*TS+4}
+  ];
+  renderWorld(wd);
+  return wd;
+}
+
 /* ---------------- classes & items ---------------- */
 const STATK=['hp','mp','att','def','spd','dex','vit','wis'];
 const STATN={hp:'HP',mp:'MP',att:'ATT',def:'DEF',spd:'SPD',dex:'DEX',vit:'VIT',wis:'WIS'};
@@ -746,8 +813,18 @@ function mkPot(k){return {id:itemId++,kind:k,tier:0,name:k==='hp'?'Healing Draug
 function mkMastery(){return {id:itemId++,kind:'mastery',tier:8,name:'Potion of Mastery'};}
 function isMastery(it){return !!(it&&(it.kind==='mastery'||it.name==='Potion of Mastery'));}
 function mkBeaconKey(){return {id:itemId++,kind:'beaconkey',tier:8,name:'Beacon Key'};}
+function mkDungeonKey(id){
+  const d=DUNGEONS[id]||DUNGEONS.tideclaw;
+  return {id:itemId++,kind:'dungeonkey',dungeon:d.id,tier:4,name:d.keyName};
+}
+function mkTidepearl(){
+  return {id:itemId++,kind:'ring',tier:8,name:'Tidepearl',st:{hp:20,spd:2,def:1},immune:['slow'],dungeonUt:true,utSource:'tideclaw',spr:'tidepearl'};
+}
+function isDungeonUt(it){return !!(it&&(it.dungeonUt||it.name==='Tidepearl'));}
 function itemSpr(it){
   if(!it)return null;
+  if(it.spr&&SPR[it.spr])return SPR[it.spr];
+  if(it.kind==='dungeonkey')return SPR.keyTide;
   if(it.kind==='weapon'&&it.test)return gearSpr(it.w,'test');
   if(it.kind==='weapon')return gearSpr(it.w,it.tier);
   if(it.kind==='armor')return gearSpr(it.a,it.tier);
@@ -760,7 +837,7 @@ function itemSpr(it){
   return SPR[it.kind]||null;
 }
 function isUTGear(it){return !!(it&&!it.test&&it.tier>7&&(it.kind==='weapon'||it.kind==='ability'||it.kind==='armor'||it.kind==='ring'));}
-function tierLabel(it){if(it.test)return 'TST';if(it.kind==='mastery')return 'MAX';if(it.kind==='hp'||it.kind==='mp')return '';if(it.kind==='elixir')return '★';return it.tier>7?'UT':'T'+it.tier;}
+function tierLabel(it){if(it.test)return 'TST';if(it.kind==='dungeonkey')return 'KEY';if(it.kind==='mastery')return 'MAX';if(it.kind==='hp'||it.kind==='mp')return '';if(it.kind==='elixir')return '★';return it.tier>7?'UT':'T'+it.tier;}
 function itemColor(it){return it&&(it.test||it.kind==='mastery')?'#ffe9a0':TIERCOL[Math.min(it?it.tier:0,8)];}
 function secText(n){const v=Math.round(n*10)/10;return (v%1)?v.toFixed(1):String(v);}
 function fxLines(fx,how){
@@ -792,6 +869,7 @@ function itemLines(it){
   if(it.kind==='mastery')L.push('Drink: raise every stat to this class\'s maximum');
   if(it.kind==='hp')L.push('Restores 120 HP');if(it.kind==='mp')L.push('Restores 100 MP');
   if(it.kind==='beaconkey')L.push('Use: unlock every region beacon');
+  if(it.kind==='dungeonkey'){const d=DUNGEONS[it.dungeon];L.push('Use: open a '+(d?d.name:'dungeon')+' portal');}
   return L;
 }
 let CATALOG=null;
@@ -856,6 +934,14 @@ const EN={
   oracle:{name:'Pale Oracle',spr:'oracle',hp:5600,def:14,spd:20,xp:220,r:10,scale:2,god:true,ai:'orbit',keep:88,pats:[{t:'spiral',cd:0.16,arms:3,rot:0.32,spd:84,dmg:34,r:2.8,col:'#e8e0ff',life:2.2,burst:1.6,rest:1.2},{t:'ring',cd:2.4,n:18,spd:64,dmg:40,r:3.2,col:'#ffe14a',life:2.4},{t:'aim',cd:2.8,n:1,spd:70,dmg:28,r:3.4,col:'#d090ff',life:2.2,para:1.4}]},
   saint:{name:'Glass Saint',spr:'saint',hp:6200,def:16,spd:15,xp:230,r:10,scale:2,god:true,ai:'keep',keep:78,pats:[{t:'aim',cd:0.42,n:1,spd:168,dmg:38,r:2.6,col:'#d8fff8',life:1.35},{t:'ring',cd:2.6,n:20,spd:80,dmg:44,r:3.4,col:'#c6d67a',life:2.2,alt:1,weak:2}]},
   wyrm:{name:'Marble Wyrm',spr:'wyrm',hp:7200,def:20,spd:18,xp:250,r:11,scale:2,god:true,ai:'keep',keep:70,pats:[{t:'aim',cd:1.15,n:6,sp:11,spd:130,dmg:40,r:3,col:'#9ec0ff',life:1.3,slow:1.5},{t:'spiral',cd:0.22,arms:2,rot:-0.45,spd:70,dmg:36,r:3.2,col:'#7af0ff',life:2.3,burst:1.4,rest:1.5}]},
+  pincer:{name:'Pincerling',spr:'pincer',hp:48,def:0,spd:14,xp:8,r:3.6,aggro:70,ai:'wander',pats:[{t:'aim',cd:2.3,n:1,spd:46,dmg:6,r:2.8,col:'#ffb070',life:2.1}]},
+  barnacle:{name:'Barnacle Spit',spr:'barnacle',hp:70,def:2,spd:0,xp:10,r:4,aggro:96,ai:'keep',keep:1,pats:[{t:'aim',cd:2.6,n:1,spd:40,dmg:7,r:3.2,col:'#7ee0c8',life:2.5,slow:2}]},
+  shellguard:{name:'Shellguard',spr:'shellguard',hp:130,def:2,spd:13,xp:16,r:5,aggro:78,ai:'keep',keep:46,pats:[{t:'aim',cd:1.8,n:3,sp:14,spd:54,dmg:8,r:3,col:'#ff7a4a',life:1.6}]},
+  tideclaw:{name:'Old Tideclaw',spr:'tideclaw',hp:1100,def:3,spd:20,xp:160,r:11,ai:'boss',boss:true,dungeonBoss:true,
+    phases:[
+      {above:0.62,pats:[{t:'aim',cd:1.55,n:3,sp:16,spd:72,dmg:9,r:3.1,col:'#ffb070',life:1.7},{t:'aim',cd:2.7,n:1,spd:48,dmg:7,r:3.6,col:'#7ee0c8',life:2.4,slow:2}]},
+      {above:0.32,pats:[{t:'ring',cd:2.15,n:10,spd:46,dmg:8,r:3.2,col:'#7ee0c8',life:2.5,slow:2.2},{t:'aim',cd:1.25,n:4,sp:12,spd:86,dmg:10,r:3,col:'#ff7a4a',life:1.5},{t:'summon',cd:8,type:'pincer',n:2,cap:16}]},
+      {above:0,pats:[{t:'spiral',cd:0.2,arms:2,rot:0.34,spd:62,dmg:9,r:2.8,col:'#e25a32',life:2,burst:1.5,rest:1.05,weak:2},{t:'aim',cd:2.5,n:1,spd:74,dmg:12,r:3.5,col:'#d090ff',life:2.1,para:1.3},{t:'ring',cd:2.5,n:8,spd:42,dmg:11,r:3.3,col:'#ffd27a',life:2.3,slow:2}]}]},
   king:{name:'Morvane, the Hollow King',spr:'king',hp:60000,def:20,spd:16,xp:3000,r:9,ai:'boss',boss:true,
     phases:[
       {above:0.66,pats:[{t:'spiral',cd:0.11,arms:4,rot:0.21,spd:80,dmg:48,r:3,col:'#c46aff',life:2.6},{t:'aim',cd:2,n:5,sp:10,spd:110,dmg:52,r:4,col:'#ffd34a',life:2}]},
@@ -921,7 +1007,7 @@ const FX=[];
 function addFX(x,y,r0,r1,dur,col){FX.push({x,y,r0,r1,t:0,dur,col});}
 
 /* ---------------- state ---------------- */
-let state='title',P=null,world=null,hub=null,realm=null,vault=null,toasts=[],deathInfo=null,spawnT=0,saveT=0,questT=0,quest=null,time=0;
+let state='title',P=null,world=null,hub=null,realm=null,vault=null,dungeon=null,toasts=[],deathInfo=null,spawnT=0,saveT=0,questT=0,quest=null,time=0;
 const input={move:{id:null,ox:0,oy:0,x:0,y:0},aim:{id:null,ox:0,oy:0,x:0,y:0},mouse:{x:0,y:0,down:false,active:false},keys:{}};
 let uiRects=[],layoutC={play:{x:0,y:0,w:1,h:1},panel:{x:0,y:0,w:0,h:1},portrait:false};
 let ptr=null,heldTip=null;
@@ -1272,6 +1358,18 @@ function enterRealm(){
   AUD.portal();
 }
 function spawnBoss(wd){wd.boss=spawnEnemy(wd,'king',wd.cx,wd.cy,3,false);AUD.roar();}
+function enterDungeon(id){
+  const d=DUNGEONS[id]||DUNGEONS.tideclaw;
+  dungeon=genTideclaw();
+  world=dungeon;
+  P.x=dungeon.spawn.x;P.y=dungeon.spawn.y;
+  clearBullets();
+  for(const s of dungeon.encounters||[])spawnEnemy(dungeon,s.type,s.x,s.y,0,false);
+  dungeon.boss=spawnEnemy(dungeon,'tideclaw',dungeon.anchor.x,dungeon.anchor.y,0,false);
+  AUD.portal();
+  toast('Entered '+d.name,'#ffb070');
+  saveGame();
+}
 
 /* ---------------- gameplay ---------------- */
 function moveEnt(o,dx,dy,r){
@@ -1298,7 +1396,25 @@ function killEnemy(e){
   AUD.kill(!!e.d.boss);
   gainXP(e.d.xp*(e.elite?5:1));P.kills++;
   if(e.elite){P.eliteKills++;toast('Defeated '+e.name.split(' (')[0]+'!','#ffd34a');}
+  if(e.d.dungeonBoss){
+    wd.boss=null;wd.exitOpen=true;
+    toast('OLD TIDECLAW FALLS','#ffb070');
+    toast('A way back to the Haven opens','#7ee0c8');
+    addFX(e.x,e.y,4,70,1,'#ffb070');
+    const items=dungeonLoot(true);
+    if(items.length){spawnLootBag(e.x,e.y,items,180);playDropSound(items);}
+    return;
+  }
   if(e.d.boss){P.bossKills++;wd.boss=null;wd.bossT=120;toast('MORVANE HAS FALLEN!','#ff5577');toast('He will rise again in 2 minutes...','#c46aff');addFX(e.x,e.y,4,90,1.2,'#c46aff');}
+  if(wd.isDungeon){
+    const items=dungeonLoot(false);
+    if(items.length){spawnLootBag(e.x,e.y,items,90);playDropSound(items);}
+    return;
+  }
+  if(!wd.isHub&&!wd.isVault){
+    const portal=rollPortal(e.type);
+    if(portal)openDungeonPortal(wd,e.x,e.y,portal);
+  }
   rollLoot(e);
 }
 // Shore T0–T2, Greenmarch T1–T4, Ashen T3–T6, Godlands T5–T7. Elites shift up one tier. No UT here.
@@ -1337,7 +1453,7 @@ function lootItemsFor(e){
     items.push(mkElixir(),mkElixir());
     if(Math.random()<0.75)items.push(mkPot('hp'));
     if(Math.random()<0.55)items.push(mkPot('mp'));
-    return items;
+    return items.filter(it=>!isMastery(it)&&!isTestItem(it)&&!isDungeonUt(it)&&it.kind!=='dungeonkey');
   }
   const gearP=e.elite?0.88:(0.22+z*0.04);
   if(Math.random()<gearP){
@@ -1348,7 +1464,37 @@ function lootItemsFor(e){
   if(Math.random()<(e.elite?0.62:0.14))items.push(mkPot('hp'));
   if(Math.random()<(e.elite?0.42:0.09))items.push(mkPot('mp'));
   if(e.elite&&z>=2&&Math.random()<0.35)items.push(mkElixir());
-  return items.filter(it=>!isMastery(it));
+  return items.filter(it=>!isMastery(it)&&!isTestItem(it)&&!isDungeonUt(it)&&it.kind!=='dungeonkey');
+}
+function rollPortal(type){
+  for(const id in DUNGEONS){
+    const d=DUNGEONS[id];
+    if(type===d.enemy&&Math.random()<d.portalRate)return id;
+  }
+  return null;
+}
+function openDungeonPortal(wd,x,y,id){
+  const d=DUNGEONS[id];if(!d||!wd)return null;
+  if(!wd.portals)wd.portals=[];
+  const p={id,name:d.name,dungeon:id,x,y,t:60,delay:0.45};
+  wd.portals.push(p);
+  toast(d.name+' portal opened','#7ee0c8');
+  return p;
+}
+function dungeonLoot(boss){
+  const items=[];
+  if(boss){
+    const n=Math.random()<0.45?2:1;
+    for(let i=0;i<n;i++)items.push(randomGear(rollTier(2,4)));
+    if(Math.random()<0.7)items.push(mkPot('hp'));
+    if(Math.random()<0.45)items.push(mkPot('mp'));
+    if(Math.random()<0.12)items.push(mkTidepearl());
+    if(Math.random()<0.08)items.push(mkDungeonKey('tideclaw'));
+  }else if(Math.random()<0.22){
+    items.push(randomGear(rollTier(2,3)));
+    if(Math.random()<0.3)items.push(mkPot('hp'));
+  }
+  return items.filter(it=>it&&!isTestItem(it)&&!isMastery(it));
 }
 const BAG_RANK={brown:0,pink:1,purple:2,cyan:3,white:4};
 function itemBagColor(it){
@@ -1394,7 +1540,7 @@ function simLoot(n){
     {name:'Godlands',zone:3}];
   function summarize(rolls){
     const gear={};for(let t=0;t<=8;t++)gear[t]=0;
-    let empty=0,potOnly=0,withGear=0,ut=0,elixirs=0,pots=0,rings=0,testN=0,mastery=0;
+    let empty=0,potOnly=0,withGear=0,ut=0,elixirs=0,pots=0,rings=0,testN=0,mastery=0,dungeonUt=0,keys=0;
     const weapons={staff:0,bow:0,sword:0},armors={robe:0,leather:0,heavy:0},abilities={pyro:0,strider:0,bulwark:0};
     let gearN=0;
     for(const items of rolls){
@@ -1404,11 +1550,13 @@ function simLoot(n){
       else withGear++;
       for(const it of items){
         if(isMastery(it))mastery++;
+        if(isDungeonUt(it))dungeonUt++;
+        if(it.kind==='dungeonkey'){keys++;continue;}
+        if(isTestItem(it))testN++;
         if(it.kind==='hp'||it.kind==='mp')pots++;
         else if(it.kind==='elixir')elixirs++;
-        else{
+        else if(it.kind==='weapon'||it.kind==='armor'||it.kind==='ability'||it.kind==='ring'){
           gear[it.tier]=(gear[it.tier]||0)+1;gearN++;
-          if(isTestItem(it))testN++;
           if(it.tier>7)ut++;
           if(it.kind==='weapon')weapons[it.w]++;
           else if(it.kind==='armor')armors[it.a]++;
@@ -1417,9 +1565,9 @@ function simLoot(n){
         }
       }
     }
-    return {n:rolls.length,empty,potOnly,withGear,ut,elixirs,pots,gear,gearN,weapons,armors,abilities,rings,test:testN,mastery};
+    return {n:rolls.length,empty,potOnly,withGear,ut,elixirs,pots,gear,gearN,weapons,armors,abilities,rings,test:testN,mastery,dungeonUt,keys};
   }
-  const out={per:n,regions:[],boss:null,utOutsideBoss:0,testDrops:0,mastery:0};
+  const out={per:n,regions:[],boss:null,utOutsideBoss:0,testDrops:0,mastery:0,dungeonUtOutside:0,keysOutside:0};
   for(const reg of regions){
     const normal=[],elite=[];
     for(let i=0;i<n;i++){
@@ -1430,6 +1578,8 @@ function simLoot(n){
     out.utOutsideBoss+=ns.ut+es.ut;
     out.testDrops+=ns.test+es.test;
     out.mastery+=ns.mastery+es.mastery;
+    out.dungeonUtOutside+=ns.dungeonUt+es.dungeonUt;
+    out.keysOutside+=ns.keys+es.keys;
     const span=tierSpan(reg.zone,false),espan=tierSpan(reg.zone,true);
     out.regions.push({name:reg.name,zone:reg.zone,span,eliteSpan:espan,normal:ns,elite:es});
   }
@@ -1444,6 +1594,22 @@ function simLoot(n){
   out.bossSolid=bossSolid;
   out.testDrops+=out.boss.test;
   out.mastery+=out.boss.mastery;
+  out.dungeonUtOutside+=out.boss.dungeonUt;
+  out.keysOutside+=out.boss.keys;
+  const portalTypes=['crab','imp','wolf','hexer','ogre','wisp','eye','colossus','oracle','saint','wyrm','king','pincer','barnacle','shellguard','tideclaw'];
+  out.portalByType={};
+  for(const t of portalTypes){let c=0;for(let i=0;i<n;i++)if(rollPortal(t))c++;out.portalByType[t]=c;}
+  const dBoss=[],dMin=[];
+  let dGear=0;
+  for(let i=0;i<n;i++){
+    const b=dungeonLoot(true),m=dungeonLoot(false);
+    dBoss.push(b);dMin.push(m);
+    if(b.some(it=>!isDungeonUt(it)&&(it.kind==='weapon'||it.kind==='armor'||it.kind==='ability'||it.kind==='ring')&&it.tier>=2&&it.tier<=4))dGear++;
+  }
+  const bs=summarize(dBoss),ms=summarize(dMin);
+  out.dungeon={boss:bs,minion:ms,bossGear:dGear,utName:'Tidepearl',enemy:'crab',portalRate:DUNGEONS.tideclaw.portalRate};
+  out.testDrops+=bs.test+ms.test;
+  out.mastery+=bs.mastery+ms.mastery;
   return out;
 }
 function potCount(k){let n=k==='hp'?P.hpPots:P.mpPots;for(const it of P.inv)if(it&&it.kind===k)n++;return n;}
@@ -1742,8 +1908,21 @@ function teleportBeacon(b){
   toast('Warped to '+b.name,'#7af0ff');
   saveGame();
 }
+function explorePrefix(){
+  if(!world)return 'r:';
+  if(world.isVault)return 'v:';
+  if(world.isHub)return 'h:';
+  if(world.isDungeon)return 'd:';
+  return 'r:';
+}
 function worldPOIs(){
   if(!world)return [];
+  if(world.isDungeon){
+    const list=[];
+    if(world.boss)list.push({id:'d:boss',x:world.boss.x,y:world.boss.y,name:'Old Tideclaw',boss:true,always:true,dungeon:true});
+    if(world.exitOpen&&world.exit)list.push({id:'d:exit',x:world.exit.x,y:world.exit.y,name:'Haven',always:true});
+    return list;
+  }
   if(world.isVault){
     const list=[];
     if(world.portal)list.push({id:'v:exit',x:world.portal.x,y:world.portal.y,name:'Exit'});
@@ -1762,6 +1941,7 @@ function worldPOIs(){
   const list=[{id:'r:boss',x:world.cx,y:world.cy,name:'Hollow King',boss:true,always:true}];
   if(world.entry)list.push({id:'r:entry',x:world.entry.x,y:world.entry.y,name:'Shore Entry'});
   for(const lm of world.landmarks||[])list.push({id:lm.id,x:lm.x,y:lm.y,name:lm.name});
+  for(const p of world.portals||[])list.push({id:'r:port'+Math.round(p.x)+','+Math.round(p.y),x:p.x,y:p.y,name:p.name,always:true,portal:true});
   return list;
 }
 function poiSeen(id){return !!(P&&P.seen&&P.seen.indexOf(id)>=0);}
@@ -1769,7 +1949,7 @@ function noteDiscoveries(){
   if(!P||!world)return;
   if(!Array.isArray(P.seen))P.seen=[];
   if(!P.explored||typeof P.explored!=='object')P.explored={};
-  const prefix=world.isVault?'v:':world.isHub?'h:':'r:';
+  const prefix=explorePrefix();
   const CELL=16;
   P.explored[prefix+Math.floor(P.x/TS/CELL)+','+Math.floor(P.y/TS/CELL)]=1;
   for(const poi of worldPOIs()){
@@ -1832,10 +2012,20 @@ function update(dt){
     if(Math.hypot(P.x-world.portal.x,P.y-world.portal.y)<9){enterRealm();return;}
   }else if(world.isVault){
     if(world.portal&&Math.hypot(P.x-world.portal.x,P.y-world.portal.y)<9){leaveVault();return;}
+  }else if(world.isDungeon){
+    if(world.exitOpen&&world.exit&&Math.hypot(P.x-world.exit.x,P.y-world.exit.y)<10){enterHub();toast('Returned to the Haven','#ffd34a');return;}
   }else{
     const z=zoneAt(world,P.x,P.y);if(z>P.maxZone){P.maxZone=z;toast('Now entering '+ZONES[z].name,ZONES[z].col);}
     spawner(dt);
     if(!world.boss){world.bossT-=dt;if(world.bossT<=0){spawnBoss(world);toast('Morvane, the Hollow King has risen!','#c46aff');}}
+    if(world.portals){
+      for(let i=world.portals.length-1;i>=0;i--){
+        const p=world.portals[i];
+        p.t-=dt;p.delay-=dt;
+        if(p.t<=0){world.portals.splice(i,1);continue;}
+        if(p.delay<=0&&Math.hypot(P.x-p.x,P.y-p.y)<11){enterDungeon(p.dungeon);return;}
+      }
+    }
   }
   updateEnemies(dt);
   updateBullets(dt);
@@ -1886,7 +2076,7 @@ function shoot(e,p,ang,i){
 const LEASH_MARGIN=4*TS;
 const LEASH_DESPAWN=18*TS;
 function leashMode(e){
-  if(!world||world.isHub||world.isVault||e.zone==null||e.zone<0)return 'free';
+  if(!world||world.isHub||world.isVault||world.isDungeon||e.zone==null||e.zone<0)return 'free';
   if(e.homeX==null){e.homeX=e.ax;e.homeY=e.ay;}
   if(zoneAt(world,e.x,e.y)===e.zone){e.homeX=e.x;e.homeY=e.y;return 'home';}
   const dist=Math.hypot(e.x-e.homeX,e.y-e.homeY);
@@ -1915,8 +2105,17 @@ function updateEnemies(dt){
       vx=lx/ld*sp;vy=ly/ld*sp;
     }else if(d0.ai==='boss'){
       const f=e.hp/e.maxhp;let ph=0;while(ph<d0.phases.length-1&&f<=d0.phases[ph].above)ph++;
-      if(ph!==e.phase){const prev=e.phase;e.phase=ph;e.pats=d0.phases[ph].pats;resetPats(e);if(ph>0)toast(ph===1?'Morvane: "You dare wound me?"':'Morvane: "THE CROWN DEMANDS YOUR SOUL!"','#c46aff');if(prev>=0&&ph>prev)AUD.phase();}
-      const a=time*0.4;vx=(world.cx+Math.cos(a)*22-e.x);vy=(world.cy+Math.sin(a*1.3)*16-e.y);const l=Math.hypot(vx,vy)||1;const s=Math.min(sp,l*2);vx=vx/l*s;vy=vy/l*s;
+      if(ph!==e.phase){
+        const prev=e.phase;e.phase=ph;e.pats=d0.phases[ph].pats;resetPats(e);
+        if(ph>0){
+          if(d0.dungeonBoss)toast(ph===1?'Old Tideclaw burrows. The tide turns.':'Old Tideclaw rears both claws!','#ffb070');
+          else toast(ph===1?'Morvane: "You dare wound me?"':'Morvane: "THE CROWN DEMANDS YOUR SOUL!"','#c46aff');
+        }
+        if(prev>=0&&ph>prev)AUD.phase();
+      }
+      if(d0.dungeonBoss){const a=time*0.95;vx=e.ax+Math.cos(a)*42-e.x;vy=e.ay+Math.sin(a*1.35)*18-e.y;}
+      else{const a=time*0.4;vx=world.cx+Math.cos(a)*22-e.x;vy=world.cy+Math.sin(a*1.3)*16-e.y;}
+      const l=Math.hypot(vx,vy)||1;const s=Math.min(sp,l*2);vx=vx/l*s;vy=vy/l*s;
     }else if(d<aggro*1.3){
       if(d0.ai==='wander'){e.wt-=dt;if(e.wt<=0){e.wt=rand(1,2.5);e.dir=Math.atan2(dy,dx)+rand(-1.5,1.5);}vx=Math.cos(e.dir)*sp;vy=Math.sin(e.dir)*sp;}
       else if(d0.ai==='charge'){if(d>d0.keep){vx=dx/d*sp;vy=dy/d*sp;}}
@@ -1953,6 +2152,11 @@ function updateParticles(dt){
 }
 function findQuest(){
   quest=null;
+  if(world.isDungeon){
+    if(world.exitOpen&&world.exit)quest={x:world.exit.x,y:world.exit.y,label:'Haven'};
+    else if(world.boss)quest={x:world.boss.x,y:world.boss.y,label:'Old Tideclaw'};
+    return;
+  }
   if(world.isVault&&world.portal){quest={x:world.portal.x,y:world.portal.y,label:'Exit'};return;}
   if(world.isHub){quest={x:world.portal.x,y:world.portal.y,label:'Portal'};return;}
   if(P.lvl>=15&&world.boss){quest={x:world.boss.x,y:world.boss.y,label:'Hollow King'};return;}
@@ -2046,6 +2250,19 @@ function render(){
       labels.push([c.x,c.y-16,'Chest '+(c.i+1),'#e7c98a']);
     }
     labels.push([world.spawn.x,world.spawn.y+16,'The Vault','#7dffe0']);
+  }
+  if(world.isDungeon){
+    if(world.exitOpen&&world.exit){
+      const p=world.exit;
+      for(let i=4;i>=1;i--){ctx.fillStyle=['#3a3010','#a07820','#ffd34a','#fff6c8'][i-1];ctx.beginPath();ctx.arc(p.x,p.y,i*2.2+Math.sin(time*3+i)*0.7,0,TAU);ctx.fill();}
+      labels.push([p.x,p.y-16,'Haven','#ffd34a']);
+    }
+    labels.push([world.spawn.x,world.spawn.y+16,world.dname||'Dungeon','#ffb070']);
+  }
+  for(const p of world.portals||[]){
+    if(p.x<x0-20||p.x>x1+20||p.y<y0-24||p.y>y1+20)continue;
+    for(let i=4;i>=1;i--){ctx.fillStyle=['#3a2018','#c45a30','#7ee0c8','#fff1dc'][i-1];ctx.beginPath();ctx.arc(p.x,p.y,i*2.3+Math.sin(time*4+i)*0.8,0,TAU);ctx.fill();}
+    labels.push([p.x,p.y-16,p.name,'#7ee0c8']);
   }
   for(const b of world.beacons||[]){
     if(b.x<x0-24||b.x>x1+24||b.y<y0-30||b.y>y1+24)continue;
@@ -2211,7 +2428,7 @@ function drawSidePanel(){
   slot=clamp(slot,18,chest?40:46);
   let y=Pnl.y+8;
   const C=CLASSES[P.cls];
-  const z=world.isVault?{name:'The Vault',col:'#7dffe0'}:world.isHub?{name:'The Haven',col:'#ffd34a'}:(ZONES[Math.max(0,zoneAt(world,P.x,P.y))]||{name:'',col:'#fff'});
+  const z=world.isDungeon?{name:world.dname||'Dungeon',col:'#ffb070'}:world.isVault?{name:'The Vault',col:'#7dffe0'}:world.isHub?{name:'The Haven',col:'#ffd34a'}:(ZONES[Math.max(0,zoneAt(world,P.x,P.y))]||{name:'',col:'#fff'});
   fitTxt('Lv '+P.lvl+' '+C.name,x0,y+6,12,'#ffd34a',inner);y+=16;
   fitTxt(z.name+'   Fame '+fameCalc().total,x0,y+5,10,z.col,inner);y+=14;
   bar(x0,y,inner,13,P.hp/Math.max(1,eff('hp')),'#e8304a',Math.ceil(P.hp)+'/'+eff('hp'));y+=15;
@@ -2246,6 +2463,7 @@ function drawHUD(){
     const k=m/span/TS;
     for(const e of world.enemies){const ex=mx+(e.x-P.x)*k+m/2,ey=my+(e.y-P.y)*k+m/2;if(ex<mx||ey<my||ex>mx+m||ey>my+m)continue;ctx.fillStyle=e.d.boss?'#e040ff':e.d.god?'#ffe9a0':e.elite?'#ffd34a':'#ff3030';const s=e.d.boss?5:e.d.god?4:e.elite?4:2;ctx.fillRect(ex-s/2,ey-s/2,s,s);}
     for(const b of world.bags){const ex=mx+(b.x-P.x)*k+m/2,ey=my+(b.y-P.y)*k+m/2;if(ex<mx||ey<my||ex>mx+m||ey>my+m)continue;ctx.fillStyle='#fff';ctx.fillRect(ex-1,ey-1,2,2);}
+    for(const p of world.portals||[]){const ex=mx+(p.x-P.x)*k+m/2,ey=my+(p.y-P.y)*k+m/2;if(ex<mx||ey<my||ex>mx+m||ey>my+m)continue;ctx.fillStyle='#7ee0c8';ctx.fillRect(ex-2,ey-2,4,4);}
   }
   if(world.beacons){
     for(const b of world.beacons){
@@ -2263,6 +2481,10 @@ function drawHUD(){
   sqBtn(bx-sb,my+sb*3.2,Math.max(72,sb*3.6),40,'Heroes','#c9b0ff',openCharSelect,{tag:'char-select'});
   if(world.isHub&&world.vault)offerPortal(world.vault.x,world.vault.y,'Enter','#7dffe0',enterVault,'portal-vault');
   if(world.isVault&&world.portal)offerPortal(world.portal.x,world.portal.y,'Exit','#ffd34a',leaveVault,'portal-exit');
+  if(world.isDungeon&&world.exitOpen&&world.exit)offerPortal(world.exit.x,world.exit.y,'Haven','#ffd34a',()=>{enterHub();toast('Returned to the Haven','#ffd34a');},'portal-exit');
+  if(!world.isHub&&!world.isVault&&!world.isDungeon){
+    for(const p of world.portals||[])offerPortal(p.x,p.y,'Enter','#7ee0c8',()=>enterDungeon(p.dungeon),'portal-dungeon');
+  }
   drawAudioBtn(mx+Math.max(12,sb*0.85), my+m+Math.max(12,sb*0.85)+5, Math.max(12,Math.round(sb*0.85)));
   const cost=abCost();
   circBtn(L.ab,(C.ability.split(' ')[1]||C.ability),cost+' MP',C.col,useAbility,P.mp<cost||!P.eq.ability,{tag:'ability'});
@@ -2392,9 +2614,10 @@ function drawBigMap(){
   ctx.fillStyle='rgba(4,2,10,.82)';ctx.fillRect(0,0,W,H);
   const m=12,x=m,y=m,w=W-m*2,h=H-m*2;
   panel(x,y,w,h,0.98);
-  const title=world.isVault?'The Vault':world.isHub?'The Haven — full map':'Shardwild — full map';
+  const title=world.isDungeon?(world.dname||'Dungeon'):world.isVault?'The Vault':world.isHub?'The Haven — full map':'Shardwild — full map';
   txt(title,x+12,y+16,15,'#ffd34a','left');
-  fitTxt(world.isVault?'Storage shared by every hero. The gold portal leaves.':world.isHub?'Tap a lit beacon to warp. Locked pillars stay dim.':'Shore to center. Tap a lit beacon to warp. '+world.w+' tiles across.',x+12,y+34,11,'#b7b0d0',w-150);
+  const sub=world.isDungeon?'Crab warren. The gold portal leaves after Old Tideclaw falls.':world.isVault?'Storage shared by every hero. The gold portal leaves.':world.isHub?'Tap a lit beacon to warp. Locked pillars stay dim.':'Shore to center. Tap a lit beacon to warp. '+world.w+' tiles across.';
+  fitTxt(sub,x+12,y+34,11,'#b7b0d0',w-150);
   const legendW=Math.min(200,Math.max(140,w*0.26));
   const vx=x+8,vy=y+46,vw=w-legendW-22,vh=h-56;
   const sc=Math.min(vw/world.w,vh/world.h);
@@ -2405,7 +2628,7 @@ function drawBigMap(){
   ctx.fillStyle='#061018';ctx.fillRect(ox,oy,dw,dh);
   ctx.imageSmoothingEnabled=false;
   ctx.drawImage(world.mini,ox,oy,dw,dh);
-  const CELL=16,prefix=world.isVault?'v:':world.isHub?'h:':'r:';
+  const CELL=16,prefix=explorePrefix();
   ctx.fillStyle='rgba(6,4,14,.58)';
   for(let cy=0;cy<world.h;cy+=CELL)for(let cx=0;cx<world.w;cx+=CELL){
     if(P.explored&&P.explored[prefix+Math.floor(cx/CELL)+','+Math.floor(cy/CELL)])continue;
@@ -2415,7 +2638,7 @@ function drawBigMap(){
   ctx.restore();
   ctx.strokeStyle='#5a4a8a';ctx.lineWidth=2;ctx.strokeRect(ox,oy,dw,dh);
   const mxy=(wx,wy)=>({x:ox+(wx/TS)*sc,y:oy+(wy/TS)*sc});
-  if(!world.isHub&&!world.isVault){
+  if(!world.isHub&&!world.isVault&&!world.isDungeon){
     const cc=mxy(world.cx,world.cy);
     const rings=[
       {r:0.30,name:'Godlands',col:'#ff6a8a'},
@@ -2435,8 +2658,11 @@ function drawBigMap(){
     if(!(poi.always||poi.boss||poiSeen(poi.id)))continue;
     const p=mxy(poi.x,poi.y);
     if(poi.boss){
-      ctx.fillStyle='#e040ff';ctx.beginPath();ctx.moveTo(p.x,p.y-6);ctx.lineTo(p.x+5,p.y+4);ctx.lineTo(p.x-5,p.y+4);ctx.closePath();ctx.fill();
-      plate('Hollow King',p.x,p.y-12,10,'#e0b0ff');
+      ctx.fillStyle=poi.dungeon?'#ffb070':'#e040ff';ctx.beginPath();ctx.moveTo(p.x,p.y-6);ctx.lineTo(p.x+5,p.y+4);ctx.lineTo(p.x-5,p.y+4);ctx.closePath();ctx.fill();
+      plate(poi.dungeon?'Old Tideclaw':'Hollow King',p.x,p.y-12,10,poi.dungeon?'#ffb070':'#e0b0ff');
+    }else if(poi.portal){
+      ctx.fillStyle='#7ee0c8';ctx.beginPath();ctx.arc(p.x,p.y,4,0,TAU);ctx.fill();
+      plate(poi.name,p.x,p.y-12,10,'#7ee0c8');
     }else{
       ctx.fillStyle='#ffd34a';ctx.fillRect(p.x-2,p.y-2,5,5);
       plate(poi.name,p.x,p.y+14,10,'#ffe9a0');
@@ -2459,11 +2685,13 @@ function drawBigMap(){
   const lx=x+w-legendW-4,ly=y+48;
   txt('Legend',lx,ly,12,'#ffd34a','left');
   let yy=ly+16;
-  const lines=world.isVault
+  const lines=world.isDungeon
+    ?[['#ffff60','You'],['#ffb070','Old Tideclaw'],['#ffd34a','Haven exit'],['#7ee0c8','Tide pools']]
+    :world.isVault
     ?[['#ffff60','You'],['#ffd34a','Exit'],['#e7c98a','Chest'],['#ffe9a0','Discovered']]
     :world.isHub
     ?[['#ffff60','You'],['#7af0ff','Unlocked beacon'],['#6c6a78','Locked beacon'],['#ffe9a0','Discovered']]
-    :[['#ffff60','You'],['#e040ff','Boss'],['#7af0ff','Unlocked beacon'],['#6c6a78','Locked beacon'],['#ffe9a0','Discovered'],['#e4ce8c','Saltmarsh Shore'],['#7fd06a','Greenmarch'],['#4fe6ff','Ashen Wilds'],['#ff6a8a','Godlands']];
+    :[['#ffff60','You'],['#e040ff','Boss'],['#7af0ff','Unlocked beacon'],['#6c6a78','Locked beacon'],['#7ee0c8','Dungeon portal'],['#ffe9a0','Discovered'],['#e4ce8c','Saltmarsh Shore'],['#7fd06a','Greenmarch'],['#4fe6ff','Ashen Wilds'],['#ff6a8a','Godlands']];
   for(const [c,n] of lines){ctx.fillStyle=c;ctx.fillRect(lx,yy-4,8,8);fitTxt(n,lx+12,yy,10,'#ddd',legendW-18);yy+=13;}
   yy+=4;txt('Beacons',lx,yy,12,'#7af0ff','left');yy+=14;
   for(const b of world.beacons||[]){
@@ -2767,7 +2995,7 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
   get testWeapons(){return ['staff','bow','sword'].map(w=>{const it=mkTestWeapon(w);return {name:it.name,w:w,rate:it.rate,lethal:!!it.lethal,test:!!it.test};});},
   get paused(){return !!layoutC.portrait;},get overlay(){return layoutC.portrait?'rotate':null;},
   get mapOpen(){return mapOpen;},get chestOpen(){return !!nearChest();},get flash(){return tpFlash;},
-  get place(){return !world?'':world.isVault?'vault':world.isHub?'haven':'realm';},
+  get place(){return !world?'':world.isVault?'vault':world.isHub?'haven':world.isDungeon?'dungeon':'realm';},
   get vaultOpen(){const c=nearVaultChest();return c?c.i:-1;},
   get vaultItems(){return loadVault().chests.map(c=>c.map(it=>it?it.name:null));},
   get chars(){const r=ensureRoster();return r.slots.map((s,i)=>{const live=i===activeSlot&&P&&state==='play';const src=live?P:s;return src?{cls:src.cls,lvl:src.lvl,inv:(src.inv||[]).map(it=>it&&it.name),weapon:src.eq&&src.eq.weapon?src.eq.weapon.name:null}:null;});},
