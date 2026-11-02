@@ -816,7 +816,7 @@ function itemSpr(it){
 }
 function isUTGear(it){return !!(it&&!it.test&&it.tier>7&&(it.kind==='weapon'||it.kind==='ability'||it.kind==='armor'||it.kind==='ring'));}
 function tierLabel(it){if(it.test)return 'TST';if(it.kind==='dungeonkey')return 'KEY';if(it.kind==='mastery')return 'MAX';if(it.kind==='hp'||it.kind==='mp')return '';if(it.kind==='elixir')return '★';return it.tier>7?'UT':'T'+it.tier;}
-function itemColor(it){return it&&(it.test||it.kind==='mastery')?'#ffe9a0':TIERCOL[Math.min(it?it.tier:0,8)];}
+function itemColor(it){return it&&(it.test||it.kind==='mastery')?'#ffe9a0':it&&it.kind==='dungeonkey'?'#7ee0c8':TIERCOL[Math.min(it?it.tier:0,8)];}
 function secText(n){const v=Math.round(n*10)/10;return (v%1)?v.toFixed(1):String(v);}
 function fxLines(fx,how){
   if(!fx)return [];
@@ -869,6 +869,7 @@ function itemCatalog(){
   for(const k of STATK)items.push(tagItem(mkElixirOf(k),'all'));
   items.push(tagItem(mkMastery(),'pots'));
   items.push(tagItem(mkBeaconKey(),'all'));
+  for(const id in DUNGEONS)items.push(tagItem(mkDungeonKey(id),'keys'));
   for(const w of ['staff','bow','sword'])items.push(tagItem(mkTestWeapon(w),'test'));
   CATALOG=items;
   return items;
@@ -877,7 +878,8 @@ let chestTab='all',chestPage=0,chestNear=false;
 function filteredChest(){
   const all=itemCatalog();
   if(chestTab==='test')return all.filter(it=>it.test);
-  const list=all.filter(it=>!it.test);
+  if(chestTab==='keys')return all.filter(it=>it.group==='keys');
+  const list=all.filter(it=>!it.test&&it.group!=='keys');
   if(chestTab==='all')return list;
   if(chestTab==='pots')return list.filter(it=>it.kind==='hp'||it.kind==='mp'||it.kind==='elixir'||it.kind==='mastery');
   return list.filter(it=>it.group===chestTab||it.group==='all');
@@ -1344,6 +1346,7 @@ function enterDungeon(id){
   clearBullets();
   for(const s of dungeon.encounters||[])spawnEnemy(dungeon,s.type,s.x,s.y,0,false);
   dungeon.boss=spawnEnemy(dungeon,'tideclaw',dungeon.anchor.x,dungeon.anchor.y,0,false);
+  quest=null;questT=0;
   AUD.portal();
   toast('Entered '+d.name,'#ffb070');
   saveGame();
@@ -1771,6 +1774,12 @@ function tapRef(ref){
     if(ref.area==='chest'||ref.area==='bag'||ref.area==='vault'){moveToFirstEmpty(ref);return;}
     unlockAllBeacons();writeItem(ref,null);saveGame();return;
   }
+  if(it.kind==='dungeonkey'){
+    if(ref.area==='chest'||ref.area==='bag'||ref.area==='vault'){moveToFirstEmpty(ref);return;}
+    if(!world||world.isHub||world.isVault||world.isDungeon||world!==realm){toast('Use this key in the Shardwild','#ffb347');return;}
+    openDungeonPortal(world,P.x,P.y,it.dungeon||'tideclaw');
+    writeItem(ref,null);saveGame();return;
+  }
   if(it.kind==='hp'||it.kind==='mp'||it.kind==='elixir'||it.kind==='mastery'){
     if(ref.area==='bag'||ref.area==='chest'||ref.area==='vault'){moveToFirstEmpty(ref);return;}
     drinkRef(ref);saveGame();return;
@@ -1981,7 +1990,7 @@ function update(dt){
   }
   // regen & timers
   P.hp=Math.min(eff('hp'),P.hp+(1+eff('vit')*0.15)*dt);P.mp=Math.min(eff('mp'),P.mp+(1+eff('wis')*0.15)*dt);
-  P.abCd-=dt;P.slow-=dt;P.stun-=dt;P.para-=dt;P.weak-=dt;P.invuln-=dt;if(P.hurt)P.hurt-=dt;
+  P.abCd-=dt;P.slow=Math.max(0,P.slow-dt);P.stun=Math.max(0,P.stun-dt);P.para=Math.max(0,P.para-dt);P.weak=Math.max(0,P.weak-dt);P.invuln-=dt;if(P.hurt)P.hurt-=dt;
   if(tpFlash>0)tpFlash=Math.max(0,tpFlash-dt*1.3);
   touchChest();noteDiscoveries();
   if(world.isHub){
@@ -2071,7 +2080,7 @@ function updateEnemies(dt){
   for(const e of world.enemies.slice()){
     if(e.dead)continue;
     const dx=P.x-e.x,dy=P.y-e.y,d=Math.hypot(dx,dy)||1;const d0=e.d;
-    e.flash-=dt;e.slow-=dt;e.stun-=dt;e.para-=dt;e.weak-=dt;
+    e.flash-=dt;e.slow=Math.max(0,e.slow-dt);e.stun=Math.max(0,e.stun-dt);e.para=Math.max(0,e.para-dt);e.weak=Math.max(0,e.weak-dt);
     if(e.stun>0||e.para>0)continue;
     const leash=leashMode(e);
     if(leash==='despawn'){despawnLeashed(e);continue;}
@@ -2548,12 +2557,13 @@ function drawChestPanel(Pnl,inner,gap,x0,y0,slot){
   miniBtn(x0+inner-66,y-4,66,16,'Unlock','#7af0ff',()=>unlockAllBeacons(),{tag:'unlock-beacons'});
   y+=14;
   fitTxt('copies · never empties',x0,y+4,10,'#e7c98a',inner);y+=12;
-  const tabs=[['pyro','Pyromancer'],['strider','Strider'],['bulwark','Bulwark'],['all','All'],['pots','Potions'],['test','Test']];
-  const tw=(inner-gap)/2,th=15,trows=Math.ceil(tabs.length/2);
+  const tabs=[['pyro','Pyromancer'],['strider','Strider'],['bulwark','Bulwark'],['all','All'],['pots','Potions'],['keys','Keys'],['test','Test']];
+  const tcols=3,th=15,trows=Math.ceil(tabs.length/tcols);
+  const tw=(inner-(tcols-1)*gap)/tcols;
   for(let i=0;i<tabs.length;i++){
-    const t=tabs[i],tx=x0+(i%2)*(tw+gap),ty=y+Math.floor(i/2)*(th+1);
+    const t=tabs[i],tx=x0+(i%tcols)*(tw+gap),ty=y+Math.floor(i/tcols)*(th+1);
     const on=chestTab===t[0];
-    const col=t[0]==='test'?'#fff6c0':t[0]==='pots'?'#ff8ac0':t[0]==='all'?'#ffd34a':CLASSES[t[0]].col;
+    const col=t[0]==='test'?'#fff6c0':t[0]==='keys'?'#7ee0c8':t[0]==='pots'?'#ff8ac0':t[0]==='all'?'#ffd34a':CLASSES[t[0]].col;
     ctx.fillStyle=on?'rgba(78,58,130,.96)':'rgba(26,20,44,.96)';
     ctx.fillRect(tx,ty,tw,th);
     ctx.strokeStyle=on?col:'#3a3058';ctx.lineWidth=2;ctx.strokeRect(tx+1,ty+1,tw-2,th-2);
@@ -2977,7 +2987,7 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
   get vaultOpen(){const c=nearVaultChest();return c?c.i:-1;},
   get vaultItems(){return loadVault().chests.map(c=>c.map(it=>it?it.name:null));},
   get chars(){const r=ensureRoster();return r.slots.map((s,i)=>{const live=i===activeSlot&&P&&state==='play';const src=live?P:s;return src?{cls:src.cls,lvl:src.lvl,inv:(src.inv||[]).map(it=>it&&it.name),weapon:src.eq&&src.eq.weapon?src.eq.weapon.name:null}:null;});},
-  get foes(){return world?world.enemies.map((e,i)=>({i,name:e.name,type:e.type,hp:e.hp,max:e.maxhp,boss:!!e.d.boss,god:!!e.d.god,x:e.x,y:e.y,r:e.d.r,scale:e.d.scale||1,zone:e.zone,homeX:e.homeX,homeY:e.homeY})):[]},
+  get foes(){return world?world.enemies.map((e,i)=>({i,name:e.name,type:e.type,hp:e.hp,max:e.maxhp,boss:!!e.d.boss,dungeonBoss:!!e.d.dungeonBoss,god:!!e.d.god,x:e.x,y:e.y,r:e.d.r,scale:e.d.scale||1,zone:e.zone,homeX:e.homeX,homeY:e.homeY,slow:e.slow||0,stun:e.stun||0,para:e.para||0,weak:e.weak||0})):[]},
   spawnFoe(type){if(!P||!world)return null;const ang=Math.atan2(-8,46);const e=spawnEnemy(world,type||'colossus',P.x+Math.cos(ang)*42,P.y+Math.sin(ang)*42,3,false);return {name:e.name,hp:e.hp,max:e.maxhp,boss:!!e.d.boss,god:!!e.d.god,scale:e.d.scale||1,r:e.d.r};},
   spawnAt(type,x,y,zone){if(!world)return null;const z=zone==null?zoneAt(world,x,y):zone;const e=spawnEnemy(world,type,x,y,z,false);return {i:world.enemies.indexOf(e),name:e.name,type:e.type,god:!!e.d.god,scale:e.d.scale||1,r:e.d.r,x:e.x,y:e.y,zone:e.zone,homeX:e.homeX,homeY:e.homeY};},
   moveFoe(i,x,y){const e=world&&world.enemies[i];if(!e)return false;e.x=x;e.y=y;return true;},
@@ -3033,7 +3043,7 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
     return {name:it.name,tier:it.tier,col:it.col||null,shot:it.shot||null,mask:mask,n:n,avg:(n?(r/n|0):0)*65536+(n?(g/n|0):0)*256+(n?(b/n|0):0),hot:hot};
   },
   get beacons(){return P&&P.beacons?P.beacons.slice():[];},
-  get catalog(){const items=itemCatalog();const test=items.filter(isTestItem);return {n:items.length,weapons:items.filter(i=>i.kind==='weapon').length,abilities:items.filter(i=>i.kind==='ability').length,armors:items.filter(i=>i.kind==='armor').length,rings:items.filter(i=>i.kind==='ring').length,elixirs:items.filter(i=>i.kind==='elixir').length,pots:items.filter(i=>i.kind==='hp'||i.kind==='mp').length,mastery:items.filter(i=>i.kind==='mastery').length,key:items.some(i=>i.kind==='beaconkey'),test:test.length,testNames:test.map(i=>i.name)};},
+  get catalog(){const items=itemCatalog();const test=items.filter(isTestItem);return {n:items.length,weapons:items.filter(i=>i.kind==='weapon').length,abilities:items.filter(i=>i.kind==='ability').length,armors:items.filter(i=>i.kind==='armor').length,rings:items.filter(i=>i.kind==='ring').length,elixirs:items.filter(i=>i.kind==='elixir').length,pots:items.filter(i=>i.kind==='hp'||i.kind==='mp').length,mastery:items.filter(i=>i.kind==='mastery').length,key:items.some(i=>i.kind==='beaconkey'),dungeonKeys:items.filter(i=>i.kind==='dungeonkey').length,test:test.length,testNames:test.map(i=>i.name)};},
   get caps(){return P?Object.assign({},CLASSES[P.cls].max):null;},
   get statText(){if(!P)return [];return STATK.map(k=>{const cap=statCap(P.cls,k);return {k,text:STATN[k]+' '+P.stats[k]+'/'+cap,base:P.stats[k],eff:eff(k),cap,maxed:P.stats[k]>=cap};});},
   get toasts(){return toasts.map(t=>t.t);},
@@ -3041,6 +3051,17 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
   setStat(k,v){if(P&&STATK.indexOf(k)>=0)P.stats[k]=v;},
   save(){saveGame();},
   get tooltip(){const ref=(ptr&&ptr.tip&&ptr.ref)||(heldTip&&heldTip.ref);if(!ref)return null;const it=readItem(ref);return it?it.name:null;},
+  get tooltipLines(){const ref=(ptr&&ptr.tip&&ptr.ref)||(heldTip&&heldTip.ref);if(!ref)return [];const it=readItem(ref);return it?itemLines(it):[];},
+  fireOnce(){
+    if(!P||!P.eq||!P.eq.weapon)return 0;
+    const w=P.eq.weapon,am=attMul();
+    for(let i=0;i<w.shots;i++){const o=i-(w.shots-1)/2;const a=P.aim+o*w.spread*Math.PI/180;const px=-Math.sin(P.aim)*o*w.par,py=Math.cos(P.aim)*o*w.par;
+      addPB(P.x+px,P.y+py,a,w.speed,rand(w.dmin,w.dmax)*am,w.r,w.range/w.speed,w.col,w.pierce,w.fx,w.shot,!!w.lethal);}
+    shotsFired++;return w.shots;
+  },
+  debugStatus(fx){if(!P)return;addEB(P.x,P.y,0,0,0,4,0.4,'#d8a0ff',fx,'test');},
+  holdKey(code,on){input.keys[code]=!!on;},
+  enterDungeon,
   makeItem(s){
     if(s==='hp'||s==='mp')return mkPot(s);
     if(!s||typeof s!=='object')return null;
@@ -3053,6 +3074,9 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
     if(k==='mastery')return mkMastery();
     if(k==='hp'||k==='mp')return mkPot(k);
     if(k==='beaconkey')return mkBeaconKey();
+    if(k==='dungeonkey')return mkDungeonKey(s.dungeon||'tideclaw');
+    if(k==='tidepearl')return mkTidepearl();
+    if(k==='test')return mkTestWeapon(s.w||'sword');
     return null;
   },
   grant(spec){if(!P)return null;const it=this.makeItem(spec);if(!it)return null;const i=P.inv.indexOf(null);if(i<0)return null;P.inv[i]=it;return {i,name:it.name,kind:it.kind,tier:it.tier};},

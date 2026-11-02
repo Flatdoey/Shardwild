@@ -106,9 +106,32 @@ async function main() {
       '  elixirs ' + sim.boss.elixirs
     );
     console.log('UT from non-boss: ' + sim.utOutsideBoss);
+    assert(sim.dungeonUtOutside === 0, 'dungeon UT leaked into the overworld: ' + sim.dungeonUtOutside);
+    assert(sim.keysOutside === 0, 'dungeon key leaked into the overworld: ' + sim.keysOutside);
+    const portals = sim.portalByType || {};
+    assert(portals.crab > N * 0.01 && portals.crab < N * 0.06, 'crab portal rate ' + portals.crab + '/' + N);
+    for (const t of Object.keys(portals)) {
+      if (t === 'crab') continue;
+      assert(portals[t] === 0, 'portal dropped from ' + t + ': ' + portals[t]);
+    }
+    const den = sim.dungeon;
+    assert(den && den.enemy === 'crab' && den.utName === 'Tidepearl', 'dungeon sim ' + JSON.stringify(den && {enemy: den.enemy, utName: den.utName}));
+    assert(den.bossGear === N, 'dungeon boss did not always drop T2-T4 gear ' + den.bossGear + '/' + N);
+    assert(den.boss.dungeonUt > N * 0.04 && den.boss.dungeonUt < N * 0.28, 'Tidepearl rate ' + den.boss.dungeonUt);
+    assert(den.boss.gear[8] === den.boss.dungeonUt, 'dungeon boss UT mix ' + fmtGear(den.boss.gear));
+    assert(den.boss.keys > N * 0.02 && den.boss.keys < N * 0.2, 'dungeon key rate ' + den.boss.keys);
+    for (let t = 0; t <= 7; t++) {
+      if (t >= 2 && t <= 4) continue;
+      assert(!den.boss.gear[t], 'dungeon boss leaked T' + t + ' ' + fmtGear(den.boss.gear));
+    }
+    assert(den.minion.dungeonUt === 0 && den.minion.keys === 0 && den.minion.test === 0 && den.minion.mastery === 0, 'minion extras ' + JSON.stringify(den.minion));
+    assert(den.boss.test === 0 && den.boss.mastery === 0, 'boss dropped a test item or mastery');
+    for (const t of [0, 1, 4, 5, 6, 7, 8]) assert(!den.minion.gear[t], 'minion tier ' + t + ' ' + fmtGear(den.minion.gear));
+    assert(den.minion.gear[2] > 0 && den.minion.gear[3] > 0, 'minion gear ' + fmtGear(den.minion.gear));
+    console.log('Tideclaw portal from crabs ' + portals.crab + '/' + N + '  UT ' + den.boss.dungeonUt + '  keys ' + den.boss.keys);
   } finally {
-    await browser.close();
-    server.close();
+    try { await browser.close(); } catch (e) {}
+    try { server.close(); } catch (e) {}
   }
 }
 

@@ -456,6 +456,179 @@ async function homeButtonAndAim(page, cdp) {
   assert(!afterTap.aiming, 'home tap started the aim stick');
 }
 
+async function tideclawAndStatus(page, cdp) {
+  const cont = await page.evaluate(() => window.__shardwild.ui.find(r => r.tag === 'char-continue' || r.tag === 'char-play'));
+  assert(cont, 'no hero to continue into the dungeon check');
+  await page.touchscreen.tap(cont.x + cont.w / 2, cont.y + cont.h / 2);
+  await page.waitForFunction(() => window.__shardwild.state === 'play');
+  await frames(page, 4);
+  const chest = await page.evaluate(() => window.__shardwild.world.chest);
+  await walkTo(page, cdp, chest.x, chest.y, () => window.__shardwild.chestOpen, 20);
+  await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'keys');
+  await frames(page, 3);
+  const keyNames = await chestNames(page);
+  assert(keyNames.indexOf('Tideclaw Burrow Key') >= 0, 'Keys tab ' + keyNames.join(','));
+  await page.screenshot({path: path.join(ART, 'screenshot_test_chest_keys.png')});
+  const keySlot = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'chest' && s.name === 'Tideclaw Burrow Key'));
+  assert(keySlot, 'Tideclaw key slot missing');
+  await page.touchscreen.tap(keySlot.x + keySlot.w / 2, keySlot.y + keySlot.h / 2);
+  await frames(page, 3);
+  assert(await page.evaluate(() => window.__shardwild.P.inv.some(it => it && it.kind === 'dungeonkey')), 'key was not copied into the backpack');
+
+  await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'strider');
+  let bow = null;
+  for (let i = 0; i < 8 && !bow; i++) {
+    bow = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'chest' && s.name === 'Starforged Bow'));
+    if (!bow) await tapTag(page, r => r.tag === 'chest-next');
+  }
+  assert(bow, 'Starforged Bow missing from the chest');
+  await longPress(cdp, page, bow.x + bow.w / 2, bow.y + bow.h / 2);
+  const chestTip = await page.evaluate(() => ({name: window.__shardwild.tooltip, lines: window.__shardwild.tooltipLines}));
+  assert(chestTip.name === 'Starforged Bow', 'chest tooltip ' + chestTip.name);
+  assert(chestTip.lines.some(l => /Slowed for 1\.5s/.test(l)), 'chest tooltip lines ' + chestTip.lines.join(' | '));
+  await page.screenshot({path: path.join(ART, 'screenshot_status_tooltip.png')});
+  await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'all');
+
+  const seal = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'eq' && s.slot === 'ability'));
+  assert(seal, 'equipped ability missing');
+  await longPress(cdp, page, seal.x + seal.w / 2, seal.y + seal.h / 2);
+  const invTip = await page.evaluate(() => window.__shardwild.tooltipLines);
+  assert(invTip.some(l => /Stunned/.test(l)), 'inventory tooltip ' + invTip.join(' | '));
+
+  await walkTo(page, cdp, chest.x + 40, chest.y, () => !window.__shardwild.chestOpen, 12);
+  const status = await page.evaluate(() => {
+    const sw = window.__shardwild;
+    sw.clearFoes();
+    sw.teleport(112, 96);
+    sw.P.invuln = 3;
+    sw.P.eq.weapon = sw.makeItem({k: 'weapon', w: 'bow', t: 6});
+    sw.P.aim = 0;
+    sw.P.fireCd = 0;
+    sw.spawnAt('ogre', sw.P.x + 18, sw.P.y, 2);
+    sw.P.mp = 200;
+    sw.P.abCd = 0;
+    sw.P.aim = 0;
+    sw.useAbility();
+    sw.fireOnce();
+    sw.pump(2);
+    const hit = sw.foes.find(f => f.type === 'ogre');
+    sw.P.invuln = 0;
+    sw.P.para = 0;
+    sw.debugStatus({para: 1.5});
+    sw.pump(1);
+    const para = sw.P.para;
+    sw.holdKey('KeyD', true);
+    const x0 = sw.P.x;
+    sw.pump(6);
+    const moved = sw.P.x - x0;
+    sw.holdKey('KeyD', false);
+    sw.P.para = 0;
+    sw.P.slow = 0;
+    sw.P.eq.ring = sw.makeItem({k: 'tidepearl'});
+    sw.debugStatus({slow: 2});
+    sw.pump(1);
+    const slowed = sw.P.slow;
+    sw.P.eq.ring = null;
+    sw.clearFoes();
+    return {slow: hit && hit.slow, para, moved, slowed, weapon: sw.P.eq.weapon && sw.P.eq.weapon.name};
+  });
+  assert(status.slow > 0.4, 'bow did not slow the ogre ' + JSON.stringify(status));
+  assert(status.para > 0.8, 'paralyze shot did not land ' + JSON.stringify(status));
+  assert(status.moved < 1, 'paralyzed hero still walked ' + JSON.stringify(status));
+  assert(status.slowed === 0, 'Tidepearl did not block Slowed ' + JSON.stringify(status));
+
+  await page.evaluate(() => window.__shardwild.enterRealm());
+  await frames(page, 3);
+  const keyInv = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'inv' && s.name === 'Tideclaw Burrow Key'));
+  assert(keyInv, 'key left the backpack before it was used');
+  await page.touchscreen.tap(keyInv.x + keyInv.w / 2, keyInv.y + keyInv.h / 2);
+  await page.waitForFunction(() => window.__shardwild.place === 'dungeon', {timeout: 4000});
+  await frames(page, 4);
+  const inside = await page.evaluate(() => ({
+    place: window.__shardwild.place,
+    name: window.__shardwild.world.dname,
+    solid: window.__shardwild.blocked(window.__shardwild.P.x, window.__shardwild.P.y),
+    foes: window.__shardwild.foes.filter(f => !f.boss).length,
+    boss: window.__shardwild.foes.some(f => f.dungeonBoss)
+  }));
+  assert(inside.place === 'dungeon' && inside.name === 'Tideclaw Burrow', JSON.stringify(inside));
+  assert(!inside.solid && inside.foes >= 4 && inside.boss, 'dungeon layout ' + JSON.stringify(inside));
+  await page.screenshot({path: path.join(ART, 'screenshot_dungeon.png')});
+  await tapTag(page, r => r.tag === 'haven');
+  await page.waitForFunction(() => window.__shardwild.place === 'haven');
+  assert(await page.evaluate(() => window.__shardwild.place === 'haven' && !!window.__shardwild.world.chest), 'Haven button did not leave the dungeon');
+
+  const again = await page.evaluate(() => window.__shardwild.world.chest);
+  await walkTo(page, cdp, again.x, again.y, () => window.__shardwild.chestOpen, 18);
+  await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'keys');
+  const key2 = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'chest' && s.name === 'Tideclaw Burrow Key'));
+  assert(key2, 'second key missing');
+  await page.touchscreen.tap(key2.x + key2.w / 2, key2.y + key2.h / 2);
+  await frames(page, 2);
+  await walkTo(page, cdp, again.x + 36, again.y, () => !window.__shardwild.chestOpen, 12);
+  await page.evaluate(() => window.__shardwild.enterRealm());
+  await frames(page, 2);
+  const keyInv2 = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'inv' && s.name === 'Tideclaw Burrow Key'));
+  assert(keyInv2, 'second key was not in the backpack');
+  await page.touchscreen.tap(keyInv2.x + keyInv2.w / 2, keyInv2.y + keyInv2.h / 2);
+  await page.waitForFunction(() => window.__shardwild.place === 'dungeon', {timeout: 4000});
+  await frames(page, 3);
+  await page.evaluate(() => {
+    const sw = window.__shardwild;
+    const boss = sw.foes.find(f => f.dungeonBoss);
+    sw.teleport(boss.x - 36, boss.y + 8);
+    sw.P.invuln = 8;
+  });
+  await frames(page, 4);
+  await page.screenshot({path: path.join(ART, 'screenshot_dungeon_boss.png')});
+  const killed = await page.evaluate(() => {
+    const sw = window.__shardwild;
+    const boss = sw.foes.find(f => f.dungeonBoss);
+    sw.P.eq.weapon = sw.makeItem({k: 'test', w: 'sword'});
+    sw.P.fireCd = 0;
+    sw.P.aim = Math.atan2(boss.y - sw.P.y, boss.x - sw.P.x);
+    sw.fireOnce();
+    sw.pump(10);
+    return {
+      alive: sw.foes.some(f => f.dungeonBoss),
+      exit: !!(sw.world.exitOpen),
+      bag: sw.bags[0] ? sw.bags[0].items.map(it => ({name: it.name, tier: it.tier, kind: it.kind})) : []
+    };
+  });
+  assert(!killed.alive && killed.exit, 'boss did not fall ' + JSON.stringify(killed));
+  assert(killed.bag.length > 0, 'boss left no loot');
+  assert(killed.bag.every(it => it.kind !== 'mastery' && it.name.indexOf('Godslayer') < 0), 'test loot in the den ' + JSON.stringify(killed.bag));
+  assert(killed.bag.some(it => (it.tier >= 2 && it.tier <= 4) || it.name === 'Tidepearl'), 'loot was not early-dungeon gear ' + JSON.stringify(killed.bag));
+  await page.evaluate(() => {
+    const sw = window.__shardwild;
+    const bag = sw.bags[0];
+    sw.teleport(bag.x, bag.y);
+  });
+  await frames(page, 3);
+  const loot = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'bag' && s.name));
+  assert(loot, 'loot bag did not open');
+  await page.touchscreen.tap(loot.x + loot.w / 2, loot.y + loot.h / 2);
+  await frames(page, 3);
+  const taken = await page.evaluate(() => {
+    const sw = window.__shardwild;
+    return {
+      inv: sw.P.inv.filter(Boolean).map(it => it.name),
+      ring: sw.P.eq.ring && sw.P.eq.ring.name,
+      weapon: sw.P.eq.weapon && sw.P.eq.weapon.name
+    };
+  });
+  assert(taken.inv.length > 0 || (taken.ring && taken.ring !== 'Tidepearl' ? true : !!taken.ring) || (taken.weapon && taken.weapon.indexOf('Godslayer') < 0), 'did not take dungeon loot ' + JSON.stringify(taken));
+  await page.evaluate(() => {
+    const sw = window.__shardwild;
+    sw.teleport(sw.world.exit.x, sw.world.exit.y);
+    sw.pump(3);
+  });
+  await frames(page, 3);
+  assert(await page.evaluate(() => window.__shardwild.place === 'haven'), 'exit portal did not return to the Haven');
+  const fpsDen = await page.evaluate(() => window.__shardwild.fps);
+  assert(fpsDen > 45, 'fps through the dungeon: ' + fpsDen);
+}
+
 async function main() {
   fs.mkdirSync(ART, {recursive: true});
   const errors = [];
@@ -757,7 +930,7 @@ async function main() {
     }, 16);
     assert(await page.evaluate(() => window.__shardwild.chestOpen), 'chest did not open');
     const cat = await page.evaluate(() => window.__shardwild.catalog);
-    assert(cat.weapons === 30 && cat.abilities === 27 && cat.armors === 27 && cat.rings === 9 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.test === 3 && cat.n === 105, 'catalog ' + JSON.stringify(cat));
+    assert(cat.weapons === 30 && cat.abilities === 27 && cat.armors === 27 && cat.rings === 9 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.dungeonKeys === 1 && cat.test === 3 && cat.n === 106, 'catalog ' + JSON.stringify(cat));
     assert(cat.testNames && cat.testNames.join(',') === 'Godslayer Staff,Godslayer Bow,Godslayer Blade', 'test weapons ' + JSON.stringify(cat.testNames));
 
     let staff = null;
@@ -1055,6 +1228,11 @@ async function main() {
     const locked = await page.evaluate(() => window.__shardwild.ui.filter(r => r.tag === 'beacon' && r.where === 'map'));
     assert(locked.length === 4, 'map beacon icons ' + locked.length);
     assert(locked.every(b => !b.unlocked), 'realm beacons should start locked: ' + JSON.stringify(locked.map(b => b.beacon)));
+    await page.evaluate(() => {
+      const sw = window.__shardwild;
+      const w = sw.world;
+      for (let y = 0; y < w.h; y += 16) for (let x = 0; x < w.w; x += 16) sw.P.explored['r:' + ((x / 16) | 0) + ',' + ((y / 16) | 0)] = 1;
+    });
     await frames(page, 3);
     await page.screenshot({path: path.join(ART, 'screenshot_expanded_map.png')});
     await tapTag(page, r => r.tag === 'map-close');
@@ -1141,6 +1319,8 @@ async function main() {
 
     await charactersVaultWeapons(page, cdp);
 
+    await tideclawAndStatus(page, cdp);
+
     await page.waitForTimeout(1200);
     const fps = await page.evaluate(() => window.__shardwild.fps);
     assert(fps > 50, 'fps too low: ' + fps);
@@ -1152,8 +1332,8 @@ async function main() {
     if (errors.length) console.error(errors.join('\n'));
     throw err;
   } finally {
-    await browser.close();
-    server.close();
+    try { await browser.close(); } catch (e) {}
+    try { server.close(); } catch (e) {}
   }
 }
 
