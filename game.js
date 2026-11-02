@@ -419,29 +419,110 @@ function tileBase(wd,i,t){
   if(t===T_BCORAL)return T_BFLOOR;
   return t;
 }
-function colorOf(wd,i,base){
-  const src=TCOL[base]||[90,90,90],col=[src[0],src[1],src[2]],z=wd.zone[i];
-  if(z===3&&base===T_ROCK){col[0]=Math.min(255,col[0]+52);col[1]=Math.round(col[1]*0.52);col[2]=Math.round(col[2]*0.7);}
-  else if(z===3&&base===T_ARENA){col[0]=Math.min(255,col[0]+28);col[1]=Math.round(col[1]*0.9);}
-  return col;
+// One 8x8 palette per ground. Godlands stays pale stone. Ash is gray-brown, with a
+// crack of lava on a few tiles — never a solid red field.
+const GROUND={
+  water:[[28,64,138],[42,92,184],[16,40,96],[86,142,210]],
+  wet:[[118,128,74],[74,98,62],[150,142,88],[48,74,58]],
+  sand:[[236,214,152],[210,180,108],[248,230,180],[176,146,84]],
+  grass:[[48,132,44],[74,168,58],[32,96,30],[132,196,78]],
+  ash:[[112,98,86],[84,74,64],[136,120,104],[58,50,44]],
+  lava:[[188,48,26],[228,92,32],[110,24,14]],
+  rock:[[190,190,200],[166,166,178],[214,214,222],[120,120,132]],
+  arena:[[176,174,186],[154,152,166],[200,198,210]],
+  floor:[[132,130,148],[108,106,124],[150,148,164]],
+  wall:[[64,58,80],[40,36,54],[92,84,108]],
+  carpet:[[142,44,60],[176,62,78],[96,26,40]],
+  bfloor:[[172,126,78],[144,102,62],[196,152,100]],
+  bwall:[[96,54,46],[62,34,30],[124,76,60]],
+  bpool:[[26,104,122],[16,74,92],[72,164,176]],
+  bpearl:[[210,172,122],[230,194,146],[164,124,80]]
+};
+function groundRGB(tx,ty,px,py,base){
+  const h=hash2(tx,ty),n=hash2(tx*13+px,ty*17+py),q=(tx+ty)&1;
+  const at=(set,i)=>set[i%set.length];
+  if(base===T_WATER){
+    if(((px+(ty&3))&7)<2&&(py&3)===1)return at(GROUND.water,3);
+    return at(GROUND.water,n<0.18?2:(q?0:1));
+  }
+  if(base===T_WET){
+    if(px>1&&px<6&&py>2&&py<6&&n<0.42)return [40,70,62];
+    if((px===2||px===5)&&py<3&&h<0.65)return at(GROUND.wet,1);
+    return at(GROUND.wet,n<0.35?2:0);
+  }
+  if(base===T_SAND){
+    if(n>0.93)return at(GROUND.sand,3);
+    if(py===6&&((px+tx)&1)===0)return at(GROUND.sand,1);
+    return at(GROUND.sand,q?0:2);
+  }
+  if(base===T_GRASS){
+    if(py<=2&&(px===1||px===4||px===6)&&hash2(tx+px,ty+3)<0.6)return at(GROUND.grass,3);
+    if(n>0.965)return [214,78,112];
+    if(n<0.07)return at(GROUND.grass,2);
+    return at(GROUND.grass,q);
+  }
+  if(base===T_DARK){
+    if(hash2(tx*9+2,ty*4+5)<0.08&&(px===3||px===4)&&py>0&&py<7)return at(GROUND.lava,py<4?0:1);
+    if(n<0.1)return at(GROUND.ash,3);
+    if(n>0.9)return at(GROUND.ash,2);
+    return at(GROUND.ash,q?0:1);
+  }
+  if(base===T_ROCK){
+    if(px===0||py===0)return at(GROUND.rock,3);
+    if(n>0.92)return at(GROUND.rock,2);
+    return at(GROUND.rock,(tx&1)^(ty&1)?0:1);
+  }
+  if(base===T_ARENA){
+    if(px===0||py===0||px===7||py===7)return at(GROUND.arena,1);
+    return at(GROUND.arena,q?2:0);
+  }
+  if(base===T_FLOOR){
+    if(px===0||py===0)return [76,74,90];
+    return at(GROUND.floor,q);
+  }
+  if(base===T_WALL){
+    if(py===0)return at(GROUND.wall,2);
+    if(py===7)return [26,22,36];
+    return at(GROUND.wall,0);
+  }
+  if(base===T_CARPET){
+    if(px===0||px===7)return [214,170,64];
+    return at(GROUND.carpet,(py&1)?0:1);
+  }
+  if(base===T_BFLOOR)return n>0.9?at(GROUND.bfloor,2):at(GROUND.bfloor,q);
+  if(base===T_BWALL){
+    if(py===0||px===0)return at(GROUND.bwall,2);
+    return at(GROUND.bwall,0);
+  }
+  if(base===T_BPOOL){
+    if(((px+ty)&3)===0&&(py&1)===0)return at(GROUND.bpool,2);
+    return at(GROUND.bpool,q);
+  }
+  if(base===T_BPEARL){
+    if(px===0||py===0)return at(GROUND.bpearl,2);
+    return at(GROUND.bpearl,q?0:1);
+  }
+  const src=TCOL[base]||[90,90,90],j=(n-0.5)*12;
+  return [clamp(src[0]+j,0,255)|0,clamp(src[1]+j,0,255)|0,clamp(src[2]+j,0,255)|0];
 }
-function tileJitter(tx,ty,px,py,base){
-  const h=hash2(tx*13+px,ty*17+py);
-  let j=(h-0.5)*18;
-  if(base===T_WATER||base===T_BPOOL)j=((px+ty*3+py*2)%7===0)?26:j*0.5;
-  if(base===T_GRASS||base===T_DARK||base===T_BFLOOR){if(h<0.06)j-=28;}
-  if(base===T_ARENA||base===T_BPEARL){if(px===0||py===0)j-=22;if(((tx+ty)&1)===0)j+=8;}
-  if(base===T_FLOOR){if(px===0||py===0)j-=26;if(((tx+ty)&1)===0)j+=10;}
-  if(base===T_WALL||base===T_BWALL){if(py===0)j+=30;if(px===0||py===TS-1)j-=18;}
-  if(base===T_CARPET){if(px===0||px===TS-1)j+=40;}
-  return j;
+function tileRGB(wd,tx,ty,px,py){
+  const i=ty*wd.w+tx;
+  return groundRGB(tx,ty,px,py,tileBase(wd,i,wd.tiles[i]));
+}
+function minimapRGB(wd,tx,ty){
+  const i=ty*wd.w+tx,t=wd.tiles[i],k=DECO_SPR[t]?0.62:1;
+  let r=0,g=0,b=0;
+  for(const [px,py] of [[1,1],[4,2],[3,5],[6,4]]){
+    const c=tileRGB(wd,tx,ty,px,py);r+=c[0];g+=c[1];b+=c[2];
+  }
+  return [(r*k/4)|0,(g*k/4)|0,(b*k/4)|0];
 }
 function paintMinimap(wd){
   const mini=document.createElement('canvas');mini.width=wd.w;mini.height=wd.h;
-  const mg=mini.getContext('2d'),img=mg.createImageData(wd.w,wd.h),md=img.data,n=wd.w*wd.h;
-  for(let i=0;i<n;i++){
-    const t=wd.tiles[i],base=tileBase(wd,i,t),col=colorOf(wd,i,base),k=DECO_SPR[t]?0.62:1,o=i*4;
-    md[o]=col[0]*k;md[o+1]=col[1]*k;md[o+2]=col[2]*k;md[o+3]=255;
+  const mg=mini.getContext('2d'),img=mg.createImageData(wd.w,wd.h),md=img.data;
+  for(let y=0;y<wd.h;y++)for(let x=0;x<wd.w;x++){
+    const col=minimapRGB(wd,x,y),o=(y*wd.w+x)*4;
+    md[o]=col[0];md[o+1]=col[1];md[o+2]=col[2];md[o+3]=255;
   }
   mg.putImageData(img,0,0);
   wd.mini=mini;wd.map=mini;
@@ -450,10 +531,10 @@ function raster(wd,x0,y0,tw,th){
   const c=document.createElement('canvas');c.width=tw*TS;c.height=th*TS;
   const g=c.getContext('2d'),img=g.createImageData(c.width,c.height),d=img.data;
   for(let ty=0;ty<th;ty++)for(let tx=0;tx<tw;tx++){
-    const wx=x0+tx,wy=y0+ty,i=wy*wd.w+wx,t=wd.tiles[i],base=tileBase(wd,i,t),col=colorOf(wd,i,base);
+    const wx=x0+tx,wy=y0+ty;
     for(let py=0;py<TS;py++)for(let px=0;px<TS;px++){
-      const j=tileJitter(wx,wy,px,py,base),p=((ty*TS+py)*c.width+(tx*TS+px))*4;
-      d[p]=clamp(col[0]+j,0,255);d[p+1]=clamp(col[1]+j,0,255);d[p+2]=clamp(col[2]+j,0,255);d[p+3]=255;
+      const col=tileRGB(wd,wx,wy,px,py),p=((ty*TS+py)*c.width+(tx*TS+px))*4;
+      d[p]=col[0];d[p+1]=col[1];d[p+2]=col[2];d[p+3]=255;
     }
   }
   g.putImageData(img,0,0);
@@ -504,19 +585,53 @@ function drawTerrain(wd){
   }
 }
 
+// Bands are fractions of the disc. A thin dither mixes the two tiles on each edge.
+const BANDS=[
+  {dd:0.95,t:T_WATER,z:-1},
+  {dd:0.90,t:T_WET,z:0},
+  {dd:0.74,t:T_SAND,z:0},
+  {dd:0.52,t:T_GRASS,z:1},
+  {dd:0.30,t:T_DARK,z:2},
+  {dd:-1,t:T_ROCK,z:3}
+];
+function pickBand(dd,x,y){
+  let i=BANDS.length-1;
+  for(let k=0;k<BANDS.length-1;k++)if(dd>BANDS[k].dd){i=k;break;}
+  const D=0.02,h=hash2(x*3+11,y*5+7);
+  let flip=0,dist=D;
+  if(i>0){const d=BANDS[i-1].dd-dd;if(d>0&&d<dist){dist=d;flip=-1;}}
+  if(i<BANDS.length-1){const d=dd-BANDS[i].dd;if(d>0&&d<dist){dist=d;flip=1;}}
+  if(flip&&h<(1-dist/D))return BANDS[i+flip];
+  return BANDS[i];
+}
+// Value noise wraps, so a second octave (nx*2+phase) stays on the grid. The v10
+// octave indexed past a 50-wide buffer; those reads were undefined, dd became NaN,
+// and NaN failed every band test, so the tile fell through to red-tinted Godlands rock.
+function makeNoise(R,cells){
+  const G=cells,grid=new Float32Array(G*G);
+  for(let i=0;i<grid.length;i++)grid[i]=R();
+  return function(x,y){
+    const gx=x*G,gy=y*G,ix=Math.floor(gx),iy=Math.floor(gy),fx=gx-ix,fy=gy-iy;
+    const sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy);
+    const x0=((ix%G)+G)%G,y0=((iy%G)+G)%G,x1=(x0+1)%G,y1=(y0+1)%G;
+    const a=grid[y0*G+x0],b=grid[y0*G+x1],c=grid[y1*G+x0],d=grid[y1*G+x1];
+    return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy;
+  };
+}
 function genRealm(seed){
   const R=mulberry(seed),N=REALM_N,wd=mkWorld(N,N),cx=N/2,cy=N/2;
-  const G=48,grid=new Float32Array((G+2)*(G+2));for(let i=0;i<grid.length;i++)grid[i]=R();
-  function noise(x,y){const gx=x*G,gy=y*G,ix=Math.floor(gx),iy=Math.floor(gy),fx=gx-ix,fy=gy-iy,sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy),q=G+2;
-    const a=grid[iy*q+ix],b=grid[iy*q+ix+1],c=grid[(iy+1)*q+ix],d=grid[(iy+1)*q+ix+1];return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy;}
+  const noise=makeNoise(R,48);
   const ph=R()*10;
   for(let y=0;y<N;y++)for(let x=0;x<N;x++){
-    const dx=(x-cx)/(N/2),dy=(y-cy)/(N/2);let dd=Math.hypot(dx,dy);
+    const dx=(x-cx)/(N/2),dy=(y-cy)/(N/2),geo=Math.hypot(dx,dy);
     const nx=x/N,ny=y/N;
-    dd+=(noise(nx,ny)-0.5)*0.2+(noise(nx*2+1.7,ny*2+0.4)-0.5)*0.07+Math.sin(Math.atan2(dy,dx)*7+ph)*0.025;
+    let dd=geo+(noise(nx,ny)-0.5)*0.2+(noise(nx*2+1.7,ny*2+0.4)-0.5)*0.07+Math.sin(Math.atan2(dy,dx)*7+ph)*0.025;
+    if(!isFinite(dd))dd=geo;
     const tdist=Math.hypot(x-cx,y-cy);
     let t,z;
-    if(dd>0.95){t=T_WATER;z=-1;}else if(dd>0.9){t=T_WET;z=0;}else if(dd>0.74){t=T_SAND;z=0;}else if(dd>0.52){t=T_GRASS;z=1;}else if(dd>0.3){t=T_DARK;z=2;}else{t=T_ROCK;z=3;}
+    // Corners sit outside the disc. Keep them ocean even if noise tugs the coast.
+    if(geo>1.02){t=T_WATER;z=-1;}
+    else{const band=pickBand(dd,x,y);t=band.t;z=band.z;}
     if(tdist<18){t=T_ARENA;z=3;}
     else if(tdist>22){
       if(z===1&&t===T_GRASS){if(R()<0.032)t=T_TREE;else if(R()<0.01)t=T_FLOWER;else if(R()<0.0035)t=T_STUMP;}
@@ -527,17 +642,19 @@ function genRealm(seed){
     }
     wd.tiles[y*N+x]=t;wd.zone[y*N+x]=z;
   }
-  function ring(rad,n,gapEvery,tile){
+  function ring(rad,n,gapEvery,tile,zone){
     for(let i=0;i<n;i++){
       if(gapEvery&&i%gapEvery===0)continue;
       const a=i*TAU/n+0.35,tx=Math.round(cx+Math.cos(a)*rad),ty=Math.round(cy+Math.sin(a)*rad);
       if(tx<3||ty<3||tx>=N-3||ty>=N-3)continue;
       const i0=ty*N+tx;
-      if(wd.zone[i0]===3&&wd.tiles[i0]!==T_ARENA&&wd.tiles[i0]!==T_WATER)wd.tiles[i0]=tile;
+      if(wd.zone[i0]===zone&&wd.tiles[i0]!==T_ARENA&&wd.tiles[i0]!==T_WATER)wd.tiles[i0]=tile;
     }
   }
-  ring(26,18,3,T_PILLAR);
-  ring(78,28,4,T_RUIN);
+  // Radii are fractions of the realm, matching the 400-tile layout (pillars in the
+  // Godlands, ruins out in the Ashen Wilds).
+  ring(Math.round(N*0.065),18,3,T_PILLAR,3);
+  ring(Math.round(N*0.195),28,4,T_RUIN,2);
   function disk(tx,ty,rad,tile,only){
     for(let y=-rad;y<=rad;y++)for(let x=-rad;x<=rad;x++){
       if(x*x+y*y>rad*rad)continue;
@@ -1260,6 +1377,9 @@ function hydrate(s){
   bumpItemIds();
 }
 function openCharSelect(){
+  // Character select is the Haven, the same way RotMG only allows it from the Nexus.
+  // Death draws its own button and does not come through here.
+  if(state==='play'&&(!world||!world.isHub))return;
   if(state==='play')saveGame();
   mapOpen=false;ptr=null;heldTip=null;
   input.move.id=null;input.aim.id=null;input.mouse.down=false;
@@ -2465,7 +2585,7 @@ function drawHUD(){
   addRect(mx-2,my-2,m+4,m+4,()=>openMap(),'button',{tag:'minimap'});
   const sb=Math.round(clamp(u*0.4,16,24)),bx=Math.min(mx+m+sb+12,play.x+play.w-sb-6);
   circBtn({x:bx,y:my+sb,r:sb},'AUTO',null,P.auto?'#5aff7a':'#666',()=>{P.auto=!P.auto;toast('Auto-aim '+(P.auto?'ON':'OFF'));},{tag:'auto'});
-  sqBtn(bx-sb,my+sb*3.2,Math.max(72,sb*3.6),40,'Heroes','#c9b0ff',openCharSelect,{tag:'char-select'});
+  if(world.isHub)sqBtn(bx-sb,my+sb*3.2,Math.max(72,sb*3.6),40,'Heroes','#c9b0ff',openCharSelect,{tag:'char-select'});
   if(world.isHub&&world.vault)offerPortal(world.vault.x,world.vault.y,'Enter','#7dffe0',enterVault,'portal-vault');
   if(world.isVault&&world.portal)offerPortal(world.portal.x,world.portal.y,'Exit','#ffd34a',leaveVault,'portal-exit');
   if(world.isDungeon&&world.exitOpen&&world.exit)offerPortal(world.exit.x,world.exit.y,'Haven','#ffd34a',()=>{enterHub();toast('Returned to the Haven','#ffd34a');},'portal-exit');
@@ -2973,7 +3093,63 @@ function frame(t){
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
-window.__shardwild={get state(){return state;},get P(){return P;},get world(){return world;},startNew,enterRealm,enterHub,useAbility,get fps(){return fps;},get bullets(){return ebN;},get shots(){return pbN;},
+function sampleTerrain(){
+  const wd=realm;if(!wd)return null;
+  const n=wd.w*wd.h,zones={'-1':0,'0':0,'1':0,'2':0,'3':0},tiles={};
+  let maxT=0,maxN=0;
+  for(let i=0;i<n;i++){
+    const z=wd.zone[i];zones[z]=(zones[z]||0)+1;
+    const t=wd.tiles[i];tiles[t]=(tiles[t]||0)+1;
+    if(tiles[t]>maxN){maxN=tiles[t];maxT=t;}
+  }
+  const frac={};
+  for(const k in zones)frac[k]=zones[k]/n;
+  function nearestGround(tx,ty){
+    for(let r=0;r<28;r++){
+      for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
+        if(r&&Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;
+        const x=tx+dx,y=ty+dy;
+        if(x<0||y<0||x>=wd.w||y>=wd.h)continue;
+        if(DECO_SPR[wd.tiles[y*wd.w+x]])continue;
+        return {x,y};
+      }
+    }
+    return {x:tx,y:ty};
+  }
+  const seeds=[[0,0],[wd.w-1,0],[0,wd.h-1],[wd.w-1,wd.h-1],[0,(wd.h/2)|0],[wd.w-1,(wd.h/2)|0],[(wd.w/2)|0,0],[(wd.w/2)|0,wd.h-1]];
+  const checks=[];
+  for(const [sx,sy] of seeds){
+    const p=nearestGround(sx,sy),i=p.y*wd.w+p.x,exp=tileRGB(wd,p.x,p.y,4,4),mexp=minimapRGB(wd,p.x,p.y);
+    const x0=Math.floor(p.x/CHUNK)*CHUNK,y0=Math.floor(p.y/CHUNK)*CHUNK;
+    const tw=Math.min(CHUNK,wd.w-x0),th=Math.min(CHUNK,wd.h-y0);
+    const ch=raster(wd,x0,y0,tw,th);
+    const pix=ch.getContext('2d').getImageData((p.x-x0)*TS+4,(p.y-y0)*TS+4,1,1).data;
+    const mini=wd.mini.getContext('2d').getImageData(p.x,p.y,1,1).data;
+    checks.push({tx:p.x,ty:p.y,tile:wd.tiles[i],zone:wd.zone[i],
+      world:[pix[0],pix[1],pix[2]],expect:[exp[0],exp[1],exp[2]],
+      mini:[mini[0],mini[1],mini[2]],miniExpect:mexp,
+      worldOk:pix[0]===exp[0]&&pix[1]===exp[1]&&pix[2]===exp[2],
+      miniOk:mini[0]===mexp[0]&&mini[1]===mexp[1]&&mini[2]===mexp[2]});
+  }
+  function avgBase(base,limit){
+    let r=0,g=0,b=0,reds=0,seen=0;
+    for(let i=0;i<n&&seen<limit;i+=17){
+      if(tileBase(wd,i,wd.tiles[i])!==base)continue;
+      const tx=i%wd.w,ty=(i/wd.w)|0;
+      for(let py=0;py<TS;py++)for(let px=0;px<TS;px++){
+        const c=groundRGB(tx,ty,px,py,base);
+        r+=c[0];g+=c[1];b+=c[2];
+        if(c[0]>160&&c[1]<90&&c[2]<80)reds++;
+      }
+      seen++;
+    }
+    const pxn=seen*TS*TS||1;
+    return {n:seen,r:r/pxn,g:g/pxn,b:b/pxn,red:reds/pxn};
+  }
+  const looks={water:avgBase(T_WATER,24),wet:avgBase(T_WET,24),sand:avgBase(T_SAND,24),grass:avgBase(T_GRASS,24),ash:avgBase(T_DARK,200),rock:avgBase(T_ROCK,24)};
+  return {w:wd.w,h:wd.h,n,zones,frac,tiles,maxT,maxShare:maxN/n,checks,looks};
+}
+window.__shardwild={get state(){return state;},get P(){return P;},get world(){return world;},startNew,enterRealm,enterHub,useAbility,sampleTerrain,get fps(){return fps;},get bullets(){return ebN;},get shots(){return pbN;},
   teleport(x,y){if(P){P.x=x;P.y=y;}},setInv(){},get invOpen(){return false;},
   get ui(){return uiRects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,kind:r.kind,tag:r.tag||'',tab:r.tab||'',beacon:r.beacon||'',unlocked:!!r.unlocked,where:r.where||'',slot:r.slot==null?-1:r.slot,stat:r.stat||'',maxed:!!r.maxed}));},
   get slots(){return uiRects.filter(r=>r.kind==='slot').map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,area:r.ref.area,i:r.ref.i,slot:r.ref.slot,name:r.item?r.item.name:null,tier:r.item?r.item.tier:null,kind:r.item?r.item.kind:null,stat:r.item?(r.item.stat||r.item.kind||''):'',wep:r.item&&r.item.w?r.item.w:'',dim:!!(r.item&&classLocked(r.item)),tag:r.tag||''}));},

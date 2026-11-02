@@ -243,6 +243,10 @@ async function charactersVaultWeapons(page, cdp) {
   await walkTo(page, cdp, vaultDoor.x, vaultDoor.y, () => window.__shardwild.place === 'vault', 24);
   await frames(page, 3);
   assert(await page.evaluate(() => window.__shardwild.place === 'vault' && window.__shardwild.foes.length === 0), 'vault should be empty of enemies');
+  await frames(page, 2);
+  assert(!(await page.evaluate(() => window.__shardwild.ui.some(r => r.tag === 'char-select'))), 'Heroes button is visible in the Vault');
+  const vaultSelect = await page.evaluate(() => { window.__shardwild.openCharSelect(); return window.__shardwild.state; });
+  assert(vaultSelect === 'play', 'character select opened from the Vault');
   const vchest = await page.evaluate(() => window.__shardwild.world.chests[0]);
   await walkTo(page, cdp, vchest.x, vchest.y, () => window.__shardwild.vaultOpen === 0, 16);
   const bowSlot = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'inv' && s.name === 'Splintered Bow'));
@@ -553,6 +557,10 @@ async function tideclawAndStatus(page, cdp) {
   }));
   assert(inside.place === 'dungeon' && inside.name === 'Tideclaw Burrow', JSON.stringify(inside));
   assert(!inside.solid && inside.foes >= 4 && inside.boss, 'dungeon layout ' + JSON.stringify(inside));
+  await frames(page, 2);
+  assert(!(await page.evaluate(() => window.__shardwild.ui.some(r => r.tag === 'char-select'))), 'Heroes button is visible in the dungeon');
+  const denSelect = await page.evaluate(() => { window.__shardwild.openCharSelect(); return {state: window.__shardwild.state, place: window.__shardwild.place}; });
+  assert(denSelect.state === 'play' && denSelect.place === 'dungeon', 'character select opened from the dungeon ' + JSON.stringify(denSelect));
   await page.screenshot({path: path.join(ART, 'screenshot_dungeon.png')});
   await tapTag(page, r => r.tag === 'haven');
   await page.waitForFunction(() => window.__shardwild.place === 'haven');
@@ -627,6 +635,118 @@ async function tideclawAndStatus(page, cdp) {
   assert(await page.evaluate(() => window.__shardwild.place === 'haven'), 'exit portal did not return to the Haven');
   const fpsDen = await page.evaluate(() => window.__shardwild.fps);
   assert(fpsDen > 45, 'fps through the dungeon: ' + fpsDen);
+}
+
+function colorDist(a, b) {
+  const dr = a.r - b.r, dg = a.g - b.g, db = a.b - b.b;
+  return Math.sqrt(dr * dr + dg * dg + db * db);
+}
+
+async function terrainRegionsAndHeroes(page) {
+  const hidden = await page.evaluate(() => {
+    const sw = window.__shardwild;
+    sw.clearFoes();
+    sw.P.invuln = 60;
+    const before = {state: sw.state, place: sw.place};
+    sw.openCharSelect();
+    return {
+      before,
+      after: {state: sw.state, place: sw.place},
+      heroes: sw.ui.filter(r => r.tag === 'char-select')
+    };
+  });
+  assert(hidden.before.place === 'realm', 'terrain check left the realm ' + JSON.stringify(hidden));
+  assert(!hidden.heroes.length, 'Heroes button is visible in the overworld ' + JSON.stringify(hidden.heroes));
+  assert(hidden.after.state === 'play' && hidden.after.place === 'realm', 'character select opened from the overworld ' + JSON.stringify(hidden));
+  await frames(page, 4);
+  await page.screenshot({path: path.join(ART, 'screenshot_hud_overworld.png')});
+
+  const report = await page.evaluate(() => window.__shardwild.sampleTerrain());
+  assert(report && report.w === 800 && report.h === 800, 'terrain sample missing ' + JSON.stringify(report && {w: report.w, h: report.h}));
+  const f = report.frac;
+  assert(f['-1'] > 0.18 && f['-1'] < 0.42, 'water band ' + f['-1']);
+  assert(f['0'] > 0.16 && f['0'] < 0.40, 'shore band ' + f['0']);
+  assert(f['1'] > 0.12 && f['1'] < 0.34, 'greenmarch band ' + f['1']);
+  assert(f['2'] > 0.07 && f['2'] < 0.26, 'ashen band ' + f['2']);
+  assert(f['3'] > 0.035 && f['3'] < 0.16, 'godlands band ' + f['3']);
+  assert(report.maxShare < 0.42, 'tile ' + report.maxT + ' covers ' + report.maxShare);
+  assert(report.checks.length === 8 && report.checks.every(c => c.worldOk && c.miniOk), 'chunk/minimap mismatch ' + JSON.stringify(report.checks));
+  assert(report.checks.slice(0, 4).every(c => c.zone === -1 && c.tile === 0), 'corners are not ocean ' + JSON.stringify(report.checks.slice(0, 4)));
+  const L = report.looks;
+  for (const k of ['water', 'wet', 'sand', 'grass', 'ash', 'rock']) assert(L[k].n >= 12, k + ' look sample ' + L[k].n);
+  assert(L.water.b > L.water.r + 40 && L.water.b > L.water.g, 'water is not blue ' + JSON.stringify(L.water));
+  assert(L.sand.r > 180 && L.sand.g > 150 && L.sand.r > L.sand.b + 30, 'sand is not a beach ' + JSON.stringify(L.sand));
+  assert(L.wet.g + 8 >= L.wet.r && L.wet.g > L.wet.b + 12 && L.sand.r > L.wet.r + 50, 'marsh looks like sand ' + JSON.stringify({wet: L.wet, sand: L.sand}));
+  assert(L.grass.g > L.grass.r + 25 && L.grass.g > L.grass.b + 25, 'greenmarch is not green ' + JSON.stringify(L.grass));
+  assert(L.ash.r > 70 && L.ash.r < 150 && Math.abs(L.ash.r - L.ash.g) < 28 && L.ash.r > L.ash.b + 8 && L.ash.red < 0.08, 'ashen is a red fill ' + JSON.stringify(L.ash));
+  assert(L.ash.red > 0.002, 'ashen has no lava cracks ' + JSON.stringify(L.ash));
+  assert(L.rock.r > 155 && L.rock.g > 155 && L.rock.b > 155 && Math.abs(L.rock.r - L.rock.g) < 20 && L.rock.r < L.rock.g + 25, 'godlands is not pale stone ' + JSON.stringify(L.rock));
+  for (const [a, b] of [['sand', 'grass'], ['grass', 'ash'], ['ash', 'rock'], ['sand', 'ash'], ['grass', 'rock'], ['water', 'sand']]) {
+    assert(colorDist(L[a], L[b]) > 40, a + ' and ' + b + ' are too similar ' + colorDist(L[a], L[b]).toFixed(1));
+  }
+
+  await page.evaluate(() => {
+    const sw = window.__shardwild;
+    const w = sw.world;
+    for (let y = 0; y < w.h; y += 16) for (let x = 0; x < w.w; x += 16) sw.P.explored['r:' + ((x / 16) | 0) + ',' + ((y / 16) | 0)] = 1;
+  });
+  await tapTag(page, r => r.tag === 'minimap');
+  await page.waitForFunction(() => window.__shardwild.mapOpen);
+  await frames(page, 3);
+  await page.screenshot({path: path.join(ART, 'screenshot_full_map.png')});
+  await tapTag(page, r => r.tag === 'map-close');
+  assert(!(await page.evaluate(() => window.__shardwild.mapOpen)), 'map stayed open after the region survey');
+
+  const stops = [
+    ['shore', 2, 'screenshot_ground_saltmarsh.png'],
+    ['green', 3, 'screenshot_ground_greenmarch.png'],
+    ['ashen', 4, 'screenshot_ground_ashen.png'],
+    ['star', 5, 'screenshot_ground_godlands.png']
+  ];
+  for (const [id, base, file] of stops) {
+    await page.evaluate(bid => {
+      const sw = window.__shardwild;
+      if (sw.place !== 'realm') sw.enterRealm();
+      if (sw.P.beacons.indexOf(bid) < 0) sw.P.beacons.push(bid);
+      sw.clearFoes();
+      sw.P.invuln = 60;
+    }, id);
+    await tapTag(page, r => r.tag === 'minimap');
+    await page.waitForFunction(() => window.__shardwild.mapOpen);
+    await tapTag(page, r => r.tag === 'beacon' && r.beacon === id && r.where === 'map' && r.unlocked);
+    await page.waitForFunction(() => !window.__shardwild.mapOpen);
+    const stood = await page.evaluate(({id, base}) => {
+      const sw = window.__shardwild;
+      sw.pump(26);
+      sw.clearFoes();
+      const b = sw.world.beacons.find(x => x.id === id);
+      const w = sw.world;
+      const tx0 = Math.floor(b.x / 8), ty0 = Math.floor(b.y / 8);
+      let spot = null;
+      for (let r = 3; r < 48 && !spot; r++) {
+        for (let dy = -r; dy <= r && !spot; dy++) for (let dx = -r; dx <= r; dx++) {
+          if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+          const x = tx0 + dx, y = ty0 + dy;
+          if (x < 2 || y < 2 || x >= w.w - 2 || y >= w.h - 2) continue;
+          const i = y * w.w + x;
+          if (w.tiles[i] !== base) continue;
+          const px = (x + 0.5) * 8, py = (y + 0.5) * 8;
+          if (sw.blocked(px, py)) continue;
+          spot = {x: px, y: py, zone: w.zone[i], tile: w.tiles[i]};
+          break;
+        }
+      }
+      if (spot) sw.teleport(spot.x, spot.y);
+      sw.P.invuln = 60;
+      const heroes = sw.ui.filter(r => r.tag === 'char-select');
+      return {spot, zone: sw.zoneAt(sw.P.x, sw.P.y), place: sw.place, heroes: heroes.length, flash: sw.flash};
+    }, {id, base});
+    assert(stood.place === 'realm' && stood.spot && stood.spot.tile === base, id + ' ground ' + JSON.stringify(stood));
+    assert(stood.heroes === 0, 'Heroes appeared after warping to ' + id);
+    assert(stood.flash < 0.05, id + ' warp flash still up ' + stood.flash);
+    await frames(page, 5);
+    await page.screenshot({path: path.join(ART, file)});
+  }
 }
 
 async function main() {
@@ -706,6 +826,8 @@ async function main() {
       return a.x < b.x + b.w - 0.5 && a.x + a.w > b.x + 0.5 && a.y < b.y + b.h - 0.5 && a.y + a.h > b.y + 0.5;
     }
     assert(hudLayout.haven && hudLayout.ability && hudLayout.mm, 'HUD controls missing ' + JSON.stringify(hudLayout));
+    const heroesHaven = await page.evaluate(() => window.__shardwild.ui.find(r => r.tag === 'char-select'));
+    assert(heroesHaven && heroesHaven.w >= 44 && heroesHaven.h >= 36, 'Heroes button missing in the Haven ' + JSON.stringify(heroesHaven));
     assert(hudLayout.quick === 0, 'HP/MP quick buttons are still on the HUD');
     assert(hudLayout.haven.w >= 72 && hudLayout.haven.h >= 72, 'Haven button is too small ' + JSON.stringify(hudLayout.haven));
     assert(hudLayout.haven.y + hudLayout.haven.h <= hudLayout.aim.y + 0.5, 'Haven is not above the aim stick ' + JSON.stringify({haven: hudLayout.haven, aim: hudLayout.aim}));
@@ -1314,6 +1436,8 @@ async function main() {
     assert(leash.d1 < leash.d0 - 8, 'leashed enemy did not walk home ' + JSON.stringify(leash));
     assert(leash.bd1 < leash.bd0 - 8, 'boss did not walk back toward the Godlands ' + JSON.stringify(leash));
     assert(leash.playerZone !== leash.homeZone, 'player should still be across the border');
+
+    await terrainRegionsAndHeroes(page);
 
     await homeButtonAndAim(page, cdp);
 
