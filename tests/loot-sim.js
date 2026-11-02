@@ -133,7 +133,8 @@ async function main() {
     console.log('Tideclaw portal from crabs ' + portals.crab + '/' + N + '  UT ' + den.boss.dungeonUt + '  keys ' + den.boss.keys);
     const burrows = await page.evaluate(() => window.__shardwild.auditBurrows(200));
     assert(burrows && burrows.ok && burrows.n === 200, 'Tideclaw layouts ' + JSON.stringify(burrows));
-    console.log('Tideclaw layouts ' + burrows.n + ' seeds connected, in range, boss farthest, no duplicate neighbors');
+    assert(burrows.bossMin >= 26 && burrows.bossMax <= 32, 'boss room size ' + burrows.bossMin + '-' + burrows.bossMax);
+    console.log('Tideclaw layouts ' + burrows.n + ' seeds connected, boss room ' + burrows.bossMin + '-' + burrows.bossMax + ' tiles');
     const bands = sim.enemyBands || [];
     assert(bands.length >= 24, 'enemy loot bands missing ' + bands.length);
     const byRegion = {};

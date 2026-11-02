@@ -23,6 +23,68 @@ function mkSprite(rows,pal){
   const f=document.createElement('canvas');f.width=c.width;f.height=c.height;const g2=f.getContext('2d');g2.translate(c.width,0);g2.scale(-1,1);g2.drawImage(c,0,0);
   return {c,f,w:c.width,h:c.height};
 }
+// Item art stays 8x8. The dark outline is stamped later, at the size it is drawn,
+// so the pixels stay chunky and the outline stays one screen pixel.
+let rawSeq=1;
+function mkRaw(rows,pal){
+  const h=rows.length,w=Math.max(...rows.map(r=>r.length));
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  const g=c.getContext('2d'),img=g.createImageData(w,h),d=img.data;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const ch=rows[y][x];
+    if(!ch||ch==='.'||!pal[ch])continue;
+    const n=parseInt(pal[ch].slice(1),16),i=(y*w+x)*4;
+    d[i]=(n>>16)&255;d[i+1]=(n>>8)&255;d[i+2]=n&255;d[i+3]=255;
+  }
+  g.putImageData(img,0,0);
+  const f=document.createElement('canvas');f.width=w;f.height=h;
+  const g2=f.getContext('2d');g2.translate(w,0);g2.scale(-1,1);g2.drawImage(c,0,0);
+  return {c,f,w,h,id:rawSeq++};
+}
+const iconCache=new Map();
+function outlinedIcon(sp,scale){
+  const key=sp.id+'@'+scale,hit=iconCache.get(key);
+  if(hit)return hit;
+  const sw=sp.w,sh=sp.h,tw=sw*scale,th=sh*scale,W=tw+2,H=th+2;
+  const tmp=document.createElement('canvas');tmp.width=tw;tmp.height=th;
+  const tg=tmp.getContext('2d');tg.imageSmoothingEnabled=false;tg.drawImage(sp.c,0,0,tw,th);
+  const sd=tg.getImageData(0,0,tw,th).data;
+  const out=document.createElement('canvas');out.width=W;out.height=H;
+  const og=out.getContext('2d'),im=og.createImageData(W,H),od=im.data;
+  const op=(x,y)=>x>=0&&y>=0&&x<tw&&y<th&&sd[(y*tw+x)*4+3]>200;
+  for(let y=0;y<th;y++)for(let x=0;x<tw;x++){
+    if(!op(x,y))continue;
+    const si=(y*tw+x)*4,oi=((y+1)*W+(x+1))*4;
+    od[oi]=sd[si];od[oi+1]=sd[si+1];od[oi+2]=sd[si+2];od[oi+3]=255;
+  }
+  for(let y=0;y<th;y++)for(let x=0;x<tw;x++){
+    if(!op(x,y))continue;
+    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+      if(!dx&&!dy||op(x+dx,y+dy))continue;
+      const ox=x+dx+1,oy=y+dy+1;
+      if(ox<0||oy<0||ox>=W||oy>=H)continue;
+      const oi=(oy*W+ox)*4;
+      if(od[oi+3])continue;
+      od[oi]=13;od[oi+1]=11;od[oi+2]=18;od[oi+3]=255;
+    }
+  }
+  og.putImageData(im,0,0);
+  iconCache.set(key,out);
+  return out;
+}
+function drawItemIcon(sp,x,y,box){
+  if(!sp||!sp.c)return;
+  ctx.imageSmoothingEnabled=false;
+  const scale=Math.max(1,Math.min(5,Math.floor((box-2)/Math.max(1,sp.w))));
+  const icon=outlinedIcon(sp,scale);
+  ctx.drawImage(icon,Math.round(x+(box-icon.width)/2),Math.round(y+(box-icon.height)/2));
+}
+function drawItemWorld(sp,wx,wy){
+  if(!sp||!sp.c)return;
+  const scale=Math.max(2,S|0),icon=outlinedIcon(sp,scale);
+  const dx=Math.round((wx-camX)*S-icon.width/2),dy=Math.round((wy-camY)*S-icon.height/2);
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.imageSmoothingEnabled=false;ctx.drawImage(icon,dx,dy);ctx.restore();
+}
 const SK='#f1c27d',EY='#1b1b24';
 const SPR={};
 function buildSprites(){
@@ -58,9 +120,9 @@ function buildSprites(){
   SPR.idol=mkSprite(["..wwww..",".wwyyww.","wwwwwwww",".wwwwww.","wwwwwwww",".ww..ww.",".ww..ww.","ww....ww"],{w:'#e8e4dc',y:'#ffd34a'});
   SPR.serpent=mkSprite(["y..cc..y",".ccyycc.","ccwwwwcc",".cckkcc.","..cccc..",".c....c.","cc....cc","c......c"],{y:'#ffd34a',c:'#7a9a38',w:'#e8ffc0',k:EY});
   SPR.tidematron=mkSprite([".r.rr.r.",".rrrrrr.","rrwrrwrr","rrrrrrrr",".rppppr.","rr.rr.rr","r..r..r."],{r:'#e07040',w:'#fff',p:'#7ee0c8'});
-  // Same bottle, distinct liquid. Cork (c) and neck (n) stay put; l is the brew, g the glint.
-  const pot=["......cc......","......cc......",".....nnnn.....","....nlllln....","...nlllllln...","...nlllllln...","...nllgllln...","...nlllllln...","...nlllllln...","...nlllllln...","....nlllln....",".....nnnn.....","......nn......","................","................","................"];
-  function potSprite(liquid,glint){return mkSprite(pot,{c:'#f4f4f4',n:'#6b4428',l:liquid,g:glint});}
+  // Same 8x8 bottle, distinct liquid. Cork (c) and neck (n) stay put; l is the brew, g the glint.
+  const pot=['...cc...','...nn...','..nlln..','.nlllln.','.nlllln.','.nlglln.','..nlln..','...nn...'];
+  function potSprite(liquid,glint){return mkRaw(pot,{c:'#f4f4f4',n:'#6b4428',l:liquid,g:glint});}
   SPR.pots={
     hp:potSprite('#ef243c','#ffd0d6'),
     mp:potSprite('#2f6bff','#c5d8ff'),
@@ -75,7 +137,7 @@ function buildSprites(){
     mastery:potSprite('#f0c020','#fff6a0')
   };
   SPR.hp=SPR.pots.hp;SPR.mp=SPR.pots.mp;SPR.elixir=SPR.pots.att;
-  SPR.key=mkSprite(["......yyyy......",".......yy.......","....yyyyyyyy....","...yy.yyyy.yy...","...yyyyyyyyyy...","....yyyyyyyy....",".....yyyyyy.....","......yyyy......","................","................","................","................","................","................","................","................"],{y:'#ffd34a',d:'#c89820'});
+  SPR.key=mkRaw(['...yy...','....y...','..yyyy..','.yy.yy..','.yyyyyy.','..yyyy..','...yy...','...yy...'],{y:'#ffd34a',d:'#c89820'});
   SPR.chest=mkSprite(["..gggg..","gggggggg","ggyyyggg","gggggggg","ggyyyggg","gggggggg"],{g:'#e3b33d',y:'#fff1a8'});
   SPR.beacon=mkSprite(["...cc...","..cwwc..","...cc...","...ll...","...ll...","..llll..","..lssl.."],{c:'#7af0ff',w:'#ffffff',l:'#d8dce8',s:'#5a6070'});
   const bag=["..kk....","...k....","..bbbb..",".bbbbbb.","bbbbbbbb","bbbbbbbb",".bbbbbb."];
@@ -90,358 +152,255 @@ function buildSprites(){
   SPR.vent=mkSprite(["...cc...","..cggc..",".cggggc.","cggggggc",".cggggc."],{c:'#5a6a72',g:'#9fd0d8'});
   SPR.pillar=mkSprite(["..cccc..",".cwwwc..","..cccc..","..cccc..","..cccc..",".cccccc.",".cssssc."],{c:'#c8b8d0',w:'#fff6e0',s:'#6a5a78'});
   SPR.ruin=mkSprite(["rr.rr.rr","rrrrrrrr",".rrrrrr.","..r..r.."],{r:'#6a5a68'});
-  SPR.coral=mkSprite([".o.o.o.",".oooooo.",".o.o.o.","..ooo.."],{o:'#e25a32'});
+  SPR.coral=mkSprite(['.o.p.o.','.ooopo.','.o.o.o.','..ooo..','..o.o..'],{o:'#e25a32',p:'#ffb090'});
+  SPR.brock=mkSprite(['..rrrr..','.rllrrr.','rrlldrr.','rrlddrr.','.rrddrr.','..rrrr..'],{r:'#6a7a78',l:'#b7ccc8',d:'#2c3c3c'});
+  SPR.plank=mkSprite(['.bbbbbb.','bb.bb.bb','.bbbbbb.','..b..b..'],{b:'#a07848'});
+  SPR.crystal=mkSprite(['...c....','..clc...','clclclc.','..clc...','.cclcc..','...c....'],{c:'#7ee0c8',l:'#f4fffc'});
+  SPR.weed=mkSprite(['g.g.g.g.','.g.g.g.g','g..g..g.','.g....g.'],{g:'#3c9a58'});
   SPR.pincer=mkSprite([".r.r.r.","rrrrrrr.",".rwkrwr.",".rrrrrr.","r.r.r.r."],{r:'#f0a070',w:'#fff',k:EY});
   SPR.barnacle=mkSprite(["..ggg..",".gwwgw.",".gggggg.","gkgkgkg",".ggggg."],{g:'#6a8a84',w:'#e8fff8',k:'#243430'});
   SPR.shellguard=mkSprite(["r.rr.rr.r","rrrrrrrrr",".rrwkkwrr","rrrrrrrrr","r.rr.rr.r","rr.....rr"],{r:'#c44828',w:'#fff',k:EY});
   SPR.tideclaw=mkSprite(["r..rr..rr..r","rrr.rrrr.rrr",".rrrrrrrrrr.","rrrwkkrrwrrr","rrrrrrrrrrrr",".rrrrrrrrrr.","rr.rr..rr.rr","r..r....r..r"],{r:'#e25a32',w:'#fff4ea',k:'#1a1210'});
-  SPR.tidepearl=mkSprite(["................","......oooo......","....oowwwwoo....","...owwwwwwwwo...","..owwppwwppwwo..","..owwwwwwwwwwo..","...owwwwwwwwo...","....oowwwwoo....","......oooo......","................","................","................","................","................","................","................"],{o:'#e25a32',w:'#e9fffb',p:'#fff6c0'});
-  SPR.keyTide=mkSprite(["......cccc......",".......cc.......","....cccccc......","...ccooookkcc...","...cc.cc.cccc...","....cccccccc....",".....ccccc......","......cccc......","................","................","................","................","................","................","................","................"],{c:'#7ee0c8',o:'#e25a32',k:'#fff6e0'});
+  SPR.tidepearl=mkRaw(['.o....o.','oo.pp.oo','o.pwwp.o','.pwwwwp.','.pwwwwp.','o.pwwp.o','oo.pp.oo','.o....o.'],{o:'#e25a32',w:'#e9fffb',p:'#ffe14a'});
+  SPR.keyTide=mkRaw(['...cc...','....c...','..cccc..','.ccokcc.','.cccccc.','..cccc..','...cc...','...cc...'],{c:'#7ee0c8',o:'#e25a32',k:'#fff6e0'});
 }
 
 /* ---------------- tiered gear sprites ---------------- */
-// T0–T2 plain, T3–T5 trimmed, T6–T7 ornate, T8+ untiered (unique silhouette).
+// 8x8 RotMG-style icons. T0-T2 plain, T3-T5 colored, T6-T7 vivid, T8 a unique UT shape.
 const GEARSPR={};
 const GEAR={
   staff:{
     rows:{
-      low:[
-        "................","................",".....oooo.......","....oobboo......","....oobboo......",".....oooo.......",
-        "......bb........","......bb........","......bb........","......bb........","......bb........","......bb........",
-        "......bb........",".....bbbb.......","....bbbbbb......",".....bbbb......."],
-      mid:[
-        "................","....gggggggg....","...ghhhhhhhhg...","...ghhhtthhhg...","...ghhhhhhhhg...","....gggggggg....",
-        ".......tt.......","......tbbt......",".......bb.......","......tbbt......",".......bb.......","......tbbt......",
-        ".......bb.......","......bbbb......",".....bbbbbb.....","......bbbb......"],
-      high:[
-        "..h..g....g..h..",".h.gggggggggg.h.","..gghhhhhhhhgg..",".g.ghhhtthhhg.g.","..gghhhhhhhhgg..","...gggggggggg...",
-        "......gttg......",".....ttbbtt.....","......tbbt......",".....ttbbtt.....","......tbbt......",".....ttbbtt.....",
-        ".....tbbbbt.....","....bbbbbbbb....","...bbbbbbbbbb...","....bbbbbbbb...."],
-      ut:[
-        ".y.yyyyyyyyyy.y.","yyyyyyyyyyyyyyyy",".ykkyyyyyyyykk..","..kyypppppppyyk.","...ypppppppppy..","....ppppppppp...",
-        ".....ppppppp....","......ppppp.....",".......pp.......","......kppk......",".....kkppkk.....","......kppk......",
-        ".....kk..kk.....","....kk....kk....","...yy......yy...","..y..........y.."]
+      low:['.....gg.','....gbb.','...bb...','..bb....','..bb....','.bb.....','.bb.....','bb......'],
+      mid:['....ggg.','...ghhg.','....ggg.','...tbt..','..bb....','..tbt...','.bb.....','bb......'],
+      high:['..ghhhg.','.gghhhgg','..ghhhg.','..ttbb..','.ttbbt..','..tbbt..','.tbbbtt.','bbbbbbb.'],
+      ut:['g.g..g.g','.gggggg.','..gppg..','...pp...','...bb...','..b..b..','.b....b.','b......b'],
     },
     pal:[
-      {b:'#6b4a2a',o:'#8a6240'},
-      {b:'#5c6068',o:'#8e929a'},
-      {b:'#4a4038',o:'#7a6248'},
-      {b:'#7d8794',t:'#c6a15a',g:'#e07030',h:'#f0c080'},
-      {b:'#6888b0',t:'#d8c080',g:'#3ac8e8',h:'#e8fbff'},
-      {b:'#6a5888',t:'#c8b0e0',g:'#9040d0',h:'#e0c8ff'},
-      {b:'#e09020',t:'#ffe080',g:'#ff4010',h:'#fff0c0'},
-      {b:'#ffd060',t:'#fff6c8',g:'#ff2860',h:'#ffffff'}
+      {g:'#7a6244',b:'#4e3824'},
+      {g:'#a8b0b8',b:'#62686e'},
+      {g:'#6e6848',b:'#3e3c2c'},
+      {g:'#e08840',h:'#f0d0a0',t:'#c8a060',b:'#6a4030'},
+      {g:'#3ec8e8',h:'#e8fbff',t:'#d8c080',b:'#2a5070'},
+      {g:'#c060e0',h:'#f0d0ff',t:'#e0c878',b:'#402858'},
+      {g:'#ff4018',h:'#ffe14a',t:'#fff0c0',b:'#6a2808'},
+      {g:'#3dfff0',h:'#ff4ad0',t:'#ffe9a8',b:'#301848'},
     ],
-    ut:{y:'#ffd34a',k:'#2a1248',p:'#ff4ad0'},
+    ut:{g:'#ff4ad4',p:'#ffe14a',b:'#2a1240'},
     shot:['#c07840','#a8adb8','#8a7048','#e88830','#3ad4f0','#b070e8','#ff9a1a','#ff3868'],
     utShot:'#ff4aa0',utShape:'ring',
-    test:{
-      rows:[
-        "....wwwwwwww....","...wwyyyyyyww...","..wwyyrrrrwwww..",".wwyyrwwwwryyw..","wwyrwwwwwwwwryw.","wwyrwwwwwwwwryw.",
-        ".wwyyrwwwwryyw..","..wwyyrrrrwwww..","...wwyyyyyyww...","......wwww......","......wwww......",".....wwwwww.....",
-        "....wwyyyyww....","...wwyyyyyyww...","..wwwwyyyywwww..","....wwwwwwww...."],
-      pal:{w:'#ffffff',y:'#ffd34a',r:'#ff3355'}
-    }
+    test:{rows:['...ww...','..wyww..','.wwwwww.','wwwwwww.','.wwwwww.','..wyww..','...ww...','...bb...'],pal:{y:'#ffe14a',w:'#ffffff',b:'#ff3355'}}
   },
   bow:{
     rows:{
-      low:[
-        "................","..bb............",".b..b..s........","b.....s.........","b......s........","b.......s.......",
-        "b.......s.......","b.......s.......","b.......s.......","b.......s.......","b......s........","b.....s.........",
-        ".b..b..s........","..bb............","................","................"],
-      mid:[
-        ".t............t.",".tbb..........t.",".b..b..gs.....t.","b.....ss......t.","b......gs....gt.","bg......s....t..",
-        "bg.......s...t..","bg.......s...t..","bg......s....t..","b......gs....t..","b.....ss......t.","b....gs.......t.",
-        ".b..b..gs.....t.",".tbb..........t.",".t............t.","................"],
-      high:[
-        "gt..........tg..","gtbb........tg..","gb..b..gss..tg..","b.....ssss..gtg.","b......gss..gtb.","bg......ss.gtbb.",
-        "bg.......s.gtbb.","bg.......s.gtbb.","bg......ss.gtbb.","b......gss..gtb.","b.....ssss..gtg.","b....gss....tg..",
-        "gb..b..gss..tg..","gtbb........tg..","gt..........tg..","g..............g"],
-      ut:[
-        "p..............p",".p............p.","..p...kk.....p..","...p.kkkk....p..","....pkk.gk..p...","...pk....gk.p...",
-        "..pk......gkpp..","..pk......gkpp..","...pk....gk.p...","....pkk.gk..p...","...p.kkkk....p..","..p...kk.....p..",
-        ".p............p.","p..............p","..pp........pp..","....p......p...."]
+      low:['bb....s.','b....s..','b...s...','b..s....','b..s....','b...s...','b....s..','bb....s.'],
+      mid:['.bb..gs.','bb...s..','b...s...','bb.sg...','bb.s....','b...s...','bb...s..','.bb..gs.'],
+      high:['gbb..ss.','bb...ss.','b....sg.','bb.gsg..','bb..ss..','b....sg.','bb...ss.','gbb..ss.'],
+      ut:['p......p','pp....pp','p..pp..p','p..gk..p','p..pp..p','pp....pp','p......p','.p....p.'],
     },
     pal:[
-      {b:'#7a5a38',s:'#a09888'},
-      {b:'#6a6e76',s:'#b4b8c0'},
-      {b:'#5a4632',s:'#b0a890'},
-      {b:'#9aa4b0',t:'#d4b060',g:'#e07030',s:'#e8e4d8'},
-      {b:'#5a88b0',t:'#e0c878',g:'#3ad4f0',s:'#d8fbff'},
-      {b:'#7a6840',t:'#e8d090',g:'#40a060',s:'#d8c8a0'},
-      {b:'#c060e0',t:'#ffd34a',g:'#ff40c0',s:'#e8ff60'},
-      {b:'#ffb020',t:'#ffffff',g:'#ff2848',s:'#fff0a0'}
+      {b:'#6b4a2e',s:'#9a9078'},
+      {b:'#7a8088',s:'#b4b8be'},
+      {b:'#5a5040',s:'#a09880'},
+      {b:'#c08048',s:'#f0e0c0',g:'#e07030'},
+      {b:'#3a88b0',s:'#d8fbff',g:'#3ad4f0'},
+      {b:'#705888',s:'#e8d8f0',g:'#40a868'},
+      {b:'#ff5820',s:'#ffe14a',g:'#ff2860'},
+      {b:'#ff4ad0',s:'#ffffff',g:'#3dfff0'},
     ],
-    ut:{p:'#d070ff',k:'#1c1028',g:'#ffd34a'},
+    ut:{p:'#d070ff',g:'#ffe14a',k:'#1c1028'},
     shot:['#c4b49a','#c8ccd4','#a89878','#e0b050','#5ad4c8','#c090e0','#ffe04a','#ff5050'],
     utShot:'#ffd34a',utShape:'diamond',
-    test:{
-      rows:[
-        "r..............r","rww..........wwr","rw.yyyyyyyyy.wwr","w...yyyyyyyy...w","w....yyggggy....w","w.....yggggy....w",
-        "w.....ywwwwy....w","w.....ywwwwy....w","w.....yggggy....w","w....yyggggy....w","w...yyyyyyyy...w","rw.yyyyyyyyy.wwr",
-        "rww..........wwr","r..............r","..rr........rr..","....rwwwwwwr...."],
-      pal:{w:'#ffffff',y:'#ffd34a',r:'#ff3355',g:'#3aa0ff'}
-    }
+    test:{rows:['y......y','yy....yy','y.wwww.y','..wgw...','..wgw...','y.wwww.y','yy....yy','y......y'],pal:{y:'#ffe14a',w:'#ffffff',g:'#ff3355'}}
   },
   sword:{
     rows:{
-      low:[
-        "................",".......bb.......","......bbbb......","......bbbb......","......bbbb......","......bbbb......",
-        "......bbbb......","....ttbbbbtt....","...ttttbbtttt...","......tttt......",".......bb.......",".......bb.......",
-        "......bbbb......",".......bb.......","................","................"],
-      mid:[
-        ".......hh.......","......hhhh......","......bbbb......","......bbbb......","......bbbb......","......hbbh......",
-        ".....hbbbbh.....","...ttgbbbbgtt...","..ttttggggtttt..","......tttt......","......hbbh......",".......bb.......",
-        "......bbbb......",".......bb.......","......bbbb......","................"],
-      high:[
-        "......hhhh......",".....hhhhhh.....",".....hbbbbh.....","......bbbb......",".....hbbbbh.....","....hhbbbbhh....",
-        "...hhtbbbbthh...","..tttgbbbbgttt..",".tttttggggttttt.","...ttttggtttt...","......hbbh......","......bbbb......",
-        ".....bbbbbb.....","......bbbb......",".....bbbbbb.....","......bbbb......"],
-      ut:[
-        "......hhhh......",".....hrrrrh.....",".....hrkkkrh....","......rkkkr.....",".....hrkkkrh....","....hhrkkkrhh...",
-        "...tthtkkkthht..","..pttttkkkttttp.",".ppttttkkkttttpp","...ptttkktttp...","......tkkt......","......kkkk......",
-        ".....kkkkkk.....","......kkkk......",".....pppppp.....","......pppp......"]
+      low:['.....bbb','....bbb.','...bbb..','..bbb...','.ttt....','..b.....','.b......','b.......'],
+      mid:['....hbbb','...hbbb.','..hbbb..','.thbbbt.','ttttttt.','..bbb...','.bb.....','bb......'],
+      high:['...hhbbb','..hhbbb.','.thhbbbt','tttttttt','.tbbbht.','..bbbb..','.bbbbb..','bbbbbb..'],
+      ut:['.rrrrrr.','rkkkkkkr','rkkkkkkr','.rkkkkr.','...rkr..','...tt...','...kk...','..pppp..'],
     },
     pal:[
-      {b:'#8a8074',t:'#6b5340'},
-      {b:'#b0b6c0',t:'#6a6460'},
-      {b:'#8a9098',t:'#4e4840'},
-      {b:'#d4dce8',t:'#d4b060',g:'#e07030',h:'#f4f0e8'},
-      {b:'#d0e4ff',t:'#e0c878',g:'#3aa8e0',h:'#ffffff'},
-      {b:'#e4d8c0',t:'#c8a050',g:'#c04058',h:'#fff4e0'},
-      {b:'#f0d0ff',t:'#ffd34a',g:'#ff30c0',h:'#ffffff'},
-      {b:'#fff4c0',t:'#ffb020',g:'#ff2020',h:'#ffffff'}
+      {b:'#8a8478',t:'#5c4634'},
+      {b:'#c0c4cc',t:'#5e5a56'},
+      {b:'#7a8086',t:'#3e3a34'},
+      {b:'#d8e0ea',t:'#c8a050',h:'#f4f0e8'},
+      {b:'#d0e8ff',t:'#e0c878',h:'#ffffff'},
+      {b:'#e8dcc8',t:'#c89848',h:'#fff0d8'},
+      {b:'#fff4c8',t:'#ffb020',h:'#ff2860'},
+      {b:'#ffffff',t:'#ffe14a',h:'#ff2ad4'},
     ],
-    ut:{h:'#f0e8ff',r:'#ff2a4a',k:'#241028',t:'#b060ff',p:'#4a2080'},
+    ut:{r:'#ff2a3a',k:'#241028',t:'#b060ff',p:'#ffe14a'},
     shot:['#c8c0b4','#d0d6e0','#aeb6c0','#f0e0b0','#8ec8ff','#d8b8ff','#ffe070','#ff5058'],
     utShot:'#ff2a5a',utShape:'slash',
-    test:{
-      rows:[
-        ".......wwww.....","......wwyyww....",".....wwyrrww....","....wwyrrgww....","...wwyrrgwww....","..wwyrrgwwww....",
-        ".wwyrrgwwwww....","wwyrrgwwwwww....","wyrrgwwwwwww....","yrrgwwwwwwww....","rrgwwwwwwwww....","rgwwwwwwwwww....",
-        "gwwwwwwwwwww....","wwwwwwwwwwww....","..wwwwwwww......","....wwww........"],
-      pal:{w:'#ffffff',y:'#ffd34a',r:'#ff3355',g:'#3dffa0'}
-    }
+    test:{rows:['....www.','...wyww.','..wywww.','.wywww..','yyyyyy..','.rrr....','..rr....','.rr.....'],pal:{w:'#ffffff',y:'#ffe14a',r:'#ff3355'}}
   },
   robe:{
     rows:{
-      low:[
-        "................","......bbbb......","....bbbbbbbb....","...bb.bbbb.bb...","...bbbbbbbbbb...","..bbbbbbbbbbbb..",
-        "..bbbbbbbbbbbb..","...bbbbbbbbbb...","....bbbbbbbb....",".....bbbbbb.....","....bb....bb....","...bb......bb...",
-        "..bb........bb..",".bb..........bb.","bb............bb","................"],
-      mid:[
-        "......tttt......","....tbbbbbbt....","...bb.bbbb.bb...","..tbbbbbbbbbbt..","..bbbbgbbbbbbb..","..bbbbgbbbbbbb..",
-        "..tbbbbbbbbbbt..","...bbbbbbbbbb...","....tbbbbbbt....",".....bbbbbb.....","....bb....bb....","...bb......bb...",
-        "..bb........bb..",".bb..........bb.","bb............bb","t..............t"],
-      high:[
-        "..h...tttt...h..",".hh.tbbbbbbt.hh.","..tbb.bbbb.bbt..",".htbbbbbbbbbbth.","..bbbbghhgbbbb..","h.bbbbghhgbbbb.h",
-        "..tbbbbbbbbbbt..",".htbbbbbbbbbbth.","...tbbbbbbbbt...","....tbbbbbbt....","....bb....bb....","...bb......bb...",
-        "..tbb......bbt..",".bb..........bb.","hbb..........bbh","t..............t"],
-      ut:[
-        "..hhhhhhhhhhhh..","..hkppppppppkh..",".kppppyyyyypppk.","kppp.yyyyyy.pppk","kppppyyyyyyppppk","kppppgypypgppppk",
-        ".kppppyyyyypppk.","..kppppppppppk..","...kppppppppk...","....kppppppk....","....pp....pp....","...pp......pp...",
-        "..kpp......ppk..",".pp..........pp.","kpp..........ppk","k..............k"]
+      low:['...bb...','..bbbb..','.bbddbb.','bbbbbbbb','bbddddbb','b......b','b......b','bb....bb'],
+      mid:['..tttt..','.tbbbbt.','bb.dd.bb','bbbbbbbb','bbg..gbb','bb....bb','b......b','tt....tt'],
+      high:['h.tttt.h','htbddbth','bbbbbbbb','bbghhgbb','bbbbbbbb','bb....bb','hb....bh','ht....th'],
+      ut:['...kk...','..kppk..','.kpyypk.','kppppppk','kppppppk','.kp..pk.','kp....pk','k......k'],
     },
     pal:[
-      {b:'#6a5870'},{b:'#6a6e78'},{b:'#5a4838'},
-      {b:'#6a58a0',t:'#c6a15a',g:'#e0a030'},
-      {b:'#3a68a8',t:'#e0c878',g:'#40d0e8'},
-      {b:'#7a4080',t:'#e0c060',g:'#d05070'},
-      {b:'#c050ff',t:'#ffd34a',g:'#ff40b0',h:'#fff0ff'},
-      {b:'#ff7030',t:'#ffe080',g:'#ff2040',h:'#ffffff'}
+      {b:'#6a5870',d:'#463848'},
+      {b:'#6e727a',d:'#454850'},
+      {b:'#5a4838',d:'#3a2c22'},
+      {b:'#6a58a0',t:'#c6a15a',d:'#3a2858',g:'#e0a030'},
+      {b:'#3a68a8',t:'#e0c878',d:'#1e3858',g:'#40d0e8'},
+      {b:'#7a4080',t:'#e0c060',d:'#401830',g:'#d05070'},
+      {b:'#ff7030',t:'#ffe14a',d:'#6a2010',g:'#ff2860',h:'#ffffff'},
+      {b:'#ff4ad0',t:'#ffe14a',d:'#401030',g:'#3dfff0',h:'#ffffff'},
     ],
-    ut:{h:'#ff4ad0',k:'#2a1244',p:'#6a28a0',g:'#ffffff',y:'#ffd34a'}
+    ut:{k:'#2a1244',p:'#6a28a0',y:'#ffe14a',h:'#ff4ad0'},
   },
   leather:{
     rows:{
-      low:[
-        "................",".......bb.......","......bbbb......",".....b....b.....","....bbbbbbbb....","....bbbddbbb....",
-        "....bbbbbbbb....",".....dddddd.....","......bbbb......",".....bb..bb.....","....bb....bb....","...bb......bb...",
-        "...dd......dd...","..dd........dd..","................","................"],
-      mid:[
-        "..t..........t..","...t..bbbb..t...","....tbbbbbbt....","...tb......bt...","...bbbbbbbbbb...","...bbbbggbbbb...",
-        "...tbbbbbbbbt...","....tddddddt....",".....tbbbbt.....","....tbb..bbt....","...tbb....bbt...","...bb......bb...",
-        "...dd......dd...","..dd........dd..","..t..........t..","................"],
-      high:[
-        "hht..........thh","..ht.bbbbbb.th..","...tbbbbbbbbt...","..htb......bth..","..tbbbbbbbbbbt..","..tbbbghhgbbbt..",
-        "..htbbbbbbbbth..","...tdddddddt....","....htbbbbth....","...tbb....bbt...","..tbb......bbt..","..bb........bb..",
-        "..dd........dd..",".dd..........dd.",".h............h.","t..............t"],
-      ut:[
-        "h.k..........k.h","..kkppppppppkk..",".kppppppppppppk.","kkpp.yyyyy.ppkk.","kppppyyyyyyppppk","kppppgypypgppppk",
-        ".kppppyyyyypppk.","..kppppppppppk..","...kppppppppk...","....pp....pp....","...pp......pp...","..p........p....",
-        "..k........k....",".p..........p...","p............p..","................"]
+      low:['...bb...','..b..b..','.b.dd.b.','bbd..dbb','.b.dd.b.','..b..b..','.bb..bb.','b......b'],
+      mid:['t..bb..t','.tbddbt.','.bbbbbb.','tb.gg.bt','.bbbbbb.','..b..b..','.dd..dd.','d......d'],
+      high:['ht.bb.th','ttbddbtt','hbbbbbbh','tbbggbbt','hbbbbbbh','.tb..bt.','hdd..ddh','dd....dd'],
+      ut:['.kkkk...','kppppk..','kpyyypk.','kppppppk','.kggggk.','..kppk..','.kp..pk.','kp....pk'],
     },
     pal:[
-      {b:'#7a5a38',d:'#5a3c22'},{b:'#747880',d:'#4a4e56'},{b:'#5a4630',d:'#3a2c1c'},
+      {b:'#7a5a38',d:'#4a321c'},
+      {b:'#747880',d:'#42464c'},
+      {b:'#5a4630',d:'#322818'},
       {b:'#8a6840',t:'#c6a15a',g:'#d07030',d:'#5a4030'},
-      {b:'#3a7848',t:'#d8c080',g:'#40c868',d:'#2a5030'},
+      {b:'#3a7848',t:'#d8c080',g:'#40c868',d:'#204828'},
       {b:'#a06830',t:'#e8c868',g:'#d04830',d:'#6a4018'},
-      {b:'#50b040',t:'#ffd34a',g:'#d0ff40',h:'#ffffff',d:'#206020'},
-      {b:'#ffb020',t:'#fff0a0',g:'#ff3030',h:'#ffffff',d:'#a05010'}
+      {b:'#50c040',t:'#ffe14a',g:'#ff2860',h:'#ffffff',d:'#184818'},
+      {b:'#ffb020',t:'#fff0a0',g:'#ff3038',h:'#ffffff',d:'#803010'},
     ],
-    ut:{h:'#ff4ad0',k:'#24140c',p:'#5a3820',g:'#b6ff3a',y:'#ffd34a'}
+    ut:{k:'#24140c',p:'#5a3820',y:'#ffe14a',g:'#b6ff3a',h:'#ff4ad0'},
   },
   heavy:{
     rows:{
-      low:[
-        "................","......dddd......",".....dbbbbd.....",".....bbbbbb.....","...bbbbbbbbbb...","..bbbbbbbbbbbb..",
-        "..bbbddddddbbb..","..bbbbbbbbbbbb..","...bbbbbbbbbb...","...bbbbbbbbbb...","....bbbbbbbb....","....bb....bb....",
-        "...bbb....bbb...","..bbb......bbb..","................","................"],
-      mid:[
-        "....tttttttt....","...tbbbbbbbbt...","..tbbb....bbbt..","..bbbbbbbbbbbb..",".bbbbbbbbbbbbbb.","..bbbbbggbbbbb..",
-        "..tbbbbbbbbbbt..","..bbbbbbbbbbbb..","...bbbbbbbbbb...","...tbbbbbbbbt...","....bbbbbbbb....","....bb....bb....",
-        "...bbb....bbb...","..tbb......bbt..","................","................"],
-      high:[
-        "..hhhhhhhhhhhh..",".htbbbbbbbbbbth.","htbbb......bbbth","hbbbbbbbbbbbbbbh","hbbbbbghhgbbbbbh","htbbbbghhgbbbbth",
-        ".tbbbbbbbbbbbbt.","..bbbbbbbbbbbb..","...bbbbbbbbbb...","...tbbbbbbbbt...","....bbbbbbbb....","...tbb....bbt...",
-        "..tbbb....bbbt..",".tbbb......bbbt.","h..............h","................"],
-      ut:[
-        "h..............h",".kkkkkkkkkkkkk..","kkppppppppppppkk","kppp........pppk","kppppppggppppppk","kkppppghhgppppkk",
-        ".kppppppggppppk.","..kppppppppppk..","...kppppppppk...","....kppppppk....","....pp....pp....","...kpp....ppk...",
-        "..kpp......ppk..",".kp..........pk.","k..............k","................"]
+      low:['...dd...','..dddd..','.dd..dd.','dddddddd','dd.dd.dd','.dddddd.','dd....dd','d......d'],
+      mid:['.tttttt.','tddddddt','.dd..dd.','dddddddd','dd.gg.dd','tddddddt','dd....dd','t......t'],
+      high:['hhddddhh','hddddddh','hd.dd.dh','dddddddd','ddghhgdd','dddddddd','hhd..dhh','hd....dh'],
+      ut:['h......h','.kkkkkk.','kk.pp.kk','kppppppk','kkpggpkk','.kppppk.','kk....kk','k......k'],
     },
     pal:[
-      {b:'#8a8680',d:'#5c5854'},{b:'#9aa0a8',d:'#5a6068'},{b:'#6a7078',d:'#3e444c'},
-      {b:'#a8b0bc',t:'#c6a15a',g:'#4060b0'},
-      {b:'#90b8d8',t:'#e0c878',g:'#30c0e8'},
-      {b:'#d0d4dc',t:'#e0c060',g:'#d04058'},
-      {b:'#d8e6ff',t:'#ffd34a',g:'#ff40d0',h:'#ffffff'},
-      {b:'#fff0c0',t:'#ffb020',g:'#ff2028',h:'#ffffff'}
+      {d:'#7a7670'},
+      {d:'#8e949c'},
+      {d:'#5a6068'},
+      {d:'#a8b0bc',t:'#c6a15a',g:'#4060b0'},
+      {d:'#90b8d8',t:'#e0c878',g:'#30c0e8'},
+      {d:'#d0d4dc',t:'#e0c060',g:'#d04058'},
+      {d:'#d8e6ff',t:'#ffe14a',g:'#ff2860',h:'#ffffff'},
+      {d:'#fff0c0',t:'#ffb020',g:'#ff2028',h:'#ff4ad0'},
     ],
-    ut:{h:'#ff4ad0',k:'#141820',p:'#243058',g:'#7af0ff'}
+    ut:{h:'#ff4ad0',k:'#141820',p:'#243058',g:'#7af0ff'},
   },
   codex:{
     rows:{
-      low:[
-        "................","................","....bbbbbbbb....","...bbbbbbbbbb...","..bb........bb..",".bb..........bb.",
-        ".bb..........bb.",".bb..........bb.",".bb..........bb.","..bb........bb..","...bbbbbbbbbb...","....bbbbbbbb....",
-        "................","................","................","................"],
-      mid:[
-        "......gggg......",".....gggggg.....","....gggggggg....","...btbbbbbbtb...","..bb..gggg..bb..",".bb..gggggg..bb.",
-        ".bb..........bb.",".bb..gggggg..bb.","..bb..gggg..bb..","...bbbbbbbbbb...","....tbbbbbbt....",".....bbbbbb.....",
-        "......tttt......","................","................","................"],
-      high:[
-        "..h...gggg...h..",".hh.ghhhhhhg.hh.","..gghhhhhhhhgg..",".htbbbbbbbbbbth.","hbb..ghhhhg..bbh","bb..ghhhhhhg..bb",
-        "bb............bb","bb..ghhhhhhg..bb","hbb..ghhhhg..bbh",".htbbbbbbbbbbth.","...tbbbbbbbbt...","....gbbbbbbg....",
-        "...h.gggggg.h...","....h......h....","................","................"],
-      ut:[
-        "....yyyyyyyy....","...yyppppppyy...","..yppwwwwwwppy..",".kppwwwwwwwwppk.","kppw.yyyyyy.wppk","kppwyyyppyyywppk",
-        "kppw.yyyyyy.wppk",".kppwwwwwwwwppk.","..kppwwwwwwppk..","...kkppppppkk...","....kkppppkk....",".....k....k.....",
-        "......k..k......","................","................","................"]
+      low:['.bbbbb..','bb...bb.','b.....b.','b.....b.','b.....b.','bb...bb.','.bbbbb..','........'],
+      mid:['.ggggg..','gbbbbbbg','bb.gg.bb','b.gggg.b','bb.gg.bb','gbbbbbbg','.bbbbbb.','...tt...'],
+      high:['hggggggh','gtbbbbtg','bbghhgbb','bhhhhhhb','bbghhgbb','gtbbbbtg','hbbbbbbh','.htttth.'],
+      ut:['kk....kk','kpy..ypk','kpyyypk.','kkppppkk','.kppppk.','..kppk..','...kk...','...yy...'],
     },
     pal:[
-      {b:'#6b4a2a'},{b:'#5c6068'},{b:'#4a3828'},
+      {b:'#6b4a2a'},
+      {b:'#5c6068'},
+      {b:'#4a3828'},
       {b:'#8a5a30',t:'#c6a15a',g:'#e07830'},
       {b:'#3a5088',t:'#d8c080',g:'#40d0e8'},
       {b:'#7a4038',t:'#e0c060',g:'#d04858'},
-      {b:'#ff7830',t:'#ffd34a',g:'#ff30b0',h:'#fff0c0'},
-      {b:'#ffd060',t:'#ffffff',g:'#ff2028',h:'#fff6d0'}
+      {b:'#ff7830',t:'#ffe14a',g:'#ff2860',h:'#fff0c0'},
+      {b:'#ffd060',t:'#ffffff',g:'#ff2028',h:'#ff4ad0'},
     ],
-    ut:{k:'#1c1028',p:'#4a2080',w:'#f4e8ff',y:'#ff2a4a'}
+    ut:{k:'#1c1028',p:'#4a2080',y:'#ff2a4a'},
   },
   quiver:{
     rows:{
-      low:[
-        "................","...s.s.s.s......","..ss.ss.ss.s....","...s.s.s.s......","....bbbbbb......","...bbbbbbbb.....",
-        "...bb....bb.....","...bb....bb.....","...bb....bb.....","...bb....bb.....","...bbbbbbbb.....","....bbbbbb......",
-        ".....bbbb.......","......bb........","................","................"],
-      mid:[
-        "..gs.gs.gs.g....",".gss.gss.gss.g..","..gs.gs.gs.g....","...tbbbbbbt.....","..tbbbbbbbbbt...","..tbb.hhhh.bbt..",
-        "..tbb....bbt....","..tbb....bbt....","..tbb.hhhh.bbt..","...bbbbbbbbb....","....tbbbbbt.....",".....bbbbb......",
-        ".....tbbt.......","......ss........",".....ssss.......","................"],
-      high:[
-        "hgs.hgs.hgs.gh..","gsssgsssgsssg...","hgs.hgs.hgs.gh..","..htbbbbbbbth...","..tbbbbbbbbbbt..","..tbbghhhhgbbt..",
-        ".htbb......bbth.","..tbb......bbt..",".htbbghhhhgbbth.","..tbbbbbbbbbbt..","...htbbbbbbth...","....tbbbbbbt....",
-        ".....htbbth.....","......hssh......",".....ssssss.....","......ssss......"],
-      ut:[
-        "p.s.p.s.p.s..p..","sssksssksssks...","p.s.p.s.p.s..p..",".kkppppppppkk...",".kppppppppppppk.","kkpp.gggg.ppkk..",
-        "kpp........ppk..","kkpp.gggg.ppkk..",".kppppppppppppk.",".kkppppppppkk...","...kkppppkk.....","....kppppk......",
-        ".....kppk.......","......ss........",".....ssss.......","......ss........"]
+      low:['.s.s.s..','ssssss..','.bbbbb..','.b...b..','.b...b..','.bbbbb..','..bbb...','...b....'],
+      mid:['gs.s.sg.','sssssss.','tbbbbbt.','.b.g.b..','.b...b..','tbbbbbt.','..bbb...','..sss...'],
+      high:['hssssssh','ss.g.ss.','gtbbbbtg','.bghhgb.','.b....b.','gtbbbbtg','hbbbbbbh','.ssssss.'],
+      ut:['p.s.s.p.','sssksss.','.kppppk.','kpgggpk.','kppppppk','.kppppk.','..kppk..','...kk...'],
     },
     pal:[
-      {b:'#6b4a2a',s:'#908878'},{b:'#5c6068',s:'#a8acb4'},{b:'#4a3828',s:'#b0a088'},
-      {b:'#7a5a38',t:'#c6a15a',g:'#d08830',h:'#f0d8a8',s:'#d8e0a0'},
-      {b:'#3a6848',t:'#d8c080',g:'#40d0c0',h:'#e8fff8',s:'#c8f090'},
-      {b:'#8a6840',t:'#e8c868',g:'#c04058',h:'#ffe0c0',s:'#f0e0a0'},
-      {b:'#60b040',t:'#ffd34a',g:'#ff40c0',h:'#ffffff',s:'#e8ff50'},
-      {b:'#ffb020',t:'#ffffff',g:'#ff2840',h:'#fff0c0',s:'#ffe080'}
+      {b:'#6b4a2a',s:'#908070'},
+      {b:'#5c6068',s:'#a0a4aa'},
+      {b:'#4a3828',s:'#a89878'},
+      {b:'#7a5a38',t:'#c6a15a',g:'#d08830',s:'#d8d0a8'},
+      {b:'#3a6848',t:'#d8c080',g:'#40d0c0',s:'#c8f0a0'},
+      {b:'#8a6840',t:'#e8c868',g:'#c04058',s:'#f0e0a0'},
+      {b:'#60c040',t:'#ffe14a',g:'#ff2860',h:'#ffffff',s:'#e8ff50'},
+      {b:'#ffb020',t:'#ffffff',g:'#ff2840',h:'#ff4ad0',s:'#ffe080'},
     ],
-    ut:{p:'#d070ff',k:'#1c1028',g:'#b6ff3a',s:'#ffd34a'}
+    ut:{p:'#d070ff',k:'#1c1028',g:'#b6ff3a',s:'#ffe14a'},
   },
   seal:{
     rows:{
-      low:[
-        "................","....bbbbbbbb....","...bbbbbbbbbb...","..bbbbbbbbbbbb..","..bbbbbbbbbbbb..","..bbbbbbbbbbbb..",
-        "...bbbbbbbbbb...","...bbbbbbbbbb...","....bbbbbbbb....","....bbbbbbbb....",".....bbbbbb.....","......bbbb......",
-        ".......bb.......","........b.......","................","................"],
-      mid:[
-        "...ttbbbbbbtt...","..tbbbbbbbbbbt..","..bbbbbggbbbbb..","..bbbbbggbbbbb..","..bbbbbbbbbbbb..","..bbbbbggbbbbb..",
-        "...tbbbbbbbbt...","...bbbbbbbbbb...","....tbbbbbbt....","....bbbbbbbb....",".....tbbbtt.....","......bbbb......",
-        ".......bb.......","........t.......","................","................"],
-      high:[
-        ".hhtbbbbbbbhtth.",".htbbbbbbbbbbth.","hbbbbbbggbbbbbbh","hbbbbbghhgbbbbbh","htbbbbghhgbbbbth","hbbbbbbggbbbbbbh",
-        ".htbbbbbbbbbbth.","..tbbbbbbbbbbt..","...htbbbbbbth...","....tbbbbbbt....",".....htbbth.....","......tbbt......",
-        ".......hh.......","........h.......","................","................"],
-      ut:[
-        "...hhhhhhhhhh...","..hkkkkkkkkkkh..",".kkppppppppppkk.","kkppppgwwgppppkk","kpppppgwwgpppppk","kkppppgwwgppppkk",
-        ".kkppppppppppkk.","..hkkppppppkkh..","...hkkppppkkh...","....hkkppkkh....",".....hkkkkh.....","......hkkh......",
-        ".......hh.......","................","................","................"]
+      low:['...bb...','..bbbb..','.bbbbbb.','bbbbbbbb','.bbbbbb.','..bbbb..','...bb...','...bb...'],
+      mid:['..tttt..','.tbbbbt.','tbbbbbbt','bbbgbbbb','tbbbbbbt','.tbbbbt.','..tbbt..','...tt...'],
+      high:['hhtttthh','htbbbbth','tbbhhbbt','bbhhhhbb','tbbhhbbt','htbbbbth','hhtbbthh','..htth..'],
+      ut:['...hh...','.hhkkhh.','hkkppkkh','hkpggpkh','hkkppkkh','.hhkkhh.','...hh...','..k..k..'],
     },
     pal:[
-      {b:'#8a7a58'},{b:'#7a7e86'},{b:'#5a5448'},
+      {b:'#8a7a58'},
+      {b:'#7a7e86'},
+      {b:'#5a5448'},
       {b:'#3d63b0',t:'#c6a15a',g:'#e0b040'},
       {b:'#2a7898',t:'#e0c878',g:'#40d8f0'},
       {b:'#7058a0',t:'#e0c060',g:'#d04868'},
-      {b:'#4060ff',t:'#ffd34a',g:'#ff40d0',h:'#ffffff'},
-      {b:'#ffc040',t:'#ffffff',g:'#ff2028',h:'#fff6d0'}
+      {b:'#4060ff',t:'#ffe14a',g:'#ff40d0',h:'#ffffff'},
+      {b:'#ffc040',t:'#ffffff',g:'#ff2028',h:'#ff4ad0'},
     ],
-    ut:{h:'#ff4ad0',k:'#180c22',p:'#7a30d0',g:'#ffd34a',w:'#ffffff'}
+    ut:{h:'#ff4ad0',k:'#180c22',p:'#7a30d0',g:'#ffe14a'},
   },
   ring:{
     rows:{
-      low:[
-        "................","................","................","......bbbb......","....bb....bb....","...b........b...",
-        "...b........b...","...b........b...","...b........b...","....bb....bb....","......bbbb......","................",
-        "................","................","................","................"],
-      mid:[
-        "................",".......gg.......","......ghhg......","......bbbb......","....bb....bb....","...b........b...",
-        "...b........b...","...b........b...","...b........b...","....bb....bb....","......bbbb......",".......gg.......",
-        "................","................","................","................"],
-      high:[
-        "......hhhh......",".....hgttgh.....","......ghhg......",".....tbbbbt.....","....bb....bb....","...bt......tb...",
-        "...b........b...","...bt......tb...","....bb....bb....",".....tbbbbt.....","......ghhg......",".....hgttgh.....",
-        "......hhhh......","................","................","................"],
-      ut:[
-        ".......hh.......","......hppph.....",".....hpttph.....","......gggg......","....tt....tt....","...t........t...",
-        "..gt........tg..","...t........t...","....tt....tt....","......gggg......",".....hpttph.....","......hppph.....",
-        ".......hh.......","................","................","................"]
+      low:['........','..bbbb..','.b....b.','.b....b.','.b....b.','..bbbb..','........','........'],
+      mid:['...gg...','..bbbb..','.b....b.','.b.g..b.','.b....b.','..bbbb..','...gg...','........'],
+      high:['..hhhh..','.hgbbgh.','hb....bh','.b.gg.b.','hb....bh','.hgbbgh.','..hhhh..','........'],
+      ut:['.hhhhhh.','hkkkkkkh','hkpggpkh','hkpggpkh','hkkkkkkh','.hhhhhh.','...tt...','...tt...'],
     },
     pal:[
-      {b:'#a06840'},{b:'#d8d0c4'},{b:'#6a8a62'},
-      {b:'#c04850',g:'#ff5060',h:'#ffd0d0'},
-      {b:'#c8d0e0',g:'#80e8ff',h:'#ffffff'},
-      {b:'#2a2a32',g:'#c060e0',h:'#e0c0ff'},
-      {b:'#ff9820',t:'#ffe080',g:'#ff3030',h:'#fff6e0'},
-      {b:'#ffe060',t:'#ffffff',g:'#ff28c0',h:'#ffffff'}
+      {b:'#a06840'},
+      {b:'#c8c4bc'},
+      {b:'#6a7a58'},
+      {b:'#c04850',g:'#e07078'},
+      {b:'#c8d0e0',g:'#58c8e0'},
+      {b:'#2a2a32',g:'#8060a0'},
+      {b:'#ff9820',g:'#ff3030',h:'#ffe14a'},
+      {b:'#ffe060',g:'#ff28c0',h:'#ffffff'},
     ],
-    ut:{h:'#ffffff',g:'#ff4ad0',t:'#ffd34a',p:'#4a1880'}
-  }
+    ut:{h:'#ffffff',k:'#4a1880',p:'#ff4ad0',g:'#ffe14a',t:'#3dfff0'},
+  },
 };
 function gearBand(t){return t>7?'ut':t>=6?'high':t>=3?'mid':'low';}
+function paintCount(s){
+  const im=s.c.getContext('2d').getImageData(0,0,s.w,s.h).data;
+  let n=0,hot=0;
+  for(let i=0;i<im.length;i+=4){
+    if(im[i+3]<200)continue;
+    n++;
+    const R=im[i],G=im[i+1],B=im[i+2];
+    hot=Math.max(hot,Math.max(R,G,B)-Math.min(R,G,B));
+  }
+  return {n,hot};
+}
 function buildGear(){
   for(const k in GEAR){
     const g=GEAR[k];
+    let n0=0;
     for(let t=0;t<=8;t++){
       const band=gearBand(t),rows=g.rows[band],pal=t>7?g.ut:g.pal[t],need={};
       for(const row of rows)for(const ch of row)if(ch!=='.')need[ch]=1;
       for(const ch in need)if(!pal[ch])throw new Error('sprite '+k+' T'+t+' missing '+ch);
-      GEARSPR[k+'|'+t]=mkSprite(rows,pal);
+      const spr=mkRaw(rows,pal),info=paintCount(spr);
+      if(t<=2&&info.hot>100)throw new Error(k+' T'+t+' too vivid '+info.hot);
+      if(t>=6&&info.hot<160)throw new Error(k+' T'+t+' not vivid '+info.hot);
+      if(t===0)n0=info.n;
+      if((t===6||t===7)&&info.n<=n0)throw new Error(k+' T'+t+' not more detailed');
+      GEARSPR[k+'|'+t]=spr;
     }
     if(g.test){
       const rows=g.test.rows,pal=g.test.pal,need={};
       for(const row of rows)for(const ch of row)if(ch!=='.')need[ch]=1;
       for(const ch in need)if(!pal[ch])throw new Error('sprite '+k+' test missing '+ch);
-      GEARSPR[k+'|test']=mkSprite(rows,pal);
+      GEARSPR[k+'|test']=mkRaw(rows,pal);
     }
     if(g.shot&&g.shot.length!==8)throw new Error('shot '+k);
   }
@@ -488,16 +447,18 @@ function bulletSpr(col,r,shape){
 const T_WATER=0,T_WET=1,T_SAND=2,T_GRASS=3,T_DARK=4,T_ROCK=5,T_ARENA=6,T_TREE=7,T_BOULDER=8,T_FLOOR=10,T_WALL=11,T_CARPET=12;
 const T_REED=13,T_DRIFT=14,T_FLOWER=15,T_STUMP=16,T_VENT=17,T_PILLAR=18,T_RUIN=19;
 const T_BFLOOR=30,T_BWALL=31,T_BPOOL=32,T_BCORAL=33,T_BPEARL=34;
+const T_BROCK=35,T_BPLANK=36,T_BCRYST=37,T_BWEED=38;
 const TCOL={
   0:[38,78,160],1:[196,182,120],2:[228,206,140],3:[86,150,70],4:[58,108,58],5:[104,102,120],6:[92,48,72],
   10:[118,116,134],11:[52,48,64],12:[120,40,56],
   13:[168,150,86],14:[190,160,110],15:[96,168,78],16:[70,120,62],17:[72,96,108],18:[150,130,150],19:[78,68,88],
   30:[176,132,84],31:[96,58,48],32:[36,118,132],33:[196,92,64],34:[214,168,120]
 };
-const SOLID=new Set([T_WATER,T_TREE,T_BOULDER,T_WALL,T_PILLAR,T_RUIN,T_BWALL,T_BCORAL]);
+const SOLID=new Set([T_WATER,T_TREE,T_BOULDER,T_WALL,T_PILLAR,T_RUIN,T_BWALL,T_BCORAL,T_BROCK]);
 const DECO_SPR={
   [T_TREE]:'tree',[T_BOULDER]:'boulder',[T_REED]:'reed',[T_DRIFT]:'drift',[T_FLOWER]:'flower',
-  [T_STUMP]:'stump',[T_VENT]:'vent',[T_PILLAR]:'pillar',[T_RUIN]:'ruin',[T_BCORAL]:'coral'
+  [T_STUMP]:'stump',[T_VENT]:'vent',[T_PILLAR]:'pillar',[T_RUIN]:'ruin',[T_BCORAL]:'coral',
+  [T_BROCK]:'brock',[T_BPLANK]:'plank',[T_BCRYST]:'crystal',[T_BWEED]:'weed'
 };
 const ZONES=[
   {name:'Saltmarsh Shore',types:['crab','imp','gull','slime','hermit','jelly'],col:'#e4ce8c'},
@@ -561,8 +522,81 @@ function tileBase(wd,i,t){
   if(t===T_DRIFT)return T_SAND;
   if(t===T_VENT)return T_DARK;
   if(t===T_PILLAR||t===T_RUIN)return T_ROCK;
-  if(t===T_BCORAL)return T_BFLOOR;
+  if(t===T_BCORAL||t===T_BROCK||t===T_BPLANK||t===T_BCRYST||t===T_BWEED)return T_BFLOOR;
   return t;
+}
+function seaTop(px,py,tx,ty,h){
+  const seam=((px+((ty&1)?2:0))%4===0);
+  if(py===0)return [168,214,206];
+  if(h>0.78&&px>1&&px<6&&py===1)return [214,112,96];
+  if(seam)return [62,102,100];
+  return (px+py+tx)&1?[118,162,156]:[96,142,136];
+}
+function seaFront(px,py,tx,ty,h){
+  const seam=((px+((ty&1)?2:0))%4===0);
+  if(py===7)return [12,22,24];
+  if(seam)return [28,50,52];
+  if(h>0.88&&(px===2||px===5)&&py>3&&py<7)return [72,128,122];
+  return (py&1)?[38,62,64]:[48,74,76];
+}
+function stoneTop(px,py,tx,ty){
+  const seam=((px+((ty&1)?3:0))%4===0)||py===2;
+  if(py===0)return [168,160,186];
+  if(seam)return [78,72,96];
+  return (px+tx)&1?[112,104,128]:[98,92,116];
+}
+function stoneFront(px,py,tx,ty){
+  const seam=((px+((ty&1)?3:0))%4===0);
+  if(py===7)return [22,18,32];
+  if(seam)return [42,38,56];
+  return (py&1)?[58,52,74]:[70,64,88];
+}
+function wallRGB(wd,tx,ty,px,py,t){
+  const sea=t===T_BWALL;
+  const west=tx>0&&wd.tiles[ty*wd.w+tx-1]===t;
+  const east=tx+1<wd.w&&wd.tiles[ty*wd.w+tx+1]===t;
+  const h=hash2(tx*5+1,ty*3+2);
+  if((px===0&&!west)||(px===7&&!east)){
+    if(py<3)return sea?[58,96,94]:[108,100,124];
+    return sea?[22,38,40]:[36,32,50];
+  }
+  if(py<3)return sea?seaTop(px,py,tx,ty,h):stoneTop(px,py,tx,ty);
+  return sea?seaFront(px,py,tx,ty,h):stoneFront(px,py,tx,ty);
+}
+function wallLip(t,tx,px,py){
+  if(t===T_BWALL)return py===0?[20,36,38]:((px+tx)&3)===0?[30,52,54]:[40,64,66];
+  return py===0?[28,24,40]:((px+tx)&3)===0?[48,42,62]:[62,56,78];
+}
+function burrowFloor(tx,ty,px,py){
+  const n=hash2(tx*13+px,ty*17+py),v=(hash2(tx*3+1,ty*5+9)*7)|0;
+  let c=((px+py+tx)&1)?[158,118,76]:[184,146,98];
+  if(n>0.94)c=[210,176,128];
+  if(v===1){
+    if(py>=3&&py<=5&&px>=2&&px<=5)c=px===5?[176,150,120]:[232,214,180];
+    if(py===4&&px===3)c=[250,240,220];
+  }else if(v===2){
+    if(px>1&&px<6&&py>1&&py<6)c=[32,96,108];
+    if(px>2&&px<5&&py>2&&py<5)c=[78,170,178];
+    if(py===2&&px===4)c=[200,240,240];
+  }else if(v===3){
+    if((px===2||px===3)&&py>0)c=(py&1)?[36,120,64]:[24,86,48];
+    if(px===5&&py>1&&py<7)c=[48,140,72];
+  }else if(v===4){
+    if(px===py||px===py-1)c=[96,70,48];
+    if(px+py===7)c=[80,58,40];
+  }else if(v===5){
+    if((px===1&&py===2)||(px===5&&py===5)||(px===3&&py===6))c=[196,198,188];
+    if((px===2&&py===2)||(px===6&&py===5)||(px===4&&py===6))c=[120,124,116];
+  }else if(v===6&&px>2&&px<6&&py>3&&py<7)c=[120,96,70];
+  return c;
+}
+function pearlFloor(tx,ty,px,py){
+  const n=hash2(tx*9+px,ty*4+py);
+  let c=((px+tx)&1)?[214,186,140]:[196,164,116];
+  if(n>0.9)c=[236,220,180];
+  if((px===3||px===4)&&py===3)c=[240,230,200];
+  if(px===0||py===7)c=[150,118,78];
+  return c;
 }
 // One 8x8 palette per ground. Godlands stays pale stone. Ash is gray-brown, with a
 // crack of lava on a few tiles — never a solid red field.
@@ -626,33 +660,34 @@ function groundRGB(tx,ty,px,py,base){
     return at(GROUND.floor,q);
   }
   if(base===T_WALL){
-    if(py===0)return at(GROUND.wall,2);
-    if(py===7)return [26,22,36];
-    return at(GROUND.wall,0);
+    if(py<3)return py===0?[168,160,186]:[104,98,122];
+    if(py===7)return [22,18,32];
+    return (py&1)?[58,52,74]:[72,66,90];
   }
   if(base===T_CARPET){
     if(px===0||px===7)return [214,170,64];
     return at(GROUND.carpet,(py&1)?0:1);
   }
-  if(base===T_BFLOOR)return n>0.9?at(GROUND.bfloor,2):at(GROUND.bfloor,q);
-  if(base===T_BWALL){
-    if(py===0||px===0)return at(GROUND.bwall,2);
-    return at(GROUND.bwall,0);
-  }
+  if(base===T_BFLOOR)return burrowFloor(tx,ty,px,py);
+  if(base===T_BWALL)return py<3?seaTop(px,py,tx,ty,n):seaFront(px,py,tx,ty,n);
   if(base===T_BPOOL){
-    if(((px+ty)&3)===0&&(py&1)===0)return at(GROUND.bpool,2);
-    return at(GROUND.bpool,q);
+    if(px>1&&px<6&&py>1&&py<6)return (px+py)&1?[28,120,132]:[64,176,184];
+    if(((px+ty)&3)===0&&(py&1)===0)return [120,210,214];
+    return q?[24,92,104]:[18,70,84];
   }
-  if(base===T_BPEARL){
-    if(px===0||py===0)return at(GROUND.bpearl,2);
-    return at(GROUND.bpearl,q?0:1);
-  }
+  if(base===T_BPEARL)return pearlFloor(tx,ty,px,py);
   const src=TCOL[base]||[90,90,90],j=(n-0.5)*12;
   return [clamp(src[0]+j,0,255)|0,clamp(src[1]+j,0,255)|0,clamp(src[2]+j,0,255)|0];
 }
 function tileRGB(wd,tx,ty,px,py){
-  const i=ty*wd.w+tx;
-  return groundRGB(tx,ty,px,py,tileBase(wd,i,wd.tiles[i]));
+  if(tx<0||ty<0||tx>=wd.w||ty>=wd.h)return [8,12,16];
+  const i=ty*wd.w+tx,t=wd.tiles[i];
+  if(t===T_WALL||t===T_BWALL)return wallRGB(wd,tx,ty,px,py,t);
+  if(ty>0&&py<2){
+    const nt=wd.tiles[(ty-1)*wd.w+tx];
+    if(nt===T_WALL||nt===T_BWALL)return wallLip(nt,tx,px,py);
+  }
+  return groundRGB(tx,ty,px,py,tileBase(wd,i,t));
 }
 function minimapRGB(wd,tx,ty){
   const i=ty*wd.w+tx,t=wd.tiles[i],k=DECO_SPR[t]?0.62:1;
@@ -674,7 +709,8 @@ function paintMinimap(wd){
 }
 function raster(wd,x0,y0,tw,th){
   const c=document.createElement('canvas');c.width=tw*TS;c.height=th*TS;
-  const g=c.getContext('2d'),img=g.createImageData(c.width,c.height),d=img.data;
+  const g=c.getContext('2d');g.imageSmoothingEnabled=false;
+  const img=g.createImageData(c.width,c.height),d=img.data;
   for(let ty=0;ty<th;ty++)for(let tx=0;tx<tw;tx++){
     const wx=x0+tx,wy=y0+ty;
     for(let py=0;py<TS;py++)for(let px=0;px<TS;px++){
@@ -908,10 +944,11 @@ const DUNGEONS={
     utName:'Tidepearl'
   }
 };
-const BCOLS=7,BROWS=7,BCELL=16,BPAD=3;
+const BCOLS=7,BROWS=7,BCELL=16,BPAD=3,BOSS_PAD=48;
 function burrowShuffle(a,R){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=(R()*(i+1))|0;const t=b[i];b[i]=b[j];b[j]=t;}return b;}
-function burrowOrigin(cx,cy){return {x:BPAD+cx*BCELL,y:BPAD+cy*BCELL};}
+function burrowOrigin(cx,cy){return {x:BOSS_PAD+BPAD+cx*BCELL,y:BOSS_PAD+BPAD+cy*BCELL};}
 function burrowCenter(cx,cy){const p=burrowOrigin(cx,cy);return {x:p.x+((BCELL/2)|0),y:p.y+((BCELL/2)|0)};}
+function burrowSolid(t){return t===T_BWALL||t===T_BCORAL||t===T_BROCK;}
 function attachBurrowSides(path,occ,sideN,R){
   const cols=BCOLS,rows=BROWS,at=(x,y)=>y*cols+x,sides=[];
   const order=[];
@@ -930,9 +967,10 @@ function attachBurrowSides(path,occ,sideN,R){
   return sides;
 }
 function carveBurrow(R,path,sides,pathN,sideN){
-  const w=BPAD*2+BCOLS*BCELL,h=BPAD*2+BROWS*BCELL,tiles=new Uint8Array(w*h),spine=new Uint8Array(w*h);
+  const w=BOSS_PAD*2+BPAD*2+BCOLS*BCELL,h=w,tiles=new Uint8Array(w*h),spine=new Uint8Array(w*h);
   tiles.fill(T_BWALL);
   const rooms=[];
+  const bossR=13+((R()*3)|0);
   function set(x,y,t){if(x>0&&y>0&&x<w-1&&y<h-1)tiles[y*w+x]=t;}
   function disk(cx,cy,rad,t,mark){
     for(let y=cy-rad;y<=cy+rad;y++)for(let x=cx-rad;x<=cx+rad;x++){
@@ -951,19 +989,24 @@ function carveBurrow(R,path,sides,pathN,sideN){
     const c=burrowCenter(cell.x,cell.y),p=burrowOrigin(cell.x,cell.y);
     let shape=shapes[(R()*shapes.length)|0];
     if(role==='start')shape='chamber';
-    if(role==='boss')shape='round';
-    const room={cx:cell.x,cy:cell.y,role,shape,x0:p.x,y0:p.y,x1:p.x+BCELL,y1:p.y+BCELL,links:[],enc:''};
+    const rad=shape==='tunnel'?4:shape==='round'?6:8;
+    const room={cx:cell.x,cy:cell.y,role,shape,x0:p.x,y0:p.y,x1:p.x+BCELL,y1:p.y+BCELL,links:[],enc:'',rad};
     rooms.push(room);
-    if(shape==='round')disk(c.x,c.y,role==='boss'?6:5,role==='boss'?T_BPEARL:T_BFLOOR,false);
+    if(shape==='round')disk(c.x,c.y,5,T_BFLOOR,false);
     else if(shape==='tunnel')disk(c.x,c.y,3,T_BFLOOR,false);
     else for(let y=c.y-5;y<=c.y+5;y++)for(let x=c.x-5;x<=c.x+5;x++)set(x,y,T_BFLOOR);
-    disk(c.x,c.y,2,role==='boss'?T_BPEARL:T_BFLOOR,true);
+    disk(c.x,c.y,2,T_BFLOOR,true);
     return room;
   }
-  for(let i=0;i<path.length;i++)addRoom(path[i],i===0?'start':i===path.length-1?'boss':'path');
+  for(let i=0;i<path.length;i++){
+    if(i===path.length-1){
+      const p=burrowOrigin(path[i].x,path[i].y);
+      rooms.push({cx:path[i].x,cy:path[i].y,role:'boss',shape:'round',x0:p.x,y0:p.y,x1:p.x+BCELL,y1:p.y+BCELL,links:[],enc:'',rad:bossR});
+    }else addRoom(path[i],i===0?'start':'path');
+  }
   for(let i=0;i<path.length-1;i++){
     rooms[i].links.push(i+1);rooms[i+1].links.push(i);
-    line(burrowCenter(path[i].x,path[i].y),burrowCenter(path[i+1].x,path[i+1].y),1);
+    if(i<path.length-2)line(burrowCenter(path[i].x,path[i].y),burrowCenter(path[i+1].x,path[i+1].y),1);
   }
   sides.forEach((cell,s)=>{
     const role=s===0?'chest':s===1?'mini':'side';
@@ -972,22 +1015,96 @@ function carveBurrow(R,path,sides,pathN,sideN){
     room.links.push(pi);rooms[pi].links.push(id);
     line(burrowCenter(cell.x,cell.y),burrowCenter(path[pi].x,path[pi].y),1);
   });
+  const prevC=burrowCenter(path[path.length-2].x,path[path.length-2].y);
+  const startC0=burrowCenter(path[path.length-1].x,path[path.length-1].y);
+  function fitsBoss(x,y){
+    if(x-bossR<2||y-bossR<2||x+bossR>=w-2||y+bossR>=h-2)return false;
+    for(const room of rooms){
+      if(room.role==='boss')continue;
+      const c=burrowCenter(room.cx,room.cy);
+      if(Math.hypot(x-c.x,y-c.y)<(room.rad||6)+bossR+2)return false;
+    }
+    return true;
+  }
+  function placeBoss(){
+    let dx=startC0.x-prevC.x,dy=startC0.y-prevC.y,len=Math.hypot(dx,dy)||1;
+    let sx=0,sy=0,n=0;
+    for(const room of rooms){if(room.role==='boss')continue;const c=burrowCenter(room.cx,room.cy);sx+=c.x;sy+=c.y;n++;}
+    if(n){sx/=n;sy/=n;const ax=startC0.x-sx,ay=startC0.y-sy,al=Math.hypot(ax,ay)||1;
+      dx=dx/len*0.7+(ax/al)*0.3;dy=dy/len*0.7+(ay/al)*0.3;len=Math.hypot(dx,dy)||1;}
+    dx/=len;dy/=len;
+    for(let step=0;step<=56;step++){
+      const x=Math.round(startC0.x+dx*step),y=Math.round(startC0.y+dy*step);
+      if(fitsBoss(x,y))return {x,y};
+    }
+    for(let a=0;a<8;a++){
+      const ux=Math.cos(a*Math.PI/4),uy=Math.sin(a*Math.PI/4);
+      for(let step=6;step<=60;step+=2){
+        const x=Math.round(startC0.x+ux*step),y=Math.round(startC0.y+uy*step);
+        if(fitsBoss(x,y))return {x,y};
+      }
+    }
+    return null;
+  }
+  const bossAt=placeBoss();
+  if(!bossAt)return null;
+  const bx=bossAt.x,by=bossAt.y;
+  disk(bx,by,bossR,T_BFLOOR,false);
+  line(prevC,{x:bx,y:by},1);
+  for(let y=by-4;y<=by+4;y++)for(let x=bx-4;x<=bx+4;x++){
+    if((x-bx)*(x-bx)+(y-by)*(y-by)>16)continue;
+    if(x<=1||y<=1||x>=w-2||y>=h-2||spine[y*w+x])continue;
+    if(tiles[y*w+x]!==T_BWALL)tiles[y*w+x]=T_BPEARL;
+  }
+  for(let y=by-bossR;y<=by+bossR;y++)for(let x=bx-bossR;x<=bx+bossR;x++){
+    const dx=x-bx,dy=y-by,d2=dx*dx+dy*dy;
+    if(d2>bossR*bossR||d2<(bossR-1)*(bossR-1))continue;
+    if(Math.abs(dx)===bossR||Math.abs(dy)===bossR)continue;
+    if(x<=1||y<=1||x>=w-2||y>=h-2||spine[y*w+x])continue;
+    if(hash2(x*3,y*5)<0.42)tiles[y*w+x]=T_BWALL;
+  }
+  const pdx=prevC.x-bx,pdy=prevC.y-by,plen=Math.hypot(pdx,pdy)||1;
+  let rocks=0;
+  for(let k=0;k<10&&rocks<3;k++){
+    const ang=(k+0.5)/10*TAU,dist=Math.round(bossR*0.62);
+    const x=bx+Math.round(Math.cos(ang)*dist),y=by+Math.round(Math.sin(ang)*dist);
+    if(x<=1||y<=1||x>=w-2||y>=h-2)continue;
+    const vx=x-bx,vy=y-by,vl=Math.hypot(vx,vy)||1;
+    if((vx*pdx+vy*pdy)/vl/plen>0.55)continue;
+    if(spine[y*w+x]||tiles[y*w+x]===T_BWALL)continue;
+    tiles[y*w+x]=T_BROCK;rocks++;
+  }
+  for(let k=0;k<6;k++){
+    const ang=R()*TAU,dist=bossR-2,x=bx+Math.round(Math.cos(ang)*dist),y=by+Math.round(Math.sin(ang)*dist);
+    if(x<=1||y<=1||x>=w-2||y>=h-2||spine[y*w+x])continue;
+    if(tiles[y*w+x]===T_BWALL||tiles[y*w+x]===T_BROCK)continue;
+    if(Math.hypot(x-bx,y-by)<5)continue;
+    tiles[y*w+x]=R()<0.5?T_BCRYST:T_BWEED;
+  }
+  for(let k=0;k<4;k++){
+    const x=bx+((R()*(bossR-2))|0)-((bossR/2)|0),y=by+((R()*(bossR-2))|0)-((bossR/2)|0);
+    if(Math.hypot(x-bx,y-by)<6||x<=1||y<=1||x>=w-2||y>=h-2)continue;
+    if(spine[y*w+x]||tiles[y*w+x]===T_BWALL||tiles[y*w+x]===T_BROCK)continue;
+    tiles[y*w+x]=T_BPOOL;
+  }
+  const bossRoom=rooms[path.length-1];
+  bossRoom.x0=bx-bossR;bossRoom.y0=by-bossR;bossRoom.x1=bx+bossR+1;bossRoom.y1=by+bossR+1;
   for(const room of rooms){
     if(room.role==='boss'||room.role==='start')continue;
     const c=burrowCenter(room.cx,room.cy);
-    for(let n=0;n<5;n++){
+    for(let n=0;n<6;n++){
       const x=c.x+((R()*9)|0)-4,y=c.y+((R()*9)|0)-4;
       if(x<=1||y<=1||x>=w-2||y>=h-2)continue;
       const i=y*w+x;
       if(tiles[i]===T_BWALL||spine[i])continue;
       if(Math.abs(x-c.x)+Math.abs(y-c.y)<3)continue;
-      tiles[i]=R()<0.45?T_BPOOL:T_BCORAL;
+      const roll=R();
+      tiles[i]=roll<0.22?T_BCORAL:roll<0.4?T_BROCK:roll<0.55?T_BPLANK:roll<0.72?T_BCRYST:roll<0.86?T_BWEED:T_BPOOL;
     }
   }
   function walkable(tx,ty){
     if(tx<=0||ty<=0||tx>=w-1||ty>=h-1)return false;
-    const t=tiles[ty*w+tx];
-    return t!==T_BWALL&&t!==T_BCORAL;
+    return !burrowSolid(tiles[ty*w+tx]);
   }
   function pix(tx,ty){return {x:(tx+0.5)*TS,y:(ty+0.5)*TS};}
   function findSpot(cx,cy,avoid){
@@ -1005,13 +1122,10 @@ function carveBurrow(R,path,sides,pathN,sideN){
     }
     return walkable(c.x,c.y)?pix(c.x,c.y):null;
   }
-  const startC=burrowCenter(path[0].x,path[0].y),bossC=burrowCenter(path[path.length-1].x,path[path.length-1].y);
-  const prev=burrowCenter(path[path.length-2].x,path[path.length-2].y);
-  const spawn=pix(startC.x,startC.y),anchor=pix(bossC.x,bossC.y);
-  let ex=bossC.x+(Math.sign(prev.x-bossC.x)||1)*4,ey=bossC.y+(Math.sign(prev.y-bossC.y)||0)*3;
-  if(!walkable(ex,ey)){ex=bossC.x+3;ey=bossC.y;}
-  if(!walkable(ex,ey)){ex=bossC.x;ey=bossC.y+3;}
-  if(!walkable(ex,ey)){ex=bossC.x;ey=bossC.y;}
+  const startC=burrowCenter(path[0].x,path[0].y);
+  const spawn=pix(startC.x,startC.y),anchor=pix(bx,by);
+  let ex=Math.round(bx+(pdx/plen)*(bossR-4)),ey=Math.round(by+(pdy/plen)*(bossR-4));
+  if(!walkable(ex,ey)){ex=bx;ey=by;}
   const exit=pix(ex,ey);
   const encounters=[],chests=[],taken=[spawn,anchor,exit];
   function place(type,room){
@@ -1058,21 +1172,44 @@ function carveBurrow(R,path,sides,pathN,sideN){
       const nx=x+d[0],ny=y+d[1];
       if(nx<0||ny<0||nx>=w||ny>=h)continue;
       const j=ny*w+nx,t=tiles[j];
-      if(seen[j]||t===T_BWALL||t===T_BCORAL)continue;
+      if(seen[j]||burrowSolid(t))continue;
       seen[j]=1;stack.push(j);
     }
   }
   function reached(tx,ty){return tx>0&&ty>0&&tx<w&&ty<h&&seen[ty*w+tx]===1;}
-  if(!reached(startC.x,startC.y)||!reached(bossC.x,bossC.y)||!reached(ex,ey))return null;
-  for(const room of rooms){const c=burrowCenter(room.cx,room.cy);if(!reached(c.x,c.y))return null;}
+  if(!reached(startC.x,startC.y)||!reached(bx,by)||!reached(ex,ey))return null;
+  for(const room of rooms){const c=room.role==='boss'?{x:bx,y:by}:burrowCenter(room.cx,room.cy);if(!reached(c.x,c.y))return null;}
   function clearPoint(p){const tx=Math.floor(p.x/TS),ty=Math.floor(p.y/TS);return reached(tx,ty);}
   if(!clearPoint(spawn)||!clearPoint(anchor)||!clearPoint(exit))return null;
   for(const e of encounters)if(!clearPoint(e))return null;
   for(const c of chests)if(!clearPoint(c))return null;
-  let sig=rooms.map(r=>r.cx+','+r.cy+':'+r.shape+':'+r.role+':'+r.enc).join('|'),hash=0;
-  for(let i=0;i<tiles.length;i+=5)hash=Math.imul(hash,33)+tiles[i]|0;
-  sig+='#'+(hash>>>0);
-  return {w,h,tiles,rooms,pathN,sideN,spawn,anchor,exit,encounters,chests,sig,bossDist:bossD,maxDist:maxD,connected:queue.length===rooms.length};
+  let minx=bx,maxx=bx,miny=by,maxy=by,open=0;
+  for(let y=by-bossR;y<=by+bossR;y++)for(let x=bx-bossR;x<=bx+bossR;x++){
+    const dx=x-bx,dy=y-by;
+    if(dx*dx+dy*dy>bossR*bossR)continue;
+    const t=tiles[y*w+x];
+    if(t===T_BWALL||t===T_BCORAL||t===T_BROCK)continue;
+    open++;
+    if(x<minx)minx=x;if(x>maxx)maxx=x;if(y<miny)miny=y;if(y>maxy)maxy=y;
+  }
+  const bossW=maxx-minx+1,bossH=maxy-miny+1;
+  if(bossW<26||bossH<26||bossW>32||bossH>32||open<360)return null;
+  let x0=w,y0=h,x1=0,y1=0;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(tiles[y*w+x]!==T_BWALL){
+    if(x<x0)x0=x;if(y<y0)y0=y;if(x>x1)x1=x;if(y>y1)y1=y;
+  }
+  x0=Math.max(0,x0-3);y0=Math.max(0,y0-3);x1=Math.min(w-1,x1+3);y1=Math.min(h-1,y1+3);
+  const nw=x1-x0+1,nh=y1-y0+1,nt=new Uint8Array(nw*nh);
+  nt.fill(T_BWALL);
+  for(let y=0;y<nh;y++)for(let x=0;x<nw;x++)nt[y*nw+x]=tiles[(y+y0)*w+(x+x0)];
+  const sh=o=>{o.x-=x0*TS;o.y-=y0*TS;};
+  sh(spawn);sh(anchor);sh(exit);
+  encounters.forEach(sh);chests.forEach(sh);
+  for(const r of rooms){r.x0-=x0;r.y0-=y0;r.x1-=x0;r.y1-=y0;}
+  let hash=0;
+  for(let i=0;i<nt.length;i+=5)hash=Math.imul(hash,33)+nt[i]|0;
+  const sig=rooms.map(r=>r.cx+','+r.cy+':'+r.shape+':'+r.role+':'+r.enc).join('|')+'#'+(hash>>>0);
+  return {w:nw,h:nh,tiles:nt,rooms,pathN,sideN,spawn,anchor,exit,encounters,chests,sig,bossDist:bossD,maxDist:maxD,connected:queue.length===rooms.length,bossW,bossH,bossR,bossOpen:open};
 }
 function tryBurrow(R){
   const pathN=8+((R()*7)|0),sideN=2+((R()*3)|0),occ=new Uint8Array(BCOLS*BROWS);
@@ -1131,8 +1268,22 @@ function genTideclaw(seed){
   renderWorld(wd);
   return wd;
 }
+function measureBossRoom(L){
+  const cx=Math.floor(L.anchor.x/TS),cy=Math.floor(L.anchor.y/TS),r=L.bossR|0;
+  let minx=cx,maxx=cx,miny=cy,maxy=cy,open=0;
+  for(let y=cy-r;y<=cy+r;y++)for(let x=cx-r;x<=cx+r;x++){
+    const dx=x-cx,dy=y-cy;
+    if(dx*dx+dy*dy>r*r)continue;
+    if(x<0||y<0||x>=L.w||y>=L.h)return null;
+    const t=L.tiles[y*L.w+x];
+    if(t===T_BWALL||t===T_BCORAL||t===T_BROCK)continue;
+    open++;
+    if(x<minx)minx=x;if(x>maxx)maxx=x;if(y<miny)miny=y;if(y>maxy)maxy=y;
+  }
+  return {w:maxx-minx+1,h:maxy-miny+1,open};
+}
 function auditBurrows(n){
-  n=n||200;const fails=[];let prev='';
+  n=n||200;const fails=[];let prev='',bossMin=99,bossMax=0;
   for(let s=1;s<=n;s++){
     const L=layoutTideclaw(s);
     if(!L){fails.push(s+':no layout');continue;}
@@ -1142,12 +1293,15 @@ function auditBurrows(n){
     if(!L.connected||L.bossDist!==L.maxDist)fails.push(s+':reach '+L.bossDist+'/'+L.maxDist);
     if(L.sig===prev)fails.push(s+':duplicate');
     prev=L.sig;
-    const bad=p=>{const tx=Math.floor(p.x/TS),ty=Math.floor(p.y/TS),t=L.tiles[ty*L.w+tx];return t===T_BWALL||t===T_BCORAL;};
+    const boss=measureBossRoom(L);
+    if(!boss||boss.w<26||boss.h<26||boss.w>32||boss.h>32||boss.open<360)fails.push(s+':boss '+(boss?boss.w+'x'+boss.h+' open '+boss.open:'missing'));
+    else{bossMin=Math.min(bossMin,boss.w,boss.h);bossMax=Math.max(bossMax,boss.w,boss.h);}
+    const bad=p=>{const tx=Math.floor(p.x/TS),ty=Math.floor(p.y/TS);if(tx<0||ty<0||tx>=L.w||ty>=L.h)return true;const t=L.tiles[ty*L.w+tx];return t===T_BWALL||t===T_BCORAL||t===T_BROCK;};
     if(bad(L.spawn)||bad(L.anchor)||bad(L.exit))fails.push(s+':anchor in wall');
     for(const e of L.encounters)if(bad(e)){fails.push(s+':enemy in wall');break;}
     for(const c of L.chests)if(bad(c)){fails.push(s+':chest in wall');break;}
   }
-  return {n,ok:!fails.length,failCount:fails.length,fails:fails.slice(0,8)};
+  return {n,ok:!fails.length,failCount:fails.length,fails:fails.slice(0,8),bossMin,bossMax};
 }
 
 /* ---------------- classes & items ---------------- */
@@ -2785,7 +2939,7 @@ function render(){
     labels.push([b.x,b.y-42,on?'Beacon: '+b.name:'Locked beacon',on?'#bff6ff':'#c8c8d8']);
   }
   for(const b of world.bags){if(b.x<x0||b.x>x1||b.y<y0||b.y>y1)continue;const s=SPR.bags[b.col];ctx.globalAlpha=b.t<10&&(time*6|0)%2?0.4:1;drawSpr(s,b.x-5,b.y-6+Math.sin(time*3)*0.6,s.w,s.h);
-    const shown=b.items&&b.items[0]&&itemSpr(b.items[0]);if(shown){ctx.globalAlpha=1;drawSpr(shown,b.x-6,b.y-18,12,12);}}
+    const shown=b.items&&b.items[0]&&itemSpr(b.items[0]);if(shown){ctx.globalAlpha=1;drawItemWorld(shown,b.x,b.y-12);}}
   ctx.globalAlpha=1;
   for(const e of world.enemies){if(e.x<x0-40||e.x>x1+40||e.y<y0-40||e.y>y1+40)continue;
     const s=SPR[e.d.spr],sc=e.d.boss?2.2:(e.d.scale||(e.elite?1.5:1)),w=s.w*sc,h=s.h*sc;const bob=Math.floor((time*5+e.bob)%2);
@@ -2886,7 +3040,7 @@ function drawTooltip(it,ref,at){
   let x=layoutC.panel.x-w-8,y=clamp((at&&at.y!=null?at.y:H/2)-24,8,H-h-8);
   if(x<8)x=8;
   panel(x,y,w,h,0.96);
-  if(sp)drawSpr(sp,x+8,y+8,28,28);
+  if(sp)drawItemIcon(sp,x+6,y+6,32);
   fitTxt(it.name+(tierLabel(it)?'  ['+tierLabel(it)+']':''),x+(sp?42:8),y+16,12,itemColor(it),w-(sp?50:16));
   lines.forEach((l,i)=>fitTxt(l,x+8,y+40+i*14,11,'#ddd',w-16));
   if(canDrop)miniBtn(x+8,y+h-30,w-16,24,'Drop','#ffb347',()=>{dropOnGround(ref);heldTip=null;},{tag:'drop-item'});
@@ -3010,7 +3164,7 @@ function drawHUD(){
   drawEnterButton();
   const tipRef=(ptr&&ptr.tip&&ptr.ref)||(heldTip&&heldTip.ref);
   if(tipRef){const it=readItem(tipRef);if(it)drawTooltip(it,tipRef,(ptr&&ptr.tip)?ptr:heldTip);}
-  if(ptr&&ptr.dragged&&ptr.ref){const it=readItem(ptr.ref);const sp=it&&itemSpr(it);if(sp){if(isUTGear(it)){ctx.fillStyle='rgba(140,50,210,.4)';ctx.fillRect(ptr.x-18,ptr.y-42,36,36);}drawSpr(sp,ptr.x-16,ptr.y-40,32,32);}}
+  if(ptr&&ptr.dragged&&ptr.ref){const it=readItem(ptr.ref);const sp=it&&itemSpr(it);if(sp){if(isUTGear(it)){ctx.fillStyle='rgba(140,50,210,.4)';ctx.fillRect(ptr.x-18,ptr.y-42,36,36);}drawItemIcon(sp,ptr.x-18,ptr.y-42,36);}}
 }
 const PORTAL_REACH=26;
 function rectsHit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
@@ -3072,7 +3226,8 @@ function drawVaultPanel(Pnl,inner,gap,x0,y0,slot,chest){
 function drawSlot(x,y,s,it,sel,label,dim){
   const ut=isUTGear(it);
   const test=!!(it&&it.test);
-  ctx.fillStyle=sel?'#4a3a7a':'rgba(40,32,64,.95)';ctx.fillRect(x,y,s,s);
+  ctx.fillStyle=sel?'#2a241c':'#100e0c';ctx.fillRect(x,y,s,s);
+  ctx.strokeStyle='#3a3228';ctx.lineWidth=1;ctx.strokeRect(x+0.5,y+0.5,s-1,s-1);
   if(test){
     const p=0.5+0.5*Math.sin(time*6);
     ctx.fillStyle='rgba(255,214,80,'+(0.22+0.38*p)+')';
@@ -3087,11 +3242,10 @@ function drawSlot(x,y,s,it,sel,label,dim){
     ctx.strokeStyle=p>0.5?'#ff9adf':'#c46aff';
     ctx.lineWidth=2;ctx.strokeRect(x+3,y+3,s-6,s-6);
   }
-  ctx.strokeStyle=it?(dim?'#6d6b80':itemColor(it)):'#3a3058';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,s-2,s-2);
   if(it){
-    const sp=itemSpr(it);const q=s*0.72;
+    const sp=itemSpr(it);const box=Math.max(8,s-4);
     if(dim){ctx.save();ctx.globalAlpha=0.45;}
-    if(sp)drawSpr(sp,x+(s-q)/2,y+(s-q)/2,q,q);
+    if(sp)drawItemIcon(sp,x+2,y+2,box);
     if(ut){
       const sweep=((time*36)%(s+12))-8;
       ctx.save();
