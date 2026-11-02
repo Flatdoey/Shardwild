@@ -85,7 +85,7 @@ async function main() {
         const armors = row.armors, an = armors.robe + armors.leather + armors.heavy;
         assert(an > 0 && armors.robe && armors.leather && armors.heavy, reg.name + ' ' + label + ' armors ' + JSON.stringify(armors));
         const abilities = row.abilities;
-        assert(abilities.pyro && abilities.strider && abilities.bulwark, reg.name + ' ' + label + ' abilities ' + JSON.stringify(abilities));
+        assert(abilities.wizard && abilities.archer && abilities.knight, reg.name + ' ' + label + ' abilities ' + JSON.stringify(abilities));
         if (label === 'normal') {
           assert(row.empty + row.potOnly > row.n * 0.45, reg.name + ' almost always dropped gear ' + JSON.stringify({empty: row.empty, potOnly: row.potOnly, withGear: row.withGear}));
         }

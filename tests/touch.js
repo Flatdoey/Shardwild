@@ -196,8 +196,8 @@ async function charactersVaultWeapons(page, cdp) {
   for (const b of selectButtons) assert(b.w >= 44 && b.h >= 40, 'character button too small ' + JSON.stringify(b));
   await tapTag(page, r => r.tag === 'char-new');
   await frames(page, 2);
-  await tapTag(page, r => r.tag === 'class-pick' && r.tab === 'strider');
-  await page.waitForFunction(() => window.__shardwild.state === 'play' && window.__shardwild.P.cls === 'strider');
+  await tapTag(page, r => r.tag === 'class-pick' && r.tab === 'archer');
+  await page.waitForFunction(() => window.__shardwild.state === 'play' && window.__shardwild.P.cls === 'archer');
   await frames(page, 4);
   assert(await page.evaluate(() => window.__shardwild.place === 'haven'), 'new hero did not start in the Haven');
   await page.evaluate(() => window.__shardwild.clearInv());
@@ -212,16 +212,16 @@ async function charactersVaultWeapons(page, cdp) {
   assert(wind, 'Elixir of Wind missing from the test chest');
   await page.touchscreen.tap(wind.x + wind.w / 2, wind.y + wind.h / 2);
   await frames(page, 3);
-  assert(await page.evaluate(() => window.__shardwild.P.inv.some(it => it && it.name === 'Elixir of Wind')), 'strider did not take Elixir of Wind');
+  assert(await page.evaluate(() => window.__shardwild.P.inv.some(it => it && it.name === 'Elixir of Wind')), 'archer did not take Elixir of Wind');
 
   await tapTag(page, r => r.tag === 'char-select');
   await page.waitForFunction(() => window.__shardwild.state === 'title');
   await frames(page, 4);
   const roster = await page.evaluate(() => window.__shardwild.chars);
   assert(roster.filter(Boolean).length === 2, 'expected 2 heroes ' + JSON.stringify(roster));
-  assert(roster[0].cls === 'pyro' && roster[1].cls === 'strider', 'hero order ' + JSON.stringify(roster));
-  assert(roster[1].inv.indexOf('Elixir of Wind') >= 0, 'strider inventory was not saved ' + JSON.stringify(roster[1]));
-  assert(roster[0].inv.indexOf('Elixir of Wind') < 0, 'pyro inventory picked up the strider elixir ' + JSON.stringify(roster[0]));
+  assert(roster[0].cls === 'wizard' && roster[1].cls === 'archer', 'hero order ' + JSON.stringify(roster));
+  assert(roster[1].inv.indexOf('Elixir of Wind') >= 0, 'archer inventory was not saved ' + JSON.stringify(roster[1]));
+  assert(roster[0].inv.indexOf('Elixir of Wind') < 0, 'wizard inventory picked up the archer elixir ' + JSON.stringify(roster[0]));
   const sprites = await page.evaluate(() => {
     const c = document.getElementById('game');
     const g = c.getContext('2d', {alpha: false});
@@ -241,19 +241,19 @@ async function charactersVaultWeapons(page, cdp) {
   await page.screenshot({path: path.join(ART, 'screenshot_character_select.png')});
 
   await tapTag(page, r => r.tag === 'char-play' && r.slot === 0);
-  await page.waitForFunction(() => window.__shardwild.state === 'play' && window.__shardwild.P.cls === 'pyro');
+  await page.waitForFunction(() => window.__shardwild.state === 'play' && window.__shardwild.P.cls === 'wizard');
   await frames(page, 3);
   const pyroInv = await page.evaluate(() => window.__shardwild.P.inv.map(it => it && it.name));
-  assert(pyroInv.indexOf('Elixir of Wind') < 0, 'switching to pyro showed the strider elixir ' + JSON.stringify(pyroInv));
+  assert(pyroInv.indexOf('Elixir of Wind') < 0, 'switching to wizard showed the archer elixir ' + JSON.stringify(pyroInv));
   await page.evaluate(() => window.__shardwild.clearInv());
   const pyroChest = await page.evaluate(() => window.__shardwild.world.chest);
   await walkTo(page, cdp, pyroChest.x, pyroChest.y, () => window.__shardwild.chestOpen, 18);
-  await openChestTab(page, 'strider');
+  await openChestTab(page, 'archer');
   const bow = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'chest' && s.name === 'Splintered Bow'));
-  assert(bow, 'Splintered Bow missing from the strider tab');
+  assert(bow, 'Splintered Bow missing from the archer tab');
   await page.touchscreen.tap(bow.x + bow.w / 2, bow.y + bow.h / 2);
   await frames(page, 3);
-  assert(await page.evaluate(() => window.__shardwild.P.inv.some(it => it && it.name === 'Splintered Bow') && !(window.__shardwild.P.eq.weapon && window.__shardwild.P.eq.weapon.name === 'Splintered Bow')), 'pyro should hold the bow in the backpack');
+  assert(await page.evaluate(() => window.__shardwild.P.inv.some(it => it && it.name === 'Splintered Bow') && !(window.__shardwild.P.eq.weapon && window.__shardwild.P.eq.weapon.name === 'Splintered Bow')), 'wizard should hold the bow in the backpack');
 
   await walkTo(page, cdp, pyroChest.x + 40, pyroChest.y, () => !window.__shardwild.chestOpen, 12);
   const vaultDoor = await page.evaluate(() => window.__shardwild.world.vault);
@@ -294,14 +294,14 @@ async function charactersVaultWeapons(page, cdp) {
   await tapTag(page, r => r.tag === 'char-select');
   await page.waitForFunction(() => window.__shardwild.state === 'title');
   await tapTag(page, r => r.tag === 'char-play' && r.slot === 1);
-  await page.waitForFunction(() => window.__shardwild.state === 'play' && window.__shardwild.P.cls === 'strider');
+  await page.waitForFunction(() => window.__shardwild.state === 'play' && window.__shardwild.P.cls === 'archer');
   await frames(page, 3);
   const striderAfter = await page.evaluate(() => ({
     inv: window.__shardwild.P.inv.map(it => it && it.name),
     wind: window.__shardwild.chars[1].inv.indexOf('Elixir of Wind') >= 0
   }));
-  assert(striderAfter.inv.indexOf('Splintered Bow') < 0, 'strider received pyro backpack item ' + JSON.stringify(striderAfter));
-  assert(striderAfter.inv.indexOf('Elixir of Wind') >= 0 || striderAfter.wind, 'strider lost their own elixir');
+  assert(striderAfter.inv.indexOf('Splintered Bow') < 0, 'archer received wizard backpack item ' + JSON.stringify(striderAfter));
+  assert(striderAfter.inv.indexOf('Elixir of Wind') >= 0 || striderAfter.wind, 'archer lost their own elixir');
   const door = await page.evaluate(() => window.__shardwild.world.vault);
   await walkOntoPortal(page, cdp, door.x, door.y);
   assert(await page.evaluate(() => window.__shardwild.place) === 'haven', 'second vault walk teleported');
@@ -322,7 +322,7 @@ async function charactersVaultWeapons(page, cdp) {
   const testNames = await chestNames(page);
   assert(testNames.indexOf('Godslayer Staff') >= 0 && testNames.indexOf('Godslayer Bow') >= 0 && testNames.indexOf('Godslayer Blade') >= 0, 'test tab ' + testNames.join(','));
   const dim = await page.evaluate(() => window.__shardwild.slots.filter(s => s.area === 'chest').map(s => s.name + ':' + (s.dim ? 'dim' : 'ok')));
-  assert(dim.some(s => s.indexOf('Godslayer Bow:ok') === 0), 'strider should be able to use the bow ' + dim.join(','));
+  assert(dim.some(s => s.indexOf('Godslayer Bow:ok') === 0), 'archer should be able to use the bow ' + dim.join(','));
   assert(dim.some(s => s.indexOf('Godslayer Staff:dim') === 0) && dim.some(s => s.indexOf('Godslayer Blade:dim') === 0), 'off-class godslayers should be dimmed ' + dim.join(','));
   await page.screenshot({path: path.join(ART, 'screenshot_test_weapons.png')});
   await page.evaluate(() => window.__shardwild.clearInv());
@@ -381,8 +381,8 @@ async function charactersVaultWeapons(page, cdp) {
   await tapTag(page, r => r.tag === 'char-select');
   await page.waitForFunction(() => window.__shardwild.state === 'title');
   await tapTag(page, r => r.tag === 'char-new');
-  await tapTag(page, r => r.tag === 'class-pick' && r.tab === 'bulwark');
-  await page.waitForFunction(() => window.__shardwild.P && window.__shardwild.P.cls === 'bulwark');
+  await tapTag(page, r => r.tag === 'class-pick' && r.tab === 'knight');
+  await page.waitForFunction(() => window.__shardwild.P && window.__shardwild.P.cls === 'knight');
   await tapTag(page, r => r.tag === 'char-select');
   await page.waitForFunction(() => window.__shardwild.state === 'title');
   await tapTag(page, r => r.tag === 'char-delete' && r.slot === 2);
@@ -391,20 +391,21 @@ async function charactersVaultWeapons(page, cdp) {
   assert(confirm.length === 2 && confirm.every(b => b.w >= 44 && b.h >= 40), 'confirm buttons ' + JSON.stringify(confirm));
   await tapTag(page, r => r.tag === 'char-cancel');
   await frames(page, 2);
-  assert(await page.evaluate(() => window.__shardwild.chars[2] && window.__shardwild.chars[2].cls === 'bulwark'), 'cancel deleted the hero');
+  assert(await page.evaluate(() => window.__shardwild.chars[2] && window.__shardwild.chars[2].cls === 'knight'), 'cancel deleted the hero');
   await tapTag(page, r => r.tag === 'char-delete' && r.slot === 2);
   await tapTag(page, r => r.tag === 'char-confirm');
   await frames(page, 3);
   const afterDelete = await page.evaluate(() => window.__shardwild.chars);
-  assert(!afterDelete[2], 'bulwark was not deleted ' + JSON.stringify(afterDelete));
-  assert(afterDelete[0] && afterDelete[0].cls === 'pyro' && afterDelete[1] && afterDelete[1].cls === 'strider', 'delete removed another hero ' + JSON.stringify(afterDelete));
+  assert(!afterDelete[2], 'knight was not deleted ' + JSON.stringify(afterDelete));
+  assert(afterDelete[0] && afterDelete[0].cls === 'wizard' && afterDelete[1] && afterDelete[1].cls === 'archer', 'delete removed another hero ' + JSON.stringify(afterDelete));
 
   await page.evaluate(() => {
     localStorage.removeItem('shardwild_chars_v1');
     localStorage.setItem('shardwild_save_v1', JSON.stringify({
       cls: 'bulwark', lvl: 7, xp: 4, xpTotal: 40,
       stats: {hp: 220, mp: 80, att: 14, def: 8, spd: 11, dex: 11, vit: 15, wis: 8},
-      eq: {}, inv: [null, null, null, null, null, null, null, null],
+      eq: {ability: {id: 3, kind: 'ability', cls: 'bulwark', tier: 0, name: 'Splintered Seal', power: 8, fx: {stun: 2.5, bossStun: 1}}},
+      inv: [null, null, null, null, null, null, null, null],
       beacons: ['haven'], seen: [], explored: {}, hpPots: 1, mpPots: 1
     }));
   });
@@ -415,7 +416,13 @@ async function charactersVaultWeapons(page, cdp) {
     const raw = JSON.parse(localStorage.getItem('shardwild_chars_v1') || 'null');
     return {chars, slot: raw && raw.slots && raw.slots[0] && raw.slots[0].lvl};
   });
-  assert(migrated.chars[0] && migrated.chars[0].cls === 'bulwark' && migrated.chars[0].lvl === 7, 'old save was not migrated into slot 1 ' + JSON.stringify(migrated));
+  assert(migrated.chars[0] && migrated.chars[0].cls === 'knight' && migrated.chars[0].lvl === 7, 'old Bulwark save was not migrated to Knight ' + JSON.stringify(migrated));
+  const kept = await page.evaluate(() => {
+    const raw = JSON.parse(localStorage.getItem('shardwild_chars_v1') || 'null');
+    const s = raw && raw.slots && raw.slots[0];
+    return s && s.eq && s.eq.ability ? {cls: s.cls, name: s.eq.ability.name, ab: s.eq.ability.cls} : null;
+  });
+  assert(kept && kept.cls === 'knight' && kept.ab === 'knight' && kept.name === 'Splintered Shield', 'old Seal was not migrated ' + JSON.stringify(kept));
   assert(migrated.slot === 7, 'roster did not persist the migrated hero');
 }
 
@@ -506,7 +513,7 @@ async function tideclawAndStatus(page, cdp) {
   await frames(page, 3);
   assert(await page.evaluate(() => window.__shardwild.P.inv.some(it => it && it.kind === 'dungeonkey')), 'key was not copied into the backpack');
 
-  await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'strider');
+  await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'archer');
   let bow = null;
   for (let i = 0; i < 8 && !bow; i++) {
     bow = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'chest' && s.name === 'Starforged Bow'));
@@ -760,7 +767,7 @@ async function v12Coverage(page, cdp) {
     const mask = (k) => sw.spriteInfo(k, 4).mask;
     const weapons = ['staff', 'bow', 'sword'].map(mask);
     const armor = ['robe', 'leather', 'heavy'].map(mask);
-    const abil = ['codex', 'quiver', 'seal'].map(mask);
+    const abil = ['spell', 'quiver', 'shield'].map(mask);
     const ring = mask('ring');
     return {
       weapons: new Set(weapons).size,
@@ -771,9 +778,9 @@ async function v12Coverage(page, cdp) {
   });
   assert(shapes.weapons === 3 && shapes.armor === 3 && shapes.abil === 3 && shapes.ringDistinct, 'class silhouettes ' + JSON.stringify(shapes));
   const classes = [
-    ['pyro', 'staff', 'robe', 'screenshot_gear_pyro.png'],
-    ['strider', 'bow', 'leather', 'screenshot_gear_strider.png'],
-    ['bulwark', 'sword', 'heavy', 'screenshot_gear_bulwark.png']
+    ['wizard', 'staff', 'robe', 'screenshot_gear_pyro.png'],
+    ['archer', 'bow', 'leather', 'screenshot_gear_strider.png'],
+    ['knight', 'sword', 'heavy', 'screenshot_gear_bulwark.png']
   ];
   for (const [cls, w, a, file] of classes) {
     await page.evaluate(({cls, w, a}) => {
@@ -787,8 +794,8 @@ async function v12Coverage(page, cdp) {
       sw.clearInv();
       sw.grant({k: 'weapon', w, t: 0});
       sw.grant({k: 'weapon', w, t: 8});
-      if (cls === 'pyro') sw.grant({k: 'tidepearl'});
-      if (cls === 'strider') sw.grant({k: 'test', w});
+      if (cls === 'wizard') sw.grant({k: 'tidepearl'});
+      if (cls === 'archer') sw.grant({k: 'test', w});
     }, {cls, w, a});
     await frames(page, 3);
     await page.screenshot({path: path.join(ART, file)});
@@ -968,7 +975,7 @@ async function v14Shots(page) {
   });
   await frames(page, 3);
   assert(await page.evaluate(() => window.__shardwild.chestOpen), 'v14 chest did not open');
-  for (const tab of ['pyro', 'strider', 'bulwark']) {
+  for (const tab of ['wizard', 'archer', 'knight']) {
     await openChestTab(page, tab);
     await frames(page, 3);
     const names = await chestNames(page);
@@ -978,8 +985,8 @@ async function v14Shots(page) {
   await page.evaluate(() => {
     const sw = window.__shardwild;
     const cls = sw.P.cls;
-    const w = cls === 'strider' ? 'bow' : cls === 'bulwark' ? 'sword' : 'staff';
-    const a = cls === 'strider' ? 'leather' : cls === 'bulwark' ? 'heavy' : 'robe';
+    const w = cls === 'archer' ? 'bow' : cls === 'knight' ? 'sword' : 'staff';
+    const a = cls === 'archer' ? 'leather' : cls === 'knight' ? 'heavy' : 'robe';
     sw.P.eq.weapon = sw.makeItem({k: 'weapon', w, t: 5});
     sw.P.eq.ability = sw.makeItem({k: 'ability', cls, t: 5});
     sw.P.eq.armor = sw.makeItem({k: 'armor', a, t: 5});
@@ -1033,8 +1040,8 @@ async function v15Shots(page) {
     sw.pump(2);
   });
   await frames(page, 3);
-  const utName = {pyro: 'Hollow Crown Staff', strider: 'Kingsbane Bow', bulwark: "Morvane's Edge"};
-  for (const tab of ['pyro', 'strider', 'bulwark']) {
+  const utName = {wizard: 'Hollow Crown Staff', archer: 'Kingsbane Bow', knight: "Morvane's Edge"};
+  for (const tab of ['wizard', 'archer', 'knight']) {
     await openChestTab(page, tab);
     await frames(page, 2);
     const first = await chestNames(page);
@@ -1049,8 +1056,8 @@ async function v15Shots(page) {
       await page.screenshot({path: path.join(ART, 'screenshot_v15_chest_' + tab + '_weapons_ut.png')});
     }
   }
-  await openChestTab(page, 'pyro');
-  await findChest(page, ['Splintered Codex']);
+  await openChestTab(page, 'wizard');
+  await findChest(page, ['Splintered Spellbook']);
   await frames(page, 2);
   await page.screenshot({path: path.join(ART, 'screenshot_v15_abilities.png')});
   await findChest(page, ['Splintered Robe']);
@@ -1068,8 +1075,8 @@ async function v15Shots(page) {
   await page.evaluate(() => {
     const sw = window.__shardwild;
     const cls = sw.P.cls;
-    const w = cls === 'strider' ? 'bow' : cls === 'bulwark' ? 'sword' : 'staff';
-    const a = cls === 'strider' ? 'leather' : cls === 'bulwark' ? 'heavy' : 'robe';
+    const w = cls === 'archer' ? 'bow' : cls === 'knight' ? 'sword' : 'staff';
+    const a = cls === 'archer' ? 'leather' : cls === 'knight' ? 'heavy' : 'robe';
     sw.P.eq.weapon = sw.makeItem({k: 'weapon', w, t: 7});
     sw.P.eq.ability = sw.makeItem({k: 'ability', cls, t: 7});
     sw.P.eq.armor = sw.makeItem({k: 'armor', a, t: 7});
@@ -1092,6 +1099,67 @@ async function v15Shots(page) {
 
   const png = await page.evaluate(() => window.__shardwild.previewSheet());
   fs.writeFileSync(path.join(ART, 'screenshot_v15_weapon_closeup.png'), Buffer.from(png.split(',')[1], 'base64'));
+}
+
+async function v16Shots(page) {
+  await page.evaluate(() => {
+    const sw = window.__shardwild;
+    sw.enterHub();
+    sw.clearBags();
+    sw.clearFoes();
+    sw.teleport(sw.world.chest.x, sw.world.chest.y);
+    sw.pump(2);
+  });
+  await frames(page, 3);
+  const pages = {
+    wizard: {ability: 'Splintered Spellbook', armor: 'Splintered Robe'},
+    archer: {ability: 'Splintered Quiver', armor: 'Splintered Jerkin'},
+    knight: {ability: 'Splintered Shield', armor: 'Splintered Plate'}
+  };
+  for (const tab of ['knight', 'archer', 'wizard']) {
+    await openChestTab(page, tab);
+    await frames(page, 2);
+    const first = await chestNames(page);
+    assert(first.some(n => n && n.indexOf('Splintered') === 0), tab + ' weapon page ' + first.join(','));
+    await page.screenshot({path: path.join(ART, 'screenshot_v16_chest_' + tab + '_weapons.png')});
+    await findChest(page, [pages[tab].ability]);
+    await frames(page, 2);
+    assert((await chestNames(page)).indexOf(pages[tab].ability) >= 0, tab + ' ability page missing ' + pages[tab].ability);
+    await page.screenshot({path: path.join(ART, 'screenshot_v16_chest_' + tab + '_abilities.png')});
+    await findChest(page, [pages[tab].armor]);
+    await frames(page, 2);
+    assert((await chestNames(page)).indexOf(pages[tab].armor) >= 0, tab + ' armor page missing ' + pages[tab].armor);
+    await page.screenshot({path: path.join(ART, 'screenshot_v16_chest_' + tab + '_armor.png')});
+  }
+  await page.evaluate(() => {
+    const sw = window.__shardwild;
+    const cls = sw.P.cls;
+    const w = cls === 'archer' ? 'bow' : cls === 'knight' ? 'sword' : 'staff';
+    const a = cls === 'archer' ? 'leather' : cls === 'knight' ? 'heavy' : 'robe';
+    sw.P.eq.weapon = sw.makeItem({k: 'weapon', w, t: 7});
+    sw.P.eq.ability = sw.makeItem({k: 'ability', cls, t: 7});
+    sw.P.eq.armor = sw.makeItem({k: 'armor', a, t: 7});
+    sw.P.eq.ring = sw.makeItem({k: 'tidepearl'});
+    sw.clearInv();
+    sw.grant({k: 'weapon', w, t: 0});
+    sw.grant({k: 'ability', cls, t: 4});
+    sw.grant({k: 'armor', a, t: 2});
+    sw.grant({k: 'ring', t: 6});
+    sw.grant({k: 'test', w});
+    sw.teleport(sw.world.spawn.x + 36, sw.world.spawn.y);
+    sw.pump(3);
+  });
+  await frames(page, 3);
+  assert(!(await page.evaluate(() => window.__shardwild.chestOpen)), 'chest open over the v16 inventory');
+  await page.screenshot({path: path.join(ART, 'screenshot_v16_inventory.png')});
+  await page.evaluate(() => {
+    const sw = window.__shardwild;
+    sw.teleport(sw.world.spawn.x, sw.world.spawn.y - 24);
+  });
+  await frames(page, 3);
+  await page.screenshot({path: path.join(ART, 'screenshot_v16_haven_detail.png')});
+  const sheet = await page.evaluate(() => window.__shardwild.previewSheet('all'));
+  fs.writeFileSync(path.join(ART, 'contact_sheet_v16_items.png'), Buffer.from(sheet.split(',')[1], 'base64'));
 }
 
 async function main() {
@@ -1120,7 +1188,7 @@ async function main() {
     assert(size.touch > 0, 'expected touch, got ' + JSON.stringify(size));
 
     const sprErr = await page.evaluate(() => {
-      const kinds = ['staff','bow','sword','codex','quiver','seal','robe','leather','heavy','ring'];
+      const kinds = ['staff','bow','sword','spell','quiver','shield','robe','leather','heavy','ring'];
       for (const k of kinds) {
         const infos = [];
         for (let t = 0; t <= 8; t++) infos.push(window.__shardwild.spriteInfo(k, t));
@@ -1314,7 +1382,7 @@ async function main() {
     const offclass = await page.evaluate(() => window.__shardwild.spawnBag([
       {k: 'weapon', w: 'bow', t: 3},
       {k: 'weapon', w: 'sword', t: 4},
-      {k: 'ability', cls: 'strider', t: 2},
+      {k: 'ability', cls: 'archer', t: 2},
       {k: 'armor', a: 'heavy', t: 3}
     ]));
     assert(offclass.length === 4, 'off-class bag failed: ' + JSON.stringify(offclass));
@@ -1445,15 +1513,15 @@ async function main() {
     }
 
     const caps = await page.evaluate(() => window.__shardwild.capTable);
-    assert(caps.pyro.att === 75 && caps.pyro.mp === 460 && caps.pyro.def === 15 && caps.pyro.hp === 650, 'pyro caps ' + JSON.stringify(caps.pyro));
-    assert(caps.strider.dex === 75 && caps.strider.spd === 75 && caps.strider.hp === 740, 'strider caps ' + JSON.stringify(caps.strider));
-    assert(caps.bulwark.hp === 960 && caps.bulwark.def === 42 && caps.bulwark.mp === 250 && caps.bulwark.spd === 40, 'bulwark caps ' + JSON.stringify(caps.bulwark));
-    assert(caps.pyro.att > caps.strider.att && caps.strider.att > caps.bulwark.att, 'attack caps should fall off from the caster');
-    assert(caps.pyro.hp < caps.strider.hp && caps.strider.hp < caps.bulwark.hp, 'HP caps should rise toward the tank');
-    assert(caps.pyro.def < caps.strider.def && caps.strider.def < caps.bulwark.def, 'defense caps should rise toward the tank');
-    assert(caps.strider.dex > caps.pyro.dex && caps.strider.dex > caps.bulwark.dex, 'strider should cap dexterity highest');
-    assert(caps.strider.spd > caps.pyro.spd && caps.pyro.spd > caps.bulwark.spd, 'speed caps ' + JSON.stringify(caps));
-    assert(caps.pyro.mp > caps.strider.mp && caps.strider.mp > caps.bulwark.mp, 'MP caps should fall off from the caster');
+    assert(caps.wizard.att === 75 && caps.wizard.mp === 460 && caps.wizard.def === 15 && caps.wizard.hp === 650, 'wizard caps ' + JSON.stringify(caps.wizard));
+    assert(caps.archer.dex === 75 && caps.archer.spd === 75 && caps.archer.hp === 740, 'archer caps ' + JSON.stringify(caps.archer));
+    assert(caps.knight.hp === 960 && caps.knight.def === 42 && caps.knight.mp === 250 && caps.knight.spd === 40, 'knight caps ' + JSON.stringify(caps.knight));
+    assert(caps.wizard.att > caps.archer.att && caps.archer.att > caps.knight.att, 'attack caps should fall off from the caster');
+    assert(caps.wizard.hp < caps.archer.hp && caps.archer.hp < caps.knight.hp, 'HP caps should rise toward the tank');
+    assert(caps.wizard.def < caps.archer.def && caps.archer.def < caps.knight.def, 'defense caps should rise toward the tank');
+    assert(caps.archer.dex > caps.wizard.dex && caps.archer.dex > caps.knight.dex, 'archer should cap dexterity highest');
+    assert(caps.archer.spd > caps.wizard.spd && caps.wizard.spd > caps.knight.spd, 'speed caps ' + JSON.stringify(caps));
+    assert(caps.wizard.mp > caps.archer.mp && caps.archer.mp > caps.knight.mp, 'MP caps should fall off from the caster');
 
     await page.evaluate(() => {
       const sw = window.__shardwild;
@@ -1502,7 +1570,7 @@ async function main() {
       const sw = window.__shardwild;
       sw.save();
       const saved = JSON.parse(localStorage.getItem('shardwild_chars_v1') || '{}');
-      const slot = saved.slots && saved.slots.find(s => s && s.cls === 'pyro');
+      const slot = saved.slots && saved.slots.find(s => s && s.cls === 'wizard');
       return {
         lines: sw.statText,
         left: sw.P.inv.filter(it => it && it.name === 'Potion of Mastery').length,
@@ -1511,7 +1579,7 @@ async function main() {
     });
     assert(maxed.left === 0, 'mastery potion was not consumed');
     assert(maxed.lines.every(s => s.maxed && s.base === s.cap), 'mastery did not max every stat ' + JSON.stringify(maxed.lines));
-    assert(maxed.saved && maxed.saved.att === caps.pyro.att && maxed.saved.hp === caps.pyro.hp, 'maxed stats were not saved ' + JSON.stringify(maxed.saved));
+    assert(maxed.saved && maxed.saved.att === caps.wizard.att && maxed.saved.hp === caps.wizard.hp, 'maxed stats were not saved ' + JSON.stringify(maxed.saved));
     await frames(page, 2);
     const gold = await page.evaluate(() => {
       const c = document.getElementById('game');
@@ -1559,9 +1627,9 @@ async function main() {
     });
 
     const classes = [
-      ['pyro', 'Splintered Staff', 'Starforged Staff', 'Mythic Staff', 'Hollow Crown Staff', 'Hollow Codex', 'Hollow Robe'],
-      ['strider', 'Splintered Bow', 'Starforged Bow', 'Mythic Bow', 'Kingsbane Bow', 'Hollow Quiver', 'Hollow Jerkin'],
-      ['bulwark', 'Splintered Blade', 'Starforged Blade', 'Mythic Blade', "Morvane's Edge", 'Hollow Seal', 'Hollow Plate']
+      ['wizard', 'Splintered Staff', 'Starforged Staff', 'Mythic Staff', 'Hollow Crown Staff', 'Hollow Spellbook', 'Hollow Robe'],
+      ['archer', 'Splintered Bow', 'Starforged Bow', 'Mythic Bow', 'Kingsbane Bow', 'Hollow Quiver', 'Hollow Jerkin'],
+      ['knight', 'Splintered Blade', 'Starforged Blade', 'Mythic Blade', "Morvane's Edge", 'Hollow Shield', 'Hollow Plate']
     ];
     for (const [tab, t0, t4, t7, utW, utA, utR] of classes) {
       await openChestTab(page, tab);
@@ -1585,7 +1653,7 @@ async function main() {
 
     const utSlot = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'chest' && s.name === 'Hollow Crown Staff'));
     if (!utSlot) {
-      await openChestTab(page, 'pyro');
+      await openChestTab(page, 'wizard');
       await findChest(page, ['Hollow Crown Staff']);
     }
     const crown = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'chest' && s.name === 'Hollow Crown Staff'));
@@ -1614,19 +1682,14 @@ async function main() {
     assert(bagSlots.some(s => s.indexOf('Hollow Crown Staff:8') === 0), 'loot panel ' + bagSlots.join(','));
     await page.screenshot({path: path.join(ART, 'screenshot_loot_bag_ut.png')});
 
-    const haven = await page.evaluate(() => {
-      const b = window.__shardwild.world.beacons.find(x => x.id === 'haven');
-      return {x: b.x, y: b.y};
+    const hubBeacons = await page.evaluate(() => (window.__shardwild.world.beacons || []).map(b => b.id));
+    assert(!hubBeacons.length, 'the Haven should not contain a beacon ' + hubBeacons.join(','));
+    await page.evaluate(() => {
+      const sw = window.__shardwild;
+      sw.teleport(sw.world.spawn.x, sw.world.spawn.y);
     });
-    await walkTo(page, cdp, haven.x, haven.y, () => window.__shardwild.beacons.indexOf('haven') >= 0, 16);
-    await walkTo(page, cdp, haven.x, haven.y, () => {
-      const P = window.__shardwild.P, b = window.__shardwild.world.beacons.find(x => x.id === 'haven');
-      return Math.hypot(P.x - b.x, P.y - b.y) < 6;
-    }, 10);
-    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('shardwild_save_v1') || '{}'));
-    assert(saved.beacons && saved.beacons.indexOf('haven') >= 0, 'haven beacon was not saved');
-    await frames(page, 2);
-    await page.screenshot({path: path.join(ART, 'screenshot_beacon.png')});
+    await frames(page, 4);
+    await page.screenshot({path: path.join(ART, 'screenshot_v16_haven.png')});
 
     await tapTag(page, r => r.tag === 'minimap');
     assert(await page.evaluate(() => window.__shardwild.mapOpen), 'minimap tap did not open the map');
@@ -1643,23 +1706,6 @@ async function main() {
     await page.touchscreen.tap(3, 3);
     await frames(page, 2);
     assert(!(await page.evaluate(() => window.__shardwild.mapOpen)), 'outside tap did not close the map');
-
-    await walkTo(page, cdp, 110, 158, () => {
-      const P = window.__shardwild.P, b = window.__shardwild.world.beacons.find(x => x.id === 'haven');
-      return Math.hypot(P.x - b.x, P.y - b.y) > 46;
-    }, 16);
-    const before = await page.evaluate(() => ({x: window.__shardwild.P.x, y: window.__shardwild.P.y}));
-    await tapTag(page, r => r.tag === 'minimap');
-    await tapTag(page, r => r.tag === 'beacon' && r.beacon === 'haven' && r.where === 'map' && r.unlocked);
-    const warped = await page.evaluate(() => {
-      const P = window.__shardwild.P, b = window.__shardwild.world.beacons.find(x => x.id === 'haven');
-      return {x: P.x, y: P.y, d: Math.hypot(P.x - b.x, P.y - b.y), inv: P.invuln, flash: window.__shardwild.flash, map: window.__shardwild.mapOpen};
-    });
-    assert(warped.d < 2, 'teleport missed the beacon: ' + JSON.stringify(warped));
-    assert(Math.hypot(warped.x - before.x, warped.y - before.y) > 30, 'teleport did not move the player');
-    assert(warped.inv > 2, 'no arrival invulnerability: ' + JSON.stringify(warped));
-    assert(warped.flash > 0, 'no warp flash');
-    assert(!warped.map, 'map stayed open after warp');
 
     const portal = await page.evaluate(() => window.__shardwild.world.portal);
     await walkOntoPortal(page, cdp, portal.x, portal.y);
@@ -1759,6 +1805,36 @@ async function main() {
     await tapTag(page, r => r.tag === 'map-close');
     assert(!(await page.evaluate(() => window.__shardwild.mapOpen)), 'realm map did not close');
 
+    const shoreBeacon = await page.evaluate(() => {
+      const sw = window.__shardwild;
+      const b = sw.world.beacons.find(x => x.id === 'shore');
+      sw.teleport(b.x + 28, b.y);
+      sw.P.invuln = 8;
+      return {x: b.x, y: b.y};
+    });
+    await walkTo(page, cdp, shoreBeacon.x, shoreBeacon.y, () => window.__shardwild.beacons.indexOf('shore') >= 0, 14);
+    await page.evaluate(() => {
+      const sw = window.__shardwild;
+      const b = sw.world.beacons.find(x => x.id === 'shore');
+      sw.teleport(b.x + 70, b.y + 36);
+      sw.P.invuln = 4;
+    });
+    await frames(page, 2);
+    const beforeWarp = await page.evaluate(() => ({x: window.__shardwild.P.x, y: window.__shardwild.P.y}));
+    await tapTag(page, r => r.tag === 'minimap');
+    await tapTag(page, r => r.tag === 'beacon' && r.beacon === 'shore' && r.where === 'map' && r.unlocked);
+    const warped = await page.evaluate(() => {
+      const P = window.__shardwild.P, b = window.__shardwild.world.beacons.find(x => x.id === 'shore');
+      return {x: P.x, y: P.y, d: Math.hypot(P.x - b.x, P.y - b.y), inv: P.invuln, flash: window.__shardwild.flash, map: window.__shardwild.mapOpen};
+    });
+    assert(warped.d < 2, 'teleport missed the shore beacon: ' + JSON.stringify(warped));
+    assert(Math.hypot(warped.x - beforeWarp.x, warped.y - beforeWarp.y) > 30, 'teleport did not move the player');
+    assert(warped.inv > 2, 'no arrival invulnerability: ' + JSON.stringify(warped));
+    assert(warped.flash > 0, 'no warp flash');
+    assert(!warped.map, 'map stayed open after warp');
+    await frames(page, 2);
+    await page.screenshot({path: path.join(ART, 'screenshot_beacon.png')});
+
     await page.waitForTimeout(600);
     const fpsRealm = await page.evaluate(() => window.__shardwild.fps);
     assert(fpsRealm > 50, 'fps in the larger realm: ' + fpsRealm);
@@ -1848,6 +1924,7 @@ async function main() {
 
     await v14Shots(page);
     await v15Shots(page);
+    await v16Shots(page);
 
     await page.waitForTimeout(1200);
     const fps = await page.evaluate(() => window.__shardwild.fps);
