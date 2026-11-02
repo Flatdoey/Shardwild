@@ -998,7 +998,7 @@ async function v14Shots(page) {
     const sw = window.__shardwild;
     sw.clearBags();
     // Open Haven floor, left of the carpet, clear of the portal, fountain, and chest.
-    const xs = [24, 48, 72, 96, 120];
+    const xs = [24, 48, 72, 96, 120, 144];
     const y = 68;
     sw.teleport(40, 124);
     const specs = [
@@ -1006,6 +1006,7 @@ async function v14Shots(page) {
       [{k: 'weapon', w: 'staff', t: 2}],
       [{k: 'weapon', w: 'sword', t: 4}],
       [{k: 'elixir', stat: 'att'}],
+      [{k: 'weapon', w: 'sword', t: 7}],
       [{k: 'weapon', w: 'staff', t: 8}]
     ];
     specs.forEach(s => sw.spawnBag(s));
@@ -1014,11 +1015,83 @@ async function v14Shots(page) {
     sw.pump(1);
     return bags.map(b => b.col);
   });
-  assert(bagCols.join(',') === 'brown,pink,purple,cyan,white', 'bag colors ' + bagCols.join(','));
+  assert(bagCols.join(',') === 'brown,pink,purple,cyan,blue,white', 'bag colors ' + bagCols.join(','));
   await frames(page, 4);
   const near = await page.evaluate(() => window.__shardwild.slots.some(s => s.area === 'bag'));
   assert(!near, 'loot panel opened over the bag row');
   await page.screenshot({path: path.join(ART, 'screenshot_v14_loot_bags.png')});
+  await page.screenshot({path: path.join(ART, 'screenshot_v15_loot_bags.png')});
+}
+
+async function v15Shots(page) {
+  await page.evaluate(() => {
+    const sw = window.__shardwild;
+    sw.enterHub();
+    sw.clearBags();
+    sw.clearFoes();
+    sw.teleport(sw.world.chest.x, sw.world.chest.y);
+    sw.pump(2);
+  });
+  await frames(page, 3);
+  const utName = {pyro: 'Hollow Crown Staff', strider: 'Kingsbane Bow', bulwark: "Morvane's Edge"};
+  for (const tab of ['pyro', 'strider', 'bulwark']) {
+    await openChestTab(page, tab);
+    await frames(page, 2);
+    const first = await chestNames(page);
+    assert(first.some(n => n && n.indexOf('Splintered') === 0), tab + ' weapon page ' + first.join(','));
+    await page.screenshot({path: path.join(ART, 'screenshot_v15_chest_' + tab + '_weapons.png')});
+    const ut = utName[tab];
+    if (!first.some(n => n === ut)) {
+      await findChest(page, [ut]);
+      await frames(page, 2);
+      const names = await chestNames(page);
+      assert(names.some(n => n === ut), tab + ' UT weapon page ' + names.join(','));
+      await page.screenshot({path: path.join(ART, 'screenshot_v15_chest_' + tab + '_weapons_ut.png')});
+    }
+  }
+  await openChestTab(page, 'pyro');
+  await findChest(page, ['Splintered Codex']);
+  await frames(page, 2);
+  await page.screenshot({path: path.join(ART, 'screenshot_v15_abilities.png')});
+  await findChest(page, ['Splintered Robe']);
+  await frames(page, 2);
+  await page.screenshot({path: path.join(ART, 'screenshot_v15_armor.png')});
+  await findChest(page, ['Copper Band']);
+  await frames(page, 2);
+  await page.screenshot({path: path.join(ART, 'screenshot_v15_rings.png')});
+  await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'test');
+  await frames(page, 2);
+  const tests = await chestNames(page);
+  assert(tests.some(n => n && n.indexOf('Godslayer') === 0), 'godslayer page ' + tests.join(','));
+  await page.screenshot({path: path.join(ART, 'screenshot_v15_godslayer.png')});
+
+  await page.evaluate(() => {
+    const sw = window.__shardwild;
+    const cls = sw.P.cls;
+    const w = cls === 'strider' ? 'bow' : cls === 'bulwark' ? 'sword' : 'staff';
+    const a = cls === 'strider' ? 'leather' : cls === 'bulwark' ? 'heavy' : 'robe';
+    sw.P.eq.weapon = sw.makeItem({k: 'weapon', w, t: 7});
+    sw.P.eq.ability = sw.makeItem({k: 'ability', cls, t: 7});
+    sw.P.eq.armor = sw.makeItem({k: 'armor', a, t: 7});
+    sw.P.eq.ring = sw.makeItem({k: 'tidepearl'});
+    sw.clearInv();
+    sw.grant({k: 'weapon', w, t: 0});
+    sw.grant({k: 'weapon', w, t: 3});
+    sw.grant({k: 'weapon', w, t: 5});
+    sw.grant({k: 'weapon', w, t: 8});
+    sw.grant({k: 'test', w});
+    sw.grant({k: 'armor', a, t: 2});
+    sw.grant({k: 'ability', cls, t: 4});
+    sw.grant({k: 'ring', t: 6});
+    sw.teleport(sw.P.x + 64, sw.P.y);
+    sw.pump(2);
+  });
+  await frames(page, 3);
+  assert(!(await page.evaluate(() => window.__shardwild.chestOpen)), 'chest open over the v15 inventory');
+  await page.screenshot({path: path.join(ART, 'screenshot_v15_inventory.png')});
+
+  const png = await page.evaluate(() => window.__shardwild.previewSheet());
+  fs.writeFileSync(path.join(ART, 'screenshot_v15_weapon_closeup.png'), Buffer.from(png.split(',')[1], 'base64'));
 }
 
 async function main() {
@@ -1774,6 +1847,7 @@ async function main() {
     await v12Coverage(page, cdp);
 
     await v14Shots(page);
+    await v15Shots(page);
 
     await page.waitForTimeout(1200);
     const fps = await page.evaluate(() => window.__shardwild.fps);
