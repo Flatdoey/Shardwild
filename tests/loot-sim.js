@@ -45,6 +45,8 @@ function fmtGear(gear) {
 
 function pct(n, d) { return d ? (100 * n / d).toFixed(1) + '%' : '0%'; }
 
+const ENEMY_AI = {wander: 1, charge: 1, orbit: 1, chase: 1, keep: 1, boss: 1};
+
 async function main() {
   const server = serve();
   await new Promise(r => server.listen(PORT, '127.0.0.1', r));
@@ -129,6 +131,23 @@ async function main() {
     for (const t of [0, 1, 4, 5, 6, 7, 8]) assert(!den.minion.gear[t], 'minion tier ' + t + ' ' + fmtGear(den.minion.gear));
     assert(den.minion.gear[2] > 0 && den.minion.gear[3] > 0, 'minion gear ' + fmtGear(den.minion.gear));
     console.log('Tideclaw portal from crabs ' + portals.crab + '/' + N + '  UT ' + den.boss.dungeonUt + '  keys ' + den.boss.keys);
+    const burrows = await page.evaluate(() => window.__shardwild.auditBurrows(200));
+    assert(burrows && burrows.ok && burrows.n === 200, 'Tideclaw layouts ' + JSON.stringify(burrows));
+    console.log('Tideclaw layouts ' + burrows.n + ' seeds connected, in range, boss farthest, no duplicate neighbors');
+    const bands = sim.enemyBands || [];
+    assert(bands.length >= 24, 'enemy loot bands missing ' + bands.length);
+    const byRegion = {};
+    for (const row of bands) {
+      byRegion[row.region] = (byRegion[row.region] || 0) + 1;
+      const outside = gearInSpan(row.gear, row.span[0], row.span[1]);
+      assert(outside < 0, row.name + ' tier ' + outside + ' outside ' + row.span.join('-') + ' ' + fmtGear(row.gear));
+      assert(row.ut === 0 && row.test === 0 && row.mastery === 0 && row.dungeonUt === 0 && row.keys === 0, row.name + ' dropped a special ' + JSON.stringify(row));
+      assert(ENEMY_AI[row.ai], row.name + ' ai ' + row.ai);
+      if (row.region === 'Godlands') assert(row.god, row.name + ' is not a god');
+      else assert(!row.god, row.name + ' is marked as a god');
+    }
+    assert(byRegion['Saltmarsh Shore'] >= 6 && byRegion['Greenmarch'] >= 6 && byRegion['Ashen Wilds'] >= 6 && byRegion['Godlands'] >= 8, 'enemies per region ' + JSON.stringify(byRegion));
+    console.log('Enemy bands ' + bands.map(r => r.region.slice(0, 4) + ':' + r.type).join(' '));
   } finally {
     try { await browser.close(); } catch (e) {}
     try { server.close(); } catch (e) {}
