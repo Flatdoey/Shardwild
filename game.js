@@ -457,7 +457,7 @@ function groundRGB(tx,ty,px,py,base){
   }
   if(base===T_GRASS){
     if(py<=2&&(px===1||px===4||px===6)&&hash2(tx+px,ty+3)<0.6)return at(GROUND.grass,3);
-    if(n>0.965)return [214,78,112];
+    if(n>0.992)return [214,78,112];
     if(n<0.07)return at(GROUND.grass,2);
     return at(GROUND.grass,q);
   }
@@ -597,7 +597,7 @@ const BANDS=[
 function pickBand(dd,x,y){
   let i=BANDS.length-1;
   for(let k=0;k<BANDS.length-1;k++)if(dd>BANDS[k].dd){i=k;break;}
-  const D=0.02,h=hash2(x*3+11,y*5+7);
+  const D=0.012,h=hash2(x*3+11,y*5+7);
   let flip=0,dist=D;
   if(i>0){const d=BANDS[i-1].dd-dd;if(d>0&&d<dist){dist=d;flip=-1;}}
   if(i<BANDS.length-1){const d=dd-BANDS[i].dd;if(d>0&&d<dist){dist=d;flip=1;}}
@@ -620,12 +620,14 @@ function makeNoise(R,cells){
 }
 function genRealm(seed){
   const R=mulberry(seed),N=REALM_N,wd=mkWorld(N,N),cx=N/2,cy=N/2;
-  const noise=makeNoise(R,48);
+  const noise=makeNoise(R,10);
   const ph=R()*10;
   for(let y=0;y<N;y++)for(let x=0;x<N;x++){
     const dx=(x-cx)/(N/2),dy=(y-cy)/(N/2),geo=Math.hypot(dx,dy);
     const nx=x/N,ny=y/N;
-    let dd=geo+(noise(nx,ny)-0.5)*0.2+(noise(nx*2+1.7,ny*2+0.4)-0.5)*0.07+Math.sin(Math.atan2(dy,dx)*7+ph)*0.025;
+    // Low-frequency wobble keeps each band a region. A steep octave folds the coast
+    // back on itself, so sand and grass checkerboard and a step past the border is inland again.
+    let dd=geo+(noise(nx,ny)-0.5)*0.1+(noise(nx*2+1.7,ny*2+0.4)-0.5)*0.03+Math.sin(Math.atan2(dy,dx)*5+ph)*0.02;
     if(!isFinite(dd))dd=geo;
     const tdist=Math.hypot(x-cx,y-cy);
     let t,z;
@@ -3193,7 +3195,7 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
           const ox=x+Math.cos(a)*48,oy=y+Math.sin(a)*48;
           const fx=ox+Math.cos(a)*48,fy=oy+Math.sin(a)*48;
           const pull=Math.hypot(ox-hx,oy-hy);
-          if(pull>LEASH_MARGIN+12&&pull<LEASH_DESPAWN-20&&zoneAt(wd,hx,hy)===1&&zoneAt(wd,ox,oy)!==1&&!solidBox(wd,ox,oy,5)&&!solidBox(wd,fx,fy,4)&&openSeg(ox,oy,hx,hy)){
+          if(pull>LEASH_MARGIN+12&&pull<LEASH_DESPAWN-20&&zoneAt(wd,hx,hy)===1&&zoneAt(wd,ox,oy)!==1&&zoneAt(wd,fx,fy)!==1&&!solidBox(wd,ox,oy,5)&&!solidBox(wd,fx,fy,4)&&openSeg(ox,oy,hx,hy)){
             return {hx,hy,x:ox,y:oy,px:fx,py:fy,homeZone:1,outZone:zoneAt(wd,ox,oy)};
           }
         }
