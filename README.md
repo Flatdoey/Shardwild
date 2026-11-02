@@ -19,7 +19,7 @@ Shardwild is landscape-only. Hold the phone sideways. In portrait the game pause
 - Drag the lower-right of the playfield, just left of the inventory, to aim. Your weapon fires while you hold.
 - The ability button, left of the aim stick, spends MP (Ember Nova, Thorn Volley, or Aegis Slam).
 - ⌂ Haven sits above the aim stick. It is a large button on the playfield, just left of the inventory, and it returns you to the Haven. Tapping it does not fire.
-- AUTO toggles auto-aim. Heroes opens character select, where you can play, create, or delete a hero. Deleting asks you to confirm.
+- AUTO toggles auto-aim. Heroes is only in the Haven. It opens character select, where you can play, create, or delete a hero. Deleting asks you to confirm. Outside the Haven, death is the way back to character select.
 - Drink healing draughts, mana draughts, and stat elixirs from the backpack. Tap the slot. The character panel shows each stat against its class cap, for example ATT 45/75, and a maxed stat is gold.
 - The Vault portal is on the right side of the Haven. Walk onto it, or tap Enter when you are close. The room has four chests of eight slots and a gold exit back to the Haven. Nothing in there will attack you. A chest opens when you stand next to it; tap or drag items between it and your backpack, the same way as a loot bag.
 - The speaker under the minimap cycles sound: effects and music, effects only, then muted. The choice is saved on this device. Music is a soft loop — calm in the Haven, tenser in the realm, harder in a boss fight.
