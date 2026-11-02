@@ -1035,13 +1035,16 @@ async function main() {
         boss: w.boss ? {x: w.boss.x, y: w.boss.y} : null,
         n: (w.beacons || []).length,
         ids: (w.beacons || []).map(b => b.id),
-        bands: (w.beacons || []).map(b => Math.hypot(b.x - w.cx, b.y - w.cy) / half)
+        bands: (w.beacons || []).map(b => Math.hypot(b.x - w.cx, b.y - w.cy) / half),
+        chunked: !!w.chunked,
+        canvas: !!w.canvas,
+        mini: !!(w.mini && w.mini.width === w.w && w.mini.height === w.h)
       };
     });
-    assert(realm.w >= 375 && realm.h >= 375, 'realm did not grow in both dimensions ' + realm.w + 'x' + realm.h);
+    assert(realm.w === 800 && realm.h === 800, 'realm should be 800x800, got ' + realm.w + 'x' + realm.h);
     assert(realm.w === realm.h, 'realm should stay square');
-    assert(realm.w * realm.h >= 250 * 250 * 1.9, 'playable area is not about double ' + (realm.w * realm.h));
-    assert(realm.w <= 520 && realm.h <= 520, 'realm grew past the mobile canvas budget ' + realm.w);
+    assert(realm.w * realm.h >= 400 * 400 * 3.5, 'playable area is not about four times the 400-tile realm ' + (realm.w * realm.h));
+    assert(realm.chunked === true && !realm.canvas && realm.mini, 'realm should draw chunks and keep a prerendered minimap');
     assert(realm.zone === 0, 'shore entry landed inland, zone ' + realm.zone);
     assert(realm.boss && Math.hypot(realm.boss.x - realm.w * 8 / 2, realm.boss.y - realm.h * 8 / 2) < 8, 'boss is not at the center ' + JSON.stringify(realm.boss));
     assert(realm.n === 4, 'expected 4 realm beacons, got ' + JSON.stringify(realm));
