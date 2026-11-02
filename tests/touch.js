@@ -587,6 +587,26 @@ async function tideclawAndStatus(page, cdp) {
   }));
   assert(inside.place === 'dungeon' && inside.name === 'Tideclaw Burrow', JSON.stringify(inside));
   assert(!inside.solid && inside.foes >= 4 && inside.boss, 'dungeon layout ' + JSON.stringify(inside));
+  await page.evaluate(() => {
+    const sw = window.__shardwild;
+    const w = sw.world;
+    const px = Math.floor(sw.P.x / 8), py = Math.floor(sw.P.y / 8);
+    let spot = null;
+    for (let r = 2; r < 22 && !spot; r++) {
+      for (let dy = -r; dy <= r && !spot; dy++) for (let dx = -r; dx <= r; dx++) {
+        const x = px + dx, y = py + dy;
+        if (x < 2 || y < 4 || x >= w.w - 2 || y >= w.h - 2) continue;
+        if (w.tiles[y * w.w + x] !== 30) continue;
+        let wall = false;
+        for (let k = 1; k <= 3; k++) if (w.tiles[(y - k) * w.w + x] === 31) wall = true;
+        if (!wall) continue;
+        const wx = (x + 0.5) * 8, wy = (y + 0.5) * 8;
+        if (sw.blocked(wx, wy)) continue;
+        spot = {x: wx, y: wy};
+      }
+    }
+    if (spot) sw.teleport(spot.x, spot.y);
+  });
   await frames(page, 2);
   assert(!(await page.evaluate(() => window.__shardwild.ui.some(r => r.tag === 'char-select'))), 'Heroes button is visible in the dungeon');
   const denSelect = await page.evaluate(() => { window.__shardwild.openCharSelect(); return {state: window.__shardwild.state, place: window.__shardwild.place}; });
@@ -617,7 +637,7 @@ async function tideclawAndStatus(page, cdp) {
   await page.evaluate(() => {
     const sw = window.__shardwild;
     const boss = sw.foes.find(f => f.dungeonBoss);
-    sw.teleport(boss.x - 36, boss.y + 8);
+    sw.teleport(boss.x, boss.y + 28);
     sw.P.invuln = 8;
   });
   await frames(page, 4);
