@@ -23,8 +23,8 @@ function mkSprite(rows,pal){
   const f=document.createElement('canvas');f.width=c.width;f.height=c.height;const g2=f.getContext('2d');g2.translate(c.width,0);g2.scale(-1,1);g2.drawImage(c,0,0);
   return {c,f,w:c.width,h:c.height};
 }
-// Potions and keys stay raw 8x8 and pick up a 1px outline when drawn.
-// Gear uses the original baked-outline sprites and is kept small in the slot.
+// Item art is raw 8x8. A one-pixel dark outline is stamped in art space and
+// nearest-neighbor scaled so the icon fills the slot the way the pre-v12 gear did.
 let rawSeq=1;
 function mkRaw(rows,pal){
   const h=rows.length,w=Math.max(...rows.map(r=>r.length));
@@ -45,28 +45,31 @@ const iconCache=new Map();
 function outlinedIcon(sp,scale){
   const key=sp.id+'@'+scale,hit=iconCache.get(key);
   if(hit)return hit;
-  const sw=sp.w,sh=sp.h,tw=sw*scale,th=sh*scale,W=tw+2,H=th+2;
-  const tmp=document.createElement('canvas');tmp.width=tw;tmp.height=th;
-  const tg=tmp.getContext('2d');tg.imageSmoothingEnabled=false;tg.drawImage(sp.c,0,0,tw,th);
-  const sd=tg.getImageData(0,0,tw,th).data;
+  const sw=sp.w,sh=sp.h,src=sp.c.getContext('2d').getImageData(0,0,sw,sh).data;
+  const solid=(x,y)=>x>=0&&y>=0&&x<sw&&y<sh&&src[(y*sw+x)*4+3]>200;
+  const W=(sw+2)*scale,H=(sh+2)*scale;
   const out=document.createElement('canvas');out.width=W;out.height=H;
   const og=out.getContext('2d'),im=og.createImageData(W,H),od=im.data;
-  const op=(x,y)=>x>=0&&y>=0&&x<tw&&y<th&&sd[(y*tw+x)*4+3]>200;
-  for(let y=0;y<th;y++)for(let x=0;x<tw;x++){
-    if(!op(x,y))continue;
-    const si=(y*tw+x)*4,oi=((y+1)*W+(x+1))*4;
-    od[oi]=sd[si];od[oi+1]=sd[si+1];od[oi+2]=sd[si+2];od[oi+3]=255;
-  }
-  for(let y=0;y<th;y++)for(let x=0;x<tw;x++){
-    if(!op(x,y))continue;
-    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
-      if(!dx&&!dy||op(x+dx,y+dy))continue;
-      const ox=x+dx+1,oy=y+dy+1;
-      if(ox<0||oy<0||ox>=W||oy>=H)continue;
-      const oi=(oy*W+ox)*4;
-      if(od[oi+3])continue;
-      od[oi]=13;od[oi+1]=11;od[oi+2]=18;od[oi+3]=255;
+  function stamp(px,py,r,g,b){
+    if(px<0||py<0||px>=sw+2||py>=sh+2)return;
+    for(let y=0;y<scale;y++)for(let x=0;x<scale;x++){
+      const i=((py*scale+y)*W+(px*scale+x))*4;
+      od[i]=r;od[i+1]=g;od[i+2]=b;od[i+3]=255;
     }
+  }
+  for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
+    if(!solid(x,y))continue;
+    // One art-pixel outline. Down-right is a touch heavier so it reads as a drop shadow.
+    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+      if((!dx&&!dy)||solid(x+dx,y+dy))continue;
+      const soft=dx>0||dy>0;
+      stamp(x+dx+1,y+dy+1,soft?10:22,soft?8:16,soft?16:28);
+    }
+  }
+  for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
+    if(!solid(x,y))continue;
+    const i=(y*sw+x)*4;
+    stamp(x+1,y+1,src[i],src[i+1],src[i+2]);
   }
   og.putImageData(im,0,0);
   iconCache.set(key,out);
@@ -75,17 +78,16 @@ function outlinedIcon(sp,scale){
 function drawItemIcon(sp,x,y,box){
   if(!sp||!sp.c)return;
   ctx.imageSmoothingEnabled=false;
-  // Leave slot padding. RotMG-sized, not stretched to the edges.
-  const lim=Math.max(12,Math.round(box*0.64));
-  let img=sp.c,w,h;
   if(sp.id){
-    const scale=Math.max(1,Math.min(3,Math.floor((lim-2)/Math.max(1,sp.w))));
-    img=outlinedIcon(sp,scale);w=img.width;h=img.height;
-  }else{
-    const sc=Math.min(3,lim/Math.max(sp.w,sp.h));
-    w=Math.max(8,Math.round(sp.w*sc));h=Math.max(8,Math.round(sp.h*sc));
+    const cell=Math.max(sp.w,sp.h)+2;
+    const scale=Math.max(1,Math.min(5,Math.floor((box-2)/cell)));
+    const icon=outlinedIcon(sp,scale);
+    ctx.drawImage(icon,Math.round(x+(box-icon.width)/2),Math.round(y+(box-icon.height)/2));
+    return;
   }
-  ctx.drawImage(img,Math.round(x+(box-w)/2),Math.round(y+(box-h)/2),w,h);
+  const sc=(box-2)/Math.max(sp.w,sp.h);
+  const w=Math.round(sp.w*sc),h=Math.round(sp.h*sc);
+  ctx.drawImage(sp.c,Math.round(x+(box-w)/2),Math.round(y+(box-h)/2),w,h);
 }
 const SK='#f1c27d',EY='#1b1b24';
 const SPR={};
@@ -142,15 +144,16 @@ function buildSprites(){
   SPR.key=mkRaw(['...yy...','....y...','..yyyy..','.yy.yy..','.yyyyyy.','..yyyy..','...yy...','...yy...'],{y:'#ffd34a',d:'#c89820'});
   SPR.chest=mkSprite(["..gggg..","gggggggg","ggyyyggg","gggggggg","ggyyyggg","gggggggg"],{g:'#e3b33d',y:'#fff1a8'});
   SPR.beacon=mkSprite(["...cc...","..cwwc..","...cc...","...ll...","...ll...","..llll..","..lssl.."],{c:'#7af0ff',w:'#ffffff',l:'#d8dce8',s:'#5a6070'});
-  // Small tied sack: knot, pinched neck, rounded body, highlight and shade. Outline comes from mkSprite.
-  const bag=['...kk...','..k..k..','...hh...','..hhhhd.','.hhbbbhd','.hbbbbbd','.bbbbbdd','..bbbdd.'];
-  function bagSprite(k,h,b,d){return mkSprite(bag,{k:k,h:h,b:b,d:d});}
+  // Round-bottomed sack: flared tie, pinched neck, highlight and shade. Outline comes from mkSprite.
+  const bag=['tt....tt','.tttttt.','...nn...','..nhhnd.','.nhbbbnd','nbbbbbbd','.nbbbbn.','..nddn..'];
+  function bagSprite(t,n,h,b,d){return mkSprite(bag,{t:t,n:n,h:h,b:b,d:d});}
   SPR.bags={
-    brown:bagSprite('#4a3018','#e0b070','#a56a32','#6a3c1c'),
-    pink:bagSprite('#6a1840','#ffd0e4','#ff78b4','#c44078'),
-    purple:bagSprite('#2c1050','#e8c0ff','#8c40d8','#501888'),
-    cyan:bagSprite('#0c444c','#eaffff','#3ad0dc','#147888'),
-    white:bagSprite('#6c6c78','#ffffff','#f4f4f8','#b4b4c0')
+    brown:bagSprite('#5a3414','#8a5424','#f0c888','#c4843c','#6a3818'),
+    pink:bagSprite('#8a1858','#c04080','#ffd0e8','#ff68b0','#a02868'),
+    purple:bagSprite('#3a1868','#6828a8','#ecd0ff','#9840e0','#481888'),
+    cyan:bagSprite('#0c4c54','#148898','#eaffff','#3ad0dc','#106878'),
+    blue:bagSprite('#142868','#2a48a8','#d6e4ff','#3a6cf0','#1a2878'),
+    white:bagSprite('#6a7494','#98a0b8','#ffffff','#e6ecf8','#a8b0c8')
   };
   SPR.tree=mkSprite(["..gggg..",".gggggg.","gggdgggg","gggggdgg",".gggggg.","...tt...","...tt..."],{g:'#2f7d3a',d:'#4fa04a',t:'#6b4a2a'});
   SPR.boulder=mkSprite(["..rrrr..",".rrlrrr.","rrlrrrrr","rrrrrrdr",".rrrrdr."],{r:'#7a7684',l:'#a9a5b4',d:'#55525e'});
@@ -171,226 +174,289 @@ function buildSprites(){
   SPR.barnacle=mkSprite(["..ggg..",".gwwgw.",".gggggg.","gkgkgkg",".ggggg."],{g:'#6a8a84',w:'#e8fff8',k:'#243430'});
   SPR.shellguard=mkSprite(["r.rr.rr.r","rrrrrrrrr",".rrwkkwrr","rrrrrrrrr","r.rr.rr.r","rr.....rr"],{r:'#c44828',w:'#fff',k:EY});
   SPR.tideclaw=mkSprite(["r..rr..rr..r","rrr.rrrr.rrr",".rrrrrrrrrr.","rrrwkkrrwrrr","rrrrrrrrrrrr",".rrrrrrrrrr.","rr.rr..rr.rr","r..r....r..r"],{r:'#e25a32',w:'#fff4ea',k:'#1a1210'});
-  SPR.tidepearl=mkSprite(['..oooo..','.owwwwo.','owpwwpwo','owwwwwwo','.owwwwo.','..oooo..'],{o:'#e25a32',w:'#e9fffb',p:'#fff'});
+  SPR.tidepearl=mkRaw(['...tt...','..twwt..','.twppwt.','twpwwpwt','.twwwwt.','..twwt..','...tt...','...cc...'],{t:'#1a9a90',w:'#f4fffc',p:'#ffffff',c:'#e07040'});
   SPR.keyTide=mkRaw(['...cc...','....c...','..cccc..','.ccokcc.','.cccccc.','..cccc..','...cc...','...cc...'],{c:'#7ee0c8',o:'#e25a32',k:'#fff6e0'});
 }
 
 /* ---------------- tiered gear sprites ---------------- */
-// Original small icons from before the v12 redraw. T0–T2 plain, T3–T5 trimmed,
-// T6–T7 ornate, T8 a unique UT shape. A light pass keeps each silhouette readable:
-// staff shaft plus orb, sword blade plus crossguard, bow curve plus string, ring band plus gem.
+// 8x8 RotMG-style icons. Weapons run from the hilt at the bottom-left to the
+// tip at the top-right. Each tier has its own silhouette and palette.
+// T0–T2 stay muted, T6–T8 carry a vivid pixel, and T6/T7 use more pixels than T0.
 const GEARSPR={};
 const GEAR={
   staff:{
-    rows:{
-      low:['......oo','.....ooo','....bb..','...bb...','..bb....','.bb.....','bb......','b.......'],
-      mid:['....ghhg','...ghhhg','....gtg.','....bt..','...bb...','..bb....','.bb.....','bb......'],
-      high:['...hhhh.','..hgttgh','...gbbg.','....bt..','...bb...','..bb....','.bb.....','b.......'],
-      ut:['.y.yyyy.','yyyyyyyy','.ykppky.','...kk...','...kk...','...kk...','...kk...','..k..k..']
-    },
-    pal:[
-      {b:'#6b4a2a',o:'#8a6240'},
-      {b:'#5c6068',o:'#8e929a'},
-      {b:'#4a4038',o:'#7a6248'},
-      {b:'#7d8794',t:'#c6a15a',g:'#e07030',h:'#f0c080'},
-      {b:'#6888b0',t:'#d8c080',g:'#3ac8e8',h:'#e8fbff'},
-      {b:'#6a5888',t:'#c8b0e0',g:'#9040d0',h:'#e0c8ff'},
-      {b:'#e09020',t:'#ffe080',g:'#ff4010',h:'#fff0c0'},
-      {b:'#ffd060',t:'#fff6c8',g:'#ff2860',h:'#ffffff'}
+    rows:[
+      ['.....ooo','....oo..','...b....','..b.....','.b......','b.......','b.......','........'],
+      ['......oo','.....ooo','....b...','...b....','..b.....','.b......','b.......','b.......'],
+      ['.....ooo','....ob..','...b....','..b.....','.b......','bt......','bb......','b.......'],
+      ['....hggh','.....gt.','....b...','...b....','..b.....','.b......','bb......','b.......'],
+      ['...hggh.','....gtg.','.....b..','....b...','...b....','..b.....','.bb.....','bb......'],
+      ['..hhggh.','...gtgt.','....b...','...b....','..b.....','.tb.....','.bb.....','bb......'],
+      ['....hhh.','...hghh.','....gbg.','...bb...','..bb....','.tbb....','.bb.....','bb......'],
+      ['...hhhh.','..hgggh.','...gtgt.','..tbbt..','..bb....','.tbb....','tbb.....','bb......']
     ],
+    pal:[
+      {b:'#6b4a2a',o:'#8a6840'},
+      {b:'#5c6068',o:'#8a9098'},
+      {b:'#4a4038',o:'#7a6248',t:'#6a5840'},
+      {b:'#6a5848',g:'#e07030',h:'#f0c090',t:'#c6a15a'},
+      {b:'#5a7898',g:'#3ac0e0',h:'#e8fbff',t:'#d8c888'},
+      {b:'#6a5880',g:'#a040d8',h:'#e8d0ff',t:'#c8b0e0'},
+      {b:'#e09020',g:'#ff4010',h:'#fff0c0',t:'#ffe080'},
+      {b:'#ffd060',g:'#ff2860',h:'#ffffff',t:'#fff6c8'}
+    ],
+    utRows:['.yyyyyy.','ypkkkpy.','.yppky..','..kkk...','..kk....','.kk.....','kk......','k.......'],
     ut:{y:'#ffd34a',k:'#2a1248',p:'#ff4ad0'},
     shot:['#c07840','#a8adb8','#8a7048','#e88830','#3ad4f0','#b070e8','#ff9a1a','#ff3868'],
     utShot:'#ff4aa0',utShape:'ring',
     test:{
-      rows:['wwwwwwww','wyyyyyyw','wywrrwyw','..yrry..','...ww...','...ww...','..yyyy..','.wwyyww.'],
-      pal:{w:'#ffffff',y:'#ffd34a',r:'#ff3355'}
+      rows:['..wwwww.','.wyrrryw','..wyryw.','...ww...','...yy...','..yy....','.yy.....','yy......'],
+      pal:{w:'#ffffff',y:'#ffe14a',r:'#ff3355'}
     }
   },
   bow:{
-    rows:{
-      low:['..bb....','.b..s...','b....s..','b.....s.','b.....s.','b....s..','.b..s...','..bb....'],
-      mid:['.tbb....','b..gs...','b...ss..','bg...ss.','bg...ss.','b...ss..','b..gs...','.tbb....'],
-      high:['gtbbbg..','b..gss..','b....ss.','bg....s.','bg....s.','b....ss.','b..gss..','gtbbbg..'],
-      ut:['pp......','p..k....','p....k..','p....gk.','p....gk.','p....k..','p..k....','pp......']
-    },
+    rows:[
+      ['....b..s','...b..s.','..b..s..','.b..s...','b..s....','.b.s....','..bs....','...b....'],
+      ['...bb..s','..b...s.','.b...s..','b...s...','bb.s....','.b.s....','..bs....','...bb...'],
+      ['...bb.s.','..b...s.','.b....s.','gb...s..','b..s....','.b..s...','..b.s...','...bbs..'],
+      ['..tbb.gs','..b...s.','.b....s.','tb...gs.','b..s....','.b...s..','..b.gs..','...tbb..'],
+      ['.tbb..s.','..b..ss.','.b....s.','gb....s.','b..s....','.b...s..','..b.s...','t.bbs...'],
+      ['gtbb..ss','..b...s.','.bg...s.','b.....s.','gb.s....','.b...s..','..b.ss..','..gtbb..'],
+      ['httb..ss','.b..hss.','..b....s','bg....s.','b..hs...','..b..ss.','.b.hss..','httbb...'],
+      ['hhtb.ss.','tb...hs.','..b....s','bgg...s.','b.hs....','..b...s.','tb..hss.','hhtbbs..']
+    ],
     pal:[
       {b:'#7a5a38',s:'#a09888'},
       {b:'#6a6e76',s:'#b4b8c0'},
-      {b:'#5a4632',s:'#b0a890'},
-      {b:'#9aa4b0',t:'#d4b060',g:'#e07030',s:'#e8e4d8'},
-      {b:'#5a88b0',t:'#e0c878',g:'#3ad4f0',s:'#d8fbff'},
-      {b:'#7a6840',t:'#e8d090',g:'#40a060',s:'#d8c8a0'},
-      {b:'#c060e0',t:'#ffd34a',g:'#ff40c0',s:'#e8ff60'},
-      {b:'#ffb020',t:'#ffffff',g:'#ff2848',s:'#fff0a0'}
+      {b:'#5a4632',s:'#b0a890',g:'#6a5840'},
+      {b:'#9a7a48',t:'#c6a15a',g:'#d08040',s:'#e8e0d0'},
+      {b:'#4a80a8',t:'#d8c080',g:'#3ac8e0',s:'#d8fbff'},
+      {b:'#6a7840',t:'#d8c868',g:'#40a060',s:'#e8f0c0'},
+      {b:'#c060e0',t:'#ffd34a',g:'#ff40c0',h:'#ffffff',s:'#e8ff60'},
+      {b:'#ffb020',t:'#ffffff',g:'#ff2848',h:'#fff0a0',s:'#ffe080'}
     ],
+    utRows:['p..k....','pp..k...','p....gk.','p.....k.','.p....k.','..p..gk.','...p.k..','....pk..'],
     ut:{p:'#d070ff',k:'#1c1028',g:'#ffd34a'},
     shot:['#c4b49a','#c8ccd4','#a89878','#e0b050','#5ad4c8','#c090e0','#ffe04a','#ff5050'],
     utShot:'#ffd34a',utShape:'diamond',
     test:{
-      rows:['rwwwwwwr','w.yyyy.w','w..gg..w','w.ywwy.w','w.ywwy.w','w..gg..w','w.yyyy.w','rwwwwwwr'],
-      pal:{w:'#ffffff',y:'#ffd34a',r:'#ff3355',g:'#3aa0ff'}
+      rows:['y..w....','yy..w...','y....rw.','y.....w.','.y....w.','..y..rw.','...y.w..','....yw..'],
+      pal:{y:'#ffe14a',w:'#ffffff',r:'#ff3355'}
     }
   },
   sword:{
-    rows:{
-      low:['.......b','......bb','.....bb.','....bb..','...tbt..','..tttt..','...bb...','..bb....'],
-      mid:['.......h','......bb','.....bb.','....bbt.','...tgbt.','..tggt..','.b.tt...','bb......'],
-      high:['......hh','.....bbb','....bbb.','...tbbt.','..tgbbt.','.ttggtt.','b..tt...','bb......'],
-      ut:['......hr','.....rkk','....krk.','...khrk.','..tkkkt.','.ptkk...','p.tt....','pp......']
-    },
-    pal:[
-      {b:'#8a8074',t:'#6b5340'},
-      {b:'#b0b6c0',t:'#6a6460'},
-      {b:'#8a9098',t:'#4e4840'},
-      {b:'#d4dce8',t:'#d4b060',g:'#e07030',h:'#f4f0e8'},
-      {b:'#d0e4ff',t:'#e0c878',g:'#3aa8e0',h:'#ffffff'},
-      {b:'#e4d8c0',t:'#c8a050',g:'#c04058',h:'#fff4e0'},
-      {b:'#f0d0ff',t:'#ffd34a',g:'#ff30c0',h:'#ffffff'},
-      {b:'#fff4c0',t:'#ffb020',g:'#ff2020',h:'#ffffff'}
+    rows:[
+      ['......bb','.....bb.','....b...','...bg...','..gtt...','.tt.....','t.......','........'],
+      ['.....bbb','....bbb.','...bb...','..bbg...','.ggtt...','.tt.....','t.......','........'],
+      ['....bbb.','...bb...','..bb....','.bbg....','..gtt...','.tttg...','tt......','t.......'],
+      ['.......h','......bb','.....bb.','....bb..','...bgg..','..gttt..','.tt.....','t.......'],
+      ['......hb','.....bbb','....bbb.','...bbg..','..ggtt..','.tttt...','tt......','t.......'],
+      ['......hh','.....hbb','....bbb.','...bbb..','..gbgg..','.tttg...','ttt.....','t.......'],
+      ['.....hhh','....hbbb','...bbbb.','..bbbb..','.tggbb..','ttggg...','ttt.....','tt......'],
+      ['....hhhh','...hbbbb','..bbbbb.','.tbbbb..','ttgggb..','tttgg...','.ttt....','tt......']
     ],
-    ut:{h:'#f0e8ff',r:'#ff2a4a',k:'#241028',t:'#b060ff',p:'#4a2080'},
+    pal:[
+      {b:'#b0aaa0',g:'#6e5840',t:'#8a6848'},
+      {b:'#c6ccd4',g:'#5e5a56',t:'#7a6858'},
+      {b:'#7e868e',g:'#6a5c48',t:'#4e4438'},
+      {b:'#d4dce6',h:'#f2f6fa',g:'#b08a48',t:'#6e5438'},
+      {b:'#c8c0b0',h:'#e8d090',g:'#c8a050',t:'#6a4830'},
+      {b:'#e04830',h:'#ffb060',g:'#c08030',t:'#5c3828'},
+      {b:'#d8f4ff',h:'#ffffff',g:'#3ad4f0',t:'#6888a8'},
+      {b:'#ffe566',h:'#fff6c8',g:'#ff2860',t:'#c07020'}
+    ],
+    utRows:['.....rhr','....rkkr','...rkk..','..rhhg..','.ptkk...','ptt.....','p.......','pp......'],
+    ut:{r:'#ff2a4a',k:'#2c1438',h:'#f4e8ff',g:'#ffd34a',p:'#7a30d0',t:'#c060ff'},
     shot:['#c8c0b4','#d0d6e0','#aeb6c0','#f0e0b0','#8ec8ff','#d8b8ff','#ffe070','#ff5058'],
     utShot:'#ff2a5a',utShape:'slash',
     test:{
-      rows:['....wwww','...wwyyw','..wwyrrw','.wwyrrg.','wwyrrw..','wyrrw...','wrrw....','wwww....'],
-      pal:{w:'#ffffff',y:'#ffd34a',r:'#ff3355',g:'#3dffa0'}
+      rows:['......ww','.....wyw','....wyyw','...wrrg.','..wwwg..','.yyyy...','rrr.....','rr......'],
+      pal:{w:'#ffffff',y:'#ffe14a',r:'#ff3355',g:'#3dffa0'}
     }
   },
   robe:{
-    rows:{
-      low:['.bb..bb.','bbbbbbbb','bbbbbbbb','.bbbbbb.','.b....b.','.bb..bb.'],
-      mid:['.bt..tb.','btbbbbtb','bbbbgbbb','.bbbbbb.','.btbbtb.','.bb..bb.','.b....b.'],
-      high:['hht..thh','tbbbbbbt','bbbghbbb','.btggbt.','.b.gg.b.','.btbbtb.','tbb..bbt'],
-      ut:['..hhhh..','.kppppk.','kppgyppk','.kppppk.','..kppk..','.k.pp.k.','k..pp..k','.k....k.']
-    },
+    rows:[
+      ['...bb...','..bbbb..','.bb..bb.','bbbbbbbb','bbbbbbbb','.bbbbbb.','.b....b.','bb....bb'],
+      ['..b..b..','.bbbbbb.','bb....bb','bbbbbbbb','.bbbbbb.','bb....bb','.b....b.','b......b'],
+      ['.bb..bb.','bbbbbbbb','bb.bb.bb','bbbbbbbb','.bbbbbb.','.bb..bb.','bb....bb','b......b'],
+      ['.tt..tt.','tbbbbbbt','bb....bb','bbbbbbbb','.bg..gb.','bbbbbbbb','.bb..bb.','t......t'],
+      ['tt....tt','tbbbbbbt','bbbbbbbb','bb.gg.bb','bbbbbbbb','.b.gg.b.','bb....bb','.b....b.'],
+      ['.ht..th.','tbbbbbbt','bbg..gbb','bbbbbbbb','.b.gg.b.','bbbbbbbb','tb....bt','tt....tt'],
+      ['hhtttthh','ttbbbbtt','bbghhgbb','bbbbbbbb','bbghhgbb','tbbbbbbt','ttb..btt','t......t'],
+      ['hhhtthhh','tbbbbbbt','bbhhhhbb','bggggggb','bbhhhhbb','tbbbbbbt','ttbbbbtt','t......t']
+    ],
     pal:[
-      {b:'#6a5870'},{b:'#6a6e78'},{b:'#5a4838'},
+      {b:'#6a5870'},
+      {b:'#6a6e78'},
+      {b:'#5a4838'},
       {b:'#6a58a0',t:'#c6a15a',g:'#e0a030'},
       {b:'#3a68a8',t:'#e0c878',g:'#40d0e8'},
-      {b:'#7a4080',t:'#e0c060',g:'#d05070'},
-      {b:'#c050ff',t:'#ffd34a',g:'#ff40b0',h:'#fff0ff'},
-      {b:'#ff7030',t:'#ffe080',g:'#ff2040',h:'#ffffff'}
+      {b:'#7a4080',t:'#e0c060',g:'#d05070',h:'#f0d8ea'},
+      {b:'#ff7030',t:'#ffe14a',g:'#ff2860',h:'#ffffff'},
+      {b:'#ff4ad0',t:'#ffe14a',g:'#3dfff0',h:'#ffffff'}
     ],
-    ut:{h:'#ff4ad0',k:'#2a1244',p:'#6a28a0',g:'#ffffff',y:'#ffd34a'}
+    utRows:['...hh...','..kppk..','.kpyypk.','kppppppk','.kppppk.','..kppk..','.k....k.','k......k'],
+    ut:{h:'#ff4ad0',k:'#2a1244',p:'#6a28a0',y:'#ffd34a'}
   },
   leather:{
-    rows:{
-      low:['.b....b.','bbbbbbbb','bbbddbbb','.bbbbbb.','.dddddd.','.b.bb.b.','.bb..bb.'],
-      mid:['tbt..tbt','bbbbbbbb','bbbggbbb','.btbbtb.','.dddddd.','.btbbtb.','.bb..bb.'],
-      high:['hhtbbthh','tbbbbbbt','bbbghbbb','tbtggtbt','.bddd.b.','.btbbtb.','tbb..bbt'],
-      ut:['h.k..k.h','kkppppkk','kppgyppk','.kppppk.','..kppk..','.p.kk.p.','p..kk..p','.p....p.']
-    },
+    rows:[
+      ['.bb..bb.','bbbbbbbb','bb.dd.bb','bbbbbbbb','.bddddb.','..b..b..','.bb..bb.','b......b'],
+      ['bb....bb','bbbbbbbb','b..dd..b','bbbbbbbb','bbddddbb','.bb..bb.','b......b','bb....bb'],
+      ['.bb..bb.','b.b..b.b','bbbbbbbb','bbddddbb','bbbbbbbb','.bb..bb.','bb....bb','b......b'],
+      ['tbb..bbt','bbbbbbbb','bb.gg.bb','tbbbbbbt','bbddddbb','.bb..bb.','bb....bb','t......t'],
+      ['.tt..tt.','tbbbbbbt','b..gg..b','bbbbbbbb','tttttttt','bb....bb','.b....b.','b......b'],
+      ['htb..bth','tbbbbbbt','bb.gg.bb','bbbbbbbb','.dddddd.','tbb..bbt','bb....bb','t......t'],
+      ['hhtbbthh','ttbbbbtt','bbghhgbb','bbbbbbbb','hddddddh','ttbbbbtt','tb....bt','tt....tt'],
+      ['hhhtthhh','tbbbbbbt','bhhhhhhb','ttggggtt','bbbbbbbb','tbb..bbt','ttb..btt','t......t']
+    ],
     pal:[
-      {b:'#7a5a38',d:'#5a3c22'},{b:'#747880',d:'#4a4e56'},{b:'#5a4630',d:'#3a2c1c'},
+      {b:'#7a5a38',d:'#5a3c22'},
+      {b:'#747880',d:'#4a4e56'},
+      {b:'#5a4630',d:'#3a2c1c'},
       {b:'#8a6840',t:'#c6a15a',g:'#d07030',d:'#5a4030'},
       {b:'#3a7848',t:'#d8c080',g:'#40c868',d:'#2a5030'},
-      {b:'#a06830',t:'#e8c868',g:'#d04830',d:'#6a4018'},
-      {b:'#50b040',t:'#ffd34a',g:'#d0ff40',h:'#ffffff',d:'#206020'},
-      {b:'#ffb020',t:'#fff0a0',g:'#ff3030',h:'#ffffff',d:'#a05010'}
+      {b:'#a06830',t:'#e8c868',g:'#d04830',d:'#6a4018',h:'#f0d8b0'},
+      {b:'#50c040',t:'#ffd34a',g:'#ff2860',h:'#ffffff',d:'#184818'},
+      {b:'#ffb020',t:'#fff0a0',g:'#ff3038',h:'#ffffff',d:'#a05010'}
     ],
-    ut:{h:'#ff4ad0',k:'#24140c',p:'#5a3820',g:'#b6ff3a',y:'#ffd34a'}
+    utRows:['h.k..k.h','kkp..pkk','kppggppk','.kppppk.','..kggk..','.p.kk.p.','p..kk..p','.p....p.'],
+    ut:{h:'#ff4ad0',k:'#24140c',p:'#5a3820',g:'#b6ff3a'}
   },
   heavy:{
-    rows:{
-      low:['.bbbbbb.','bbd..dbb','bbbbbbbb','.bddddb.','.bbbbbb.','.b.bb.b.','bb....bb'],
-      mid:['.btbbtb.','bbt..tbb','bbbbbbbb','.bggggb.','.bbbbbb.','.btbbtb.','bb....bb'],
-      high:['hhtbbthh','ttb..btt','bbbbbbbb','bbghhgbb','tbbbbbbt','.btbbtb.','hhtbbthh','bb....bb'],
-      ut:['h.kkkk.h','kkp..pkk','kppggppk','kkppppkk','.kppppk.','kk.pp.kk','k......k','kk....kk']
-    },
-    pal:[
-      {b:'#8a8680',d:'#5c5854'},{b:'#9aa0a8',d:'#5a6068'},{b:'#6a7078',d:'#3e444c'},
-      {b:'#a8b0bc',t:'#c6a15a',g:'#4060b0'},
-      {b:'#90b8d8',t:'#e0c878',g:'#30c0e8'},
-      {b:'#d0d4dc',t:'#e0c060',g:'#d04058'},
-      {b:'#d8e6ff',t:'#ffd34a',g:'#ff40d0',h:'#ffffff'},
-      {b:'#fff0c0',t:'#ffb020',g:'#ff2028',h:'#ffffff'}
+    rows:[
+      ['...dd...','..dddd..','ddd..ddd','dddddddd','dddddddd','.dd..dd.','dd....dd','d......d'],
+      ['..dddd..','.dddddd.','dd....dd','dddddddd','.dddddd.','dd....dd','.d....d.','dd....dd'],
+      ['.dd..dd.','dddddddd','d..dd..d','dddddddd','.dddddd.','.dd..dd.','d......d','dd....dd'],
+      ['.tttttt.','tddddddt','dd....dd','dddddddd','dd.gg.dd','tddddddt','dd....dd','t......t'],
+      ['tt.dd.tt','tddddddt','d.d..d.d','dddddddd','dd.gg.dd','dddddddd','td....dt','tt....tt'],
+      ['htttttth','tddddddt','dd.gg.dd','dddddddd','ddg..gdd','tddddddt','tt....tt','t......t'],
+      ['hhhtthhh','ttddddtt','ddghhgdd','dddddddd','ddghhgdd','ttddddtt','htd..dth','tt....tt'],
+      ['hhhhhhhh','tddddddt','dh.dd.hd','dggggggd','dh.dd.hd','tddddddt','ttd..dtt','h......h']
     ],
+    pal:[
+      {d:'#8a8680'},
+      {d:'#9aa0a8'},
+      {d:'#6a7078'},
+      {d:'#a8b0bc',t:'#c6a15a',g:'#4060b0'},
+      {d:'#90b8d8',t:'#e0c878',g:'#30c0e8'},
+      {d:'#d0d4dc',t:'#e0c060',g:'#d04058',h:'#f4f0e8'},
+      {d:'#d8e6ff',t:'#ffd34a',g:'#ff2860',h:'#ffffff'},
+      {d:'#fff0c0',t:'#ffb020',g:'#ff2028',h:'#ff4ad0'}
+    ],
+    utRows:['h.k..k.h','kkp..pkk','kppggppk','kkppppkk','.kppppk.','kk.pp.kk','k......k','kk....kk'],
     ut:{h:'#ff4ad0',k:'#141820',p:'#243058',g:'#7af0ff'}
   },
   codex:{
-    rows:{
-      low:['.bbbbbb.','bbbbbbbb','b......b','b......b','b......b','bbbbbbbb'],
-      mid:['.btbbtb.','bbbbbbbb','b..gg..b','b......b','b..gg..b','bbbbbbbb'],
-      high:['gttbbttg','tbbbbbbt','b.ghhg.b','b......b','b.ghhg.b','gbbbbbbg'],
-      ut:['.kkkkkk.','kppppppk','kp.ww.pk','kpwyywpk','kp.ww.pk','kppppppk','.kkkkkk.','..k..k..']
-    },
+    rows:[
+      ['.bbbbb..','bbbbbbb.','bb...bb.','b..b..b.','bb...bb.','bbbbbbb.','.bbbbb..','...b....'],
+      ['bbbbbb..','b....bb.','bb...bb.','b..b..b.','bb...bb.','b....bb.','bbbbbb..','..bb....'],
+      ['.bbbbbb.','bb....bb','b..bb..b','bb.bb.bb','b..bb..b','bb....bb','.bbbbbb.','...bb...'],
+      ['.ggggg..','gbbbbbbg','bb.gg.bb','b..gg..b','bb.gg.bb','gbbbbbbg','.bbbbbb.','...tt...'],
+      ['gg....gg','gbbbbbbg','bb.gg.bb','b.gggg.b','bb.gg.bb','gbbbbbbg','.bbbbbb.','..tttt..'],
+      ['.gggggg.','gtbbbbtg','bbg..gbb','b..gg..b','bbg..gbb','gtbbbbtg','.bbbbbb.','.tttttt.'],
+      ['hggggggh','gtbbbbtg','bbghhgbb','bhhhhhhb','bbghhgbb','gtbbbbtg','hbbbbbbh','.htttth.'],
+      ['hhhhhhhh','gttbbttg','tbghhgbt','bhhhhhhb','tbghhgbt','gttbbttg','hbbbbbbh','tt....tt']
+    ],
     pal:[
-      {b:'#6b4a2a'},{b:'#5c6068'},{b:'#4a3828'},
+      {b:'#6b4a2a'},
+      {b:'#5c6068'},
+      {b:'#4a3828'},
       {b:'#8a5a30',t:'#c6a15a',g:'#e07830'},
       {b:'#3a5088',t:'#d8c080',g:'#40d0e8'},
       {b:'#7a4038',t:'#e0c060',g:'#d04858'},
-      {b:'#ff7830',t:'#ffd34a',g:'#ff30b0',h:'#fff0c0'},
-      {b:'#ffd060',t:'#ffffff',g:'#ff2028',h:'#fff6d0'}
+      {b:'#ff7830',t:'#ffd34a',g:'#ff2860',h:'#fff0c0'},
+      {b:'#ffd060',t:'#ffffff',g:'#ff2028',h:'#ff4ad0'}
     ],
+    utRows:['.kkkkkk.','kppppppk','kp.ww.pk','kpwyywpk','kp.ww.pk','kppppppk','.kkkkkk.','..k..k..'],
     ut:{k:'#1c1028',p:'#4a2080',w:'#f4e8ff',y:'#ff2a4a'}
   },
   quiver:{
-    rows:{
-      low:['..bbbb..','.bbbbbb.','bbbbbbbb','.bbbbbb.','..bbbb..','ssssssss'],
-      mid:['gbtbbtbg','.bbbbbb.','bbbghbbb','.bbbbbb.','.btbbtb.','gssssssg'],
-      high:['gbtbbtbg','hbbbbbbh','bbggggbb','hbbbbbbh','.btbbtb.','gssssssg'],
-      ut:['p..kk..p','.kkppkk.','kkpggpkk','.kppppk.','kkpggpkk','.kkppkk.','p..kk..p','.ssssss.']
-    },
-    pal:[
-      {b:'#6b4a2a',s:'#908878'},{b:'#5c6068',s:'#a8acb4'},{b:'#4a3828',s:'#b0a088'},
-      {b:'#7a5a38',t:'#c6a15a',g:'#d08830',h:'#f0d8a8',s:'#d8e0a0'},
-      {b:'#3a6848',t:'#d8c080',g:'#40d0c0',h:'#e8fff8',s:'#c8f090'},
-      {b:'#8a6840',t:'#e8c868',g:'#c04058',h:'#ffe0c0',s:'#f0e0a0'},
-      {b:'#60b040',t:'#ffd34a',g:'#ff40c0',h:'#ffffff',s:'#e8ff50'},
-      {b:'#ffb020',t:'#ffffff',g:'#ff2840',h:'#fff0c0',s:'#ffe080'}
+    rows:[
+      ['s..s..s.','.s.s.s..','..bbb...','.bbbbbb.','bb....bb','.bbbbbb.','..bbbb..','...bb...'],
+      ['.s.s.s..','s.s.s.s.','.bbbbb..','bbbbbbb.','b.....b.','.bbbbb..','..bbb...','...b....'],
+      ['s.s.s.s.','.s.s.s..','.bbbbbb.','bb....bb','b......b','.bbbbbb.','..bbb...','.b.b.b..'],
+      ['gs.s.sg.','sssssss.','tbbbbbt.','.b.g.b..','.b...b..','tbbbbbt.','..bbb...','..s.s...'],
+      ['.s.s.s..','gsssssg.','tbbbbbbt','bb.g.gbb','b......b','tbbbbbbt','.b.b.b..','ssssssss'],
+      ['gssssssg','s..s..s.','ttbbbbtt','.bg..gb.','.b....b.','ttbbbbtt','.bbbbbb.','gssssssg'],
+      ['hssssssh','ss.g.ss.','gtbbbbtg','.bghhgb.','.b....b.','gtbbbbtg','hbbbbbbh','gssssssg'],
+      ['hhsssshh','s.ghhg.s','ttbbbbtt','bbghhgbb','b......b','ttbbbbtt','hbbbbbbh','ssssssss']
     ],
+    pal:[
+      {b:'#6b4a2a',s:'#908878'},
+      {b:'#5c6068',s:'#a8acb4'},
+      {b:'#4a3828',s:'#b0a088'},
+      {b:'#7a5a38',t:'#c6a15a',g:'#d08830',s:'#d8e0a0'},
+      {b:'#3a6848',t:'#d8c080',g:'#40d0c0',s:'#c8f090'},
+      {b:'#8a6840',t:'#e8c868',g:'#c04058',s:'#f0e0a0'},
+      {b:'#60c040',t:'#ffd34a',g:'#ff2860',h:'#ffffff',s:'#e8ff50'},
+      {b:'#ffb020',t:'#ffffff',g:'#ff2840',h:'#ff4ad0',s:'#ffe080'}
+    ],
+    utRows:['p.s.s.p.','ssksssk.','.kppppk.','kpgggpk.','kppppppk','.kppppk.','..kppk..','...kk...'],
     ut:{p:'#d070ff',k:'#1c1028',g:'#b6ff3a',s:'#ffd34a'}
   },
   seal:{
-    rows:{
-      low:['..bbbb..','.bbbbbb.','bbbbbbbb','bbbbbbbb','.bbbbbb.','..bbbb..'],
-      mid:['..tbbt..','.bbbbbb.','bbgbbgbb','bbbbbbbb','bbgbbgbb','.bbbbbb.','..tbbt..'],
-      high:['hgttttgh','gtbbbbtg','tbghhgbt','tbghhgbt','gtbbbbtg','hgttttgh'],
-      ut:['...hh...','h.kkkk.h','kkpggpkk','hpgwwgph','kkpggpkk','h.kkkk.h','...hh...']
-    },
+    rows:[
+      ['...bb...','..bbbb..','.bbbbbb.','bbbbbbbb','.bbbbbb.','..bbbb..','...bb...','...bb...'],
+      ['..bbbb..','.bbbbbb.','bbbbbbbb','bb....bb','bb....bb','.bbbbbb.','..bbbb..','...bb...'],
+      ['..bbbb..','.b.bb.b.','bbbbbbbb','bb.bb.bb','bbbbbbbb','.b.bb.b.','..bbbb..','...bb...'],
+      ['..tttt..','.tbbbbt.','tbbbbbbt','bbgbbgbb','tbbbbbbt','.tbbbbt.','..tbbt..','...tt...'],
+      ['t..bb..t','.tbbbbt.','bbgbbgbb','bbbbbbbb','bbgbbgbb','.tbbbbt.','t..bb..t','...tt...'],
+      ['.htttth.','ttbbbbtt','tbg..gbt','bbg..gbb','tbg..gbt','ttbbbbtt','.htbbth.','..htth..'],
+      ['hhtttthh','htbbbbth','tbghhgbt','bbhhhhbb','tbghhgbt','htbbbbth','hhtbbthh','..htth..'],
+      ['hhhhhhhh','htttttth','tbbhhbbt','tbhhhhbt','tbbhhbbt','htttttth','hhtbbthh','t..tt..t']
+    ],
     pal:[
-      {b:'#8a7a58'},{b:'#7a7e86'},{b:'#5a5448'},
+      {b:'#8a7a58'},
+      {b:'#7a7e86'},
+      {b:'#5a5448'},
       {b:'#3d63b0',t:'#c6a15a',g:'#e0b040'},
       {b:'#2a7898',t:'#e0c878',g:'#40d8f0'},
-      {b:'#7058a0',t:'#e0c060',g:'#d04868'},
+      {b:'#7058a0',t:'#e0c060',g:'#d04868',h:'#f0e0ff'},
       {b:'#4060ff',t:'#ffd34a',g:'#ff40d0',h:'#ffffff'},
-      {b:'#ffc040',t:'#ffffff',g:'#ff2028',h:'#fff6d0'}
+      {b:'#ffc040',t:'#ffffff',g:'#ff2028',h:'#ff4ad0'}
     ],
-    ut:{h:'#ff4ad0',k:'#180c22',p:'#7a30d0',g:'#ffd34a',w:'#ffffff'}
+    utRows:['...hh...','.hhkkhh.','hkkppkkh','hkpggpkh','hkkppkkh','.hhkkhh.','...hh...','..k..k..'],
+    ut:{h:'#ff4ad0',k:'#180c22',p:'#7a30d0',g:'#ffd34a'}
   },
   ring:{
-    rows:{
-      low:['...gg...','..b..b..','.b....b.','.b....b.','..b..b..','...bb...'],
-      mid:['...gg...','..bhhb..','.b....b.','.b....b.','..b..b..','...bb...'],
-      high:['..hghh..','.bthhtb.','bt....tb','bt....tb','.bthhtb.','..bbbb..'],
-      ut:['....h...','.g.ttt.g','..tpppt.','htpggpth','..tpppt.','.g.ttt.g','....h...']
-    },
-    pal:[
-      {b:'#a06840',g:'#f0d8a8'},{b:'#d8d0c4',g:'#8a6848'},{b:'#6a8a62',g:'#e8f0c0'},
-      {b:'#c04850',g:'#ff5060',h:'#ffd0d0'},
-      {b:'#c8d0e0',g:'#80e8ff',h:'#ffffff'},
-      {b:'#2a2a32',g:'#c060e0',h:'#e0c0ff'},
-      {b:'#ff9820',t:'#ffe080',g:'#ff3030',h:'#fff6e0'},
-      {b:'#ffe060',t:'#ffffff',g:'#ff28c0',h:'#ffffff'}
+    rows:[
+      ['...gg...','..b..b..','.b....b.','.b....b.','.b....b.','..b..b..','...bb...','........'],
+      ['..g..g..','.bb..bb.','b......b','b......b','.b....b.','..b..b..','...bb...','........'],
+      ['...gg...','..b..b..','.b.g.b..','b......b','.b....b.','..b..b..','.b.bb.b.','........'],
+      ['..ghg...','.bthtb..','b......b','b......b','.b....b.','..b..b..','...bb...','........'],
+      ['...hh...','..bggb..','.b....b.','b......b','.b....b.','..bggb..','...bb...','...tt...'],
+      ['..hhhh..','.bggggb.','b......b','b..gg..b','b......b','.bggggb.','..bbbb..','...tt...'],
+      ['.hhhhhh.','hbggggbh','b..gg..b','b.g..g.b','b..gg..b','hbggggbh','.bbbbbb.','..htth..'],
+      ['hhhhhhhh','hggggggh','b.g..g.b','bg....gb','b.g..g.b','hggggggh','tbbbbbbt','.tt..tt.']
     ],
+    pal:[
+      {b:'#a06840',g:'#c8b090'},
+      {b:'#c8c4bc',g:'#8a6848'},
+      {b:'#6a7a58',g:'#b0b898'},
+      {b:'#c04850',g:'#e07078',h:'#f0c0c0',t:'#a03038'},
+      {b:'#c8d0e0',g:'#58c8e0',h:'#ffffff',t:'#a0b0c0'},
+      {b:'#2a2a32',g:'#a060c0',h:'#e0c0ff',t:'#505058'},
+      {b:'#ff9820',g:'#ff3030',h:'#ffe14a',t:'#fff6e0'},
+      {b:'#ffe060',g:'#ff28c0',h:'#ffffff',t:'#fff0a0'}
+    ],
+    utRows:['...hh...','.g.tt.g.','..tpppt.','htpggpth','..tpppt.','.g.tt.g.','...hh...','...tt...'],
     ut:{h:'#ffffff',g:'#ff4ad0',t:'#ffd34a',p:'#4a1880'}
   }
 };
-function gearBand(t){return t>7?'ut':t>=6?'high':t>=3?'mid':'low';}
 function buildGear(){
   for(const k in GEAR){
     const g=GEAR[k];
     for(let t=0;t<=8;t++){
-      const band=gearBand(t),rows=g.rows[band],pal=t>7?g.ut:g.pal[t],need={};
+      const rows=t>7?g.utRows:g.rows[t],pal=t>7?g.ut:g.pal[t],need={};
       for(const row of rows)for(const ch of row)if(ch!=='.')need[ch]=1;
       for(const ch in need)if(!pal[ch])throw new Error('sprite '+k+' T'+t+' missing '+ch);
-      GEARSPR[k+'|'+t]=mkSprite(rows,pal);
+      GEARSPR[k+'|'+t]=mkRaw(rows,pal);
     }
     if(g.test){
       const rows=g.test.rows,pal=g.test.pal,need={};
       for(const row of rows)for(const ch of row)if(ch!=='.')need[ch]=1;
       for(const ch in need)if(!pal[ch])throw new Error('sprite '+k+' test missing '+ch);
-      GEARSPR[k+'|test']=mkSprite(rows,pal);
+      GEARSPR[k+'|test']=mkRaw(rows,pal);
     }
     if(g.shot&&g.shot.length!==8)throw new Error('shot '+k);
   }
@@ -2107,13 +2173,14 @@ function tideChestLoot(){
   if(Math.random()<0.55)items.push(mkPot('hp'));
   return items.filter(it=>it&&!isTestItem(it)&&!isMastery(it)&&!isDungeonUt(it)&&it.kind!=='dungeonkey');
 }
-const BAG_RANK={brown:0,pink:1,purple:2,cyan:3,white:4};
+const BAG_RANK={brown:0,pink:1,purple:2,blue:3,cyan:4,white:5};
 function itemBagColor(it){
   if(!it)return 'brown';
   if(isMastery(it))return 'white';
   if(it.tier>7)return 'white';
   if(it.kind==='elixir')return 'cyan';
   const t=it.tier|0;
+  if(t>=6)return 'blue';
   if(t>=4)return 'purple';
   if(t>=2)return 'pink';
   return 'brown';
@@ -3246,7 +3313,7 @@ function drawSlot(x,y,s,it,sel,label,dim){
     }
     if(dim)ctx.restore();
     const tl=tierLabel(it);
-    if(tl)txt(tl,x+s-2,y+s-5,8,dim?'#8d8b9c':itemColor(it),'right');
+    if(tl)txt(tl,x+s-1,y+s-3,7,dim?'#8d8b9c':itemColor(it),'right');
   }else if(label)txt(label,x+s/2,y+s/2,Math.max(8,s*0.2),'#5a4a8a','center');
 }
 function drawChestPanel(Pnl,inner,gap,x0,y0,slot){
@@ -3728,7 +3795,47 @@ function sampleTerrain(){
   const looks={water:avgBase(T_WATER,24),wet:avgBase(T_WET,24),sand:avgBase(T_SAND,24),grass:avgBase(T_GRASS,24),ash:avgBase(T_DARK,200),rock:avgBase(T_ROCK,24)};
   return {w:wd.w,h:wd.h,n,zones,frac,tiles,maxT,maxShare:maxN/n,checks,looks};
 }
-window.__shardwild={get state(){return state;},get P(){return P;},get world(){return world;},startNew,enterRealm,enterHub,useAbility,sampleTerrain,get fps(){return fps;},get bullets(){return ebN;},get shots(){return pbN;},
+function previewSheet(mode){
+  const kinds=mode==='all'?['sword','staff','bow','robe','leather','heavy','codex','quiver','seal','ring']:['sword','staff','bow'];
+  const scale=8,cell=(8+2)*scale,gap=14,labelH=18,cols=10;
+  const bagRow=mode==='all'?cell+labelH+gap:0;
+  const c=document.createElement('canvas');
+  c.width=gap+cols*(cell+gap);c.height=gap+kinds.length*(cell+labelH+gap)+bagRow;
+  const g=c.getContext('2d');g.imageSmoothingEnabled=false;
+  g.fillStyle='#14121a';g.fillRect(0,0,c.width,c.height);
+  g.font='bold 13px ui-monospace,Menlo,Consolas,monospace';g.textAlign='center';
+  kinds.forEach((k,row)=>{
+    const y=gap+row*(cell+labelH+gap);
+    for(let t=0;t<cols;t++){
+      const s=t<9?gearSpr(k,t):gearSpr(k,'test');
+      if(!s)continue;
+      const icon=outlinedIcon(s,scale);
+      const x=gap+t*(cell+gap)+(cell-icon.width)/2;
+      g.drawImage(icon,x,y);
+      g.fillStyle='#d8d0ea';
+      g.fillText(t<8?'T'+t:t===8?'UT':'TST',gap+t*(cell+gap)+cell/2,y+cell+14);
+    }
+  });
+  if(mode==='all'){
+    const y=gap+kinds.length*(cell+labelH+gap);
+    const names=['brown','pink','purple','cyan','blue','white'];
+    names.forEach((name,i)=>{
+      const s=SPR.bags[name];
+      const x=gap+i*(cell+gap);
+      g.imageSmoothingEnabled=false;
+      g.drawImage(s.c,x+(cell-s.w*scale)/2,y+(cell-s.h*scale)/2,s.w*scale,s.h*scale);
+      g.fillStyle='#d8d0ea';
+      g.fillText(name,x+cell/2,y+cell+14);
+    });
+    const pearl=outlinedIcon(SPR.tidepearl,scale);
+    const px=gap+7*(cell+gap);
+    g.drawImage(pearl,px,y);
+    g.fillStyle='#d8d0ea';
+    g.fillText('pearl',px+cell/2,y+cell+14);
+  }
+  return c.toDataURL('image/png');
+}
+window.__shardwild={get state(){return state;},get P(){return P;},get world(){return world;},startNew,enterRealm,enterHub,useAbility,sampleTerrain,get fps(){return fps;},get bullets(){return ebN;},get shots(){return pbN;},previewSheet,
   teleport(x,y){if(P){P.x=x;P.y=y;}},setInv(){},get invOpen(){return false;},
   get ui(){return uiRects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,kind:r.kind,tag:r.tag||'',tab:r.tab||'',beacon:r.beacon||'',unlocked:!!r.unlocked,where:r.where||'',slot:r.slot==null?-1:r.slot,stat:r.stat||'',maxed:!!r.maxed,label:r.label||''}));},
   get slots(){return uiRects.filter(r=>r.kind==='slot').map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,area:r.ref.area,i:r.ref.i,slot:r.ref.slot,name:r.item?r.item.name:null,tier:r.item?r.item.tier:null,kind:r.item?r.item.kind:null,stat:r.item?(r.item.stat||r.item.kind||''):'',wep:r.item&&r.item.w?r.item.w:'',dim:!!(r.item&&classLocked(r.item)),tag:r.tag||''}));},
