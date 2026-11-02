@@ -1448,7 +1448,7 @@ function startNew(k){
   titleMode='roster';
   enterHub();
   toast('Welcome to the Haven, '+CLASSES[k].name+'!','#ffd34a');
-  toast('Walk into the portal to enter the Shardwild','#9fe0ff');
+  toast('Stand on the portal and tap Enter','#9fe0ff');
   saveGame();
 }
 function continueGame(slotIndex){
@@ -2159,13 +2159,7 @@ function update(dt){
   touchChest();noteDiscoveries();
   if(world.isHub){
     if(Math.hypot(P.x-world.fountain.x,P.y-world.fountain.y)<22){P.hp=Math.min(eff('hp'),P.hp+150*dt);P.mp=Math.min(eff('mp'),P.mp+150*dt);}
-    if(world.vault&&Math.hypot(P.x-world.vault.x,P.y-world.vault.y)<9){enterVault();return;}
-    if(Math.hypot(P.x-world.portal.x,P.y-world.portal.y)<9){enterRealm();return;}
-  }else if(world.isVault){
-    if(world.portal&&Math.hypot(P.x-world.portal.x,P.y-world.portal.y)<9){leaveVault();return;}
-  }else if(world.isDungeon){
-    if(world.exitOpen&&world.exit&&Math.hypot(P.x-world.exit.x,P.y-world.exit.y)<10){enterHub();toast('Returned to the Haven','#ffd34a');return;}
-  }else{
+  }else if(!world.isVault&&!world.isDungeon){
     const z=zoneAt(world,P.x,P.y);if(z>P.maxZone){P.maxZone=z;toast('Now entering '+ZONES[z].name,ZONES[z].col);}
     spawner(dt);
     if(!world.boss){world.bossT-=dt;if(world.bossT<=0){spawnBoss(world);toast('Morvane, the Hollow King has risen!','#c46aff');}}
@@ -2173,8 +2167,7 @@ function update(dt){
       for(let i=world.portals.length-1;i>=0;i--){
         const p=world.portals[i];
         p.t-=dt;p.delay-=dt;
-        if(p.t<=0){world.portals.splice(i,1);continue;}
-        if(p.delay<=0&&Math.hypot(P.x-p.x,P.y-p.y)<11){enterDungeon(p.dungeon);return;}
+        if(p.t<=0)world.portals.splice(i,1);
       }
     }
   }
@@ -2632,12 +2625,6 @@ function drawHUD(){
   const sb=Math.round(clamp(u*0.4,16,24)),bx=Math.min(mx+m+sb+12,play.x+play.w-sb-6);
   circBtn({x:bx,y:my+sb,r:sb},'AUTO',null,P.auto?'#5aff7a':'#666',()=>{P.auto=!P.auto;toast('Auto-aim '+(P.auto?'ON':'OFF'));},{tag:'auto'});
   if(world.isHub)sqBtn(bx-sb,my+sb*3.2,Math.max(72,sb*3.6),40,'Heroes','#c9b0ff',openCharSelect,{tag:'char-select'});
-  if(world.isHub&&world.vault)offerPortal(world.vault.x,world.vault.y,'Enter','#7dffe0',enterVault,'portal-vault');
-  if(world.isVault&&world.portal)offerPortal(world.portal.x,world.portal.y,'Exit','#ffd34a',leaveVault,'portal-exit');
-  if(world.isDungeon&&world.exitOpen&&world.exit)offerPortal(world.exit.x,world.exit.y,'Haven','#ffd34a',()=>{enterHub();toast('Returned to the Haven','#ffd34a');},'portal-exit');
-  if(!world.isHub&&!world.isVault&&!world.isDungeon){
-    for(const p of world.portals||[])offerPortal(p.x,p.y,'Enter','#7ee0c8',()=>enterDungeon(p.dungeon),'portal-dungeon');
-  }
   drawAudioBtn(mx+Math.max(12,sb*0.85), my+m+Math.max(12,sb*0.85)+5, Math.max(12,Math.round(sb*0.85)));
   const cost=abCost();
   circBtn(L.ab,(C.ability.split(' ')[1]||C.ability),cost+' MP',C.col,useAbility,P.mp<cost||!P.eq.ability,{tag:'ability'});
@@ -2652,17 +2639,52 @@ function drawHUD(){
   const bs=world.boss;if(bs&&Math.hypot(bs.x-P.x,bs.y-P.y)<240){const w=Math.min(280,play.w*0.55),bx2=play.x+(play.w-w)/2,by=my+m+18;txt(bs.name,play.x+play.w/2,by-10,12,'#e0b0ff','center');bar(bx2,by,w,12,bs.hp/bs.maxhp,'#c46aff',null);}
   let ty2=my+m+28;for(const t of toasts){ctx.globalAlpha=Math.min(1,t.life);fitTxt(t.t,play.x+play.w/2,ty2,13,t.col,Math.max(40,play.w-24),'center');ty2+=16;}ctx.globalAlpha=1;
   drawSidePanel();
+  drawEnterButton();
   const tipRef=(ptr&&ptr.tip&&ptr.ref)||(heldTip&&heldTip.ref);
   if(tipRef){const it=readItem(tipRef);if(it)drawTooltip(it,tipRef,(ptr&&ptr.tip)?ptr:heldTip);}
   if(ptr&&ptr.dragged&&ptr.ref){const it=readItem(ptr.ref);const sp=it&&itemSpr(it);if(sp){if(isUTGear(it)){ctx.fillStyle='rgba(140,50,210,.4)';ctx.fillRect(ptr.x-18,ptr.y-42,36,36);}drawSpr(sp,ptr.x-16,ptr.y-40,32,32);}}
 }
-function offerPortal(wx,wy,label,col,fn,tag){
-  if(!P)return;
-  const d=Math.hypot(P.x-wx,P.y-wy);
-  if(d<10||d>36)return;
-  const p=w2s(wx,wy),bw=72,bh=44;
-  const x=clamp(p.x-bw/2,8,layoutC.play.w-bw-8),y=clamp(p.y-52,8,layoutC.play.h-bh-8);
-  sqBtn(x,y,bw,bh,label,col,fn,{tag});
+const PORTAL_REACH=26;
+function rectsHit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
+function portalChoices(){
+  if(!P||!world)return [];
+  const list=[];
+  const add=(x,y,name,col,fn)=>{
+    if(x==null||y==null||!name)return;
+    const d=Math.hypot(P.x-x,P.y-y);
+    if(d>PORTAL_REACH)return;
+    list.push({x,y,name,col,fn,d});
+  };
+  if(world.isHub){
+    if(world.portal)add(world.portal.x,world.portal.y,'Shardwild','#c9b0ff',enterRealm);
+    if(world.vault)add(world.vault.x,world.vault.y,'Vault','#7dffe0',enterVault);
+  }else if(world.isVault){
+    if(world.portal)add(world.portal.x,world.portal.y,'Haven','#ffd34a',leaveVault);
+  }else if(world.isDungeon){
+    if(world.exitOpen&&world.exit)add(world.exit.x,world.exit.y,'Haven','#ffd34a',()=>{enterHub();toast('Returned to the Haven','#ffd34a');});
+  }else{
+    for(const p of world.portals||[])if(!(p.delay>0))add(p.x,p.y,p.name,'#7ee0c8',()=>enterDungeon(p.dungeon));
+  }
+  list.sort((a,b)=>a.d-b.d||(a.name<b.name?-1:1));
+  return list;
+}
+function drawEnterButton(){
+  const list=portalChoices();
+  if(!list.length)return;
+  const p=list[0],play=layoutC.play,label='Enter '+p.name;
+  font(15);
+  const bw=clamp(Math.ceil(ctx.measureText(label).width+48),180,Math.min(300,play.w-20));
+  const bh=54;
+  let x=Math.round(play.x+(play.w-bw)/2),y=Math.round(play.h-safe.b-bh-14);
+  const L=layoutC;
+  const circ=(c,r)=>c?{x:c.x-r,y:c.y-r,w:r*2,h:r*2}:null;
+  const blocks=[circ(L.moveAnchor,L.stickR+4),circ(L.aimAnchor,L.stickR+4),circ(L.haven,L.haven.r+4),circ(L.ab,L.ab.r+4),
+    {x:play.x+6+safe.l,y:4,w:(L.mm||70)+12,h:(L.mm||70)+40},
+    {x:play.x+play.w-1,y:0,w:Math.max(8,L.panel.w+4),h:H}].filter(Boolean);
+  for(let i=0;i<14&&blocks.some(b=>rectsHit({x,y,w:bw,h:bh},b));i++)y-=8;
+  if(y<8)y=8;
+  x=clamp(x,play.x+6,Math.max(play.x+6,play.x+play.w-bw-6));
+  sqBtn(x,y,bw,bh,label,p.col,p.fn,{tag:'portal-enter',label});
 }
 function drawVaultPanel(Pnl,inner,gap,x0,y0,slot,chest){
   const bottom=Pnl.y+Pnl.h-4;
@@ -3197,7 +3219,7 @@ function sampleTerrain(){
 }
 window.__shardwild={get state(){return state;},get P(){return P;},get world(){return world;},startNew,enterRealm,enterHub,useAbility,sampleTerrain,get fps(){return fps;},get bullets(){return ebN;},get shots(){return pbN;},
   teleport(x,y){if(P){P.x=x;P.y=y;}},setInv(){},get invOpen(){return false;},
-  get ui(){return uiRects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,kind:r.kind,tag:r.tag||'',tab:r.tab||'',beacon:r.beacon||'',unlocked:!!r.unlocked,where:r.where||'',slot:r.slot==null?-1:r.slot,stat:r.stat||'',maxed:!!r.maxed}));},
+  get ui(){return uiRects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,kind:r.kind,tag:r.tag||'',tab:r.tab||'',beacon:r.beacon||'',unlocked:!!r.unlocked,where:r.where||'',slot:r.slot==null?-1:r.slot,stat:r.stat||'',maxed:!!r.maxed,label:r.label||''}));},
   get slots(){return uiRects.filter(r=>r.kind==='slot').map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,area:r.ref.area,i:r.ref.i,slot:r.ref.slot,name:r.item?r.item.name:null,tier:r.item?r.item.tier:null,kind:r.item?r.item.kind:null,stat:r.item?(r.item.stat||r.item.kind||''):'',wep:r.item&&r.item.w?r.item.w:'',dim:!!(r.item&&classLocked(r.item)),tag:r.tag||''}));},
   get layout(){const L=layoutC;return {play:L.play,panel:L.panel,portrait:!!L.portrait,move:L.moveAnchor,aim:L.aimAnchor,haven:L.haven,ab:L.ab,stickR:L.stickR,mm:L.mm};},
   get shotsFired(){return shotsFired;},
@@ -3284,6 +3306,7 @@ window.__shardwild={get state(){return state;},get P(){return P;},get world(){re
   debugStatus(fx){if(!P)return;addEB(P.x,P.y,0,0,0,4,0.4,'#d8a0ff',fx,'test');},
   holdKey(code,on){input.keys[code]=!!on;},
   enterDungeon,
+  setPortals(list){if(!world)return;world.portals=(list||[]).map(p=>({id:'tideclaw',name:p.name||'Tideclaw Burrow',dungeon:p.dungeon||'tideclaw',x:p.x,y:p.y,t:80,delay:0}));},
   makeItem(s){
     if(s==='hp'||s==='mp')return mkPot(s);
     if(!s||typeof s!=='object')return null;

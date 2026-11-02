@@ -128,6 +128,23 @@ function circleHitsRect(cx, cy, r, rect) {
   return Math.hypot(cx - nx, cy - ny) < r;
 }
 
+async function walkOntoPortal(page, cdp, x, y) {
+  await walkTo(page, cdp, x, y, () => {
+    const P = window.__shardwild.P;
+    return Math.hypot(P.x - x, P.y - y) < 8;
+  }, 28);
+  await frames(page, 4);
+}
+
+async function tapEnterPortal(page) {
+  await page.waitForFunction(() => window.__shardwild.ui.some(r => r.tag === 'portal-enter'), {timeout: 4000});
+  const btn = await page.evaluate(() => window.__shardwild.ui.find(r => r.tag === 'portal-enter'));
+  assert(btn && btn.h >= 48 && btn.w >= 160, 'Enter button ' + JSON.stringify(btn));
+  await page.touchscreen.tap(btn.x + btn.w / 2, btn.y + btn.h / 2);
+  await frames(page, 4);
+  return btn;
+}
+
 async function tapTag(page, pred) {
   const ui = await page.evaluate(() => window.__shardwild.ui);
   const r = ui.find(pred);
@@ -240,7 +257,9 @@ async function charactersVaultWeapons(page, cdp) {
   await walkTo(page, cdp, pyroChest.x + 40, pyroChest.y, () => !window.__shardwild.chestOpen, 12);
   const vaultDoor = await page.evaluate(() => window.__shardwild.world.vault);
   assert(vaultDoor, 'Haven is missing the vault portal');
-  await walkTo(page, cdp, vaultDoor.x, vaultDoor.y, () => window.__shardwild.place === 'vault', 24);
+  await walkOntoPortal(page, cdp, vaultDoor.x, vaultDoor.y);
+  assert(await page.evaluate(() => window.__shardwild.place) === 'haven', 'walking onto the Vault teleported');
+  await tapEnterPortal(page);
   await frames(page, 3);
   assert(await page.evaluate(() => window.__shardwild.place === 'vault' && window.__shardwild.foes.length === 0), 'vault should be empty of enemies');
   await frames(page, 2);
@@ -266,7 +285,9 @@ async function charactersVaultWeapons(page, cdp) {
   await page.screenshot({path: path.join(ART, 'screenshot_vault_chest.png')});
 
   const exit = await page.evaluate(() => window.__shardwild.world.portal);
-  await walkTo(page, cdp, exit.x, exit.y, () => window.__shardwild.place === 'haven', 18);
+  await walkOntoPortal(page, cdp, exit.x, exit.y);
+  assert(await page.evaluate(() => window.__shardwild.place) === 'vault', 'walking onto the vault exit teleported');
+  await tapEnterPortal(page);
   assert(await page.evaluate(() => window.__shardwild.place === 'haven' && !!window.__shardwild.world.chest), 'exit portal did not return to the Haven');
 
   await tapTag(page, r => r.tag === 'char-select');
@@ -281,12 +302,17 @@ async function charactersVaultWeapons(page, cdp) {
   assert(striderAfter.inv.indexOf('Splintered Bow') < 0, 'strider received pyro backpack item ' + JSON.stringify(striderAfter));
   assert(striderAfter.inv.indexOf('Elixir of Wind') >= 0 || striderAfter.wind, 'strider lost their own elixir');
   const door = await page.evaluate(() => window.__shardwild.world.vault);
-  await walkTo(page, cdp, door.x, door.y, () => window.__shardwild.place === 'vault', 24);
+  await walkOntoPortal(page, cdp, door.x, door.y);
+  assert(await page.evaluate(() => window.__shardwild.place) === 'haven', 'second vault walk teleported');
+  await tapEnterPortal(page);
   const again = await page.evaluate(() => window.__shardwild.world.chests[0]);
   await walkTo(page, cdp, again.x, again.y, () => window.__shardwild.vaultOpen === 0, 16);
   const shared = await page.evaluate(() => window.__shardwild.vaultItems[0]);
   assert(shared.indexOf('Splintered Bow') >= 0, 'vault item did not survive a hero switch ' + JSON.stringify(shared));
-  await walkTo(page, cdp, (await page.evaluate(() => window.__shardwild.world.portal)).x, (await page.evaluate(() => window.__shardwild.world.portal)).y, () => window.__shardwild.place === 'haven', 18);
+  const back = await page.evaluate(() => window.__shardwild.world.portal);
+  await walkOntoPortal(page, cdp, back.x, back.y);
+  assert(await page.evaluate(() => window.__shardwild.place) === 'vault', 'second exit walk teleported');
+  await tapEnterPortal(page);
 
   const testChest = await page.evaluate(() => window.__shardwild.world.chest);
   await walkTo(page, cdp, testChest.x, testChest.y, () => window.__shardwild.chestOpen, 18);
@@ -546,6 +572,9 @@ async function tideclawAndStatus(page, cdp) {
   const keyInv = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'inv' && s.name === 'Tideclaw Burrow Key'));
   assert(keyInv, 'key left the backpack before it was used');
   await page.touchscreen.tap(keyInv.x + keyInv.w / 2, keyInv.y + keyInv.h / 2);
+  await page.waitForFunction(() => window.__shardwild.ui.some(r => r.tag === 'portal-enter'), {timeout: 4000});
+  assert(await page.evaluate(() => window.__shardwild.place) === 'realm', 'the dungeon key teleported without Enter');
+  await tapEnterPortal(page);
   await page.waitForFunction(() => window.__shardwild.place === 'dungeon', {timeout: 4000});
   await frames(page, 4);
   const inside = await page.evaluate(() => ({
@@ -579,6 +608,9 @@ async function tideclawAndStatus(page, cdp) {
   const keyInv2 = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'inv' && s.name === 'Tideclaw Burrow Key'));
   assert(keyInv2, 'second key was not in the backpack');
   await page.touchscreen.tap(keyInv2.x + keyInv2.w / 2, keyInv2.y + keyInv2.h / 2);
+  await page.waitForFunction(() => window.__shardwild.ui.some(r => r.tag === 'portal-enter'), {timeout: 4000});
+  assert(await page.evaluate(() => window.__shardwild.place) === 'realm', 'the second key teleported without Enter');
+  await tapEnterPortal(page);
   await page.waitForFunction(() => window.__shardwild.place === 'dungeon', {timeout: 4000});
   await frames(page, 3);
   await page.evaluate(() => {
@@ -634,9 +666,11 @@ async function tideclawAndStatus(page, cdp) {
   await page.evaluate(() => {
     const sw = window.__shardwild;
     sw.teleport(sw.world.exit.x, sw.world.exit.y);
-    sw.pump(3);
+    sw.pump(6);
   });
   await frames(page, 3);
+  assert(await page.evaluate(() => window.__shardwild.place) === 'dungeon', 'standing on the dungeon exit teleported');
+  await tapEnterPortal(page);
   assert(await page.evaluate(() => window.__shardwild.place === 'haven'), 'exit portal did not return to the Haven');
   const fpsDen = await page.evaluate(() => window.__shardwild.fps);
   assert(fpsDen > 45, 'fps through the dungeon: ' + fpsDen);
@@ -1322,8 +1356,62 @@ async function main() {
     assert(!warped.map, 'map stayed open after warp');
 
     const portal = await page.evaluate(() => window.__shardwild.world.portal);
-    await walkTo(page, cdp, portal.x, portal.y + 6, () => window.__shardwild.place === 'realm', 28);
-    await frames(page, 4);
+    await walkOntoPortal(page, cdp, portal.x, portal.y);
+    assert(await page.evaluate(() => window.__shardwild.place) === 'haven', 'walking onto the Shardwild portal entered the realm');
+    const enterHud = await page.evaluate(() => {
+      const sw = window.__shardwild;
+      const btn = sw.ui.find(r => r.tag === 'portal-enter');
+      const L = sw.layout;
+      const stick = L.stickR;
+      return {
+        btn,
+        aim: {x: L.aim.x - stick, y: L.aim.y - stick, w: stick * 2, h: stick * 2},
+        move: {x: L.move.x - stick, y: L.move.y - stick, w: stick * 2, h: stick * 2},
+        haven: sw.ui.find(r => r.tag === 'haven'),
+        mm: sw.ui.find(r => r.tag === 'minimap'),
+        panel: L.panel,
+        slots: sw.slots.map(s => ({x: s.x, y: s.y, w: s.w, h: s.h}))
+      };
+    });
+    assert(enterHud.btn && enterHud.btn.label === 'Enter Shardwild', 'Shardwild enter label ' + JSON.stringify(enterHud.btn));
+    assert(enterHud.btn.w >= 160 && enterHud.btn.h >= 48, 'enter button is too small ' + JSON.stringify(enterHud.btn));
+    assert(enterHud.btn.x + enterHud.btn.w <= enterHud.panel.x + 1, 'enter button overlaps the inventory');
+    assert(!rectsOverlap(enterHud.btn, enterHud.aim), 'enter button overlaps the aim stick');
+    assert(!rectsOverlap(enterHud.btn, enterHud.move), 'enter button overlaps the move stick');
+    assert(!rectsOverlap(enterHud.btn, enterHud.haven), 'enter button overlaps Haven');
+    assert(!rectsOverlap(enterHud.btn, enterHud.mm), 'enter button overlaps the minimap');
+    for (const s of enterHud.slots) assert(!rectsOverlap(enterHud.btn, s), 'enter button overlaps a slot');
+    await page.screenshot({path: path.join(ART, 'screenshot_portal_enter.png')});
+    await tapEnterPortal(page);
+    assert(await page.evaluate(() => window.__shardwild.place) === 'realm', 'Enter Shardwild did not enter');
+    await frames(page, 2);
+    const nearest = await page.evaluate(() => {
+      const sw = window.__shardwild;
+      sw.P.invuln = 4;
+      sw.setPortals([
+        {name: 'Far Burrow', x: sw.P.x + 22, y: sw.P.y},
+        {name: 'Near Burrow', x: sw.P.x + 4, y: sw.P.y}
+      ]);
+      return true;
+    });
+    assert(nearest, 'could not place overlapping portals');
+    await frames(page, 3);
+    const portalPick = await page.evaluate(() => {
+      const btn = window.__shardwild.ui.find(r => r.tag === 'portal-enter');
+      return btn ? btn.label : '';
+    });
+    assert(portalPick === 'Enter Near Burrow', 'nearest portal was not chosen: ' + portalPick);
+    const shore = await page.evaluate(() => {
+      const sw = window.__shardwild;
+      const home = {x: sw.P.x, y: sw.P.y};
+      sw.teleport(sw.P.x, sw.P.y + 90);
+      sw.setPortals([]);
+      return home;
+    });
+    await frames(page, 3);
+    assert(!(await page.evaluate(() => window.__shardwild.ui.some(r => r.tag === 'portal-enter'))), 'Enter stayed up after walking away');
+    await page.evaluate(home => window.__shardwild.teleport(home.x, home.y), shore);
+    await frames(page, 2);
     const realm = await page.evaluate(() => {
       const w = window.__shardwild.world;
       const P = window.__shardwild.P;
