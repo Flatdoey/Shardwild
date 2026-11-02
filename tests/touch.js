@@ -956,6 +956,71 @@ async function terrainRegionsAndHeroes(page) {
   }
 }
 
+async function v14Shots(page) {
+  await page.evaluate(() => {
+    const sw = window.__shardwild;
+    sw.enterHub();
+    sw.clearBags();
+    sw.clearFoes();
+    const c = sw.world.chest;
+    sw.teleport(c.x, c.y);
+    sw.pump(2);
+  });
+  await frames(page, 3);
+  assert(await page.evaluate(() => window.__shardwild.chestOpen), 'v14 chest did not open');
+  for (const tab of ['pyro', 'strider', 'bulwark']) {
+    await openChestTab(page, tab);
+    await frames(page, 3);
+    const names = await chestNames(page);
+    assert(names.some(n => n && n.indexOf('Splintered') === 0), tab + ' gear page ' + names.join(','));
+    await page.screenshot({path: path.join(ART, 'screenshot_v14_chest_' + tab + '.png')});
+  }
+  await page.evaluate(() => {
+    const sw = window.__shardwild;
+    const cls = sw.P.cls;
+    const w = cls === 'strider' ? 'bow' : cls === 'bulwark' ? 'sword' : 'staff';
+    const a = cls === 'strider' ? 'leather' : cls === 'bulwark' ? 'heavy' : 'robe';
+    sw.P.eq.weapon = sw.makeItem({k: 'weapon', w, t: 5});
+    sw.P.eq.ability = sw.makeItem({k: 'ability', cls, t: 5});
+    sw.P.eq.armor = sw.makeItem({k: 'armor', a, t: 5});
+    sw.P.eq.ring = sw.makeItem({k: 'ring', t: 5});
+    sw.clearInv();
+    sw.grant({k: 'weapon', w, t: 0});
+    sw.grant({k: 'weapon', w, t: 8});
+    sw.grant({k: 'test', w});
+    sw.teleport(sw.P.x + 48, sw.P.y);
+    sw.pump(2);
+  });
+  await frames(page, 3);
+  assert(!(await page.evaluate(() => window.__shardwild.chestOpen)), 'chest still open over the inventory shot');
+  await page.screenshot({path: path.join(ART, 'screenshot_v14_inventory.png')});
+  const bagCols = await page.evaluate(() => {
+    const sw = window.__shardwild;
+    sw.clearBags();
+    // Open Haven floor, left of the carpet, clear of the portal, fountain, and chest.
+    const xs = [24, 48, 72, 96, 120];
+    const y = 68;
+    sw.teleport(40, 124);
+    const specs = [
+      [{k: 'hp'}],
+      [{k: 'weapon', w: 'staff', t: 2}],
+      [{k: 'weapon', w: 'sword', t: 4}],
+      [{k: 'elixir', stat: 'att'}],
+      [{k: 'weapon', w: 'staff', t: 8}]
+    ];
+    specs.forEach(s => sw.spawnBag(s));
+    const bags = sw.world.bags;
+    bags.forEach((b, i) => { b.x = xs[i]; b.y = y; });
+    sw.pump(1);
+    return bags.map(b => b.col);
+  });
+  assert(bagCols.join(',') === 'brown,pink,purple,cyan,white', 'bag colors ' + bagCols.join(','));
+  await frames(page, 4);
+  const near = await page.evaluate(() => window.__shardwild.slots.some(s => s.area === 'bag'));
+  assert(!near, 'loot panel opened over the bag row');
+  await page.screenshot({path: path.join(ART, 'screenshot_v14_loot_bags.png')});
+}
+
 async function main() {
   fs.mkdirSync(ART, {recursive: true});
   const errors = [];
@@ -1707,6 +1772,8 @@ async function main() {
     await tideclawAndStatus(page, cdp);
 
     await v12Coverage(page, cdp);
+
+    await v14Shots(page);
 
     await page.waitForTimeout(1200);
     const fps = await page.evaluate(() => window.__shardwild.fps);
