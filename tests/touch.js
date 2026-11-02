@@ -997,6 +997,10 @@ async function v14Shots(page) {
   const bagCols = await page.evaluate(() => {
     const sw = window.__shardwild;
     sw.clearBags();
+    // Open Haven floor, left of the carpet, clear of the portal, fountain, and chest.
+    const xs = [24, 48, 72, 96, 120];
+    const y = 68;
+    sw.teleport(40, 124);
     const specs = [
       [{k: 'hp'}],
       [{k: 'weapon', w: 'staff', t: 2}],
@@ -1006,8 +1010,8 @@ async function v14Shots(page) {
     ];
     specs.forEach(s => sw.spawnBag(s));
     const bags = sw.world.bags;
-    const dx = [-56, -28, 0, 28, 56];
-    bags.forEach((b, i) => { b.x = sw.P.x + dx[i]; b.y = sw.P.y - 40; });
+    bags.forEach((b, i) => { b.x = xs[i]; b.y = y; });
+    sw.pump(1);
     return bags.map(b => b.col);
   });
   assert(bagCols.join(',') === 'brown,pink,purple,cyan,white', 'bag colors ' + bagCols.join(','));
