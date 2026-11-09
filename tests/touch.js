@@ -404,8 +404,11 @@ async function charactersVaultWeapons(page, cdp) {
     localStorage.setItem('shardwild_save_v1', JSON.stringify({
       cls: 'bulwark', lvl: 7, xp: 4, xpTotal: 40,
       stats: {hp: 220, mp: 80, att: 14, def: 8, spd: 11, dex: 11, vit: 15, wis: 8},
-      eq: {ability: {id: 3, kind: 'ability', cls: 'bulwark', tier: 0, name: 'Splintered Seal', power: 8, fx: {stun: 2.5, bossStun: 1}}},
-      inv: [null, null, null, null, null, null, null, null],
+      eq: {
+        ability: {id: 3, kind: 'ability', cls: 'bulwark', tier: 0, name: 'Splintered Seal', power: 8, fx: {stun: 2.5, bossStun: 1}},
+        ring: {id: 9, kind: 'ring', tier: 3, name: 'Garnet Band', st: {def: 4}}
+      },
+      inv: [{id: 11, kind: 'ring', tier: 8, name: 'Tidepearl', st: {hp: 20, spd: 2, def: 1}, immune: ['slow'], dungeonUt: true, spr: 'tidepearl'}, null, null, null, null, null, null, null],
       beacons: ['haven'], seen: [], explored: {}, hpPots: 1, mpPots: 1
     }));
   });
@@ -423,6 +426,16 @@ async function charactersVaultWeapons(page, cdp) {
     return s && s.eq && s.eq.ability ? {cls: s.cls, name: s.eq.ability.name, ab: s.eq.ability.cls} : null;
   });
   assert(kept && kept.cls === 'knight' && kept.ab === 'knight' && kept.name === 'Splintered Shield', 'old Seal was not migrated ' + JSON.stringify(kept));
+  const ringMig = await page.evaluate(() => {
+    const raw = JSON.parse(localStorage.getItem('shardwild_chars_v1') || 'null');
+    const s = raw && raw.slots && raw.slots[0];
+    return {
+      ring: s && s.eq && s.eq.ring,
+      pearl: s && s.inv && s.inv[0]
+    };
+  });
+  assert(ringMig.ring && ringMig.ring.stat === 'def' && ringMig.ring.name === 'Ring of Superior Defense' && ringMig.ring.st.def === 4, 'old band was not migrated ' + JSON.stringify(ringMig.ring));
+  assert(ringMig.pearl && ringMig.pearl.name === 'Tidepearl' && ringMig.pearl.st.spd === 2 && !ringMig.pearl.stat, 'Tidepearl was rewritten ' + JSON.stringify(ringMig.pearl));
   assert(migrated.slot === 7, 'roster did not persist the migrated hero');
 }
 
@@ -1063,7 +1076,8 @@ async function v15Shots(page) {
   await findChest(page, ['Splintered Robe']);
   await frames(page, 2);
   await page.screenshot({path: path.join(ART, 'screenshot_v15_armor.png')});
-  await findChest(page, ['Copper Band']);
+  await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'rings');
+  await findChest(page, ['Ring of Minor Health']);
   await frames(page, 2);
   await page.screenshot({path: path.join(ART, 'screenshot_v15_rings.png')});
   await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'test');
@@ -1465,7 +1479,7 @@ async function main() {
     }, 16);
     assert(await page.evaluate(() => window.__shardwild.chestOpen), 'chest did not open');
     const cat = await page.evaluate(() => window.__shardwild.catalog);
-    assert(cat.weapons === 30 && cat.abilities === 27 && cat.armors === 27 && cat.rings === 9 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.dungeonKeys === 1 && cat.test === 3 && cat.n === 106, 'catalog ' + JSON.stringify(cat));
+    assert(cat.weapons === 30 && cat.abilities === 27 && cat.armors === 27 && cat.rings === 72 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.dungeonKeys === 1 && cat.test === 3 && cat.n === 169, 'catalog ' + JSON.stringify(cat));
     assert(cat.testNames && cat.testNames.join(',') === 'Godslayer Staff,Godslayer Bow,Godslayer Blade', 'test weapons ' + JSON.stringify(cat.testNames));
 
     let staff = null;
@@ -1647,7 +1661,8 @@ async function main() {
       await frames(page, 3);
       await page.screenshot({path: path.join(ART, 'screenshot_chest_' + tab + '_ut_armor.png')});
     }
-    await findChest(page, ['Astral Band']);
+    await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'rings');
+    await findChest(page, ['Ring of the Undying']);
     await frames(page, 3);
     await page.screenshot({path: path.join(ART, 'screenshot_chest_rings_ut.png')});
 
@@ -1675,8 +1690,8 @@ async function main() {
     assert(fpsChest > 50, 'fps while chest shimmer is up: ' + fpsChest);
 
     await walkTo(page, cdp, chest.x + 48, chest.y, () => !window.__shardwild.chestOpen, 14);
-    const bagNames = await page.evaluate(() => window.__shardwild.spawnBag([{k:'weapon', w:'staff', t:8}, {k:'ring', t:8}]));
-    assert(bagNames.indexOf('Hollow Crown Staff') >= 0 && bagNames.indexOf('Astral Band') >= 0, 'bag ' + bagNames.join(','));
+    const bagNames = await page.evaluate(() => window.__shardwild.spawnBag([{k:'weapon', w:'staff', t:8}, {k:'ring', t:8, stat:'hp'}]));
+    assert(bagNames.indexOf('Hollow Crown Staff') >= 0 && bagNames.indexOf('Ring of the Undying') >= 0, 'bag ' + bagNames.join(','));
     await frames(page, 4);
     const bagSlots = await page.evaluate(() => window.__shardwild.slots.filter(s => s.area === 'bag').map(s => s.name + ':' + s.tier));
     assert(bagSlots.some(s => s.indexOf('Hollow Crown Staff:8') === 0), 'loot panel ' + bagSlots.join(','));
