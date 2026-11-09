@@ -4,7 +4,7 @@ A pixel bullet-hell realm crawler for your phone. Death is permanent. Fame is th
 
 ## How to play
 
-Choose a hero — Wizard, Archer, or Knight — or play one you already saved. This device keeps four heroes, and two of the same class are fine. Each hero has their own level, stats, equipment, and backpack. You start in the Haven, a safe hub. Stand on the purple portal (the quest arrow points at it) and tap Enter Shardwild. The teal Vault portal on the right opens a shared chest room; those chests follow every hero. Walking onto a portal never moves you by itself.
+Choose a hero — Wizard, Archer, Knight, Priest, Warrior, or Rogue — or play one you already saved. This device keeps eight heroes, and two of the same class are fine. Each hero has their own level, stats, equipment, and backpack. You start in the Haven, a safe hub. Stand on the purple portal (the quest arrow points at it) and tap Enter Shardwild. The teal Vault portal on the right opens a shared chest room; those chests follow every hero. Walking onto a portal never moves you by itself.
 
 The realm is 800 tiles across and gets harder from the shore toward the center: Saltmarsh Shore, Greenmarch, Ashen Wilds, then the Godlands, where Morvane, the Hollow King, rises among the gods. Shellsnappers on the shore sometimes tear open a Tideclaw Burrow. Each visit digs a new warren of tide pools, tunnels, and caves, and Old Tideclaw waits in the farthest room. A Tideclaw Burrow Key in the Haven test chest's Keys tab opens the same portal. Monsters stay in the region they spawned in. They may chase a few tiles past the border, then they walk home. Kill them for experience (level 20 is the cap), take loot from bags, and drink stat elixirs. Each class has its own maximum for every stat. An elixir raises that stat until the cap; at the cap it says maxed and the bottle stays in your pack. The Haven test chest holds a Potion of Mastery that fills every stat to the cap. It never drops in the realm. Gear runs from plain T0–T2 through trimmed T3–T5 and ornate T6–T7. Boss-only untiered (UT) pieces have their own shape and a shimmer in the bag, backpack, and test chest. When you die, that hero is gone and the run's fame is recorded. Your best runs stay in the Hall of Fame on this device.
 
@@ -17,7 +17,7 @@ Shardwild is landscape-only. Hold the phone sideways. In portrait the game pause
 - The realm stays on the left. Stats, gear, and your backpack stay open on the right.
 - Drag the bottom-left of the playfield to move.
 - Drag the lower-right of the playfield, just left of the inventory, to aim. Your weapon fires while you hold.
-- The ability button, left of the aim stick, spends MP (Ember Nova, Thorn Volley, or Aegis Slam).
+- The ability button, left of the aim stick, spends MP (Ember Nova, Thorn Volley, Aegis Slam, Healing Tome, Berserk Helm, or Shadow Cloak).
 - ⌂ Haven sits above the aim stick. It is a large button on the playfield, just left of the inventory, and it returns you to the Haven. Tapping it does not fire.
 - AUTO toggles auto-aim. Heroes is only in the Haven. It opens character select, where you can play, create, or delete a hero. Deleting asks you to confirm. Outside the Haven, death is the way back to character select.
 - Drink healing draughts, mana draughts, and stat elixirs from the backpack. Tap the slot. The character panel shows each stat against its class cap, for example ATT 45/75, and a maxed stat is gold.
@@ -38,6 +38,6 @@ Shardwild is landscape-only. Hold the phone sideways. In portrait the game pause
 - Q or 1 drinks a healing draught. E or 2 drinks a mana draught.
 - F takes the first item from a nearby bag.
 - R or H returns to the Haven. T toggles auto-aim. M opens the map. Escape closes it.
-- On the title screen, 1 / 2 / 3 picks a class when you are creating a hero, and plays that slot when you are choosing one. Enter plays the active hero.
+- On the title screen, 1–6 picks a class when you are creating a hero, and 1–8 plays that slot when you are choosing one. Enter plays the active hero.
 
 Open `index.html` to play. On GitHub Pages the game is served from `/Shardwild/`.
