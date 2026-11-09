@@ -110,12 +110,12 @@ function buildSprites(){
   SPR.wisp=mkSprite(["...c....","..cc.c..",".cccccc.",".cwccwc.",".cccccc.","..cccc..","...cc...","....c..."],{c:'#4fe6ff',w:'#ffffff'});
   SPR.eye=mkSprite(["..rrrr..",".rwwwwr.","rwwkkwwr","rwkyykwr","rwkyykwr","rwwkkwwr",".rwwwwr.","..rrrr.."],{r:'#a0204a',w:'#f3e6ea',k:'#2a0d2a',y:'#ff4a6a'});
   SPR.colossus=mkSprite(["..ssss..",".sysyss.","ssssssss","sgssssgs","sgssssgs",".ssssss.",".ss..ss.",".ss..ss."],{s:'#9a9aa8',y:'#7af0ff',g:'#e3c25a'});
-  // Morvane: a bone-white skull in a spiked gold crown. Big sockets, ember eyes, nasal cavity, teeth.
+  // Morvane: bone skull under a gold crown. Five spikes, tallest in the middle, red gem in the band.
   SPR.king=mkSprite([
-    "....s......s....",
-    "...sg......gs...",
-    "..sgGmmmmmmGgs..",
-    "...gGmmBBmmGg...",
+    ".......ss.......",
+    ".....s.ss.s.....",
+    "...s.s.ss.s.s...",
+    "..gggggrrggggg..",
     "....wwwwwwww....",
     "...wwwwwwwwww...",
     "..wwkwwwwwwkww..",
@@ -130,7 +130,7 @@ function buildSprites(){
     ".....kkkkkk.....",
     "....kppppppk....",
     "...kp......pk..."
-  ],{s:'#ffe08a',g:'#e0b040',G:'#8a6018',m:'#ff4ad0',B:'#7af0ff',w:'#f4efe6',k:'#140c14',e:'#ff5a18',E:'#ffd34a',n:'#1a1218',t:'#fffef8',p:'#3a1848'});
+  ],{s:'#ffe14a',g:'#e0a018',r:'#e01828',w:'#f4efe6',k:'#140c14',e:'#ff5a18',E:'#ffd34a',n:'#1a1218',t:'#fffef8',p:'#3a1848'});
   SPR.oracle=mkSprite(["..wwww..",".wwwwww.","wwywwyww","wwwwwwww",".wppppw.","wwwwwwww","w.w..w.w",".w....w."],{w:'#e8e0ff',y:'#ffe14a',p:'#9a6aff'});
   SPR.saint=mkSprite(["...yy...",".ywwwwy.","yywccwyy","ywwwwwwy",".wwccww.","..wwww..",".ww..ww.","ww....ww"],{y:'#fff6c0',w:'#d8fff8',c:'#3ec8ff'});
   SPR.wyrm=mkSprite(["gg....gg","ggg..ggg",".gggggg.","ggyykyyg","ggkwwkgg",".gggggg.","..g..g..",".gg..gg."],{g:'#c8d0dc',y:'#7af0ff',k:'#1a2030',w:'#fff'});
@@ -519,61 +519,61 @@ const GEAR={
     utRows:['.pppppp.','ppcccccp','ppcrcccp','ppcrcccp','.tttttt.','.cccccc.','..cccc..','..tttt..'],
     ut:{p:'#7af0ff',c:'#3a5080',r:'#ff4ad0',t:'#ffd34a',h:'#e8fcff'},
   },
-  // Wands are a short thin rod with a tip, not a full staff. Handle sits low-left, spark at the upper right.
+  // Wands: a short thin shaft (~5px), a chunky gem head, and a pommel. Never a blade.
   wand:{
     rows:[
-      ['......t.','.....h..','....s...','...s....','..s.....','.p......','........','........'],
-      ['......tt','.....h..','....s...','...s....','..s.....','.p......','........','........'],
-      ['......t.','.....hm.','....s...','...s....','..r.....','.p......','........','........'],
-      ['......tg','.....hm.','....s...','...s....','..rs....','.pp.....','........','........'],
-      ['.....ttg','.....hm.','....s...','...sm...','..rs....','.pp.....','........','........'],
-      ['.....tgg','....thm.','....s...','...sm...','..rss...','.pp.....','........','........'],
-      ['.....tgg','....thmg','...ms...','...sm...','..rss...','.pps....','.pp.....','........'],
-      ['....ttgg','...tthmg','....ms..','...sm...','..rssg..','.ppss...','........','........'],
+      ['.....gg.','....gg..','...s....','..s.....','s.......','s.......','s.......','p.......'],
+      ['.....gm.','....gg..','...s....','..s.....','s.......','s.......','s.......','p.......'],
+      ['.....gg.','....gm..','...s....','..r.....','s.......','s.......','s.......','p.......'],
+      ['....ggg.','...gmmg.','..s.....','s.......','s.......','s.......','s.......','p.......'],
+      ['....ooo.','...oYYo.','..s.....','s.......','s.......','s.......','s.......','p.......'],
+      ['...gggg.','..gmmmg.','.sg.....','s.......','s.......','s.......','s.......','p.......'],
+      ['...gggg.','..gYYYg.','.sg.....','s.......','s.......','s.......','ts......','p.......'],
+      ['....ggg.','...gYYg.','..sgY...','s.......','s.......','s.......','ts......','pp......'],
     ],
     pal:[
-      {t:'#8a6848',h:'#6a5038',s:'#5c4030',p:'#3a2818'},
-      {t:'#9aa2aa',h:'#6e7680',s:'#4e565e',p:'#32383e'},
-      {t:'#a88458',h:'#7a5c38',s:'#5a4030',p:'#3a2818',m:'#8a6840',r:'#6a5038'},
-      {t:'#d0a050',h:'#8a6840',s:'#5c4030',p:'#c4a060',m:'#a84838',g:'#e8d0a0',r:'#6a5038'},
-      {t:'#e0c070',h:'#6a88a8',s:'#4a6078',p:'#d0b070',m:'#3aa8c0',g:'#f0e0b0',r:'#5a7088'},
-      {t:'#e0b0e8',h:'#8060a0',s:'#5a4868',p:'#c4a060',m:'#c060d0',g:'#f4e0ff',r:'#6a5070'},
-      {t:'#ffe14a',h:'#ff7030',s:'#c04818',p:'#ffd34a',m:'#fff6c0',g:'#ffffff',r:'#ff8a3a'},
-      {t:'#ffffff',h:'#ffe0a0',s:'#ffb020',p:'#ffd34a',m:'#ff4040',g:'#fff6c0',r:'#ff7030'},
+      {g:'#d2b48a',s:'#6a5040',p:'#4a3428'},
+      {g:'#8a9098',m:'#d0d6de',s:'#5a6068',p:'#3a4048'},
+      {g:'#c4a060',m:'#e8d0a0',s:'#6a5438',r:'#8a6848',p:'#4a3828'},
+      {g:'#e0b050',m:'#fff0c0',s:'#7a5840',p:'#c4a060'},
+      {o:'#3aa8c0',Y:'#e8fbff',s:'#4a6878',p:'#c4a878'},
+      {g:'#a060c0',m:'#f0d0ff',s:'#5a4868',p:'#c4a060'},
+      {g:'#ff7030',Y:'#fff6c0',s:'#c04818',t:'#ffe14a',p:'#ffd34a'},
+      {g:'#ff4040',Y:'#ffffff',s:'#ffb020',t:'#ffe14a',p:'#ffd34a'},
     ],
-    utRows:['....gggg','...tthmg','....ms..','...smm..','..rssg..','.ppss...','........','........'],
-    ut:{t:'#ffe08a',h:'#ff4ad0',s:'#6a30a0',p:'#ffd34a',m:'#ffffff',g:'#ff9adf',r:'#c060e0'},
+    utRows:['....ggg.','...gYYg.','..sg....','s.......','s.......','s.......','ts......','pp......'],
+    ut:{g:'#ff9adf',Y:'#ffffff',s:'#6a30a0',t:'#ffd34a',p:'#ffe08a'},
     shot:['#c4a070','#b0b6be','#c4a070','#e0b050','#3ad4f0','#c080e0','#ffe040','#ff5058'],
     utShot:'#ff4ad0',utShape:'ring',
-    test:{rows:['......tg','.....hm.','....s...','...s....','..s.....','p.......','........','........'],pal:{t:'#ffffff',h:'#ffe14a',s:'#ff3355',p:'#ffffff',m:'#fff6c0',g:'#ffe14a'}}
+    test:{rows:['....ggg.','...gYYg.','..ss....','s.......','s.......','s.......','s.......','p.......'],pal:{g:'#ffffff',Y:'#ffe14a',s:'#ff3355',p:'#ffffff'}}
   },
-  // Daggers are a short blade. The tip stops well before the corner a sword reaches.
+  // Daggers: short 2px blade, a horizontal crossguard, and a short grip. Much shorter than a sword.
   dagger:{
     rows:[
-      ['......t.','.....hb.','....h...','...g....','.r......','p.......','........','........'],
-      ['......t.','.....hb.','....hb..','...g....','.r......','p.......','........','........'],
-      ['......t.','.....hb.','....hb..','...g....','.rr.....','pp......','........','........'],
-      ['......t.','.....hb.','....hbg.','..gg....','.rr.....','pm......','........','........'],
-      ['......st','.....hb.','....hbg.','..ghg...','..r.....','pm......','........','........'],
-      ['......st','.....hb.','....hbs.','..ghg...','..rr....','pmm.....','........','........'],
-      ['......st','.....hbs','....ghb.','..ghbg..','..rr....','pmm.....','........','........'],
-      ['......st','.....hbs','....ghbg','..ghbg..','..rrr...','pmm.....','........','........'],
+      ['......t.','.....hb.','....hb..','.ggggg..','..r.....','p.......','........','........'],
+      ['......t.','.....hb.','....hb..','ggggggg.','..r.....','p.......','........','........'],
+      ['......t.','.....hb.','....hb..','ggggggg.','.rr.....','p.......','........','........'],
+      ['......t.','.....hb.','....hb..','gggmggg.','.rr.....','p.......','........','........'],
+      ['......st','.....hb.','....hb..','gggmggg.','.rr.....','pm......','........','........'],
+      ['......st','.....hb.','....hb..','gggmgggg','.rrr....','pm......','........','........'],
+      ['......st','.....hb.','....hbs.','gggmgggg','.rrr....','pmm.....','........','........'],
+      ['......st','.....hbs','....hb..','gggmgggg','.rrrr...','pmm.....','........','........'],
     ],
     pal:[
-      {t:'#c8ccd2',h:'#a8aeb6',b:'#8a9098',g:'#5a5048',r:'#4a3828',p:'#2e2418'},
-      {t:'#d0d6de',h:'#b0b8c2',b:'#9098a4',g:'#5c646c',r:'#3a4248',p:'#242c32'},
-      {t:'#e0d0b0',h:'#c0a888',b:'#a08868',g:'#6a5030',r:'#4a3424',p:'#2e2014'},
+      {t:'#d8dce4',h:'#c0c6ce',b:'#9aa2aa',g:'#6a6860',r:'#4a4038',p:'#3a3028'},
+      {t:'#e0e4ea',h:'#b4bcc4',b:'#8a949c',g:'#5a646c',r:'#3a444c',p:'#2a3038'},
+      {t:'#e8d8c0',h:'#c8b090',b:'#a08868',g:'#7a6248',r:'#5a4030',p:'#3a2818'},
       {t:'#f0e8d8',h:'#d8c8a8',b:'#c0a878',g:'#c4a060',r:'#5c4030',p:'#e8d8b0',m:'#a03848'},
-      {t:'#f4f0e4',h:'#e0d4b0',b:'#c8b888',g:'#d0a848',r:'#5a4030',p:'#f0e0b0',m:'#3a68b0',s:'#fff6d0'},
-      {t:'#ffe8c0',h:'#e8c080',b:'#c08848',g:'#e0b050',r:'#6a4020',p:'#ffe0a0',m:'#c06030',s:'#fff6c0'},
-      {t:'#fff6c0',h:'#ffd34a',b:'#e8a020',g:'#ff2860',r:'#6a3010',p:'#ffe14a',m:'#ffffff',s:'#ffffff'},
+      {t:'#fff6d0',h:'#e0d4b0',b:'#c8b888',g:'#d0a848',r:'#5a4030',p:'#f0e0b0',m:'#3a68b0',s:'#ffffff'},
+      {t:'#fff0c0',h:'#e8c080',b:'#c08848',g:'#e0b050',r:'#6a4020',p:'#ffe0a0',m:'#c06030',s:'#fff6c0'},
+      {t:'#ffffff',h:'#ffd34a',b:'#e8a020',g:'#ff2860',r:'#6a3010',p:'#ffe14a',m:'#ffffff',s:'#fff6c0'},
       {t:'#ffffff',h:'#ffe08a',b:'#ffb020',g:'#ff4040',r:'#c4a050',p:'#fff6c0',m:'#ff2860',s:'#ffffff'},
     ],
-    utRows:['......st','.....hbs','....ghbg','..ghbg..','..rrr...','pmmm....','........','........'],
+    utRows:['......st','.....hbs','....hb..','gggmgggg','.rrr....','pmm.....','........','........'],
     ut:{t:'#fff6c0',h:'#ff4a4a',b:'#c02020',g:'#ffd34a',r:'#3a1810',p:'#1a0c08',m:'#ffd34a',s:'#ffffff'},
     shot:['#c8ccd4','#b4bcc6','#c0b090','#e0c080','#8ec0e8','#e0a060','#ffe040','#ff5050'],
     utShot:'#ff4040',utShape:'slash',
-    test:{rows:['......t.','.....hb.','....hb..','...g....','.r......','p.......','........','........'],pal:{t:'#ffffff',h:'#fff6c0',b:'#ffe14a',g:'#ff3355',r:'#c8a050',p:'#ffffff'}}
+    test:{rows:['......t.','.....hb.','....hb..','ggggggg.','.r......','p.......','........','........'],pal:{t:'#ffffff',h:'#fff6c0',b:'#ffe14a',g:'#ff3355',r:'#c8a050',p:'#ffffff'}}
   },
   // Tomes are holy books: a cross on the cover, not the spellbook's gem.
   tome:{
@@ -625,30 +625,30 @@ const GEAR={
     utRows:['ttmggmtt','mghhhhgm','hkettekh','hkettekh','mmhhhhmm','.mmggmm.','.tthhtt.','.tttttt.'],
     ut:{t:'#ffd34a',h:'#fff6d0',e:'#ff4ad0',k:'#ffe08a',m:'#ffffff',g:'#ff2860'},
   },
-  // Cloaks are a hood and a hanging drape, not a leather jerkin.
+  // Cloaks: hood, neck clasp, draped cape, ragged hem. Same silhouette every tier; color and trim change.
   cloak:{
     rows:[
-      ['..hhhh..','.hhhhhh.','hh.ll.hh','hllllllh','.hllllh.','..llll..','.ll..ll.','........'],
-      ['..hhhh..','.hhhhhh.','hh.ll.hh','hllllllh','.hllllh.','..llll..','.ll..ll.','ll....ll'],
-      ['..hhhh..','.hhhhhh.','hh.mm.hh','hllllllh','.hllllh.','..llll..','.ll..ll.','ll....ll'],
-      ['..htth..','.hhhhhh.','hh.mm.hh','hllllllh','.hllllh.','..llll..','.ll..ll.','ll....ll'],
-      ['..htth..','.thhhhht','hh.mm.hh','htllllth','.hllllh.','..llll..','.ll..ll.','ll....ll'],
-      ['..htth..','.thhhhht','hhmmm.hh','htllllth','.htllth.','..tllt..','.ll..ll.','ll....ll'],
-      ['.thhhht.','.thhhhht','hhmmmmhh','htllllth','.htllth.','..tllt..','tll..llt','ll....ll'],
-      ['ttthhhtt','.thggght','hhmmmmhh','htllllth','.htllth.','ttlllltt','tll..llt','llllllll'],
+      ['..hhhh..','.hhhhhh.','hh.cc.hh','hcccccch','llllllll','llllllll','llllllll','l.llll.l'],
+      ['..hhhh..','.hhhhhh.','hh.cc.hh','hcccccch','llllllll','llllllll','llllllll','l.llll.l'],
+      ['..hhhh..','.hhhhhh.','hh.cc.hh','hcccccch','llllllll','llllllll','llllllll','l.llll.l'],
+      ['..hhhh..','.hhhhhh.','hh.cc.hh','hcccccch','llllllll','llllllll','llllllll','l.llll.l'],
+      ['..tttt..','.thhhhht','ht.cc.th','hcccccch','tllllllt','llllllll','llllllll','t.llll.t'],
+      ['..tttt..','.thhhhht','ht.cc.th','hcccccch','tllllllt','llllllll','llllllll','t.llll.t'],
+      ['..tttt..','.thhhhht','ht.cc.th','hcccccch','tllllllt','llllllll','llllllll','t.llll.t'],
+      ['..tttt..','.thhhhht','ht.cc.th','hcccccch','tllllllt','llllllll','llllllll','t.llll.t'],
     ],
     pal:[
-      {h:'#3a3844',l:'#2a2830'},
-      {h:'#4a4e56',l:'#32363e'},
-      {h:'#4a4038',l:'#2e2824',m:'#6a5848'},
-      {h:'#3a4840',l:'#243028',m:'#6a8858',t:'#8a7050'},
-      {h:'#2a4038',l:'#183028',m:'#3a9860',t:'#c4a060'},
-      {h:'#243028',l:'#142018',m:'#20a060',t:'#e0b050'},
-      {h:'#102018',l:'#0c1810',m:'#3dff80',t:'#ffe14a'},
-      {h:'#1a1028',l:'#100818',m:'#ff4ad0',t:'#ffd34a',g:'#ffffff'},
+      {h:'#9aa0aa',l:'#7a808a',c:'#c8ced6'},
+      {h:'#8a94a0',l:'#66707c',c:'#d0d8e0'},
+      {h:'#a07858',l:'#7a5840',c:'#d0b080'},
+      {h:'#3a6850',l:'#1e4030',c:'#d0c080'},
+      {h:'#2a5840',l:'#163828',c:'#ffe08a',t:'#e0b040'},
+      {h:'#246848',l:'#145030',c:'#fff0a0',t:'#ffd34a'},
+      {h:'#1a1a22',l:'#101014',c:'#ffe08a',t:'#ffd34a'},
+      {h:'#140818',l:'#0c0610',c:'#d060ff',t:'#ffd34a'},
     ],
-    utRows:['ttthhhtt','.thggght','hhmmmmhh','htllllth','.htllth.','ttlllltt','tll..llt','llllllll'],
-    ut:{h:'#140818',l:'#0c0614',m:'#ff4ad0',t:'#ffe14a',g:'#ffffff'},
+    utRows:['..tttt..','.thhhhht','ht.cc.th','hcccccch','tllllllt','llllllll','llllllll','t.llll.t'],
+    ut:{h:'#100818',l:'#08040c',c:'#ff9adf',t:'#ffe08a'},
   },
 };
 // Rings are T0–T7 only. One line per stat; the gem hue is the stat. Each tier has its own band and stone.
@@ -722,10 +722,11 @@ function buildGear(){
     for(const ch in need)if(!pal[ch])throw new Error('sprite '+id+' missing '+ch);
     GEARSPR[id]=mkRaw(rows,pal);
   }
-  // Same diagonal sword, bow, and staff silhouettes, recolored for the dungeon UTs.
-  paintUnique('voidblade',GEAR.sword.rows[7],{t:'#ff9adf',h:'#ff4ad0',b:'#16081f',s:'#ffe0ff',g:'#6a3088',r:'#120814',p:'#0c0610',m:'#ff4ad0'});
+  // Void Blade keeps the T7 sword mask. The blade body stays a readable dark purple so the width does not vanish.
+  paintUnique('voidblade',GEAR.sword.rows[7],{t:'#ffd0ff',h:'#ff4ad8',b:'#5c2494',s:'#ffffff',g:'#2c1848',r:'#4a3058',p:'#2a1838',m:'#c060ff'});
   paintUnique('vinebow',GEAR.bow.rows[5],{s:'#3d8a28',b:'#6a4420',g:'#c6e070',t:'#8fd16a'});
-  paintUnique('magmastaff',GEAR.staff.rows[6],{o:'#ff5a18',O:'#fff0c0',m:'#ffd34a',s:'#2a140c',b:'#140c08'});
+  // Magma Staff: light charred shaft and a large molten orb. Outline is added at draw time.
+  paintUnique('magmastaff',['....OOOO','...oYYYo','..soYYYo','.ss.oo..','ss......','s.......','s.......','b.......'],{O:'#fff4c0',Y:'#ffd24a',o:'#ff5a18',s:'#c8b4a0',b:'#8a7868'});
 }
 function gearSpr(kind,tier){
   if(tier==='test')return GEARSPR[kind+'|test']||null;
