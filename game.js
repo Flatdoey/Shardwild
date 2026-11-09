@@ -1,7 +1,7 @@
 'use strict';
 /* Shardwild: an original mobile bullet-hell realm crawler. Plain JS + canvas, no build step. */
 (function(){
-const GAME_VERSION='v21';
+const GAME_VERSION='v22';
 const cv=document.getElementById('game');
 const ctx=cv.getContext('2d',{alpha:false});
 let W=1,H=1,DPR=1,S=4,VW=1,VH=1;
@@ -100,8 +100,8 @@ function buildSprites(){
   SPR.priest=mkSprite(["..gggg..",".gssssg.","gs.ee.sg","..ssss..",".wwccww.",".wwwwww.","wwwwwwww","..w..w.."],{g:'#e8c24a',s:SK,e:EY,w:'#f4f1ea',c:'#ffd34a'});
   // Warrior: horned helm and red mail, like the RotMG warrior.
   SPR.warrior=mkSprite(["h......h","hhmmmmhh",".mkmmkm.","..mmmm..","rrrrrrrr","ryyyrrrr","rr.rr.rr","..r..r.."],{h:'#e3b33d',m:'#d5d8e0',k:EY,r:'#c02820',y:'#ffd34a'});
-  // Rogue: dark hood, glowing eyes, short cloak, like the RotMG rogue.
-  SPR.rogue=mkSprite(["..hhhh..",".hhhhhh.","hhweehhh",".hhhhhh.",".gggggg.","gglllg.g",".g.ll.g.","..g..g.."],{h:'#1a1820',w:'#e8ffe4',e:'#3dff6a',g:'#243028',l:'#6a4a30'});
+  // Rogue: dark purple-grey hood and cloak, skin-tone face, light tunic, dagger in hand.
+  SPR.rogue=mkSprite(["..kkkk..",".khhhhk.","hhs.ee.h",".hhsshh.",".cllll..","cllllgdd",".c.ll.dd","..c..gd."],{k:'#7c74a4',h:'#4e466c',s:SK,e:EY,c:'#342c50',l:'#f3efe4',g:'#c49848',d:'#f4f7ff'});
   SPR.crab=mkSprite(["r.r..r.r","rr....rr",".rrrrrr.","rrwkkwrr",".rrrrrr.","r.r..r.r"],{r:'#e0603a',w:'#fff',k:EY});
   SPR.imp=mkSprite(["o......o","oo....oo",".oooooo.",".oyooyo.",".oooooo.","..okko..",".oo..oo.",".o....o."],{o:'#d9a441',y:'#ff3b3b',k:EY});
   SPR.wolf=mkSprite(["b.....b.","bb...bbb","bbbbbbyb","bbbbbbbb",".bbbbbb.",".b.b.b.b"],{b:'#7a5236',y:'#ffe04a'});
@@ -519,33 +519,34 @@ const GEAR={
     utRows:['.pppppp.','ppcccccp','ppcrcccp','ppcrcccp','.tttttt.','.cccccc.','..cccc..','..tttt..'],
     ut:{p:'#7af0ff',c:'#3a5080',r:'#ff4ad0',t:'#ffd34a',h:'#e8fcff'},
   },
-  // Wands: straight 45° line. Pommel at the bottom-left, five 1px shaft steps, 2x2 gem at the top-right.
+  // One wand mask every tier. H is the star head, G the gem, S the thin shaft,
+  // W the wrapped grip, P the pommel. Only the colors change.
   wand:{
     rows:[
-      ['......gg','......gg','.....s..','....s...','...s....','..s.....','s.......','p.......'],
-      ['......gm','......gg','.....s..','....s...','...s....','..s.....','s.......','p.......'],
-      ['......gg','......gm','.....s..','....s...','...s....','..s.....','s.......','p.......'],
-      ['......gm','......gg','.....s..','....s...','...s....','..s.....','s.......','p.......'],
-      ['......oY','......oo','.....s..','....s...','...s....','..s.....','s.......','p.......'],
-      ['......gm','......gg','.....s..','....s...','...s....','..s.....','s.......','p.......'],
-      ['......gY','......gg','.....s..','....s...','...s....','..s.....','s.......','p.......'],
-      ['......gY','......Yg','.....s..','....s...','...s....','..s.....','s.......','p.......'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
     ],
     pal:[
-      {g:'#d2b48a',s:'#6a5040',p:'#4a3428'},
-      {g:'#8a9098',m:'#d0d6de',s:'#5a6068',p:'#3a4048'},
-      {g:'#c4a060',m:'#e8d0a0',s:'#6a5438',r:'#8a6848',p:'#4a3828'},
-      {g:'#e0b050',m:'#fff0c0',s:'#7a5840',p:'#c4a060'},
-      {o:'#3aa8c0',Y:'#e8fbff',s:'#4a6878',p:'#c4a878'},
-      {g:'#a060c0',m:'#f0d0ff',s:'#5a4868',p:'#c4a060'},
-      {g:'#ff7030',Y:'#fff6c0',s:'#c04818',p:'#ffd34a'},
-      {g:'#ff4040',Y:'#ffffff',s:'#ffb020',p:'#ffd34a'},
+      {H:'#c4a070',G:'#f0e0c8',S:'#6a4a30',W:'#8a5a38',P:'#6a6e78'},
+      {H:'#8a9098',G:'#e8eef6',S:'#5a6068',W:'#3e444c',P:'#c8ced6'},
+      {H:'#c4a060',G:'#fff0c0',S:'#6a5430',W:'#7a5430',P:'#d0c0a0'},
+      {H:'#e0b040',G:'#fff6c0',S:'#8a6840',W:'#a07030',P:'#e8d8b0'},
+      {H:'#3aa8c0',G:'#e8fbff',S:'#4a6878',W:'#2a4858',P:'#d0d8e0'},
+      {H:'#a060c0',G:'#f4d8ff',S:'#5a4868',W:'#3a2848',P:'#c8c0d0'},
+      {H:'#ff7030',G:'#fff6c0',S:'#c04818',W:'#8a2808',P:'#ffd34a'},
+      {H:'#ff4040',G:'#ffffff',S:'#e8b040',W:'#a06020',P:'#ffe08a'},
     ],
-    utRows:['......gY','......Yg','.....s..','....s...','...s....','..s.....','s.......','p.......'],
-    ut:{g:'#ff9adf',Y:'#ffffff',s:'#6a30a0',p:'#ffe08a'},
+    utRows:['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+    ut:{H:'#ff9adf',G:'#ffffff',S:'#6a30a0',W:'#4a1868',P:'#ffe08a'},
     shot:['#c4a070','#b0b6be','#c4a070','#e0b050','#3ad4f0','#c080e0','#ffe040','#ff5058'],
     utShot:'#ff4ad0',utShape:'ring',
-    test:{rows:['......gY','......Yg','.....s..','....s...','...s....','..s.....','s.......','p.......'],pal:{g:'#ffffff',Y:'#ffe14a',s:'#ff3355',p:'#ffffff'}}
+    test:{rows:['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],pal:{H:'#ffffff',G:'#ffe14a',S:'#ff3355',W:'#c8a050',P:'#ffffff'}}
   },
   // Daggers: 6px on the sword diagonal. Short grip, a 3px guard across the blade, then a 2px blade to the tip.
   dagger:{
@@ -575,80 +576,82 @@ const GEAR={
     utShot:'#ff4040',utShape:'slash',
     test:{rows:['.......t','......hb','.....hb.','...ghg..','...r....','..p.....','........','........'],pal:{t:'#ffffff',h:'#fff6c0',b:'#ffe14a',g:'#ff3355',r:'#c8a050',p:'#ffffff'}}
   },
-  // Tomes are holy books: a cross on the cover, not the spellbook's gem.
+  // One closed-book mask every tier. S spine, C cover, X the cross, P the page edges.
   tome:{
     rows:[
-      ['.sccccp.','sccccccp','sccg.ccp','scggggcp','sccg.ccp','sccccccp','.sppppp.','........'],
-      ['.sccccp.','sccccccp','sccggccp','scggggcp','sccggccp','sccccccp','.sppppp.','........'],
-      ['ssccccpp','sccccccp','sccggccp','scggggcp','sccggccp','sccccccp','sspppppp','........'],
-      ['ssccccpp','sccttccp','sccggccp','scggggcp','sccggccp','sccttccp','sspppppp','........'],
-      ['ssccccpp','sccttccp','tcggggct','scggggcp','tcggggct','sccttccp','sspppppp','........'],
-      ['ssccccpp','sccttccp','tcggggct','scgttgcp','tcggggct','sccttccp','sspppppp','.s....s.'],
-      ['ssggggpp','sccttccp','tcggggct','scgttgcp','tcggggct','sccttccp','sspppppp','ss....ss'],
-      ['ssggggpp','scgttgcp','tcggggct','scgttgcp','tcggggct','scgttgcp','sspppppp','ssppppss'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
     ],
     pal:[
-      {s:'#6a5840',c:'#c8b898',g:'#8a7048',p:'#a89070'},
-      {s:'#5a5e66',c:'#b0b6be',g:'#6a7078',p:'#8a9098'},
-      {s:'#6a5038',c:'#d0b888',g:'#a08048',p:'#c0a878'},
-      {s:'#8a6830',c:'#f0e0b0',g:'#d0a040',p:'#e8d090',t:'#c04030'},
-      {s:'#c8a050',c:'#fff4d0',g:'#e0b040',p:'#f0d898',t:'#d03028'},
-      {s:'#e0b050',c:'#fff8e0',g:'#ffe08a',p:'#f8e8c0',t:'#ff4040'},
-      {s:'#ffd34a',c:'#fffef4',g:'#ffe14a',p:'#fff6c0',t:'#ff2860'},
-      {s:'#ffffff',c:'#fffef8',g:'#ffe08a',p:'#fff6c0',t:'#ff4ad0'},
+      {S:'#5c3a24',C:'#a07850',X:'#b89850',P:'#d9d0c2'},
+      {S:'#4a5058',C:'#9aa0a8',X:'#c4a050',P:'#d9d0c2'},
+      {S:'#8a6840',C:'#c8a878',X:'#d0a848',P:'#e4dcc8'},
+      {S:'#3a5878',C:'#b9d4f0',X:'#e0b040',P:'#e6dece'},
+      {S:'#d4a84a',C:'#fff4d4',X:'#e8c050',P:'#d4ccc0'},
+      {S:'#e0b040',C:'#fffef8',X:'#ffd060',P:'#d4ccc0'},
+      {S:'#e8c050',C:'#eef6ff',X:'#e01828',P:'#d4ccc0'},
+      {S:'#ffd34a',C:'#fffef8',X:'#ff2438',P:'#d4ccc0'},
     ],
-    utRows:['ssggggpp','scgttgcp','tcggggct','scgttgcp','tcggggct','scgttgcp','sspppppp','ssppppss'],
-    ut:{s:'#ffd34a',c:'#fffef6',g:'#ffffff',p:'#ffe08a',t:'#ff4ad0'},
+    utRows:['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+    ut:{S:'#ffd34a',C:'#fffef6',X:'#ffffff',P:'#e6dece'},
   },
-  // Helms are a horned helmet seen from the front.
+  // Helms are a front-facing helmet: rounded dome, visor slit, cheek guards.
+  // Iron, then steel, then gold, then crimson and gold. Higher tiers add a crest or plume.
   helm:{
     rows:[
-      ['t......t','thhhhhht','hkeeeekh','hke..ekh','.hhhhhh.','..hhhh..','...hh...','........'],
-      ['t......t','thhhhhht','hkeeeekh','hke..ekh','.hhhhhh.','..hhhh..','...hh...','...tt...'],
-      ['tt....tt','thhhhhht','hkeeeekh','hke..ekh','.hhhhhh.','..hhhh..','...hh...','...tt...'],
-      ['tt.mm.tt','thhhhhht','hkeeeekh','hke..ekh','.hhhhhh.','..mhhhm.','...hh...','...tt...'],
-      ['tt.mm.tt','thhhhhht','hkeeeekh','hkettkeh','.hhhhhh.','..mhhhm.','...hh...','..tttt..'],
-      ['ttmmm.tt','mhhhhhhm','hkeeeekh','hkettkeh','.mhhhhhm','..mhhhm.','...hh...','..tttt..'],
-      ['ttmmmmtt','mhhhhhhm','hkeeeekh','hkettkeh','mmhhhhmm','..mhhhm.','..thht..','..tttt..'],
-      ['ttmmmmtt','mhhhhhhm','hkettekh','hkettekh','mmhhhhmm','.mmhhmm.','..thht..','.tttttt.'],
+      ['..hhhh..','.hlhhhl.','hhhhhhhh','hhsssshh','hh.ss.hh','hh....hh','h......h','hh....hh'],
+      ['..hhhh..','.hlhhhl.','hhhhhhhh','hhsssshh','hh.ss.hh','hh....hh','h......h','hh....hh'],
+      ['..hhhh..','.hlhhhl.','hhhhhhhh','hhsssshh','hh.ss.hh','hh....hh','h......h','hh....hh'],
+      ['..cccc..','.hhhhhh.','lhhhhhhl','hhsssshh','hh.ss.hh','hh....hh','h......h','hh....hh'],
+      ['..cccc..','.hhhhhh.','lhhhhhhl','hhsssshh','hh.ss.hh','hh....hh','h......h','ch....hc'],
+      ['..cccc..','.hhhhhh.','lhhhhhhl','hhsssshh','hh.ss.hh','hh....hh','h......h','gh....hg'],
+      ['..pppp..','.hhhhhh.','lhhhhhhl','hhsssshh','hh.ss.hh','hh....hh','h......h','hh....hh'],
+      ['g.pppp.g','ghhhhhhg','lhhhhhhl','hhsssshh','hh.ss.hh','gh....hg','h......h','hh....hh'],
     ],
     pal:[
-      {t:'#6a6056',h:'#8a847c',e:'#3a3834',k:'#5a564e'},
-      {t:'#7a8490',h:'#9aa4ae',e:'#3a444c',k:'#5a646e'},
-      {t:'#6a6460',h:'#8a8680',e:'#2e2c2a',k:'#4a4844'},
-      {t:'#a08048',h:'#c0a878',e:'#3a3028',k:'#6a5840',m:'#d0b070'},
-      {t:'#c4a060',h:'#e0c888',e:'#3a2820',k:'#8a6840',m:'#f0d090'},
-      {t:'#e0b050',h:'#f0d0a0',e:'#4a2018',k:'#c07030',m:'#ffe08a'},
-      {t:'#ffd34a',h:'#fff0c0',e:'#ff2860',k:'#ffe14a',m:'#ffffff'},
-      {t:'#ffffff',h:'#fff6c0',e:'#ff4040',k:'#ffd34a',m:'#ff4ad0'},
+      {h:'#6e6a64',l:'#a8a29a',s:'#1c1a16'},
+      {h:'#7a8088',l:'#b4bcc4',s:'#1a1e22'},
+      {h:'#8a96a4',l:'#d0dae4',s:'#1a2028'},
+      {h:'#9aa6b4',l:'#e4eaf2',s:'#1a2026',c:'#8a8478'},
+      {h:'#c4a050',l:'#ffe0a0',s:'#2a2010',c:'#e8c878'},
+      {h:'#e0b040',l:'#fff0c0',s:'#2a1808',c:'#fff0a0',g:'#ffe9a0'},
+      {h:'#e8c060',l:'#fff6d0',s:'#2a1408',p:'#c02028'},
+      {h:'#a01820',l:'#ffd34a',s:'#1a0808',p:'#ffd34a',g:'#ffe08a'},
     ],
-    utRows:['ttmggmtt','mghhhhgm','hkettekh','hkettekh','mmhhhhmm','.mmggmm.','.tthhtt.','.tttttt.'],
-    ut:{t:'#ffd34a',h:'#fff6d0',e:'#ff4ad0',k:'#ffe08a',m:'#ffffff',g:'#ff2860'},
+    utRows:['g.pppp.g','ghhhhhhg','lhhhhhhl','hhsssshh','hh.ss.hh','gh....hg','h......h','hh....hh'],
+    ut:{h:'#fff6d0',l:'#ffffff',s:'#2a0818',p:'#ff4ad0',g:'#ffd34a'},
   },
-  // Cloaks: hood, neck clasp, draped cape, ragged hem. Same silhouette every tier; color and trim change.
+  // Cloaks are a flat draped cape: hood, clasp, darker vertical folds, pointed hem.
+  // Taller than wide. Grey, brown, dark green, purple, then black with gold trim.
   cloak:{
     rows:[
-      ['..hhhh..','.hhhhhh.','hh.cc.hh','hcccccch','llllllll','llllllll','llllllll','l.llll.l'],
-      ['..hhhh..','.hhhhhh.','hh.cc.hh','hcccccch','llllllll','llllllll','llllllll','l.llll.l'],
-      ['..hhhh..','.hhhhhh.','hh.cc.hh','hcccccch','llllllll','llllllll','llllllll','l.llll.l'],
-      ['..hhhh..','.hhhhhh.','hh.cc.hh','hcccccch','llllllll','llllllll','llllllll','l.llll.l'],
-      ['..tttt..','.thhhhht','ht.cc.th','hcccccch','tllllllt','llllllll','llllllll','t.llll.t'],
-      ['..tttt..','.thhhhht','ht.cc.th','hcccccch','tllllllt','llllllll','llllllll','t.llll.t'],
-      ['..tttt..','.thhhhht','ht.cc.th','hcccccch','tllllllt','llllllll','llllllll','t.llll.t'],
-      ['..tttt..','.thhhhht','ht.cc.th','hcccccch','tllllllt','llllllll','llllllll','t.llll.t'],
+      ['..hhh..','.hh.hh.','h..c..h','hhhhhhh','h.f.f.h','hhfffhh','h.f.f.h','h..h..h'],
+      ['..hhh..','.hh.hh.','h..c..h','hhhhhhh','h.f.f.h','hhfffhh','h.f.f.h','h..h..h'],
+      ['..hhh..','.hh.hh.','h..c..h','hhhhhhh','h.f.f.h','hhfffhh','h.f.f.h','h..h..h'],
+      ['..hhh..','.hh.hh.','h..c..h','hhhhhhh','h.f.f.h','hhfffhh','h.f.f.h','h..h..h'],
+      ['..hhh..','.hh.hh.','h..c..h','hhhhhhh','h.f.f.h','hhfffhh','h.f.f.h','h..h..h'],
+      ['..hhh..','.hh.hh.','h..c..h','hhhhhhh','h.f.f.h','hhfffhh','h.f.f.h','h..h..h'],
+      ['..hhh..','.hh.hh.','h..c..h','hhhhhhh','h.f.f.h','hhfffhh','h.f.f.h','h..h..h'],
+      ['.ttttt.','th.h.ht','t..c..t','thhhhht','h.f.f.h','hhfffhh','h.f.f.h','t..h..t'],
     ],
     pal:[
-      {h:'#9aa0aa',l:'#7a808a',c:'#c8ced6'},
-      {h:'#8a94a0',l:'#66707c',c:'#d0d8e0'},
-      {h:'#a07858',l:'#7a5840',c:'#d0b080'},
-      {h:'#3a6850',l:'#1e4030',c:'#d0c080'},
-      {h:'#2a5840',l:'#163828',c:'#ffe08a',t:'#e0b040'},
-      {h:'#246848',l:'#145030',c:'#fff0a0',t:'#ffd34a'},
-      {h:'#1a1a22',l:'#101014',c:'#ffe08a',t:'#ffd34a'},
-      {h:'#140818',l:'#0c0610',c:'#d060ff',t:'#ffd34a'},
+      {h:'#8a9098',f:'#5c636c',c:'#d8dce4'},
+      {h:'#6a7580',f:'#3e4854',c:'#c0c8d0'},
+      {h:'#8a6844',f:'#5a3c24',c:'#e0c090'},
+      {h:'#6a4428',f:'#3a2414',c:'#c49860'},
+      {h:'#24543c',f:'#102818',c:'#c8b060'},
+      {h:'#5a3870',f:'#2c1840',c:'#e0c878'},
+      {h:'#2a1844',f:'#120818',c:'#c0a050'},
+      {h:'#16161c',f:'#0a0a0e',c:'#ffd34a',t:'#e8b84a'},
     ],
-    utRows:['..tttt..','.thhhhht','ht.cc.th','hcccccch','tllllllt','llllllll','llllllll','t.llll.t'],
-    ut:{h:'#100818',l:'#08040c',c:'#ff9adf',t:'#ffe08a'},
+    utRows:['.ttttt.','th.h.ht','t..c..t','thhhhht','h.f.f.h','hhfffhh','h.f.f.h','t..h..t'],
+    ut:{h:'#100818',f:'#08040c',c:'#ff9adf',t:'#ffe08a'},
   },
 };
 // Rings are T0–T7 only. One line per stat; the gem hue is the stat. Each tier has its own band and stone.
@@ -4625,8 +4628,6 @@ function render(){
     ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(e.x-w*0.35,e.y+h*0.4,w*0.7,2);
     if(e.d.god){ctx.globalAlpha=0.35;ctx.fillStyle='#ffd34a';ctx.beginPath();ctx.arc(e.x,e.y,e.d.r+2+Math.sin(time*3+e.id)*0.6,0,TAU);ctx.fill();ctx.globalAlpha=1;}
     if(e.flash>0)ctx.globalAlpha=0.55;drawSpr(s,Math.round(e.x-w/2),Math.round(e.y-h/2-bob),w,h,P.x<e.x);ctx.globalAlpha=1;
-    const tint=e.stun>0?'rgba(255,211,74,.4)':e.para>0?'rgba(180,106,255,.4)':e.slow>0?'rgba(90,150,255,.38)':e.weak>0?'rgba(170,190,90,.38)':null;
-    if(tint){ctx.fillStyle=tint;ctx.fillRect(Math.round(e.x-w/2),Math.round(e.y-h/2),w,h);}
     drawStatusPips(e.x-6,e.y-h/2-6,e);
     if(e.hp<e.maxhp&&!e.d.boss){const bw=Math.max(12,Math.round(e.d.r*1.6));ctx.fillStyle='#200';ctx.fillRect(e.x-bw/2,e.y+h/2+1,bw,2);ctx.fillStyle=e.d.god?'#ffd34a':e.elite?'#ffd34a':'#e8304a';ctx.fillRect(e.x-bw/2,e.y+h/2+1,bw*e.hp/e.maxhp,2);}
     if(e.elite||e.d.boss||e.d.god)labels.push([e.x,e.y-h/2-5,e.d.boss?e.name:e.name.split(' (')[0],e.d.boss?'#e0b0ff':e.d.god?'#ffe9a0':'#ffd34a']);
@@ -4638,8 +4639,6 @@ function render(){
    else if(P.hurt>0&&(time*30|0)%2)ctx.globalAlpha=0.5;
    drawSpr(s,Math.round(P.x-5),Math.round(P.y-6-bob),s.w,s.h,P.face<0);ctx.globalAlpha=1;
    if(P.invuln>0){ctx.strokeStyle='rgba(159,208,255,.9)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(P.x,P.y-1,8+Math.sin(time*10),0,TAU);ctx.stroke();}
-   const ptint=P.stun>0?'rgba(255,211,74,.4)':P.para>0?'rgba(180,106,255,.42)':P.slow>0?'rgba(90,150,255,.4)':P.weak>0?'rgba(170,190,90,.4)':null;
-   if(ptint){ctx.fillStyle=ptint;ctx.fillRect(Math.round(P.x-5),Math.round(P.y-6),s.w,s.h);}
    drawStatusPips(P.x-6,P.y-12,P);
   }
   for(let i=0;i<pbN;i++){const b=PB[i];const c=b.spr;ctx.drawImage(c,b.x-c.width/2,b.y-c.height/2);}
@@ -4724,6 +4723,7 @@ function circBtn(b,label,sub,col,fn,dim,extra){
   addRect(b.x-b.r,b.y-b.r,b.r*2,b.r*2,fn,'button',extra);
 }
 function sqBtn(x,y,w,h,label,col,fn,extra){ctx.fillStyle='rgba(16,12,28,.8)';ctx.fillRect(x,y,w,h);ctx.strokeStyle=col||'#8a7ad0';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,h-2);fitTxt(label,x+w/2,y+h/2+1,Math.min(14,Math.max(11,h*0.36)),col||'#fff',w-8,'center');addRect(x,y,w,h,fn,'button',extra);}
+function softBtn(x,y,w,h,label,col,fn,extra){ctx.fillStyle='rgba(16,12,28,.45)';ctx.fillRect(x,y,w,h);ctx.strokeStyle=col||'#6a6078';ctx.lineWidth=1;ctx.strokeRect(x+0.5,y+0.5,w-1,h-1);fitTxt(label,x+w/2,y+h/2+1,11,col||'#c8b8c8',w-6,'center');addRect(x,y,w,h,fn,'button',extra||null);}
 function miniBtn(x,y,w,h,label,col,fn,extra){
   ctx.fillStyle='rgba(16,12,28,.88)';ctx.fillRect(x,y,w,h);
   ctx.strokeStyle=col||'#8a7ad0';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,h-2);
@@ -5195,16 +5195,30 @@ function drawRosterScreen(){
     if(!s){
       ctx.strokeStyle='#3a3058';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,cw-2,ch-2);
       txt('Empty',x+cw/2,y+Math.max(28,ch*0.36),14,'#8a80a8','center');
-      sqBtn(x+10,y+ch-58,cw-20,46,'Create','#ffd34a',()=>{titleMode='create';},{tag:'char-new',slot:i});
+      const bw=Math.max(44,Math.min(cw-16,120)),bh=40;
+      sqBtn(x+(cw-bw)/2,y+ch-8-bh,bw,bh,'Create','#ffd34a',()=>{titleMode='create';},{tag:'char-new',slot:i});
     }else{
       const C=CLASSES[s.cls]||CLASSES.wizard;
       ctx.strokeStyle=C.col;ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,cw-2,ch-2);
-      const sp=SPR[C.spr],q=Math.min(40,cw*0.34,ch*0.28);
-      drawSpr(sp,x+cw/2-q/2,y+8,q,q);
-      fitTxt(C.name,x+cw/2,y+q+20,13,C.col,cw-12,'center');
-      txt('Lv '+s.lvl,x+cw/2,y+q+36,12,'#ffe9a0','center');
-      sqBtn(x+8,y+ch-92,cw-16,42,'Play',C.col,()=>continueGame(i),{tag:'char-play',slot:i});
-      sqBtn(x+8,y+ch-46,cw-16,40,'Delete','#ff8a8a',()=>{confirmSlot=i;titleMode='confirm';},{tag:'char-delete',slot:i});
+      const pad=6,gap=4,bh=40;
+      const rowW=cw-pad*2;
+      let delW=Math.round(clamp(rowW*0.32,52,72));
+      let playW=rowW-gap-delW;
+      const stacked=playW<48;
+      if(stacked){playW=rowW;delW=Math.max(44,Math.min(rowW,Math.round(rowW*0.62)));}
+      const blockH=stacked?bh*2+gap:bh;
+      const by=y+ch-6-blockH;
+      const top=y+4,room=Math.max(16,by-6-top);
+      const q=Math.max(16,Math.min(48,Math.floor(cw*0.5),room-28));
+      const sy=top+Math.max(0,(room-(q+28))/2);
+      const sp=SPR[C.spr];
+      drawSpr(sp,x+(cw-q)/2,sy,q,q);
+      fitTxt(C.name,x+cw/2,Math.min(sy+q+12,by-16),13,C.col,cw-12,'center');
+      txt('Lv '+s.lvl,x+cw/2,Math.min(sy+q+26,by-6),12,'#ffe9a0','center');
+      sqBtn(x+pad,by,playW,bh,'Play',C.col,()=>continueGame(i),{tag:'char-play',slot:i});
+      const dx=stacked?x+(cw-delW)/2:x+pad+playW+gap;
+      const dy=stacked?by+bh+gap:by;
+      softBtn(dx,dy,delW,bh,'Delete','#a88898',()=>{confirmSlot=i;titleMode='confirm';},{tag:'char-delete',slot:i});
     }
   }
   if(titleMode==='confirm')drawConfirmModal(r);
@@ -5645,6 +5659,25 @@ function renderPlate(kind){
         const s=SPR[CLASSES[k].spr],x=12+i*(cell+16);
         g.imageSmoothingEnabled=false;g.drawImage(s.c,x+(cell-s.w*scale)/2,28,s.w*scale,s.h*scale);
         g.fillStyle=CLASSES[k].col;g.textAlign='center';g.fillText(CLASSES[k].name,x+cell/2,36+cell);g.textAlign='left';
+      });
+    });
+  }
+  if(kind==='staffwand'||kind==='spelltome'||kind==='helms'||kind==='cloaks'){
+    const cell=(8+2)*scale,nameW=78;
+    const lines=kind==='staffwand'?[['Staff',t=>gearSpr('staff',t)],['Wand',t=>gearSpr('wand',t)]]
+      :kind==='spelltome'?[['Spellbook',t=>gearSpr('spell',t)],['Tome',t=>gearSpr('tome',t)]]
+      :kind==='helms'?[['Helm',t=>gearSpr('helm',t)]]
+      :[['Cloak',t=>gearSpr('cloak',t)]];
+    const title=kind==='staffwand'?'Staffs above wands':kind==='spelltome'?'Spellbooks above tomes':kind==='helms'?'Helms':'Cloaks';
+    return board(nameW+8*(cell+gap)+gap,36+lines.length*(cell+labelH+gap),g=>{
+      g.fillStyle='#ffd34a';g.fillText(title,12,20);
+      lines.forEach((line,row)=>{
+        const y=32+row*(cell+labelH+gap);
+        g.fillStyle='#d8d0ea';g.textAlign='left';g.fillText(line[0],8,y+cell/2);
+        for(let t=0;t<8;t++){
+          blit(g,line[1](t),nameW+t*(cell+gap),y);
+          g.fillStyle='#aaa';g.textAlign='center';g.fillText('T'+t,nameW+t*(cell+gap)+cell/2,y+cell+12);g.textAlign='left';
+        }
       });
     });
   }
