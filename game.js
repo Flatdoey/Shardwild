@@ -423,14 +423,14 @@ const GEAR={
 // Rings are T0–T7 only. One line per stat; the gem hue is the stat. Each tier has its own band and stone.
 function installRingSprites(){
   const shape=[
-    ['........','...G....','..b.b...','..b.d...','..b.d...','...d....','........','........'],
+    ['........','...G....','..h.b...','.h...d..','.b...d..','..bdd...','........','........'],
     ['........','..gG....','.bb.bb..','bb...dd.','b.....d.','.bb.dd..','..bdd...','........'],
     ['.hhhhhh.','..gGhh..','hb....dh','b......d','b......d','.b....d.','..hhhh..','........'],
     ['..GG....','..GG....','.b..bb..','b.....d.','b.....d.','.b...d..','..bddd..','...dd...'],
     ['..tG....','..GG....','.bb.bb..','bh....d.','b.....d.','.b.t.d..','..bddd..','........'],
     ['.tGGGt..','.gGGGg..','bb....bb','b......d','b......d','.bt..tb.','..bddd..','...dd...'],
-    ['stGGGtbs','bgGGGbbd','bbbbbbbb','bh.....d','b......d','bbt..tbb','sbbbbbbs','tbbbbbbt'],
-    ['sGGGGGGt','rGGGGGGr','bGGGGGGb','brG..Grb','bb....bb','bbr..rbb','bbbbbbbb','bbbbbbbb']
+    ['...gG...','..gGGG..','.hhGGbb.','h......b','b......d','b......d','.b....d.','..bddd..'],
+    ['s.gGG..s','.hgGGGb.','hhhgGbbb','hh....dd','bb....dd','bb....dd','.bd..dd.','..bddd..']
   ];
   const band=[
     {b:'#4a5158',h:'#7c848e',d:'#2e343a',t:'#9aa2aa',s:'#c0c6cc'},
