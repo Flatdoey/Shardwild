@@ -1,7 +1,7 @@
 'use strict';
 /* Shardwild: an original mobile bullet-hell realm crawler. Plain JS + canvas, no build step. */
 (function(){
-const GAME_VERSION='v18';
+const GAME_VERSION='v19';
 const cv=document.getElementById('game');
 const ctx=cv.getContext('2d',{alpha:false});
 let W=1,H=1,DPR=1,S=4,VW=1,VH=1;
@@ -203,7 +203,7 @@ const GEAR={
       ['.......t','......hb','.....hb.','....hbg.','..ghbg..','.rgggr..','.rr.....','pm......'],
       ['......st','......hb','.....hb.','....hb..','..ghbg..','.rgggr..','.rrr....','pmm.....'],
       ['......st','......hb','.....hb.','....hbs.','..ghbg..','.rggggr.','.rrrr...','pmm.....'],
-      ['.....sst','.....hhb','....hhbg','...ghhbg','..gghhbg','.rggggr.','.rrrr...','pmmm....'],
+      ['......st','......hb','.....hb.','....hbs.','..ghbg..','.rgggr..','.rrr....','pm......'],
     ],
     pal:[
       {t:'#e8ecf2',h:'#d4dae2',b:'#b0b6be',g:'#6e5428',r:'#5c4030',p:'#3a2818'},
@@ -213,7 +213,7 @@ const GEAR={
       {t:'#f4f8ff',h:'#e8eef8',b:'#c0cce0',g:'#e0b050',r:'#5a4030',p:'#d8e4f4',m:'#4068c0'},
       {t:'#ffe0c0',h:'#ffb060',b:'#c03818',g:'#ffe14a',r:'#3a2010',p:'#ffd0a0',m:'#fff6c0',s:'#ffffff'},
       {t:'#ffffff',h:'#f4fcff',b:'#c8f4ff',g:'#ffd24a',r:'#6a5030',p:'#e8fbff',m:'#7af0ff',s:'#ffffff'},
-      {t:'#fff6c0',h:'#ffffff',b:'#ffe14a',g:'#ff2860',r:'#8a4018',p:'#ffd060',m:'#ff2040',s:'#fff6c0'},
+      {t:'#fff8f6',h:'#ffe4ee',b:'#8c1234',g:'#ffd24a',r:'#c4a05a',p:'#ffe9a0',m:'#ff2458',s:'#ffffff'},
     ],
     utRows:['......st','......hb','.....hb.','....hb..','..ghbg..','.rggggr.','.rrrrr..','pmmm....'],
     ut:{t:'#ffe0f4',h:'#ff4ad0',b:'#5a28a0',g:'#ffd34a',r:'#2a1038',p:'#140818',m:'#ff4ad0',s:'#ffe14a'},
@@ -420,44 +420,48 @@ const GEAR={
     ut:{p:'#7af0ff',c:'#3a5080',r:'#ff4ad0',t:'#ffd34a',h:'#e8fcff'},
   },
 };
-// Rings are filled in by installRingSprites: one line per stat, same oval, gem = stat.
+// Rings are T0–T7 only. One line per stat; the gem hue is the stat. Each tier has its own band and stone.
 function installRingSprites(){
-  const low=['..gG....','.bGGb...','b....db.','bh....d.','b......d','.b....d.','..bddd..','........'];
-  const mid=['.ggGg...','bgGGGb..','bh....d.','b......d','b......d','.b..t.d.','..bddd..','........'];
-  const hi6=['s.GGGs..','.gGGGGb.','bh....d.','b......d','b......dt','.bt..td.','..bddd..','.s....s.'];
-  const hi7=['ssGGGs..','.gGGGGb.','bh....dt','b......d','b......d','.bt..tb.','..bddd..','s.....s.'];
-  const ut=['s.GGG.s.','.gGGGGg.','bt....tb','bh.....d','b......d','.bt..tb.','..bddd..','s......s'];
-  const shape=[low,low,low,mid,mid,mid,hi6,hi7,ut];
-  const band=[
-    {b:'#6a7078',h:'#a8b0b8',d:'#3e444c',t:'#8a9098',s:'#c0c6ce'},
-    {b:'#727a86',h:'#b4bec8',d:'#484e58',t:'#9098a0',s:'#c8ced6'},
-    {b:'#8e96a0',h:'#c8d0d8',d:'#545c66',t:'#a0a8b0',s:'#d0d6de'},
-    {b:'#a88840',h:'#e0c078',d:'#6a5420',t:'#f0d898',s:'#ffe8b0'},
-    {b:'#c09848',h:'#f0d090',d:'#7a5c28',t:'#ffe0a8',s:'#fff0c8'},
-    {b:'#d8b058',h:'#ffe0a8',d:'#8a6828',t:'#fff0c0',s:'#fff6d8'},
-    {b:'#e8b848',h:'#ffe8a8',d:'#a07020',t:'#fff6d0',s:'#ffe14a'},
-    {b:'#f0c050',h:'#fff0c0',d:'#c08028',t:'#ffffff',s:'#ffd020'},
-    {b:'#f8e2a8',h:'#fff6d8',d:'#c09040',t:'#ffffff',s:'#ffe14a'},
+  const shape=[
+    ['........','...G....','..b.b...','..b.d...','..b.d...','...d....','........','........'],
+    ['........','..gG....','.bb.bb..','bb...dd.','b.....d.','.bb.dd..','..bdd...','........'],
+    ['.hhhhhh.','..gGhh..','hb....dh','b......d','b......d','.b....d.','..hhhh..','........'],
+    ['..GG....','..GG....','.b..bb..','b.....d.','b.....d.','.b...d..','..bddd..','...dd...'],
+    ['..tG....','..GG....','.bb.bb..','bh....d.','b.....d.','.b.t.d..','..bddd..','........'],
+    ['.tGGGt..','.gGGGg..','bb....bb','b......d','b......d','.bt..tb.','..bddd..','...dd...'],
+    ['stGGGtbs','bgGGGbbd','bbbbbbbb','bh.....d','b......d','bbt..tbb','sbbbbbbs','tbbbbbbt'],
+    ['sGGGGGGt','rGGGGGGr','bGGGGGGb','brG..Grb','bb....bb','bbr..rbb','bbbbbbbb','bbbbbbbb']
   ];
-  // G is the main gem (more pixels). g is the facet. Low tiers stay muted so they pass the hot cap.
+  const band=[
+    {b:'#4a5158',h:'#7c848e',d:'#2e343a',t:'#9aa2aa',s:'#c0c6cc'},
+    {b:'#5c6570',h:'#909aa6',d:'#3a424c',t:'#a8b0b8',s:'#c8ced4'},
+    {b:'#b7c0ca',h:'#e6eef4',d:'#6a7682',t:'#f4f8fb',s:'#d8e0e8'},
+    {b:'#a56a32',h:'#d4a05c',d:'#5c3816',t:'#f0d8b0',s:'#ffe8c8'},
+    {b:'#d4a03c',h:'#f0d48a',d:'#7a5414',t:'#ffffff',s:'#fff4d0'},
+    {b:'#e8bc48',h:'#ffe6a0',d:'#8e6418',t:'#fff8d8',s:'#ffffff'},
+    {b:'#f0c24e',h:'#ffeab4',d:'#a07018',t:'#ffffff',s:'#fff6c8'},
+    {b:'#f3f0e4',h:'#ffffff',d:'#b7b2a2',t:'#ffffff',s:'#ffffff'}
+  ];
+  // g is the facet, G the body. T0–T2 stay muted. Health stays scarlet and Vitality stays maroon.
   const gem={
-    hp:[['#7a3038','#a84848'],['#ffd0d4','#ff2434'],['#ffffff','#ff1424']],
-    mp:[['#486888','#6890c0'],['#3060d0','#4070f0'],['#8eb4ff','#2f6bff']],
-    att:[['#784878','#a868a8'],['#a028a0','#c040c0'],['#f080f0','#d020d0']],
-    def:[['#b0b4c0','#e4e8f0'],['#c8c8d4','#e8e8f4'],['#d0d0dc','#f4f4ff']],
-    spd:[['#387848','#58a070'],['#188838','#22a848'],['#7ae090','#22b14c']],
-    dex:[['#886038','#a87848'],['#c06820','#e07828'],['#ffc070','#ff8c1a']],
-    vit:[['#4a1020','#6e2030'],['#5c1424','#7a1830'],['#a03040','#5a1020']],
-    wis:[['#387874','#58a09c'],['#109088','#14b0a8'],['#80eee6','#12c8c0']],
+    hp:[['#6e383c','#8c484c'],['#784044','#9a5054'],['#805058','#a86064'],['#c03840','#e02830'],['#e02030','#ff2438'],['#ff3040','#ff1828'],['#ff4550','#ff1424'],['#ff6068','#ff1018']],
+    mp:[['#3a4a62','#4a6284'],['#3c5478','#5074a4'],['#406488','#5888b4'],['#2860c8','#3074f0'],['#2060e8','#2a6bff'],['#3a82ff','#8eb4ff'],['#4a96ff','#b0d0ff'],['#6aa8ff','#e0eeff']],
+    att:[['#584058','#705878'],['#684868','#886888'],['#785878','#987090'],['#982898','#c040c0'],['#b028b0','#e058e0'],['#c848d0','#f080f0'],['#d858e0','#ff98ff'],['#e868f0','#ffc0ff']],
+    def:[['#8e969e','#b0b8c0'],['#9aa4ae','#c4ccd4'],['#b0bac4','#d4dce4'],['#c8d2de','#e8eef6'],['#d4deea','#f4f8ff'],['#e0e8f4','#ffffff'],['#e8f0ff','#ffffff'],['#d4e4ff','#f4f8ff']],
+    spd:[['#2c5434','#3c7044'],['#28643c','#348858'],['#307448','#40a060'],['#188838','#22a848'],['#20b04c','#3ad068'],['#28c860','#78e090'],['#48e888','#b8ffc8'],['#68f0a8','#e4ffee']],
+    dex:[['#6c4c30','#846038'],['#7c5834','#a07040'],['#886448','#b08450'],['#c06820','#e07828'],['#e07018','#ff8c1a'],['#ff8418','#ffc070'],['#ff9420','#ffe0a0'],['#ffa040','#fff0c8']],
+    vit:[['#3a1418','#4c1c24'],['#42181e','#582028'],['#4a1c24','#642830'],['#541820','#7a2430'],['#601c28','#8a3038'],['#6e2430','#9a3842'],['#7a2834','#a03440'],['#8a3040','#b04450']],
+    wis:[['#2c504c','#3c7068'],['#286860','#348880'],['#307068','#409890'],['#108880','#14b0a0'],['#12b0a4','#3ad8c8'],['#20d0c0','#80eee4'],['#48e8dc','#c0fff6'],['#78fff0','#e8fffc']]
   };
   for(const stat of STATK){
     const pals=[];
-    for(let t=0;t<9;t++){
-      const pair=gem[stat][t<3?0:t<6?1:2];
-      pals.push(Object.assign({g:pair[0],G:pair[1]},band[t]));
+    for(let t=0;t<8;t++){
+      const pair=gem[stat][t];
+      const pal=Object.assign({g:pair[0],G:pair[1],r:pair[1]},band[t]);
+      pals.push(pal);
     }
     const key=stat==='hp'?'ring':'ring_'+stat;
-    GEAR[key]={rows:shape.slice(0,8),pal:pals.slice(0,8),utRows:shape[8],ut:pals[8]};
+    GEAR[key]={rows:shape,pal:pals};
   }
 }
 function buildGear(){
@@ -465,6 +469,7 @@ function buildGear(){
   for(const k in GEAR){
     const g=GEAR[k];
     for(let t=0;t<=8;t++){
+      if(t>7&&!g.utRows)continue;
       const rows=t>7?g.utRows:g.rows[t],pal=t>7?g.ut:g.pal[t],need={};
       for(const row of rows)for(const ch of row)if(ch!=='.')need[ch]=1;
       for(const ch in need)if(!pal[ch])throw new Error('sprite '+k+' T'+t+' missing '+ch);
@@ -479,7 +484,14 @@ function buildGear(){
     if(g.shot&&g.shot.length!==8)throw new Error('shot '+k);
   }
 }
-function gearSpr(kind,tier){if(tier==='test')return GEARSPR[kind+'|test']||null;const t=tier>7?8:tier|0;return GEARSPR[kind+'|'+t]||null;}
+function gearSpr(kind,tier){
+  if(tier==='test')return GEARSPR[kind+'|test']||null;
+  const ring=kind==='ring'||(typeof kind==='string'&&kind.indexOf('ring_')===0);
+  let t=tier|0;
+  if(ring)t=clamp(t,0,7);
+  else t=t>7?8:clamp(t,0,7);
+  return GEARSPR[kind+'|'+t]||null;
+}
 
 /* ---------------- pixel bullets ---------------- */
 const bulletCache={};
@@ -602,19 +614,73 @@ function tileBase(wd,i,t){
   if(t===T_PLANTER||t===T_BENCH||t===T_CRATE||t===T_RUG)return t===T_RUG?T_RUG:T_FLOOR;
   return t;
 }
-function seaTop(px,py,tx,ty,h){
-  const seam=((px+((ty&1)?2:0))%4===0);
-  if(py===0)return [168,214,206];
-  if(h>0.78&&px>1&&px<6&&py===1)return [214,112,96];
-  if(seam)return [62,102,100];
-  return (px+py+tx)&1?[118,162,156]:[96,142,136];
+function burrowWallAt(wd,tx,ty){
+  if(!wd)return true;
+  if(tx<0||ty<0||tx>=wd.w||ty>=wd.h)return !!wd.isDungeon;
+  return wd.tiles[ty*wd.w+tx]===T_BWALL;
 }
-function seaFront(px,py,tx,ty,h){
-  const seam=((px+((ty&1)?2:0))%4===0);
-  if(py===7)return [12,22,24];
-  if(seam)return [28,50,52];
-  if(h>0.88&&(px===2||px===5)&&py>3&&py<7)return [72,128,122];
-  return (py&1)?[38,62,64]:[48,74,76];
+function clampRGB(c){return [clamp(c[0],0,255)|0,clamp(c[1],0,255)|0,clamp(c[2],0,255)|0];}
+// Raised Tideclaw wall. The cap is coral-stone brick; the face below is darker mortar.
+// Tiles outside the map count as more wall, so the rock continues past the canvas edge.
+function burrowWallPixel(wd,tx,ty,px,py){
+  const west=burrowWallAt(wd,tx-1,ty),east=burrowWallAt(wd,tx+1,ty);
+  const north=burrowWallAt(wd,tx,ty-1),south=burrowWallAt(wd,tx,ty+1);
+  const edgeL=!west&&px===0,edgeR=!east&&px===7;
+  const v=(hash2(tx*9+3,ty*7+11)*7)|0;
+  const stagger=(ty&1)?2:0;
+  const mortar=((px+stagger)&3)===0;
+  const n=hash2(tx*13+px*3,ty*17+py*5);
+  const shift=(hash2(tx*19+5,ty*23+2)-0.5)*22;
+  const crack=v===0&&(px===2||px===5)&&py>0&&py<6&&((py+tx)&1)===0;
+  const barn=v===1&&((px===3&&py===1)||(px===6&&py===2)||(px===4&&py===5));
+  const moss=v===2&&py<3&&px>1&&px<6&&((px+py)&1)===0;
+  const wet=v===3&&py<=1&&(px===3||px===4);
+  const coral=v===4||(v===5&&px>2&&px<6);
+  const chip=v===6&&px===1&&py===4;
+  if(edgeL||edgeR){
+    const outerTop=!north&&py===0;
+    if(outerTop)return [196,214,204];
+    if(py===0)return [120,138,132];
+    if(py<3)return (px+py)&1?[96,118,112]:[78,98,94];
+    if(py===7||py===3)return [14,18,20];
+    return (py&1)?[24,32,34]:[34,44,46];
+  }
+  if(py<3){
+    if(mortar)return [52,64,62];
+    if(crack)return [36,42,40];
+    if(barn)return [214,206,184];
+    if(moss)return [70,122,68];
+    if(wet)return [210,236,226];
+    let c=coral?((px+tx)&1?[176,116,100]:[150,96,86]):((px+tx+ty)&1?[128,146,140]:[108,126,122]);
+    c=[c[0]+shift,c[1]+shift*0.9,c[2]+shift*0.75];
+    if(py===0)c=[c[0]+(north?8:34),c[1]+(north?10:40),c[2]+(north?8:32)];
+    if(n>0.93&&py===1)c=[c[0]+20,c[1]+18,c[2]+14];
+    return clampRGB(c);
+  }
+  if(py===3||mortar)return [20,26,28];
+  if(py===7)return [10,14,16];
+  if(crack)return [16,20,22];
+  if(barn)return [140,136,122];
+  if(chip)return [18,22,24];
+  if(moss&&py===4)return [48,78,50];
+  let c=(py&1)?[40,50,52]:[52,64,66];
+  if(coral&&px>2&&px<6)c=[c[0]+18,c[1]-6,c[2]-8];
+  c=[c[0]+shift*0.35,c[1]+shift*0.3,c[2]+shift*0.3];
+  if(!south&&py>5)c=[c[0]-10,c[1]-8,c[2]-6];
+  return clampRGB(c);
+}
+function outsideDist(wd,tx,ty){
+  const dx=tx<0?-tx:tx>=wd.w?tx-(wd.w-1):0;
+  const dy=ty<0?-ty:ty>=wd.h?ty-(wd.h-1):0;
+  return Math.max(dx,dy);
+}
+function voidRGB(wd,tx,ty,px,py){
+  const dist=outsideDist(wd,tx,ty);
+  const c=burrowWallPixel(wd,tx,ty,px,py);
+  const fade=dist<=2?1:clamp(1-(dist-2)/12,0,1);
+  const k=fade*fade;
+  const grain=(hash2(tx*5+px,ty*9+py)-0.5)*14*fade;
+  return [clamp(c[0]*k+grain,0,255)|0,clamp(c[1]*k+grain,0,255)|0,clamp(c[2]*k+grain*0.85,0,255)|0];
 }
 function stoneTop(px,py,tx,ty){
   const seam=((px+((ty&1)?3:0))%4===0)||py===2;
@@ -629,19 +695,22 @@ function stoneFront(px,py,tx,ty){
   return (py&1)?[58,52,74]:[70,64,88];
 }
 function wallRGB(wd,tx,ty,px,py,t){
-  const sea=t===T_BWALL;
+  if(t===T_BWALL)return burrowWallPixel(wd,tx,ty,px,py);
   const west=tx>0&&wd.tiles[ty*wd.w+tx-1]===t;
   const east=tx+1<wd.w&&wd.tiles[ty*wd.w+tx+1]===t;
-  const h=hash2(tx*5+1,ty*3+2);
   if((px===0&&!west)||(px===7&&!east)){
-    if(py<3)return sea?[58,96,94]:[108,100,124];
-    return sea?[22,38,40]:[36,32,50];
+    if(py<3)return [108,100,124];
+    return [36,32,50];
   }
-  if(py<3)return sea?seaTop(px,py,tx,ty,h):stoneTop(px,py,tx,ty);
-  return sea?seaFront(px,py,tx,ty,h):stoneFront(px,py,tx,ty);
+  if(py<3)return stoneTop(px,py,tx,ty);
+  return stoneFront(px,py,tx,ty);
 }
 function wallLip(t,tx,px,py){
-  if(t===T_BWALL)return py===0?[20,36,38]:((px+tx)&3)===0?[30,52,54]:[40,64,66];
+  if(t===T_BWALL){
+    if(py===0)return [14,20,22];
+    if(((px+((tx&1)?2:0))&3)===0)return [24,32,34];
+    return [32,44,46];
+  }
   return py===0?[28,24,40]:((px+tx)&3)===0?[48,42,62]:[62,56,78];
 }
 function burrowFloor(tx,ty,px,py){
@@ -757,7 +826,7 @@ function groundRGB(tx,ty,px,py,base){
     return ((gx>>1)+(gy>>1))&1?[46,58,108]:[68,84,138];
   }
   if(base===T_BFLOOR)return burrowFloor(tx,ty,px,py);
-  if(base===T_BWALL)return py<3?seaTop(px,py,tx,ty,n):seaFront(px,py,tx,ty,n);
+  if(base===T_BWALL)return burrowWallPixel(null,tx,ty,px,py);
   if(base===T_BPOOL){
     if(px>1&&px<6&&py>1&&py<6)return (px+py)&1?[28,120,132]:[64,176,184];
     if(((px+ty)&3)===0&&(py&1)===0)return [120,210,214];
@@ -821,6 +890,46 @@ function renderWorld(wd){
   else{wd.canvas=null;wd.chunked=true;wd.chunks=new Map();}
 }
 let chunkTick=0;
+function rasterVoid(wd,x0,y0,tw,th){
+  const c=document.createElement('canvas');c.width=tw*TS;c.height=th*TS;
+  const g=c.getContext('2d'),img=g.createImageData(c.width,c.height),d=img.data;
+  for(let ty=0;ty<th;ty++)for(let tx=0;tx<tw;tx++){
+    const wx=x0+tx,wy=y0+ty;
+    if(wx>=0&&wy>=0&&wx<wd.w&&wy<wd.h)continue;
+    for(let py=0;py<TS;py++)for(let px=0;px<TS;px++){
+      const col=voidRGB(wd,wx,wy,px,py),p=((ty*TS+py)*c.width+(tx*TS+px))*4;
+      d[p]=col[0];d[p+1]=col[1];d[p+2]=col[2];d[p+3]=255;
+    }
+  }
+  g.putImageData(img,0,0);
+  return c;
+}
+function drawDungeonVoid(wd){
+  if(!wd||!wd.isDungeon)return;
+  if(!wd.voidChunks)wd.voidChunks=new Map();
+  chunkTick++;
+  const tx0=Math.floor(camX/TS)-1,ty0=Math.floor(camY/TS)-1,tx1=Math.ceil((camX+VW)/TS)+1,ty1=Math.ceil((camY+VH)/TS)+1;
+  for(let cy=Math.floor(ty0/CHUNK);cy<=Math.floor(ty1/CHUNK);cy++)for(let cx=Math.floor(tx0/CHUNK);cx<=Math.floor(tx1/CHUNK);cx++){
+    const x0=cx*CHUNK,y0=cy*CHUNK,x1=x0+CHUNK,y1=y0+CHUNK;
+    if(x0>=0&&y0>=0&&x1<=wd.w&&y1<=wd.h)continue;
+    const dx=x1<=0?1-x1:x0>=wd.w?x0-(wd.w-1):0;
+    const dy=y1<=0?1-y1:y0>=wd.h?y0-(wd.h-1):0;
+    if(Math.max(dx,dy)>18)continue;
+    const key=cx+','+cy;
+    let ch=wd.voidChunks.get(key);
+    if(!ch){
+      ch={c:rasterVoid(wd,x0,y0,CHUNK,CHUNK),used:0};
+      wd.voidChunks.set(key,ch);
+      if(wd.voidChunks.size>48){
+        let oldK=null,oldU=1e15;
+        for(const [k,v] of wd.voidChunks){if(k!==key&&v.used<oldU){oldU=v.used;oldK=k;}}
+        if(oldK)wd.voidChunks.delete(oldK);
+      }
+    }
+    ch.used=chunkTick;
+    ctx.drawImage(ch.c,x0*TS,y0*TS);
+  }
+}
 function drawTerrain(wd){
   if(!wd)return;
   if(wd.canvas){
@@ -1508,7 +1617,9 @@ function primaryRingStat(st){
 function mkRing(t,stat){
   if(stat&&typeof stat==='object')stat=primaryRingStat(stat);
   if(!stat||!RING_NOUN[stat])stat=pick(STATK);
-  const tier=clamp(t|0,0,8);
+  let tier=t|0;
+  if(tier>7)tier=7;
+  tier=clamp(tier,0,7);
   return {id:itemId++,kind:'ring',tier,stat,name:ringName(stat,tier),st:{[stat]:ringBonus(stat,tier)}};
 }
 const ABIL_NOUN={wizard:'Spellbook',archer:'Quiver',knight:'Shield'};
@@ -1602,7 +1713,7 @@ function itemCatalog(){
   for(const g of CLASSKEYS)for(let t=0;t<=8;t++)items.push(tagItem(mkAbility(g,t),g));
   const arms=[['wizard','robe'],['archer','leather'],['knight','heavy']];
   for(const [g,a] of arms)for(let t=0;t<=8;t++)items.push(tagItem(mkArmor(a,t),g));
-  for(const k of STATK)for(let t=0;t<=8;t++)items.push(tagItem(mkRing(t,k),'rings'));
+  for(const k of STATK)for(let t=0;t<=7;t++)items.push(tagItem(mkRing(t,k),'rings'));
   items.push(tagItem(mkPot('hp'),'all'),tagItem(mkPot('mp'),'all'));
   for(const k of STATK)items.push(tagItem(mkElixirOf(k),'all'));
   items.push(tagItem(mkMastery(),'pots'));
@@ -1876,12 +1987,18 @@ function createAudio(){
   const MELODY={
     haven:[262,330,392,330,294,392,440,330],
     realm:[220,262,196,247,175,233,196,165],
-    boss:[156,185,147,175,139,165,131,156]
+    boss:[156,185,147,175,139,165,131,156],
+    burrow:[880,698,587,523,466,587,440,349],
+    burrowBoss:[784,659,523,466,392,523,349,311]
   };
-  const DRONE={haven:131,realm:110,boss:73};
-  const MSTEP={haven:0.5,realm:0.32,boss:0.18};
+  const DRONE={haven:131,realm:110,boss:73,burrow:55,burrowBoss:41};
+  const MSTEP={haven:0.5,realm:0.32,boss:0.18,burrow:0.68,burrowBoss:0.46};
   function mood(){
     if(layoutC.portrait||state!=='play'||!P||!world||!musicOn)return 'none';
+    if(world.isDungeon){
+      if(world.boss&&Math.hypot(world.boss.x-P.x,world.boss.y-P.y)<200)return 'burrowBoss';
+      return 'burrow';
+    }
     if(!peaceful()&&world.boss&&Math.hypot(world.boss.x-P.x,world.boss.y-P.y)<340)return 'boss';
     return peaceful()?'haven':'realm';
   }
@@ -1892,28 +2009,71 @@ function createAudio(){
       drone=ctx.createOscillator();droneG=ctx.createGain();drone.type='sine';droneG.gain.value=0.0001;
       drone.connect(droneG);droneG.connect(musicBus);drone.start();
     }
-    if(droneMood!==m){drone.frequency.setTargetAtTime(DRONE[m],ctx.currentTime,0.25);droneMood=m;}
-    droneG.gain.setTargetAtTime(m==='boss'?0.02:0.012,ctx.currentTime,0.2);
+    if(droneMood!==m){drone.frequency.setTargetAtTime(DRONE[m],ctx.currentTime,0.4);droneMood=m;}
+    const g=m==='boss'?0.02:m==='burrowBoss'?0.016:m==='burrow'?0.011:0.012;
+    droneG.gain.setTargetAtTime(g,ctx.currentTime,0.25);
+  }
+  function musicTone(freq,when,dur,type,gain,slide){
+    if(!ctx)return;
+    try{
+      const o=ctx.createOscillator(),gn=ctx.createGain();
+      o.type=type||'sine';
+      const f0=Math.max(30,freq);
+      o.frequency.setValueAtTime(f0,when);
+      if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),when+Math.max(0.02,dur));
+      gn.gain.setValueAtTime(0.0001,when);
+      gn.gain.exponentialRampToValueAtTime(Math.max(0.0002,gain),when+0.015);
+      gn.gain.exponentialRampToValueAtTime(0.0001,when+Math.max(0.03,dur));
+      o.connect(gn);gn.connect(musicBus);
+      o.start(when);o.stop(when+dur+0.03);
+      notes++;
+    }catch(e){}
+  }
+  function dripTick(when,gain){
+    if(!ctx||!noiseBuf)return;
+    try{
+      const src=ctx.createBufferSource();src.buffer=noiseBuf;
+      const f=ctx.createBiquadFilter();f.type='highpass';f.frequency.value=1600;f.Q.value=0.7;
+      const gn=ctx.createGain();
+      gn.gain.setValueAtTime(gain,when);
+      gn.gain.exponentialRampToValueAtTime(0.0001,when+0.045);
+      src.connect(f);f.connect(gn);gn.connect(musicBus);
+      src.start(when);src.stop(when+0.05);
+    }catch(e){}
+  }
+  function scheduleBurrow(m,t,step){
+    const boss=m==='burrowBoss';
+    const seq=MELODY[m],i=musicStep%seq.length,f=seq[i];
+    musicStep++;
+    musicTone(f,t,boss?0.22:0.28,'sine',boss?0.02:0.014,f*0.62);
+    if(i%2===1)musicTone(f*1.5,t+0.05,0.09,'sine',boss?0.01:0.007,Math.min(1800,f*2.4));
+    if(i%4===0){
+      musicTone(boss?62:73,t,0.12,'sine',boss?0.03:0.02,40);
+      dripTick(t,boss?0.04:0.025);
+    }else if(boss&&i%2===0)dripTick(t+0.02,0.02);
   }
   function schedule(m){
     if(!ctx||m==='none'){musicTime=0;return;}
     const now=ctx.currentTime;
     if(!musicTime||musicTime<now)musicTime=now+0.04;
     const step=MSTEP[m];let guard=0;
-    while(musicTime<now+0.2&&guard++<5){
-      const seq=MELODY[m],f=seq[musicStep%seq.length];musicStep++;
-      try{
-        const o=ctx.createOscillator(),g=ctx.createGain();
-        o.type=m==='boss'?'sawtooth':m==='realm'?'triangle':'sine';
-        o.frequency.setValueAtTime(f,musicTime);
-        const peak=m==='boss'?0.03:0.024;
-        g.gain.setValueAtTime(0.0001,musicTime);
-        g.gain.exponentialRampToValueAtTime(peak,musicTime+0.03);
-        g.gain.exponentialRampToValueAtTime(0.0001,musicTime+step*0.9);
-        o.connect(g);g.connect(musicBus);
-        o.start(musicTime);o.stop(musicTime+step*0.92);
-        notes++;
-      }catch(e){}
+    while(musicTime<now+0.25&&guard++<6){
+      if(m==='burrow'||m==='burrowBoss')scheduleBurrow(m,musicTime,step);
+      else{
+        const seq=MELODY[m],f=seq[musicStep%seq.length];musicStep++;
+        try{
+          const o=ctx.createOscillator(),g=ctx.createGain();
+          o.type=m==='boss'?'sawtooth':m==='realm'?'triangle':'sine';
+          o.frequency.setValueAtTime(f,musicTime);
+          const peak=m==='boss'?0.03:0.024;
+          g.gain.setValueAtTime(0.0001,musicTime);
+          g.gain.exponentialRampToValueAtTime(peak,musicTime+0.03);
+          g.gain.exponentialRampToValueAtTime(0.0001,musicTime+step*0.9);
+          o.connect(g);g.connect(musicBus);
+          o.start(musicTime);o.stop(musicTime+step*0.92);
+          notes++;
+        }catch(e){}
+      }
       musicTime+=step;
     }
   }
@@ -1937,7 +2097,7 @@ function createAudio(){
     if(sfxOn&&ctx&&ctx.state==='suspended'){const p=ctx.resume();if(p&&p.catch)p.catch(function(){});}
   }
   return {unlock:unlock,tick:tick,cycle:cycle,shoot:shoot,hit:hit,kill:kill,hurt:hurt,ability:ability,potion:potion,drop:drop,pickup:pickup,equip:equip,level:level,beacon:beacon,teleport:teleport,portal:portal,roar:roar,phase:phase,death:death,
-    get unlocked(){return unlocked;},get sfxOn(){return sfxOn;},get musicOn(){return musicOn;},
+    get unlocked(){return unlocked;},get sfxOn(){return sfxOn;},get musicOn(){return musicOn;},get mood(){return mood();},
     get played(){return played;},get notes(){return notes;},
     state:function(){return ctx?ctx.state:'none';}};
 }
@@ -1959,12 +2119,22 @@ function migrateItem(it){
     const legacy=it.dungeonUt||it.spr==='tidepearl'||it.name==='Tidepearl';
     if(legacy){
       if(!it.st||typeof it.st!=='object'){it.st={hp:20,spd:2,def:1};changed=true;}
-    }else if(!it.stat||!RING_NOUN[it.stat]){
-      const tier=clamp(it.tier|0,0,8),stat=primaryRingStat(it.st);
-      it.tier=tier;it.stat=stat;it.name=ringName(stat,tier);it.st={[stat]:ringBonus(stat,tier)};
-      changed=true;
-    }else if(!it.st||typeof it.st!=='object'||!it.st[it.stat]){
-      it.st={[it.stat]:ringBonus(it.stat,clamp(it.tier|0,0,8))};changed=true;
+    }else{
+      let tier=clamp(it.tier|0,0,8);
+      let stat=(it.stat&&RING_NOUN[it.stat])?it.stat:null;
+      if(!stat){for(const k of STATK)if(RING_UT[k]===it.name)stat=k;}
+      if(!stat)stat=primaryRingStat(it.st);
+      const retired=tier>7||STATK.some(k=>RING_UT[k]===it.name);
+      if(retired)tier=7;
+      if(retired||!it.stat||!RING_NOUN[it.stat]){
+        it.tier=tier;it.stat=stat;it.name=ringName(stat,tier);it.st={[stat]:ringBonus(stat,tier)};
+        changed=true;
+      }else if(!it.st||typeof it.st!=='object'||!it.st[it.stat]||(it.tier|0)>7){
+        it.tier=clamp(it.tier|0,0,7);
+        it.name=ringName(it.stat,it.tier);
+        it.st={[it.stat]:ringBonus(it.stat,it.tier)};
+        changed=true;
+      }
     }
   }
   return changed;
@@ -2223,6 +2393,12 @@ function rollTier(lo,hi){
 }
 function randomGear(tier){
   tier=clamp(tier|0,0,8);
+  if(tier>7){
+    const r=Math.random();
+    if(r<0.44)return mkWeapon(pick(GEAR_W),tier);
+    if(r<0.72)return mkArmor(pick(GEAR_A),tier);
+    return mkAbility(pick(CLASSKEYS),tier);
+  }
   const k=Math.random();
   if(k<0.34)return mkWeapon(pick(GEAR_W),tier);
   if(k<0.56)return mkArmor(pick(GEAR_A),tier);
@@ -3054,8 +3230,9 @@ function render(){
   ctx.fillStyle='#0c0a14';ctx.fillRect(0,0,cv.width,cv.height);
   ctx.save();
   ctx.beginPath();ctx.rect(0,0,Math.max(1,play.w*DPR),Math.max(1,play.h*DPR));ctx.clip();
-  ctx.fillStyle=peaceful()?'#120f1c':'#264ea0';ctx.fillRect(0,0,play.w*DPR+2,play.h*DPR+2);
+  ctx.fillStyle=peaceful()?'#120f1c':(world&&world.isDungeon)?'#040605':'#264ea0';ctx.fillRect(0,0,play.w*DPR+2,play.h*DPR+2);
   ctx.setTransform(S,0,0,S,-ox,-oy);
+  if(world&&world.isDungeon)drawDungeonVoid(world);
   drawTerrain(world);
   const x0=camX-16,y0=camY-16,x1=camX+VW+16,y1=camY+VH+16;
   const labels=[];
@@ -3306,7 +3483,7 @@ function drawHUD(){
   const m=L.mm,mx=play.x+8+safe.l,my=8+safe.t;
   ctx.fillStyle='#000';ctx.fillRect(mx-2,my-2,m+4,m+4);
   if(peaceful()){ctx.drawImage(world.mini,mx,my+m*0.1,m,m*0.8);}
-  else{const span=70,tx=P.x/TS-span/2,ty=P.y/TS-span/2;ctx.fillStyle='#264ea0';ctx.fillRect(mx,my,m,m);
+  else{const span=70,tx=P.x/TS-span/2,ty=P.y/TS-span/2;ctx.fillStyle=world.isDungeon?'#101412':'#264ea0';ctx.fillRect(mx,my,m,m);
     const s0x=Math.max(0,tx),s0y=Math.max(0,ty),s1x=Math.min(world.w,tx+span),s1y=Math.min(world.h,ty+span);
     if(s1x>s0x&&s1y>s0y)ctx.drawImage(world.mini,s0x,s0y,s1x-s0x,s1y-s0y,mx+(s0x-tx)*m/span,my+(s0y-ty)*m/span,(s1x-s0x)*m/span,(s1y-s0y)*m/span);
     const k=m/span/TS;
@@ -3945,6 +4122,7 @@ function previewSheet(mode){
     g.textAlign='left';g.fillStyle='#d8d0ea';g.fillText(names[k]||k,6,y+cell/2);
     g.textAlign='center';
     for(let t=0;t<cols;t++){
+      if(k==='ring'&&t>7)continue;
       const s=t<9?gearSpr(k,t):gearSpr(k,'test');
       if(!s)continue;
       const icon=outlinedIcon(s,scale);
@@ -3999,13 +4177,13 @@ function contactSheet(kind){
     });
   }
   if(kind==='rings'){
-    const cell=(8+2)*scale,cols=9,rows=STATK.length;
+    const cell=(8+2)*scale,cols=8,rows=STATK.length;
     const nameW=78;
     const w=nameW+gap+cols*(cell+gap),h=28+rows*(cell+labelH+gap);
     return board(w,h,g=>{
       g.fillStyle='#ffd34a';g.textAlign='left';g.fillText('Rings',gap,16);
       g.textAlign='center';g.fillStyle='#d8d0ea';
-      for(let t=0;t<cols;t++)g.fillText(t<8?'T'+t:'UT',nameW+t*(cell+gap)+cell/2,28+12);
+      for(let t=0;t<cols;t++)g.fillText('T'+t,nameW+t*(cell+gap)+cell/2,28+12);
       STATK.forEach((stat,row)=>{
         const y=28+row*(cell+labelH+gap);
         g.textAlign='left';g.fillStyle='#d8d0ea';g.fillText(RING_NOUN[stat],6,y+cell/2);
@@ -4088,7 +4266,7 @@ window.__shardwild={version:GAME_VERSION,get state(){return state;},get P(){retu
   godInfo(){const z=ZONES[3],c=SPAWN_CFG[3];return {name:z.name,types:z.types.slice(),cap:c.cap,elite:c.elite,kinds:z.types.map(t=>({type:t,name:EN[t].name,god:!!EN[t].god,scale:EN[t].scale||1,r:EN[t].r,hp:EN[t].hp}))};},
   get capTable(){const o={};for(const k of CLASSKEYS)o[k]=Object.assign({},CLASSES[k].max);return o;},
   enterVault,leaveVault,openCharSelect,
-  get audio(){return {unlocked:AUD.unlocked,state:AUD.state(),sfx:AUD.sfxOn,music:AUD.musicOn,played:AUD.played,notes:AUD.notes};},
+  get audio(){return {unlocked:AUD.unlocked,state:AUD.state(),sfx:AUD.sfxOn,music:AUD.musicOn,played:AUD.played,notes:AUD.notes,mood:AUD.mood};},
   get projectiles(){const out=[];for(let i=0;i<pbN;i++)out.push({col:PB[i].col,shape:PB[i].shape});return out;},
   spriteInfo(kind,tier){
     const it=(kind==='staff'||kind==='bow'||kind==='sword')?mkWeapon(kind,tier):(kind==='robe'||kind==='leather'||kind==='heavy')?mkArmor(kind,tier):(kind==='ring'||(kind&&kind.indexOf('ring_')===0))?mkRing(tier,kind==='ring'?'hp':kind.slice(5)):mkAbility(kind==='quiver'?'archer':kind==='shield'?'knight':'wizard',tier);
