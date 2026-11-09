@@ -111,10 +111,11 @@ async function main() {
     assert(sim.dungeonUtOutside === 0, 'dungeon UT leaked into the overworld: ' + sim.dungeonUtOutside);
     assert(sim.keysOutside === 0, 'dungeon key leaked into the overworld: ' + sim.keysOutside);
     const portals = sim.portalByType || {};
-    assert(portals.crab > N * 0.01 && portals.crab < N * 0.06, 'crab portal rate ' + portals.crab + '/' + N);
+    const portalBand = {crab: [0.01, 0.06], hexer: [0.01, 0.06], beetle: [0.01, 0.06], herald: [0.04, 0.16]};
     for (const t of Object.keys(portals)) {
-      if (t === 'crab') continue;
-      assert(portals[t] === 0, 'portal dropped from ' + t + ': ' + portals[t]);
+      const band = portalBand[t];
+      if (!band) assert(portals[t] === 0, 'portal dropped from ' + t + ': ' + portals[t]);
+      else assert(portals[t] > N * band[0] && portals[t] < N * band[1], t + ' portal rate ' + portals[t] + '/' + N);
     }
     const den = sim.dungeon;
     assert(den && den.enemy === 'crab' && den.utName === 'Tidepearl', 'dungeon sim ' + JSON.stringify(den && {enemy: den.enemy, utName: den.utName}));
@@ -161,7 +162,17 @@ async function main() {
     assert(godPots.eye === 'wis' && godPots.colossus === 'vit' && godPots.oracle === 'mp' && godPots.saint === 'def', 'god pots ' + JSON.stringify(godPots));
     assert(godPots.wyrm === 'spd' && godPots.titan === 'att' && godPots.serpent === 'dex' && godPots.herald === 'mp' && godPots.idol === 'def', 'god pots ' + JSON.stringify(godPots));
     assert(byRegion['Saltmarsh Shore'] >= 6 && byRegion['Greenmarch'] >= 6 && byRegion['Ashen Wilds'] >= 6 && byRegion['Godlands'] >= 8, 'enemies per region ' + JSON.stringify(byRegion));
-    console.log('Enemy bands ' + bands.map(r => r.region.slice(0, 4) + ':' + r.type + (r.godPot ? '=' + r.godPot : '')).join(' '));
+    const wantPortal = {crab: 0.03, hexer: 0.03, beetle: 0.03, herald: 0.09};
+    for (const row of bands) {
+      const want = wantPortal[row.type] || 0;
+      assert(row.portalRate === want, row.type + ' portal chance ' + row.portalRate + ' expected ' + want);
+    }
+    console.log('Enemy bands ' + bands.map(r => r.region.slice(0, 4) + ':' + r.type + (r.godPot ? '=' + r.godPot : '') + (r.portalRate ? '@' + r.portalRate : '')).join(' '));
+    const dens = await page.evaluate(() => window.__shardwild.auditDens(24));
+    for (const id of ['hexmire', 'cinderhive', 'sanctum']) {
+      assert(dens[id] && dens[id].ok, id + ' layouts ' + JSON.stringify(dens[id]));
+      console.log(id + ' layouts ' + dens[id].n + ' avg path ' + dens[id].avgPath + ' rooms ' + dens[id].avgRooms);
+    }
   } finally {
     try { await browser.close(); } catch (e) {}
     try { server.close(); } catch (e) {}

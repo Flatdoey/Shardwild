@@ -1491,7 +1491,7 @@ async function main() {
     }, 16);
     assert(await page.evaluate(() => window.__shardwild.chestOpen), 'chest did not open');
     const cat = await page.evaluate(() => window.__shardwild.catalog);
-    assert(cat.weapons === 30 && cat.abilities === 27 && cat.armors === 27 && cat.rings === 64 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.dungeonKeys === 1 && cat.test === 3 && cat.n === 161, 'catalog ' + JSON.stringify(cat));
+    assert(cat.weapons === 30 && cat.abilities === 27 && cat.armors === 27 && cat.rings === 64 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.dungeonKeys === 4 && cat.test === 3 && cat.n === 164, 'catalog ' + JSON.stringify(cat));
     assert(cat.testNames && cat.testNames.join(',') === 'Godslayer Staff,Godslayer Bow,Godslayer Blade', 'test weapons ' + JSON.stringify(cat.testNames));
 
     let staff = null;
