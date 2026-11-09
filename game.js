@@ -145,10 +145,10 @@ function buildSprites(){
   SPR.key=mkRaw(['...yy...','....y...','..yyyy..','.yy.yy..','.yyyyyy.','..yyyy..','...yy...','...yy...'],{y:'#ffd34a',d:'#c89820'});
   SPR.chest=mkSprite(["..gggg..","gggggggg","ggyyyggg","gggggggg","ggyyyggg","gggggggg"],{g:'#e3b33d',y:'#fff1a8'});
   SPR.beacon=mkSprite(["...cc...","..cwwc..","...cc...","...ll...","...ll...","..llll..","..lssl.."],{c:'#7af0ff',w:'#ffffff',l:'#d8dce8',s:'#5a6070'});
-  // RotMG sack: floppy knot, dark cord about two thirds up, wide round bottom.
-  // Highlight sits upper-left, shadow lower-right. Outline is baked by mkSprite.
-  const bag=['..t.t...','.ttttt..','..ccc...','..hbbd..','.hhbbbb.','hbbbbbbd','.bbbbbd.','..bbbd..'];
-  function bagSprite(tuft,light,body,dark,cord){return mkSprite(bag,{t:tuft,h:light,b:body,d:dark,c:cord});}
+  // Fat RotMG sack: two-flap tuft, one-row cord, body widest on the lower rows, flat bottom.
+  // Outline is baked by mkSprite. X is the body color, H highlight, S shadow, T the cord.
+  const bag=['..b..b..','..bbbb..','...cc...','..bbbb..','.bhbbbb.','bhbbbbdb','bbbbbddb','.bddddb.'];
+  function bagSprite(tuft,light,body,dark,cord){return mkSprite(bag,{b:body,h:light,d:dark,c:cord});}
   SPR.bags={
     brown:bagSprite('#f0d0a0','#e8b878','#c4843c','#7a4818','#3f240e'),
     pink:bagSprite('#ffd6ea','#ff9cc8','#f04898','#a02868','#6a1844'),
@@ -441,13 +441,13 @@ function installRingSprites(){
   ];
   // G is the main gem (more pixels). g is the facet. Low tiers stay muted so they pass the hot cap.
   const gem={
-    hp:[['#8a4048','#b85868'],['#c02848','#e04058'],['#ff8090','#ef243c']],
+    hp:[['#7a3038','#a84848'],['#ffd0d4','#ff2434'],['#ffffff','#ff1424']],
     mp:[['#486888','#6890c0'],['#3060d0','#4070f0'],['#8eb4ff','#2f6bff']],
     att:[['#784878','#a868a8'],['#a028a0','#c040c0'],['#f080f0','#d020d0']],
     def:[['#b0b4c0','#e4e8f0'],['#c8c8d4','#e8e8f4'],['#d0d0dc','#f4f4ff']],
     spd:[['#387848','#58a070'],['#188838','#22a848'],['#7ae090','#22b14c']],
     dex:[['#886038','#a87848'],['#c06820','#e07828'],['#ffc070','#ff8c1a']],
-    vit:[['#984858','#c07080'],['#c04058','#e05070'],['#ff98a8','#ff6078']],
+    vit:[['#4a1020','#6e2030'],['#5c1424','#7a1830'],['#a03040','#5a1020']],
     wis:[['#387874','#58a09c'],['#109088','#14b0a8'],['#80eee6','#12c8c0']],
   };
   for(const stat of STATK){
