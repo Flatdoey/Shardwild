@@ -1207,25 +1207,37 @@ async function main() {
 
     const sprErr = await page.evaluate(() => {
       const kinds = ['staff','bow','sword','spell','quiver','shield','robe','leather','heavy','ring'];
+      const abilKind = {spell:1, quiver:1, shield:1};
       for (const k of kinds) {
-        const top = k === 'ring' ? 7 : 8;
+        const abil = !!abilKind[k];
+        const top = k === 'ring' ? 7 : abil ? 5 : 8;
         const infos = [];
         for (let t = 0; t <= top; t++) infos.push(window.__shardwild.spriteInfo(k, t));
         for (const t of [0, 1, 2]) if (infos[t].hot > 100) return k + ' T' + t + ' too vivid hot=' + infos[t].hot;
-        const vivid = k === 'ring' ? [6, 7] : [6, 7, 8];
-        for (const t of vivid) if (infos[t].hot < 160) return k + ' T' + t + ' not vivid hot=' + infos[t].hot + ' ' + infos[t].name;
-        if (!(infos[6].n > infos[0].n && infos[7].n > infos[0].n)) return k + ' high tier is not more detailed';
-        if (k === 'ring') {
-          const retired = window.__shardwild.spriteInfo('ring', 8);
-          if (retired.tier !== 7 || retired.name.indexOf('Mythic') < 0) return 'UT ring was not retired ' + retired.name + ' T' + retired.tier;
-          for (let t = 0; t < 7; t++) if (infos[t].mask === infos[t + 1].mask) return 'ring T' + t + ' matches T' + (t + 1);
+        if (abil) {
+          if (infos[5].tier !== 5) return k + ' T5 was not capped ' + infos[5].name + ' T' + infos[5].tier;
+          if (infos[4].hot < 140 || infos[5].hot < 160) return k + ' T4/T5 not vivid hot=' + infos[4].hot + '/' + infos[5].hot;
+          if (!(infos[5].n > infos[0].n)) return k + ' T5 is not more detailed';
+          const ut = window.__shardwild.spriteInfo(k, 8);
+          if (ut.tier !== 8) return k + ' UT ability missing ' + ut.name;
+          const masks = [0, 2, 4, 5].map(t => infos[t].mask).concat([ut.mask]);
+          if (new Set(masks).size < 4) return k + ' ability silhouettes are not distinct';
         } else {
-          const masks = [0, 4, 7, 8].map(t => infos[t].mask);
-          if (new Set(masks).size !== 4) return k + ' T0/T4/T7/UT silhouettes are not distinct';
+          const vivid = k === 'ring' ? [6, 7] : [6, 7, 8];
+          for (const t of vivid) if (infos[t].hot < 160) return k + ' T' + t + ' not vivid hot=' + infos[t].hot + ' ' + infos[t].name;
+          if (!(infos[6].n > infos[0].n && infos[7].n > infos[0].n)) return k + ' high tier is not more detailed';
+          if (k === 'ring') {
+            const retired = window.__shardwild.spriteInfo('ring', 8);
+            if (retired.tier !== 7 || retired.name.indexOf('Mythic') < 0) return 'UT ring was not retired ' + retired.name + ' T' + retired.tier;
+            for (let t = 0; t < 7; t++) if (infos[t].mask === infos[t + 1].mask) return 'ring T' + t + ' matches T' + (t + 1);
+          } else {
+            const masks = [0, 4, 7, 8].map(t => infos[t].mask);
+            if (new Set(masks).size !== 4) return k + ' T0/T4/T7/UT silhouettes are not distinct';
+          }
+          if (infos[6].avg === infos[7].avg) return k + ' high tiers share a palette';
         }
         if (infos[0].avg === infos[1].avg || infos[1].avg === infos[2].avg) return k + ' low tiers share a palette';
         if (infos[3].avg === infos[4].avg || infos[4].avg === infos[5].avg) return k + ' mid tiers share a palette';
-        if (infos[6].avg === infos[7].avg) return k + ' high tiers share a palette';
         if (k === 'staff' || k === 'bow' || k === 'sword') {
           const cols = [0, 4, 7, 8].map(t => infos[t].col);
           if (new Set(cols).size !== 4) return k + ' projectile colors ' + cols.join(',');
@@ -1491,7 +1503,7 @@ async function main() {
     }, 16);
     assert(await page.evaluate(() => window.__shardwild.chestOpen), 'chest did not open');
     const cat = await page.evaluate(() => window.__shardwild.catalog);
-    assert(cat.weapons === 51 && cat.abilities === 54 && cat.armors === 27 && cat.rings === 64 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.dungeonKeys === 4 && cat.test === 3 && cat.n === 212, 'catalog ' + JSON.stringify(cat));
+    assert(cat.weapons === 52 && cat.abilities === 42 && cat.armors === 27 && cat.rings === 64 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.dungeonKeys === 5 && cat.test === 3 && cat.n === 202, 'catalog ' + JSON.stringify(cat));
     assert(cat.testNames && cat.testNames.join(',') === 'Godslayer Staff,Godslayer Bow,Godslayer Blade', 'test weapons ' + JSON.stringify(cat.testNames));
 
     let staff = null;
