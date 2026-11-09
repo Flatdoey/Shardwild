@@ -408,7 +408,7 @@ async function charactersVaultWeapons(page, cdp) {
         ability: {id: 3, kind: 'ability', cls: 'bulwark', tier: 0, name: 'Splintered Seal', power: 8, fx: {stun: 2.5, bossStun: 1}},
         ring: {id: 9, kind: 'ring', tier: 3, name: 'Garnet Band', st: {def: 4}}
       },
-      inv: [{id: 11, kind: 'ring', tier: 8, name: 'Tidepearl', st: {hp: 20, spd: 2, def: 1}, immune: ['slow'], dungeonUt: true, spr: 'tidepearl'}, null, null, null, null, null, null, null],
+      inv: [{id: 11, kind: 'ring', tier: 8, name: 'Tidepearl', st: {hp: 20, spd: 2, def: 1}, immune: ['slow'], dungeonUt: true, spr: 'tidepearl'}, {id: 12, kind: 'ring', tier: 8, stat: 'hp', name: 'Ring of the Undying', st: {hp: 100}}, {id: 13, kind: 'ring', tier: 8, name: 'Ring of the Gale'}, null, null, null, null, null],
       beacons: ['haven'], seen: [], explored: {}, hpPots: 1, mpPots: 1
     }));
   });
@@ -431,11 +431,15 @@ async function charactersVaultWeapons(page, cdp) {
     const s = raw && raw.slots && raw.slots[0];
     return {
       ring: s && s.eq && s.eq.ring,
-      pearl: s && s.inv && s.inv[0]
+      pearl: s && s.inv && s.inv[0],
+      undying: s && s.inv && s.inv[1],
+      gale: s && s.inv && s.inv[2]
     };
   });
   assert(ringMig.ring && ringMig.ring.stat === 'def' && ringMig.ring.name === 'Ring of Superior Defense' && ringMig.ring.st.def === 4, 'old band was not migrated ' + JSON.stringify(ringMig.ring));
   assert(ringMig.pearl && ringMig.pearl.name === 'Tidepearl' && ringMig.pearl.st.spd === 2 && !ringMig.pearl.stat, 'Tidepearl was rewritten ' + JSON.stringify(ringMig.pearl));
+  assert(ringMig.undying && ringMig.undying.tier === 7 && ringMig.undying.stat === 'hp' && ringMig.undying.name === 'Ring of Mythic Health' && ringMig.undying.st.hp === 80, 'UT health ring was not migrated ' + JSON.stringify(ringMig.undying));
+  assert(ringMig.gale && ringMig.gale.tier === 7 && ringMig.gale.stat === 'spd' && ringMig.gale.name === 'Ring of Mythic Speed' && ringMig.gale.st.spd === 7, 'UT speed ring was not migrated ' + JSON.stringify(ringMig.gale));
   assert(migrated.slot === 7, 'roster did not persist the migrated hero');
 }
 
@@ -1204,13 +1208,21 @@ async function main() {
     const sprErr = await page.evaluate(() => {
       const kinds = ['staff','bow','sword','spell','quiver','shield','robe','leather','heavy','ring'];
       for (const k of kinds) {
+        const top = k === 'ring' ? 7 : 8;
         const infos = [];
-        for (let t = 0; t <= 8; t++) infos.push(window.__shardwild.spriteInfo(k, t));
+        for (let t = 0; t <= top; t++) infos.push(window.__shardwild.spriteInfo(k, t));
         for (const t of [0, 1, 2]) if (infos[t].hot > 100) return k + ' T' + t + ' too vivid hot=' + infos[t].hot;
-        for (const t of [6, 7, 8]) if (infos[t].hot < 160) return k + ' T' + t + ' not vivid hot=' + infos[t].hot + ' ' + infos[t].name;
+        const vivid = k === 'ring' ? [6, 7] : [6, 7, 8];
+        for (const t of vivid) if (infos[t].hot < 160) return k + ' T' + t + ' not vivid hot=' + infos[t].hot + ' ' + infos[t].name;
         if (!(infos[6].n > infos[0].n && infos[7].n > infos[0].n)) return k + ' high tier is not more detailed';
-        const masks = [0, 4, 7, 8].map(t => infos[t].mask);
-        if (new Set(masks).size !== 4) return k + ' T0/T4/T7/UT silhouettes are not distinct';
+        if (k === 'ring') {
+          const retired = window.__shardwild.spriteInfo('ring', 8);
+          if (retired.tier !== 7 || retired.name.indexOf('Mythic') < 0) return 'UT ring was not retired ' + retired.name + ' T' + retired.tier;
+          for (let t = 0; t < 7; t++) if (infos[t].mask === infos[t + 1].mask) return 'ring T' + t + ' matches T' + (t + 1);
+        } else {
+          const masks = [0, 4, 7, 8].map(t => infos[t].mask);
+          if (new Set(masks).size !== 4) return k + ' T0/T4/T7/UT silhouettes are not distinct';
+        }
         if (infos[0].avg === infos[1].avg || infos[1].avg === infos[2].avg) return k + ' low tiers share a palette';
         if (infos[3].avg === infos[4].avg || infos[4].avg === infos[5].avg) return k + ' mid tiers share a palette';
         if (infos[6].avg === infos[7].avg) return k + ' high tiers share a palette';
@@ -1479,7 +1491,7 @@ async function main() {
     }, 16);
     assert(await page.evaluate(() => window.__shardwild.chestOpen), 'chest did not open');
     const cat = await page.evaluate(() => window.__shardwild.catalog);
-    assert(cat.weapons === 30 && cat.abilities === 27 && cat.armors === 27 && cat.rings === 72 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.dungeonKeys === 1 && cat.test === 3 && cat.n === 169, 'catalog ' + JSON.stringify(cat));
+    assert(cat.weapons === 30 && cat.abilities === 27 && cat.armors === 27 && cat.rings === 64 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.dungeonKeys === 1 && cat.test === 3 && cat.n === 161, 'catalog ' + JSON.stringify(cat));
     assert(cat.testNames && cat.testNames.join(',') === 'Godslayer Staff,Godslayer Bow,Godslayer Blade', 'test weapons ' + JSON.stringify(cat.testNames));
 
     let staff = null;
@@ -1662,7 +1674,7 @@ async function main() {
       await page.screenshot({path: path.join(ART, 'screenshot_chest_' + tab + '_ut_armor.png')});
     }
     await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'rings');
-    await findChest(page, ['Ring of the Undying']);
+    await findChest(page, ['Ring of Mythic Health']);
     await frames(page, 3);
     await page.screenshot({path: path.join(ART, 'screenshot_chest_rings_ut.png')});
 
@@ -1691,7 +1703,7 @@ async function main() {
 
     await walkTo(page, cdp, chest.x + 48, chest.y, () => !window.__shardwild.chestOpen, 14);
     const bagNames = await page.evaluate(() => window.__shardwild.spawnBag([{k:'weapon', w:'staff', t:8}, {k:'ring', t:8, stat:'hp'}]));
-    assert(bagNames.indexOf('Hollow Crown Staff') >= 0 && bagNames.indexOf('Ring of the Undying') >= 0, 'bag ' + bagNames.join(','));
+    assert(bagNames.indexOf('Hollow Crown Staff') >= 0 && bagNames.indexOf('Ring of Mythic Health') >= 0, 'bag ' + bagNames.join(','));
     await frames(page, 4);
     const bagSlots = await page.evaluate(() => window.__shardwild.slots.filter(s => s.area === 'bag').map(s => s.name + ':' + s.tier));
     assert(bagSlots.some(s => s.indexOf('Hollow Crown Staff:8') === 0), 'loot panel ' + bagSlots.join(','));
