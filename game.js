@@ -1,7 +1,7 @@
 'use strict';
 /* Shardwild: an original mobile bullet-hell realm crawler. Plain JS + canvas, no build step. */
 (function(){
-const GAME_VERSION='v19';
+const GAME_VERSION='v20';
 const cv=document.getElementById('game');
 const ctx=cv.getContext('2d',{alpha:false});
 let W=1,H=1,DPR=1,S=4,VW=1,VH=1;
@@ -104,7 +104,32 @@ function buildSprites(){
   SPR.wisp=mkSprite(["...c....","..cc.c..",".cccccc.",".cwccwc.",".cccccc.","..cccc..","...cc...","....c..."],{c:'#4fe6ff',w:'#ffffff'});
   SPR.eye=mkSprite(["..rrrr..",".rwwwwr.","rwwkkwwr","rwkyykwr","rwkyykwr","rwwkkwwr",".rwwwwr.","..rrrr.."],{r:'#a0204a',w:'#f3e6ea',k:'#2a0d2a',y:'#ff4a6a'});
   SPR.colossus=mkSprite(["..ssss..",".sysyss.","ssssssss","sgssssgs","sgssssgs",".ssssss.",".ss..ss.",".ss..ss."],{s:'#9a9aa8',y:'#7af0ff',g:'#e3c25a'});
-  SPR.king=mkSprite(["..y..y..y...","..yy.yy.yy..","..yyyyyyyy..",".kkkkkkkkkk.","kkpkkkkkkpkk","kkkwwkkwwkkk","kkkwrkkwrkkk","kkkkkkkkkkkk",".kkpkkkkpkk.","..kkpppkkk..","..kk....kk..",".kk......kk."],{y:'#ffd34a',k:'#2b1840',p:'#7a3ad0',w:'#e9e0ff',r:'#ff2a5a'});
+  SPR.king=mkSprite([
+    "......Y..Y..Y.......",
+    ".....YYYYYYYYY......",
+    "....YYyyyyyyyyYY....",
+    "...h.YYYYYYYYYY.h...",
+    "..hh............hh..",
+    ".h.kkkkkkkkkkkkkk.h.",
+    "h.kkbEwwkkkwwEbkk.kh",
+    "h.kkbrrkkwwrrbkk.kh.",
+    "h.kkkkbkoookkbkkkk.h",
+    ".h.kkkkkoooookkkk.h.",
+    "..h.kkkkkkkkkkkkk.h.",
+    "...kkkkkppppkkkkk...",
+    "..kk..kkkkkkkk..kk..",
+    ".kk...k.kkkk.k...kk.",
+    "kk....k.oooo.k....kk",
+    "k.....kk.ee.kk.....k",
+    "k......k....k......k",
+    ".k....kk....kk....k.",
+    ".kk..k........k..kk.",
+    "..kk.k........k.kk..",
+    ".k.kk..........kk.k.",
+    "kk.k............k.kk",
+    "k.k..............k.k",
+    ".k................k."
+  ],{Y:'#ffd36a',y:'#c47a28',h:'#3a2428',k:'#120814',b:'#d2c2b0',E:'#ffb060',w:'#f6eeff',r:'#ff2a6a',o:'#07040c',p:'#7a30c0',e:'#ff5a28'});
   SPR.oracle=mkSprite(["..wwww..",".wwwwww.","wwywwyww","wwwwwwww",".wppppw.","wwwwwwww","w.w..w.w",".w....w."],{w:'#e8e0ff',y:'#ffe14a',p:'#9a6aff'});
   SPR.saint=mkSprite(["...yy...",".ywwwwy.","yywccwyy","ywwwwwwy",".wwccww.","..wwww..",".ww..ww.","ww....ww"],{y:'#fff6c0',w:'#d8fff8',c:'#3ec8ff'});
   SPR.wyrm=mkSprite(["gg....gg","ggg..ggg",".gggggg.","ggyykyyg","ggkwwkgg",".gggggg.","..g..g..",".gg..gg."],{g:'#c8d0dc',y:'#7af0ff',k:'#1a2030',w:'#fff'});
@@ -183,6 +208,45 @@ function buildSprites(){
   SPR.tideclaw=mkSprite(["r..rr..rr..r","rrr.rrrr.rrr",".rrrrrrrrrr.","rrrwkkrrwrrr","rrrrrrrrrrrr",".rrrrrrrrrr.","rr.rr..rr.rr","r..r....r..r"],{r:'#e25a32',w:'#fff4ea',k:'#1a1210'});
   SPR.tidepearl=mkRaw(['...tt...','..twwt..','.twppwt.','twpwwpwt','.twwwwt.','..twwt..','...tt...','...cc...'],{t:'#1a9a90',w:'#f4fffc',p:'#ffffff',c:'#e07040'});
   SPR.keyTide=mkRaw(['...cc...','....c...','..cccc..','.ccokcc.','.cccccc.','..cccc..','...cc...','...cc...'],{c:'#7ee0c8',o:'#e25a32',k:'#fff6e0'});
+  SPR.heximp=mkSprite(['...pp...','..pggp..','.pgypgp.','.pggggp.','ppgppgpp','.pppppp.','.g....g.','g......g'],{p:'#6a2fa0',g:'#8fd16a',y:'#fff04a'});
+  SPR.bogtoad=mkSprite(['.gggggg.','ggwwwwgg','gwywwywg','gggggggg','.ggyygg.','g.g..g.g','.gg..gg.','........'],{g:'#3c7a30',w:'#e8ffc0',y:'#d6e060'});
+  SPR.mirewisp=mkSprite(['...v....','..vyv...','vvvvvvvv','.vy.yv..','vvvvvvvv','..v.v...','...v....','....v...'],{v:'#b46aff',y:'#fff6c0'});
+  SPR.cursetree=mkSprite(['.gggggg.','gggpgpgg','ggwggwgg','.gggggg.','..tptt..','.tptptp.','tt.tt.tt','.t....t.'],{g:'#2f6a28',p:'#9a48d0',w:'#e8ffc0',t:'#5a3a22'});
+  SPR.hexmatron=mkSprite([
+    '....pppppppp....','...ppyyyyyypp...','..ppgwwggwwgpp..','.ppggwggggwggpp.','ppggggggggggggpp',
+    'pppgppppppppgppp','.pppppppppppppp.','..ppg.gggg.gpp..','.pppgppppppgppp.','pppppppppppppppp',
+    'p.pppppppppppp.p','pp.pp......pp.pp','.p..p......p..p.','p...p......p...p','.pp..........pp.','..p..........p..'
+  ],{p:'#5a248c',y:'#ffe14a',g:'#8fd16a',w:'#f4ffe0'});
+  SPR.drone=mkSprite(['..oooo..','.orrroo.','oroyyoro','oooooooo','.o.oo.o.','o..o..o.','........','........'],{o:'#c84820',r:'#ffb060',y:'#fff0c0'});
+  SPR.larva=mkSprite(['..yyyy..','.yoooooy','yooyyooo','yooooooo','.yoooooy','..yyyy..','..y..y..','........'],{y:'#ffd34a',o:'#e07030'});
+  SPR.spitter=mkSprite(['.rrrrrr.','rooooorr','royyyorr','roooooor','.roooor.','r.r..r.r','........','........'],{r:'#ff5a28',o:'#a83818',y:'#ffe14a'});
+  SPR.broodling=mkSprite(['.r.oo.r.','.orroro.','oooyyooo','oooooooo','.oo..oo.','o.o..o.o','........','........'],{r:'#ffb060',o:'#c84820',y:'#fff0c0'});
+  SPR.broodqueen=mkSprite([
+    'r..oooooooooo..r','rr.oooooooooo.rr','.ooorrrrrrrrooo.','oooroyyyyyyorooo','oooooooooooooooo',
+    '.ooo.oooooo.ooo.','oo.o.oooooo.o.oo','.oooooooooooooo.','..oo..oooo..oo..','.o..o.oooo.o..o.','o....oooooo....o','......oooo......'
+  ],{r:'#ffb060',o:'#c84820',y:'#fff0c0'});
+  SPR.acolyte=mkSprite(['..pppp..','.ppwwpp.','ppkyykpp','.pppppp.','p.pppp.p','pppppppp','.pp..pp.','p.p..p.p'],{p:'#3a1860',w:'#e8d8ff',k:'#ff4ad0',y:'#ffffff'});
+  SPR.starwisp=mkSprite(['...w....','..wcw...','wwwwwwww','w.w..w.w','wwwwwwww','..w.w...','...w....','....c...'],{w:'#f4f0ff',c:'#7af0ff'});
+  SPR.runesworn=mkSprite(['..kkkk..','.kkyykk.','kkwwwwkk','.kkyykk.','kkkkkkkk','.k.kk.k.','k.k..k.k','.k....k.'],{k:'#1a1028',y:'#c46aff',w:'#e8d8ff'});
+  SPR.voideye=mkSprite(['..pppp..','.pwwwwp.','pwkrrkwp','pwrrrrwp','pwkrrkwp','.pwwwwp.','..pppp..','...pp...'],{p:'#2a0848',w:'#f4e8ff',k:'#120818',r:'#ff4ad0'});
+  SPR.voidarchon=mkSprite([
+    '....yyyyyyyy....','..yy........yy..','.y..pppppppp..y.','y.ppwwwwwwwwpp.y','.ppkkyyyyykkpp..',
+    'pp.ppwwwwwwpp.pp','.pppppppppppppp.','..pp.pwwwwp.pp..','.pppppppppppppp.','pppppppppppppppp',
+    'p.pppppppppppp.p','.p.pp......pp.p.','p..pp......pp..p','.p..p......p..p.','..pp........pp..','.pp..........pp.',
+    'p.p..........p.p','..p..........p..'
+  ],{y:'#ffe9a0',p:'#3a1868',w:'#f4ecff',k:'#ff4ad0'});
+  SPR.portalMire=mkRaw(['..pppp..','.pggggp.','pgwwwwgp','pgwyywgp','pgwwwwgp','.pggggp.','..pppp..','...gg...'],{p:'#6a2fa0',g:'#3c9a48',w:'#d8ffb0',y:'#fff04a'});
+  SPR.portalHive=mkRaw(['..oooo..','.orrroo.','oroyyoro','oyyyyyyo','oroyyoro','.orrroo.','..oooo..','...rr...'],{o:'#c84820',r:'#ffb060',y:'#fff0c0'});
+  SPR.portalVoid=mkRaw(['..pppp..','.pwwwp..','pwyywwp.','pyyyyyyp','pwyywwp.','.pwwwp..','..pppp..','...ww...'],{p:'#3a1868',w:'#e8d8ff',y:'#ffffff'});
+  SPR.keyMire=mkRaw(['...pp...','....p...','..pppp..','.ppgpp..','.pppppp.','..pppp..','...pp...','...pp...'],{p:'#b46aff',g:'#8fd16a'});
+  SPR.keyHive=mkRaw(['...oo...','....o...','..oooo..','.ooyoo..','.oooooo.','..oooo..','...oo...','...oo...'],{o:'#ff7a3a',y:'#ffe14a'});
+  SPR.keyVoid=mkRaw(['...vv...','....v...','..vvvv..','.vvwvv..','.vvvvvv.','..vvvv..','...vv...','...vv...'],{v:'#c46aff',w:'#ffffff'});
+  SPR.rootclump=mkSprite(['r.rr.r.r','.rrrrrr.','rr.rr.rr','.rrrrrr.','r..rr..r','..r..r..'],{r:'#4a3018'});
+  SPR.hextotem=mkSprite(['...pp...','..pypp..','..pppp..','...tt...','...tt...','..tttt..','...tt...','...tt...'],{p:'#6a2fa0',y:'#fff04a',t:'#5a3a22'});
+  SPR.cauldron=mkSprite(['..mmmm..','.mggggm.','mggyyggm','mggggggm','.mmmmmm.','..mmmm..','..m..m..','........'],{m:'#5a5848',g:'#6ad060',y:'#e8ff90'});
+  SPR.eggsac=mkSprite(['..oooo..','.oyyyyo.','oyyyyyyo','.oyyyyo.','..oooo..','...oo...','........','........'],{o:'#e8d0a0',y:'#ffb060'});
+  SPR.cindrock=mkSprite(['..rrrr..','.rllrrr.','rrlerrr.','rrrrrrr.','.rrrrrr.','..rrrr..'],{r:'#4a4038',l:'#8a8078',e:'#ff6a28'});
+  SPR.obelisk=mkSprite(['...pp...','..ppyp..','..pppp..','..ppyp..','..pppp..','..ppyp..','.pppppp.','.pddddp.'],{p:'#2a1848',y:'#c46aff',d:'#100818'});
 }
 
 /* ---------------- tiered gear sprites ---------------- */
@@ -425,21 +489,24 @@ function installRingSprites(){
   const shape=[
     ['........','...G....','..h.b...','.h...d..','.b...d..','..bdd...','........','........'],
     ['........','..gG....','.bb.bb..','bb...dd.','b.....d.','.bb.dd..','..bdd...','........'],
-    ['.hhhhhh.','..gGhh..','hb....dh','b......d','b......d','.b....d.','..hhhh..','........'],
+    // T2 is a plain iron band: a little larger than T1, one small gem, no silver filigree.
+    ['........','..gG....','.bb.bb..','bb....dd','b......d','bb....dd','.bb.dd..','........'],
     ['..GG....','..GG....','.b..bb..','b.....d.','b.....d.','.b...d..','..bddd..','...dd...'],
     ['..tG....','..GG....','.bb.bb..','bh....d.','b.....d.','.b.t.d..','..bddd..','........'],
-    ['.tGGGt..','.gGGGg..','bb....bb','b......d','b......d','.bt..tb.','..bddd..','...dd...'],
+    // T5 wears the old T6 silhouette: a full-cell ring, a one-pixel band, a big gem on top.
     ['...gG...','..gGGG..','.hhGGbb.','h......b','b......d','b......d','.b....d.','..bddd..'],
+    // T6 wears the old T5 crown, plus a white glint so it still reads a step above T5.
+    ['.tGGGt..','.gGGGg..','bb....bb','b......d','b......d','.bt..tb.','..bddd..','...sdd..'],
     ['s.gGG..s','.hgGGGb.','hhhgGbbb','hh....dd','bb....dd','bb....dd','.bd..dd.','..bddd..']
   ];
   const band=[
     {b:'#4a5158',h:'#7c848e',d:'#2e343a',t:'#9aa2aa',s:'#c0c6cc'},
     {b:'#5c6570',h:'#909aa6',d:'#3a424c',t:'#a8b0b8',s:'#c8ced4'},
-    {b:'#b7c0ca',h:'#e6eef4',d:'#6a7682',t:'#f4f8fb',s:'#d8e0e8'},
+    {b:'#7e868f',h:'#b7c0c8',d:'#4a525c',t:'#c9d0d6',s:'#dde3e8'},
     {b:'#a56a32',h:'#d4a05c',d:'#5c3816',t:'#f0d8b0',s:'#ffe8c8'},
     {b:'#d4a03c',h:'#f0d48a',d:'#7a5414',t:'#ffffff',s:'#fff4d0'},
     {b:'#e8bc48',h:'#ffe6a0',d:'#8e6418',t:'#fff8d8',s:'#ffffff'},
-    {b:'#f0c24e',h:'#ffeab4',d:'#a07018',t:'#ffffff',s:'#fff6c8'},
+    {b:'#ffd15c',h:'#fff3c4',d:'#b47c14',t:'#ffffff',s:'#ffffff'},
     {b:'#f3f0e4',h:'#ffffff',d:'#b7b2a2',t:'#ffffff',s:'#ffffff'}
   ];
   // g is the facet, G the body. T0–T2 stay muted. Health stays scarlet and Vitality stays maroon.
@@ -535,17 +602,22 @@ const T_RUG=20,T_PLANTER=21,T_BENCH=22,T_CRATE=23;
 const T_REED=13,T_DRIFT=14,T_FLOWER=15,T_STUMP=16,T_VENT=17,T_PILLAR=18,T_RUIN=19;
 const T_BFLOOR=30,T_BWALL=31,T_BPOOL=32,T_BCORAL=33,T_BPEARL=34;
 const T_BROCK=35,T_BPLANK=36,T_BCRYST=37,T_BWEED=38;
+const T_HFLOOR=40,T_HWALL=41,T_HPOOL=42,T_HROOT=43,T_HTOTEM=44,T_HCAUL=45;
+const T_CFLOOR=50,T_CWALL=51,T_CLAVA=52,T_CEGG=53,T_CROCK=54;
+const T_VFLOOR=60,T_VWALL=61,T_VRUNE=62,T_VVOID=63,T_VPILLAR=64;
 const TCOL={
   0:[38,78,160],1:[196,182,120],2:[228,206,140],3:[86,150,70],4:[58,108,58],5:[104,102,120],6:[92,48,72],
   10:[118,116,134],11:[52,48,64],12:[120,40,56],
   13:[168,150,86],14:[190,160,110],15:[96,168,78],16:[70,120,62],17:[72,96,108],18:[150,130,150],19:[78,68,88],
   30:[176,132,84],31:[96,58,48],32:[36,118,132],33:[196,92,64],34:[214,168,120]
 };
-const SOLID=new Set([T_WATER,T_TREE,T_BOULDER,T_WALL,T_PILLAR,T_RUIN,T_BWALL,T_BCORAL,T_BROCK,T_PLANTER,T_BENCH,T_CRATE]);
+const SOLID=new Set([T_WATER,T_TREE,T_BOULDER,T_WALL,T_PILLAR,T_RUIN,T_BWALL,T_BCORAL,T_BROCK,T_PLANTER,T_BENCH,T_CRATE,T_HWALL,T_HPOOL,T_HROOT,T_HTOTEM,T_HCAUL,T_CWALL,T_CLAVA,T_CEGG,T_CROCK,T_VWALL,T_VVOID,T_VPILLAR]);
 const DECO_SPR={
   [T_TREE]:'tree',[T_BOULDER]:'boulder',[T_REED]:'reed',[T_DRIFT]:'drift',[T_FLOWER]:'flower',
   [T_STUMP]:'stump',[T_VENT]:'vent',[T_PILLAR]:'pillar',[T_RUIN]:'ruin',[T_BCORAL]:'coral',
   [T_BROCK]:'brock',[T_BPLANK]:'plank',[T_BCRYST]:'crystal',[T_BWEED]:'weed',
+  [T_HROOT]:'rootclump',[T_HTOTEM]:'hextotem',[T_HCAUL]:'cauldron',
+  [T_CEGG]:'eggsac',[T_CROCK]:'cindrock',[T_VPILLAR]:'obelisk',
   [T_PLANTER]:'planter',[T_BENCH]:'bench',[T_CRATE]:'crate'
 };
 const ZONES=[
@@ -611,6 +683,9 @@ function tileBase(wd,i,t){
   if(t===T_VENT)return T_DARK;
   if(t===T_PILLAR||t===T_RUIN)return T_ROCK;
   if(t===T_BCORAL||t===T_BROCK||t===T_BPLANK||t===T_BCRYST||t===T_BWEED)return T_BFLOOR;
+  if(t===T_HROOT||t===T_HTOTEM||t===T_HCAUL)return T_HFLOOR;
+  if(t===T_CEGG||t===T_CROCK)return T_CFLOOR;
+  if(t===T_VPILLAR)return T_VFLOOR;
   if(t===T_PLANTER||t===T_BENCH||t===T_CRATE||t===T_RUG)return t===T_RUG?T_RUG:T_FLOOR;
   return t;
 }
@@ -676,11 +751,225 @@ function outsideDist(wd,tx,ty){
 }
 function voidRGB(wd,tx,ty,px,py){
   const dist=outsideDist(wd,tx,ty);
+  const theme=wd&&wd.theme;
+  if(theme==='mire')return mireVoidPixel(tx,ty,px,py,dist);
+  if(theme==='hive')return hiveVoidPixel(tx,ty,px,py,dist);
+  if(theme==='void')return starVoidPixel(tx,ty,px,py,dist);
   const c=burrowWallPixel(wd,tx,ty,px,py);
   const fade=dist<=2?1:clamp(1-(dist-2)/12,0,1);
   const k=fade*fade;
   const grain=(hash2(tx*5+px,ty*9+py)-0.5)*14*fade;
   return [clamp(c[0]*k+grain,0,255)|0,clamp(c[1]*k+grain,0,255)|0,clamp(c[2]*k+grain*0.85,0,255)|0];
+}
+function themeWallHere(wd,tx,ty,wall){
+  if(!wd)return true;
+  if(tx<0||ty<0||tx>=wd.w||ty>=wd.h)return !!wd.isDungeon;
+  return wd.tiles[ty*wd.w+tx]===wall;
+}
+function mireWallPixel(wd,tx,ty,px,py){
+  const west=themeWallHere(wd,tx-1,ty,T_HWALL),east=themeWallHere(wd,tx+1,ty,T_HWALL);
+  const north=themeWallHere(wd,tx,ty-1,T_HWALL),south=themeWallHere(wd,tx,ty+1,T_HWALL);
+  const edgeL=!west&&px===0,edgeR=!east&&px===7;
+  const n=hash2(tx*13+px*3,ty*17+py*5);
+  const v=(hash2(tx*9+3,ty*7+1)*6)|0;
+  const shift=(hash2(tx*19+px,ty*23+py)-0.5)*18;
+  const vine=v===0&&(px===2||px===5)&&py>0&&((py+tx)&1)===0;
+  const moss=v===1&&py<4&&((px+py)&1)===0;
+  const drip=v===2&&py>4&&(px===3||px===4);
+  const root=v===3&&py>1&&(px===py||px+py===7);
+  if(edgeL||edgeR){
+    if(py===0&&!north)return [86,120,70];
+    if(py<3)return (px+py)&1?[42,70,40]:[28,52,32];
+    if(py===7||py===3)return [8,12,10];
+    return (py&1)?[16,28,18]:[22,36,24];
+  }
+  if(py<3){
+    if(((px+((ty&1)?2:0))&3)===0)return [28,40,26];
+    if(vine)return [18,48,22];
+    if(moss)return [70,120,48];
+    let c=(px+tx+ty)&1?[78,96,58]:[62,82,48];
+    c=[c[0]+shift,c[1]+shift*0.8,c[2]+shift*0.5];
+    if(py===0)c=[c[0]+(north?6:28),c[1]+(north?8:32),c[2]+(north?4:16)];
+    if(n>0.94)c=[c[0]+16,c[1]+22,c[2]+8];
+    return clampRGB(c);
+  }
+  if(py===3)return [14,22,16];
+  if(py===7)return [6,10,8];
+  if(vine||root)return [24,40,22];
+  if(drip)return [18,48,36];
+  if(moss&&py===4)return [40,72,32];
+  let c=(py&1)?[26,38,28]:[34,48,34];
+  c=[c[0]+shift*0.3,c[1]+shift*0.25,c[2]+shift*0.2];
+  if(!south&&py>5)c=[c[0]-8,c[1]-6,c[2]-4];
+  return clampRGB(c);
+}
+function mireFloor(tx,ty,px,py){
+  const n=hash2(tx*13+px,ty*17+py),v=(hash2(tx*5+2,ty*9+4)*7)|0;
+  let c=((px+py+tx)&1)?[78,70,42]:[96,86,52];
+  if(n>0.93)c=[120,108,64];
+  if(n<0.05)c=[54,62,36];
+  if(v===1&&px>1&&px<6&&py>2&&py<6)c=(px+py)&1?[28,72,58]:[46,110,84];
+  else if(v===2&&(px===2||px===3)&&py>0)c=(py&1)?[40,78,28]:[24,52,18];
+  else if(v===3&&(px===py||px+py===6))c=[62,48,28];
+  else if(v===4&&py<2&&(px===1||px===5))c=[150,170,70];
+  else if(v===5&&px>2&&px<5&&py>3&&py<7)c=[40,36,28];
+  return c;
+}
+function mirePool(tx,ty,px,py){
+  const n=hash2(tx*7+px*2,ty*11+py);
+  const q=(px+py+tx)&1;
+  if(px>1&&px<6&&py>1&&py<6)return q?[18,64,48]:[32,96,70];
+  if(n>0.86&&py<3)return [140,180,90];
+  if(((px+ty)&3)===0&&(py&1)===0)return [70,140,100];
+  return q?[16,48,36]:[12,36,28];
+}
+function mireVoidPixel(tx,ty,px,py,dist){
+  const fade=dist<=1?1:clamp(1-(dist-1)/14,0,1);
+  const k=fade*fade;
+  const n=hash2(tx*5+px,ty*9+py);
+  const ripple=((px*3+ty*5+py)&7)===1&&n>0.4;
+  const c=ripple?[28,70,52]:n>0.72?[16,40,32]:[8,18,14];
+  const grain=(n-0.5)*16*fade;
+  return [clamp(c[0]*k+grain*0.4,0,255)|0,clamp(c[1]*k+grain*0.6,0,255)|0,clamp(c[2]*k+grain*0.35,0,255)|0];
+}
+function hiveWallPixel(wd,tx,ty,px,py){
+  const west=themeWallHere(wd,tx-1,ty,T_CWALL),east=themeWallHere(wd,tx+1,ty,T_CWALL);
+  const north=themeWallHere(wd,tx,ty-1,T_CWALL),south=themeWallHere(wd,tx,ty+1,T_CWALL);
+  const edgeL=!west&&px===0,edgeR=!east&&px===7;
+  const n=hash2(tx*11+px,ty*13+py);
+  const v=(hash2(tx*7+4,ty*3+9)*6)|0;
+  const shift=(hash2(tx*17+px,ty*19+py)-0.5)*16;
+  const crack=(v===1||v===2)&&(px===3||px===5)&&py>0;
+  const ember=crack&&(py===2||py===5||py===6);
+  if(edgeL||edgeR){
+    if(py===0&&!north)return [90,70,62];
+    if(py<3)return (px+py)&1?[48,40,38]:[32,26,24];
+    if(ember)return [160,48,18];
+    if(py===7||py===3)return [10,8,8];
+    return (py&1)?[22,16,14]:[30,22,18];
+  }
+  if(py<3){
+    if(((px+((ty&1)?3:0))&3)===0)return [36,28,26];
+    if(ember)return [200,80,24];
+    if(crack)return [70,28,16];
+    let c=(px+tx)&1?[62,54,50]:[48,42,40];
+    c=[c[0]+shift,c[1]+shift*0.7,c[2]+shift*0.55];
+    if(py===0)c=[c[0]+(north?8:30),c[1]+(north?6:22),c[2]+(north?4:16)];
+    if(n>0.93)c=[c[0]+18,c[1]+10,c[2]+6];
+    return clampRGB(c);
+  }
+  if(py===3)return [16,10,10];
+  if(py===7)return [8,6,6];
+  if(ember)return [170,50,16];
+  if(crack)return [48,18,12];
+  let c=(py&1)?[28,22,20]:[38,30,26];
+  c=[c[0]+shift*0.35,c[1]+shift*0.25,c[2]+shift*0.2];
+  if(!south&&py>5)c=[c[0]-6,c[1]-4,c[2]-4];
+  return clampRGB(c);
+}
+function hiveFloor(tx,ty,px,py){
+  const n=hash2(tx*9+px,ty*4+py),v=(hash2(tx*3+1,ty*8+5)*6)|0;
+  let c=((px+tx+ty)&1)?[48,40,36]:[62,52,46];
+  if(n>0.92)c=[84,70,60];
+  if(n<0.06)c=[30,24,22];
+  if(v===1&&(px===3||px===4)&&py>0&&py<7)c=py<4?[150,48,18]:[90,28,12];
+  else if(v===2&&px>2&&px<6&&py>2&&py<6)c=[36,30,28];
+  else if(v===3&&(px===1||px===6)&&py>1)c=[70,32,18];
+  return c;
+}
+function hiveLava(tx,ty,px,py){
+  const n=hash2(tx*5+px,ty*7+py);
+  const hot=n>0.62;
+  if(px>1&&px<6&&py>1&&py<6)return hot?[230,120,32]:[170,48,16];
+  if(n>0.8)return [255,180,60];
+  if(px===0||py===0||px===7||py===7)return [40,16,10];
+  return hot?[140,40,14]:[80,22,10];
+}
+function hiveVoidPixel(tx,ty,px,py,dist){
+  const fade=dist<=1?1:clamp(1-(dist-1)/13,0,1);
+  const k=fade*fade;
+  const n=hash2(tx*8+px,ty*5+py);
+  const crack=hash2(tx*3+1,ty*9+px)>0.84&&(py===3||py===4||px===5);
+  const glow=hash2(tx*3+2,ty*9+px)>0.72&&py>=2&&py<=5;
+  const c=crack?[190,70,22]:glow?[70,28,16]:n>0.6?[22,18,18]:[12,10,12];
+  const grain=(n-0.5)*12*fade;
+  return [clamp(c[0]*k+grain,0,255)|0,clamp(c[1]*k+grain*0.6,0,255)|0,clamp(c[2]*k+grain*0.4,0,255)|0];
+}
+function voidWallPixel(wd,tx,ty,px,py){
+  const west=themeWallHere(wd,tx-1,ty,T_VWALL),east=themeWallHere(wd,tx+1,ty,T_VWALL);
+  const north=themeWallHere(wd,tx,ty-1,T_VWALL),south=themeWallHere(wd,tx,ty+1,T_VWALL);
+  const edgeL=!west&&px===0,edgeR=!east&&px===7;
+  const n=hash2(tx*13+px,ty*11+py);
+  const v=(hash2(tx*5+8,ty*9+2)*5)|0;
+  const shift=(hash2(tx*21+px,ty*15+py)-0.5)*14;
+  const rune=v===1&&((px===2&&py===1)||(px===5&&py===2)||(px===3&&py===5));
+  if(edgeL||edgeR){
+    if(py===0&&!north)return [90,70,140];
+    if(py<3)return (px+py)&1?[36,24,58]:[22,14,40];
+    if(py===7||py===3)return [6,4,12];
+    return (py&1)?[14,8,24]:[20,12,32];
+  }
+  if(py<3){
+    if(((px+((ty&1)?2:0))&3)===0)return [20,12,32];
+    if(rune)return [180,120,255];
+    let c=(px+tx)&1?[42,32,64]:[28,20,46];
+    c=[c[0]+shift*0.4,c[1]+shift*0.3,c[2]+shift];
+    if(py===0)c=[c[0]+(north?6:24),c[1]+(north?4:16),c[2]+(north?12:40)];
+    if(n>0.94)c=[c[0]+16,c[1]+10,c[2]+28];
+    return clampRGB(c);
+  }
+  if(py===3)return [10,6,18];
+  if(py===7)return [4,2,10];
+  if(rune)return [120,70,190];
+  let c=(py&1)?[16,10,28]:[24,16,40];
+  c=[c[0]+shift*0.2,c[1]+shift*0.15,c[2]+shift*0.45];
+  if(!south&&py>5)c=[c[0]-4,c[1]-2,c[2]-6];
+  return clampRGB(c);
+}
+function voidFloor(tx,ty,px,py){
+  const n=hash2(tx*9+px,ty*4+py);
+  let c=((px+tx)&1)?[28,24,42]:[18,16,30];
+  if(n>0.9)c=[52,44,78];
+  if(n<0.05)c=[10,8,18];
+  if(px===0||py===0||px===7||py===7)c=[c[0]*0.6+6,c[1]*0.6+4,c[2]*0.6+14];
+  return clampRGB(c);
+}
+function runeFloor(tx,ty,px,py){
+  const c=voidFloor(tx,ty,px,py);
+  const ring=(px===2||px===5||py===2||py===5)&&px>0&&px<7&&py>0&&py<7;
+  const cross=(px===3||px===4)&&(py===3||py===4);
+  if(px===4&&py===3)return [230,210,255];
+  if(ring||cross)return clampRGB([c[0]+46,c[1]+18,c[2]+78]);
+  return c;
+}
+function starVoidPixel(tx,ty,px,py,dist){
+  const fade=dist<=0?1:clamp(1-(dist)/18,0,1);
+  const n=hash2(tx*17+px*3,ty*13+py*5);
+  const n2=hash2(tx*3+px,ty*7+py);
+  let r=4+n2*8,g=3+n2*5,b=16+n2*18;
+  if(n>0.988){r=200+n2*55;g=205+n2*50;b=255;}
+  else if(n>0.955){r=70+n2*40;g=60+n2*30;b=120+n2*50;}
+  else if(n>0.9){r=24+n2*16;g=18+n2*12;b=48+n2*24;}
+  const k=0.28+0.72*(fade*fade);
+  return [clamp(r*k,0,255)|0,clamp(g*k,0,255)|0,clamp(b*(0.4+0.6*fade),0,255)|0];
+}
+function softenVoidEdge(wd,tx,ty,px,py,c){
+  if(!wd||wd.theme!=='void')return c;
+  const i=ty*wd.w+tx,t=wd.tiles[i];
+  if(t===T_VVOID||t===T_VWALL)return c;
+  function abyss(dx,dy){
+    const x=tx+dx,y=ty+dy;
+    if(x<0||y<0||x>=wd.w||y>=wd.h)return true;
+    return wd.tiles[y*wd.w+x]===T_VVOID;
+  }
+  let e=0;
+  if(px<=1&&abyss(-1,0))e=Math.max(e,2-px);
+  if(px>=6&&abyss(1,0))e=Math.max(e,px-5);
+  if(py<=1&&abyss(0,-1))e=Math.max(e,2-py);
+  if(py>=6&&abyss(0,1))e=Math.max(e,py-5);
+  if(!e)return c;
+  const s=starVoidPixel(tx,ty,px,py,0),k=e/3;
+  return [clamp(c[0]*(1-k)+s[0]*k,0,255)|0,clamp(c[1]*(1-k)+s[1]*k,0,255)|0,clamp(c[2]*(1-k)+s[2]*k,0,255)|0];
 }
 function stoneTop(px,py,tx,ty){
   const seam=((px+((ty&1)?3:0))%4===0)||py===2;
@@ -696,6 +985,9 @@ function stoneFront(px,py,tx,ty){
 }
 function wallRGB(wd,tx,ty,px,py,t){
   if(t===T_BWALL)return burrowWallPixel(wd,tx,ty,px,py);
+  if(t===T_HWALL)return mireWallPixel(wd,tx,ty,px,py);
+  if(t===T_CWALL)return hiveWallPixel(wd,tx,ty,px,py);
+  if(t===T_VWALL)return voidWallPixel(wd,tx,ty,px,py);
   const west=tx>0&&wd.tiles[ty*wd.w+tx-1]===t;
   const east=tx+1<wd.w&&wd.tiles[ty*wd.w+tx+1]===t;
   if((px===0&&!west)||(px===7&&!east)){
@@ -711,8 +1003,21 @@ function wallLip(t,tx,px,py){
     if(((px+((tx&1)?2:0))&3)===0)return [24,32,34];
     return [32,44,46];
   }
+  if(t===T_HWALL){
+    if(py===0)return [10,16,12];
+    return ((px+tx)&3)===0?[20,32,18]:[28,44,26];
+  }
+  if(t===T_CWALL){
+    if(py===0)return [20,10,8];
+    return ((px+tx)&3)===0?[48,20,12]:[30,14,12];
+  }
+  if(t===T_VWALL){
+    if(py===0)return [18,10,28];
+    return ((px+tx)&3)===0?[40,22,64]:[26,16,44];
+  }
   return py===0?[28,24,40]:((px+tx)&3)===0?[48,42,62]:[62,56,78];
 }
+function isRaisedWall(t){return t===T_WALL||t===T_BWALL||t===T_HWALL||t===T_CWALL||t===T_VWALL;}
 function burrowFloor(tx,ty,px,py){
   const n=hash2(tx*13+px,ty*17+py),v=(hash2(tx*3+1,ty*5+9)*7)|0;
   let c=((px+py+tx)&1)?[158,118,76]:[184,146,98];
@@ -833,18 +1138,31 @@ function groundRGB(tx,ty,px,py,base){
     return q?[24,92,104]:[18,70,84];
   }
   if(base===T_BPEARL)return pearlFloor(tx,ty,px,py);
+  if(base===T_HFLOOR)return mireFloor(tx,ty,px,py);
+  if(base===T_HWALL)return mireWallPixel(null,tx,ty,px,py);
+  if(base===T_HPOOL)return mirePool(tx,ty,px,py);
+  if(base===T_CFLOOR)return hiveFloor(tx,ty,px,py);
+  if(base===T_CWALL)return hiveWallPixel(null,tx,ty,px,py);
+  if(base===T_CLAVA)return hiveLava(tx,ty,px,py);
+  if(base===T_VFLOOR)return voidFloor(tx,ty,px,py);
+  if(base===T_VWALL)return voidWallPixel(null,tx,ty,px,py);
+  if(base===T_VRUNE)return runeFloor(tx,ty,px,py);
+  if(base===T_VVOID)return starVoidPixel(tx,ty,px,py,0);
   const src=TCOL[base]||[90,90,90],j=(n-0.5)*12;
   return [clamp(src[0]+j,0,255)|0,clamp(src[1]+j,0,255)|0,clamp(src[2]+j,0,255)|0];
 }
 function tileRGB(wd,tx,ty,px,py){
-  if(tx<0||ty<0||tx>=wd.w||ty>=wd.h)return [8,12,16];
+  if(tx<0||ty<0||tx>=wd.w||ty>=wd.h){
+    if(wd&&wd.isDungeon)return voidRGB(wd,tx,ty,px,py);
+    return [8,12,16];
+  }
   const i=ty*wd.w+tx,t=wd.tiles[i];
-  if(t===T_WALL||t===T_BWALL)return wallRGB(wd,tx,ty,px,py,t);
+  if(isRaisedWall(t))return wallRGB(wd,tx,ty,px,py,t);
   if(ty>0&&py<2){
     const nt=wd.tiles[(ty-1)*wd.w+tx];
-    if(nt===T_WALL||nt===T_BWALL)return wallLip(nt,tx,px,py);
+    if(isRaisedWall(nt))return wallLip(nt,tx,px,py);
   }
-  return groundRGB(tx,ty,px,py,tileBase(wd,i,t));
+  return softenVoidEdge(wd,tx,ty,px,py,groundRGB(tx,ty,px,py,tileBase(wd,i,t)));
 }
 function minimapRGB(wd,tx,ty){
   const i=ty*wd.w+tx,t=wd.tiles[i],k=DECO_SPR[t]?0.62:1;
@@ -1150,7 +1468,84 @@ const DUNGEONS={
     portalRate:0.03,
     keyName:'Tideclaw Burrow Key',
     blurb:'A flooded warren of the saltmarsh crabs.',
-    utName:'Tidepearl'
+    lore:'A flooded warren of the saltmarsh crabs.',
+    utName:'Tidepearl',
+    boss:'tideclaw',
+    bossName:'Old Tideclaw',
+    theme:'tide',
+    col:'#ffb070',
+    colors:['#3a2018','#c45a30','#7ee0c8','#fff1dc'],
+    keySpr:'keyTide',
+    voidFill:'#040605',
+    mapBlurb:'Crab warren. The gold portal leaves after Old Tideclaw falls.',
+    chestLine:'A tide chest cracks open',
+    minRooms:10
+  },
+  hexmire:{
+    id:'hexmire',
+    name:'Hexmire Hollow',
+    enemy:'hexer',
+    portalRate:0.03,
+    keyName:'Hexmire Hollow Key',
+    blurb:'A drowned witch-hut in the bog.',
+    lore:'The marsh kept a witch it could not bury.',
+    boss:'hexmatron',
+    bossName:'Hex Matriarch',
+    theme:'mire',
+    col:'#c6e060',
+    colors:['#10180c','#3a6a28','#b46aff','#e8ffc0'],
+    keySpr:'keyMire',
+    portalSpr:'portalMire',
+    voidFill:'#020403',
+    mapBlurb:'Bog paths and root walls. The gold portal leaves after the Hex Matriarch falls.',
+    chestLine:'A bog chest splits open',
+    minRooms:20,
+    zone:1,
+    loot:{boss:[3,5],bossHi:0.45,minion:[2,4],minionP:0.26,hp:0.75,mp:0.5,elixir:0.18,key:0.08,minionHp:0.34}
+  },
+  cinder:{
+    id:'cinder',
+    name:'Cinder Hive',
+    enemy:'beetle',
+    portalRate:0.03,
+    keyName:'Cinder Hive Key',
+    blurb:'A brood chamber under the ash.',
+    lore:'The beetles are the hive, not the queen.',
+    boss:'broodqueen',
+    bossName:'Magma Brood Queen',
+    theme:'hive',
+    col:'#ff8a3a',
+    colors:['#1a0c08','#c84820','#ffb060','#fff1dc'],
+    keySpr:'keyHive',
+    portalSpr:'portalHive',
+    voidFill:'#0a0403',
+    mapBlurb:'Basalt cells and lava cuts. The gold portal leaves after the Brood Queen falls.',
+    chestLine:'An egg-cache cracks open',
+    minRooms:22,
+    zone:2,
+    loot:{boss:[4,6],bossN:2,minion:[3,5],minionP:0.3,hp:0.8,mp:0.6,elixir:0.35,key:0.08,minionHp:0.4,minionMp:0.16}
+  },
+  voidsanctum:{
+    id:'voidsanctum',
+    name:'Void Sanctum',
+    enemy:'herald',
+    portalRate:0.09,
+    keyName:'Void Sanctum Key',
+    blurb:'The altar past the Herald.',
+    lore:'The Herald was a door. This is the altar.',
+    boss:'voidarchon',
+    bossName:'Void Archon',
+    theme:'void',
+    col:'#d2b0ff',
+    colors:['#100818','#6a28b0','#e8d8ff','#ffffff'],
+    keySpr:'keyVoid',
+    portalSpr:'portalVoid',
+    voidFill:'#030214',
+    mapBlurb:'Star platforms over the void. The gold portal leaves after the Void Archon falls.',
+    chestLine:'A rune coffer opens',
+    minRooms:20,
+    zone:3,
+    loot:{boss:[6,7],bossN:2,bossHi:0.5,minion:[5,7],minionP:0.36,hp:0.85,mp:0.7,elixir:1,elixirN:2,key:0.1,minionHp:0.28,minionMp:0.2,minionElixir:0.12}
   }
 };
 const BCOLS=7,BROWS=7,BCELL=16,BPAD=3,BOSS_PAD=48;
@@ -1468,7 +1863,8 @@ function genTideclaw(seed){
   seed|=0;
   const L=layoutTideclaw(seed);
   const wd=mkWorld(L.w,L.h);
-  wd.isDungeon=true;wd.dungeonId='tideclaw';wd.dname='Tideclaw Burrow';
+  wd.isDungeon=true;wd.dungeonId='tideclaw';wd.dname='Tideclaw Burrow';wd.theme='tide';
+  wd.bossName='Old Tideclaw';wd.mapBlurb=DUNGEONS.tideclaw.mapBlurb;wd.lore=DUNGEONS.tideclaw.lore;wd.voidFill='#040605';
   wd.tiles.set(L.tiles);
   for(let i=0;i<wd.zone.length;i++)wd.zone[i]=L.tiles[i]===T_BWALL?-1:0;
   wd.spawn=L.spawn;wd.exit=L.exit;wd.exitOpen=false;wd.anchor=L.anchor;
@@ -1511,6 +1907,532 @@ function auditBurrows(n){
     for(const c of L.chests)if(bad(c)){fails.push(s+':chest in wall');break;}
   }
   return {n,ok:!fails.length,failCount:fails.length,fails:fails.slice(0,8),bossMin,bossMax};
+}
+
+
+function dIn(w,h,x,y){return x>1&&y>1&&x<w-2&&y<h-2;}
+function dSet(tiles,w,h,x,y,t){if(dIn(w,h,x,y))tiles[y*w+x]=t;}
+function dDisk(tiles,w,h,cx,cy,rad,t,mark,spine){
+  const r2=rad*rad;
+  for(let y=cy-rad;y<=cy+rad;y++)for(let x=cx-rad;x<=cx+rad;x++){
+    if((x-cx)*(x-cx)+(y-cy)*(y-cy)>r2)continue;
+    dSet(tiles,w,h,x,y,t);
+    if(mark&&spine&&dIn(w,h,x,y))spine[y*w+x]=1;
+  }
+}
+function dLine(tiles,w,h,a,b,rad,t,mark,spine){
+  const steps=Math.max(Math.abs(b.x-a.x),Math.abs(b.y-a.y),1);
+  for(let i=0;i<=steps;i++){
+    const x=Math.round(a.x+(b.x-a.x)*i/steps),y=Math.round(a.y+(b.y-a.y)*i/steps);
+    dDisk(tiles,w,h,x,y,rad,t,mark,spine);
+  }
+}
+function dWalk(tiles,w,h,x,y){return dIn(w,h,x,y)&&!SOLID.has(tiles[y*w+x]);}
+function dReach(tiles,w,h,sx,sy){
+  const seen=new Uint8Array(w*h);
+  if(!dWalk(tiles,w,h,sx,sy))return seen;
+  const st=[sy*w+sx];seen[sy*w+sx]=1;
+  while(st.length){
+    const i=st.pop(),x=i%w,y=(i/w)|0;
+    for(const d of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const nx=x+d[0],ny=y+d[1];
+      if(!dWalk(tiles,w,h,nx,ny))continue;
+      const j=ny*w+nx;if(seen[j])continue;
+      seen[j]=1;st.push(j);
+    }
+  }
+  return seen;
+}
+function dPix(x,y){return {x:(x+0.5)*TS,y:(y+0.5)*TS};}
+function dSpot(tiles,spine,w,h,cx,cy,avoid){
+  for(let r=0;r<12;r++){
+    for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
+      if(r&&Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;
+      const x=cx+dx,y=cy+dy;
+      if(!dWalk(tiles,w,h,x,y))continue;
+      if(spine&&spine[y*w+x]&&r<2)continue;
+      const p=dPix(x,y);let bad=false;
+      for(const a of avoid)if(Math.hypot(p.x-a.x,p.y-a.y)<14)bad=true;
+      if(!bad)return p;
+    }
+  }
+  return dWalk(tiles,w,h,cx,cy)?dPix(cx,cy):null;
+}
+function paintKeep(tiles,spine,w,h,cx,cy,rad,floor,t){
+  const r2=rad*rad;
+  for(let y=cy-rad;y<=cy+rad;y++)for(let x=cx-rad;x<=cx+rad;x++){
+    if(!dIn(w,h,x,y))continue;
+    if((x-cx)*(x-cx)+(y-cy)*(y-cy)>r2)continue;
+    const i=y*w+x;
+    if(spine[i]||tiles[i]!==floor)continue;
+    tiles[i]=t;
+  }
+}
+function dCrop(tiles,w,h,fill,pix,rooms){
+  let x0=w,y0=h,x1=0,y1=0,any=false;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(tiles[y*w+x]!==fill){
+    any=true;if(x<x0)x0=x;if(y<y0)y0=y;if(x>x1)x1=x;if(y>y1)y1=y;
+  }
+  if(!any){x0=0;y0=0;x1=Math.max(0,w-1);y1=Math.max(0,h-1);}
+  x0=Math.max(0,x0-3);y0=Math.max(0,y0-3);x1=Math.min(w-1,x1+3);y1=Math.min(h-1,y1+3);
+  const nw=x1-x0+1,nh=y1-y0+1,nt=new Uint8Array(nw*nh);
+  nt.fill(fill);
+  for(let y=0;y<nh;y++)for(let x=0;x<nw;x++)nt[y*nw+x]=tiles[(y+y0)*w+(x+x0)];
+  for(const o of pix){o.x-=x0*TS;o.y-=y0*TS;}
+  for(const r of rooms){r.x0-=x0;r.y0-=y0;r.x1-=x0;r.y1-=y0;}
+  let hash=0;
+  for(let i=0;i<nt.length;i+=5)hash=Math.imul(hash,33)+nt[i]|0;
+  return {w:nw,h:nh,tiles:nt,hash:hash>>>0};
+}
+function dFinish(tiles,w,h,fill,rooms,spawn,anchor,exit,encounters,chests,pathN){
+  const pix=[spawn,anchor,exit].concat(encounters,chests);
+  const cropped=dCrop(tiles,w,h,fill,pix,rooms);
+  const sig=rooms.map(r=>(r.role||'')+':'+r.cx+','+r.cy+':'+(r.shape||'')).join('|')+'#'+cropped.hash;
+  return {w:cropped.w,h:cropped.h,tiles:cropped.tiles,rooms,spawn,anchor,exit,encounters,chests,sig,pathN,connected:true};
+}
+function dStock(R,tiles,spine,w,h,rooms,types,taken){
+  const encounters=[],chests=[];
+  function place(type,room){
+    const p=dSpot(tiles,spine,w,h,room.cx,room.cy,taken);
+    if(!p)return false;
+    encounters.push({type,x:p.x,y:p.y});taken.push(p);return true;
+  }
+  let chested=false;
+  for(const room of rooms){
+    if(room.role==='start'||room.role==='boss')continue;
+    if(!chested&&room.role==='chest'){
+      const p=dSpot(tiles,spine,w,h,room.cx,room.cy,taken);
+      if(p){chests.push({x:p.x,y:p.y,open:false});taken.push(p);chested=true;}
+      continue;
+    }
+    const n=room.role==='side'?1:1+((R()*2)|0);
+    for(let i=0;i<n;i++)place(types[(R()*types.length)|0],room);
+  }
+  return {encounters,chests};
+}
+function forceLink(tiles,spine,w,h,ax,ay,bx,by,floor){
+  let seen=dReach(tiles,w,h,ax,ay);
+  if(!seen[by*w+bx]){
+    dLine(tiles,w,h,{x:ax,y:ay},{x:bx,y:by},2,floor,true,spine);
+    seen=dReach(tiles,w,h,ax,ay);
+  }
+  return !!seen[by*w+bx];
+}
+function tryHexmire(R){
+  const W=220,H=180,tiles=new Uint8Array(W*H),spine=new Uint8Array(W*H);
+  tiles.fill(T_HWALL);
+  const rooms=[];
+  const pathN=16+((R()*5)|0),sideN=4+((R()*3)|0);
+  const corners=[{x:170,y:130},{x:48,y:132},{x:164,y:46},{x:58,y:42}];
+  const bossAt=corners[(R()*corners.length)|0];
+  const bx=bossAt.x,by=bossAt.y,bossR=15;
+  let x=clamp((bx>W/2?34:W-42)+((R()*18)|0)-9,24,W-24);
+  let y=clamp((by>H/2?30:H-42)+((R()*16)|0)-8,24,H-24);
+  let ang=Math.atan2(by-y,bx-x),prev=null;
+  for(let i=0;i<pathN;i++){
+    let nx=x,ny=y,a=ang;
+    if(i>0){
+      let placed=false;
+      for(let t=0;t<14;t++){
+        a=ang+(R()-0.5)*1.3;
+        if(i>pathN*0.55){const want=Math.atan2(by-y,bx-x);a=a*0.4+want*0.6;}
+        const step=13+((R()*8)|0);
+        nx=Math.round(x+Math.cos(a)*step);ny=Math.round(y+Math.sin(a)*step);
+        if(nx<18||ny<18||nx>=W-18||ny>=H-18)continue;
+        if(Math.hypot(nx-bx,ny-by)<bossR+8)continue;
+        let ok=true;
+        for(const r of rooms)if(Math.hypot(nx-r.cx,ny-r.cy)<12)ok=false;
+        if(!ok)continue;
+        placed=true;break;
+      }
+      if(!placed){
+        a=Math.atan2(by-y,bx-x)+(R()-0.5)*0.7;
+        nx=clamp(Math.round(x+Math.cos(a)*12),18,W-19);
+        ny=clamp(Math.round(y+Math.sin(a)*12),18,H-19);
+      }
+    }
+    const rad=i===0?7:5+((R()*3)|0);
+    const shape=R()<0.4?'pool':R()<0.7?'root':'dry';
+    dDisk(tiles,W,H,nx,ny,rad,T_HFLOOR,false,null);
+    dDisk(tiles,W,H,nx,ny,2,T_HFLOOR,true,spine);
+    if(prev)dLine(tiles,W,H,prev,{x:nx,y:ny},2,T_HFLOOR,true,spine);
+    rooms.push({cx:nx,cy:ny,rad,role:i===0?'start':'path',shape,x0:nx-rad,y0:ny-rad,x1:nx+rad+1,y1:ny+rad+1});
+    prev={x:nx,y:ny};x=nx;y=ny;ang=a;
+  }
+  let sides=0,guard=0;
+  while(sides<sideN&&guard++<40){
+    const parent=rooms[1+((R()*(rooms.length-1))|0)];
+    const a=R()*TAU;
+    const nx=clamp(Math.round(parent.cx+Math.cos(a)*(parent.rad+9)),18,W-19);
+    const ny=clamp(Math.round(parent.cy+Math.sin(a)*(parent.rad+9)),18,H-19);
+    if(Math.hypot(nx-bx,ny-by)<bossR+7)continue;
+    let ok=true;
+    for(const r of rooms)if(Math.hypot(nx-r.cx,ny-r.cy)<10)ok=false;
+    if(!ok)continue;
+    const rad=4+((R()*2)|0),role=sides===0?'chest':'side';
+    dDisk(tiles,W,H,nx,ny,rad,T_HFLOOR,false,null);
+    dLine(tiles,W,H,{x:parent.cx,y:parent.cy},{x:nx,y:ny},1,T_HFLOOR,true,spine);
+    dDisk(tiles,W,H,nx,ny,2,T_HFLOOR,true,spine);
+    rooms.push({cx:nx,cy:ny,rad,role,shape:'side',x0:nx-rad,y0:ny-rad,x1:nx+rad+1,y1:ny+rad+1});
+    sides++;
+  }
+  if(sides<4)return null;
+  dDisk(tiles,W,H,bx,by,bossR,T_HFLOOR,false,null);
+  const last=rooms[pathN-1];
+  dLine(tiles,W,H,{x:last.cx,y:last.cy},{x:bx,y:by},2,T_HFLOOR,true,spine);
+  const inAng=Math.atan2(last.cy-by,last.cx-bx);
+  const hx=bx+Math.round(Math.cos(inAng+Math.PI)*11);
+  const hy=by+Math.round(Math.sin(inAng+Math.PI)*11);
+  for(let y=hy-3;y<=hy+2;y++)for(let x=hx-4;x<=hx+3;x++){
+    if(!dIn(W,H,x,y))continue;
+    const edge=x===hx-4||x===hx+3||y===hy-3||y===hy+2;
+    if(!edge){tiles[y*W+x]=T_HFLOOR;continue;}
+    const facing=(x-hx)*(bx-hx)+(y-hy)*(by-hy)>0;
+    const along=Math.abs((x-hx)*Math.sin(inAng)-(y-hy)*Math.cos(inAng));
+    if(facing&&along<=1)continue;
+    if(spine[y*W+x])continue;
+    tiles[y*W+x]=T_HWALL;
+  }
+  if(dIn(W,H,hx,hy)&&!spine[hy*W+hx])tiles[hy*W+hx]=T_HCAUL;
+  if(dIn(W,H,hx+1,hy)&&!spine[hy*W+(hx+1)])tiles[hy*W+(hx+1)]=T_HCAUL;
+  for(let k=0;k<6;k++){
+    const a=inAng+0.75+k*(TAU/6);
+    const tx=bx+Math.round(Math.cos(a)*(bossR-3)),ty=by+Math.round(Math.sin(a)*(bossR-3));
+    if(!dIn(W,H,tx,ty)||spine[ty*W+tx]||tiles[ty*W+tx]!==T_HFLOOR)continue;
+    tiles[ty*W+tx]=T_HTOTEM;
+  }
+  for(const room of rooms){
+    if(room.role==='start')continue;
+    if(room.shape==='pool'||R()<0.5){
+      const a=R()*TAU;
+      paintKeep(tiles,spine,W,H,room.cx+Math.round(Math.cos(a)*(room.rad-1)),room.cy+Math.round(Math.sin(a)*(room.rad-1)),2,T_HFLOOR,T_HPOOL);
+    }
+    const roots=2+((R()*3)|0);
+    for(let n=0;n<roots;n++){
+      const a=R()*TAU,dist=2+((R()*Math.max(1,room.rad-2))|0);
+      const rx=room.cx+Math.round(Math.cos(a)*dist),ry=room.cy+Math.round(Math.sin(a)*dist);
+      if(!dIn(W,H,rx,ry)||spine[ry*W+rx]||tiles[ry*W+rx]!==T_HFLOOR)continue;
+      tiles[ry*W+rx]=T_HROOT;
+    }
+  }
+  dDisk(tiles,W,H,bx,by,6,T_HFLOOR,true,spine);
+  rooms.push({cx:bx,cy:by,rad:bossR,role:'boss',shape:'clearing',x0:bx-bossR,y0:by-bossR,x1:bx+bossR+1,y1:by+bossR+1});
+  if(!forceLink(tiles,spine,W,H,rooms[0].cx,rooms[0].cy,bx,by,T_HFLOOR))return null;
+  let ex=clamp(bx+Math.round(Math.cos(inAng)*(bossR-4)),2,W-3);
+  let ey=clamp(by+Math.round(Math.sin(inAng)*(bossR-4)),2,H-3);
+  if(!dWalk(tiles,W,H,ex,ey)){tiles[ey*W+ex]=T_HFLOOR;spine[ey*W+ex]=1;}
+  const types=['heximp','bogtoad','mirewisp','cursetree'];
+  const spawn=dPix(rooms[0].cx,rooms[0].cy),anchor=dPix(bx,by),exit=dPix(ex,ey);
+  const stock=dStock(R,tiles,spine,W,H,rooms,types,[spawn,anchor,exit]);
+  if(stock.encounters.length<6||rooms.length<21)return null;
+  return dFinish(tiles,W,H,T_HWALL,rooms,spawn,anchor,exit,stock.encounters,stock.chests,pathN);
+}
+function fallbackHexmire(R){
+  const W=240,H=64,tiles=new Uint8Array(W*H),spine=new Uint8Array(W*H);
+  tiles.fill(T_HWALL);const rooms=[];const n=22;
+  for(let i=0;i<n;i++){
+    const cx=14+i*10,cy=32+((i&1)?8:-8),rad=i===n-1?15:5;
+    const role=i===0?'start':i===n-1?'boss':i===5?'chest':'path';
+    dDisk(tiles,W,H,cx,cy,rad,T_HFLOOR,true,spine);
+    if(i)dLine(tiles,W,H,{x:rooms[i-1].cx,y:rooms[i-1].cy},{x:cx,y:cy},2,T_HFLOOR,true,spine);
+    rooms.push({cx,cy,rad,role,shape:'fallback',x0:cx-rad,y0:cy-rad,x1:cx+rad+1,y1:cy+rad+1});
+    if(role!=='boss'&&role!=='start'&&(i&1))paintKeep(tiles,spine,W,H,cx,cy+3,2,T_HFLOOR,T_HPOOL);
+  }
+  const boss=rooms[n-1];
+  dSet(tiles,W,H,boss.cx,boss.cy-8,T_HCAUL);
+  dSet(tiles,W,H,boss.cx-6,boss.cy-6,T_HTOTEM);
+  dSet(tiles,W,H,boss.cx+6,boss.cy-6,T_HTOTEM);
+  const types=['heximp','bogtoad','mirewisp','cursetree'];
+  const spawn=dPix(rooms[0].cx,rooms[0].cy),anchor=dPix(boss.cx,boss.cy),exit=dPix(boss.cx-8,boss.cy);
+  const stock=dStock(R,tiles,spine,W,H,rooms,types,[spawn,anchor,exit]);
+  return dFinish(tiles,W,H,T_HWALL,rooms,spawn,anchor,exit,stock.encounters,stock.chests,n-1);
+}
+function layoutHexmire(seed){
+  const base=seed|0;
+  for(let attempt=0;attempt<8;attempt++){
+    const L=tryHexmire(mulberry((base+Math.imul(attempt+1,0x9E3779B9))|0));
+    if(L)return L;
+  }
+  return fallbackHexmire(mulberry(base^0x51f15e));
+}
+function hexXY(q,r){
+  const s=12;
+  return {x:42+Math.round(s*1.5*q),y:42+Math.round(s*Math.sqrt(3)*(r+q/2))};
+}
+function tryHive(R){
+  const target=24+((R()*7)|0);
+  const cells=[{q:1,r:1}],set={'1,1':1};
+  const dirs=[[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
+  let guard=0;
+  while(cells.length<target&&guard++<900){
+    const parent=cells[(R()*cells.length)|0];
+    let grew=false;
+    for(const d of burrowShuffle(dirs,R)){
+      const nq=parent.q+d[0],nr=parent.r+d[1],key=nq+','+nr;
+      if(nq<0||nr<0||nq>12||nr>9||set[key])continue;
+      set[key]=1;cells.push({q:nq,r:nr,parent});grew=true;break;
+    }
+    if(grew)continue;
+    let found=false;
+    for(const c of cells){
+      for(const d of dirs){
+        const nq=c.q+d[0],nr=c.r+d[1],key=nq+','+nr;
+        if(nq<0||nr<0||nq>12||nr>9||set[key])continue;
+        set[key]=1;cells.push({q:nq,r:nr,parent:c});found=true;break;
+      }
+      if(found)break;
+    }
+    if(!found)break;
+  }
+  if(cells.length<22)return null;
+  const pos=cells.map(c=>hexXY(c.q,c.r));
+  let maxX=0,maxY=0;
+  for(const p of pos){if(p.x>maxX)maxX=p.x;if(p.y>maxY)maxY=p.y;}
+  const W=maxX+70,H=maxY+70,tiles=new Uint8Array(W*H),spine=new Uint8Array(W*H);
+  tiles.fill(T_CWALL);
+  const rooms=[];
+  for(let i=0;i<cells.length;i++){
+    const p=pos[i],rad=i===0?6:4+((R()*2)|0);
+    dDisk(tiles,W,H,p.x,p.y,rad,T_CFLOOR,false,null);
+    dDisk(tiles,W,H,p.x,p.y,2,T_CFLOOR,true,spine);
+    if(i>0&&cells[i].parent){
+      const pi=cells.indexOf(cells[i].parent);
+      if(pi>=0)dLine(tiles,W,H,p,pos[pi],1,T_CFLOOR,true,spine);
+    }
+    rooms.push({cx:p.x,cy:p.y,rad,role:i===0?'start':'path',shape:R()<0.45?'lava':'cell',x0:p.x-rad,y0:p.y-rad,x1:p.x+rad+1,y1:p.y+rad+1});
+  }
+  let bi=0,bd=-1;
+  for(let i=1;i<cells.length;i++){const d=cells[i].q+cells[i].r;if(d>bd){bd=d;bi=i;}}
+  const from=pos[bi],prev=cells[bi].parent?pos[cells.indexOf(cells[bi].parent)]:pos[0];
+  const ang=Math.atan2(from.y-prev.y,from.x-prev.x);
+  const bx=clamp(Math.round(from.x+Math.cos(ang)*18),18,W-18);
+  const by=clamp(Math.round(from.y+Math.sin(ang)*18),18,H-18);
+  const bossR=16;
+  dDisk(tiles,W,H,bx,by,bossR,T_CFLOOR,false,null);
+  dLine(tiles,W,H,from,{x:bx,y:by},2,T_CFLOOR,true,spine);
+  for(let k=0;k<8;k++){
+    const a=ang+0.45+k*(TAU/8);
+    paintKeep(tiles,spine,W,H,bx+Math.round(Math.cos(a)*(bossR-5)),by+Math.round(Math.sin(a)*(bossR-5)),2,T_CFLOOR,T_CLAVA);
+  }
+  for(let k=0;k<8;k++){
+    const a=ang+0.8+k*(TAU/8);
+    const ex=bx+Math.round(Math.cos(a)*(bossR-2)),ey=by+Math.round(Math.sin(a)*(bossR-2));
+    if(dIn(W,H,ex,ey)&&!spine[ey*W+ex]&&tiles[ey*W+ex]===T_CFLOOR)tiles[ey*W+ex]=T_CEGG;
+  }
+  dDisk(tiles,W,H,bx,by,6,T_CFLOOR,true,spine);
+  rooms.push({cx:bx,cy:by,rad:bossR,role:'boss',shape:'egg',x0:bx-bossR,y0:by-bossR,x1:bx+bossR+1,y1:by+bossR+1});
+  for(const room of rooms){
+    if(room.role==='boss'||room.role==='start')continue;
+    if(room.shape==='lava'||R()<0.55){
+      const a=R()*TAU;
+      paintKeep(tiles,spine,W,H,room.cx+Math.round(Math.cos(a)*(room.rad-1)),room.cy+Math.round(Math.sin(a)*(room.rad-1)),1,T_CFLOOR,T_CLAVA);
+    }
+    if(R()<0.5){
+      const a=R()*TAU,ex=room.cx+Math.round(Math.cos(a)*(room.rad-1)),ey=room.cy+Math.round(Math.sin(a)*(room.rad-1));
+      if(dIn(W,H,ex,ey)&&!spine[ey*W+ex]&&tiles[ey*W+ex]===T_CFLOOR)tiles[ey*W+ex]=T_CEGG;
+    }
+    if(R()<0.3){
+      const a=R()*TAU,rx=room.cx+Math.round(Math.cos(a)*2),ry=room.cy+Math.round(Math.sin(a)*2);
+      if(dIn(W,H,rx,ry)&&!spine[ry*W+rx]&&tiles[ry*W+rx]===T_CFLOOR)tiles[ry*W+rx]=T_CROCK;
+    }
+  }
+  const chest=rooms[2+((R()*Math.max(1,rooms.length-4))|0)];
+  if(chest&&chest.role==='path')chest.role='chest';
+  if(!forceLink(tiles,spine,W,H,rooms[0].cx,rooms[0].cy,bx,by,T_CFLOOR))return null;
+  let ex=clamp(bx+Math.round(Math.cos(ang+Math.PI)*(bossR-5)),2,W-3);
+  let ey=clamp(by+Math.round(Math.sin(ang+Math.PI)*(bossR-5)),2,H-3);
+  if(!dWalk(tiles,W,H,ex,ey))tiles[ey*W+ex]=T_CFLOOR;
+  const types=['drone','larva','spitter','broodling'];
+  const spawn=dPix(rooms[0].cx,rooms[0].cy),anchor=dPix(bx,by),exit=dPix(ex,ey);
+  const stock=dStock(R,tiles,spine,W,H,rooms,types,[spawn,anchor,exit]);
+  if(stock.encounters.length<6||rooms.length<22)return null;
+  return dFinish(tiles,W,H,T_CWALL,rooms,spawn,anchor,exit,stock.encounters,stock.chests,cells.length);
+}
+function fallbackHive(R){
+  const W=260,H=70,tiles=new Uint8Array(W*H),spine=new Uint8Array(W*H);
+  tiles.fill(T_CWALL);const rooms=[];const n=24;
+  for(let i=0;i<n;i++){
+    const cx=16+i*10,cy=34+((i%3)-1)*8,rad=i===n-1?16:5;
+    const role=i===0?'start':i===n-1?'boss':i===6?'chest':'path';
+    dDisk(tiles,W,H,cx,cy,rad,T_CFLOOR,true,spine);
+    if(i)dLine(tiles,W,H,{x:rooms[i-1].cx,y:rooms[i-1].cy},{x:cx,y:cy},1,T_CFLOOR,true,spine);
+    rooms.push({cx,cy,rad,role,shape:'fallback',x0:cx-rad,y0:cy-rad,x1:cx+rad+1,y1:cy+rad+1});
+    if(role!=='boss'&&(i&1))paintKeep(tiles,spine,W,H,cx,cy+2,1,T_CFLOOR,T_CLAVA);
+  }
+  const boss=rooms[n-1];
+  paintKeep(tiles,spine,W,H,boss.cx+6,boss.cy,2,T_CFLOOR,T_CLAVA);
+  dSet(tiles,W,H,boss.cx-5,boss.cy-5,T_CEGG);
+  const types=['drone','larva','spitter','broodling'];
+  const spawn=dPix(rooms[0].cx,rooms[0].cy),anchor=dPix(boss.cx,boss.cy),exit=dPix(boss.cx-8,boss.cy);
+  const stock=dStock(R,tiles,spine,W,H,rooms,types,[spawn,anchor,exit]);
+  return dFinish(tiles,W,H,T_CWALL,rooms,spawn,anchor,exit,stock.encounters,stock.chests,n-1);
+}
+function layoutCinder(seed){
+  const base=seed|0;
+  for(let attempt=0;attempt<8;attempt++){
+    const L=tryHive(mulberry((base+Math.imul(attempt+1,0x9E3779B9))|0));
+    if(L)return L;
+  }
+  return fallbackHive(mulberry(base^0x51f15e));
+}
+function tryVoid(R){
+  const W=300,H=250,smallN=19+((R()*5)|0);
+  const pts=[];let guard=0;
+  while(pts.length<smallN&&guard++<6000){
+    const x=28+((R()*(W-90))|0),y=28+((R()*(H-90))|0);
+    let ok=true;
+    for(const p of pts)if(Math.hypot(x-p.x,y-p.y)<26)ok=false;
+    if(ok)pts.push({x,y,rad:6+((R()*3)|0)});
+  }
+  if(pts.length<18)return null;
+  const used=new Uint8Array(pts.length);
+  let cur=0,best=1e9;
+  for(let i=0;i<pts.length;i++)if(pts[i].x<best){best=pts[i].x;cur=i;}
+  const order=[cur];used[cur]=1;
+  while(order.length<pts.length){
+    let ni=-1,nd=1e9;const c=pts[cur];
+    for(let i=0;i<pts.length;i++)if(!used[i]){const d=Math.hypot(pts[i].x-c.x,pts[i].y-c.y);if(d<nd){nd=d;ni=i;}}
+    if(ni<0)break;used[ni]=1;order.push(ni);cur=ni;
+  }
+  const tiles=new Uint8Array(W*H),spine=new Uint8Array(W*H);
+  tiles.fill(T_VVOID);const rooms=[];
+  for(let i=0;i<order.length;i++){
+    const p=pts[order[i]];
+    dDisk(tiles,W,H,p.x,p.y,p.rad,T_VFLOOR,false,null);
+    dDisk(tiles,W,H,p.x,p.y,2,T_VFLOOR,true,spine);
+    if(i)dLine(tiles,W,H,pts[order[i-1]],p,1,T_VFLOOR,true,spine);
+    rooms.push({cx:p.x,cy:p.y,rad:p.rad,role:i===0?'start':'path',shape:R()<0.35?'rune':'platform',x0:p.x-p.rad,y0:p.y-p.rad,x1:p.x+p.rad+1,y1:p.y+p.rad+1});
+  }
+  for(let k=0;k<3;k++){
+    const i=(R()*order.length)|0,j=(R()*order.length)|0;
+    if(Math.abs(i-j)<2)continue;
+    dLine(tiles,W,H,pts[order[i]],pts[order[j]],1,T_VFLOOR,true,spine);
+  }
+  const last=pts[order[order.length-1]],prev=pts[order[Math.max(0,order.length-2)]];
+  let dx=last.x-prev.x,dy=last.y-prev.y,len=Math.hypot(dx,dy)||1;dx/=len;dy/=len;
+  let bx=clamp(Math.round(last.x+dx*38),30,W-30),by=clamp(Math.round(last.y+dy*38),30,H-30);
+  for(let step=0;step<10;step++){
+    let ok=true;
+    for(const p of pts)if(Math.hypot(bx-p.x,by-p.y)<32)ok=false;
+    if(ok)break;
+    bx=clamp(bx+Math.round(dx*6),30,W-30);by=clamp(by+Math.round(dy*6),30,H-30);
+  }
+  const bossR=17,inAng=Math.atan2(last.y-by,last.x-bx);
+  dDisk(tiles,W,H,bx,by,bossR,T_VFLOOR,false,null);
+  dLine(tiles,W,H,last,{x:bx,y:by},1,T_VFLOOR,true,spine);
+  dDisk(tiles,W,H,bx,by,3,T_VFLOOR,true,spine);
+  for(const room of rooms){
+    const rad=room.rad;
+    for(let y=room.cy-rad;y<=room.cy+rad;y++)for(let x=room.cx-rad;x<=room.cx+rad;x++){
+      const d2=(x-room.cx)*(x-room.cx)+(y-room.cy)*(y-room.cy);
+      if(d2<(rad-1)*(rad-1)||d2>rad*rad)continue;
+      if(!dIn(W,H,x,y)||spine[y*W+x]||tiles[y*W+x]!==T_VFLOOR)continue;
+      tiles[y*W+x]=T_VWALL;
+    }
+    if(room.shape==='rune'){
+      for(let a=0;a<TAU;a+=0.8){
+        const x=room.cx+Math.round(Math.cos(a)*3),y=room.cy+Math.round(Math.sin(a)*3);
+        if(dIn(W,H,x,y)&&tiles[y*W+x]===T_VFLOOR)tiles[y*W+x]=T_VRUNE;
+      }
+    }
+  }
+  for(let a=0;a<TAU;a+=0.11){
+    const rel=((a-inAng)%TAU+TAU)%TAU,deg=rel*180/Math.PI;
+    if(deg<26||deg>334)continue;
+    if(Math.abs(deg-90)<14||Math.abs(deg-180)<14||Math.abs(deg-270)<14)continue;
+    const x=bx+Math.round(Math.cos(a)*(bossR-2)),y=by+Math.round(Math.sin(a)*(bossR-2));
+    if(!dIn(W,H,x,y)||spine[y*W+x])continue;
+    if(tiles[y*W+x]===T_VFLOOR||tiles[y*W+x]===T_VRUNE)tiles[y*W+x]=T_VWALL;
+  }
+  for(let k=0;k<4;k++){
+    const a=inAng+0.9+k*TAU/4,x=bx+Math.round(Math.cos(a)*10),y=by+Math.round(Math.sin(a)*10);
+    if(dIn(W,H,x,y)&&!spine[y*W+x]&&tiles[y*W+x]!==T_VWALL)tiles[y*W+x]=T_VPILLAR;
+  }
+  dDisk(tiles,W,H,bx,by,5,T_VFLOOR,true,spine);
+  for(let a=0;a<TAU;a+=0.35){
+    const x=bx+Math.round(Math.cos(a)*4),y=by+Math.round(Math.sin(a)*4);
+    if(dIn(W,H,x,y)&&tiles[y*W+x]===T_VFLOOR)tiles[y*W+x]=T_VRUNE;
+  }
+  rooms.push({cx:bx,cy:by,rad:bossR,role:'boss',shape:'arena',x0:bx-bossR,y0:by-bossR,x1:bx+bossR+1,y1:by+bossR+1});
+  const chest=rooms[2+((R()*Math.max(1,rooms.length-4))|0)];
+  if(chest&&chest.role==='path')chest.role='chest';
+  if(!forceLink(tiles,spine,W,H,rooms[0].cx,rooms[0].cy,bx,by,T_VFLOOR))return null;
+  let ex=clamp(bx+Math.round(Math.cos(inAng)*(bossR-5)),2,W-3);
+  let ey=clamp(by+Math.round(Math.sin(inAng)*(bossR-5)),2,H-3);
+  if(!dWalk(tiles,W,H,ex,ey))tiles[ey*W+ex]=T_VFLOOR;
+  const types=['acolyte','starwisp','runesworn','voideye'];
+  const spawn=dPix(rooms[0].cx,rooms[0].cy),anchor=dPix(bx,by),exit=dPix(ex,ey);
+  const stock=dStock(R,tiles,spine,W,H,rooms,types,[spawn,anchor,exit]);
+  if(stock.encounters.length<5||rooms.length<20)return null;
+  return dFinish(tiles,W,H,T_VVOID,rooms,spawn,anchor,exit,stock.encounters,stock.chests,rooms.length);
+}
+function fallbackVoid(R){
+  const W=280,H=80,tiles=new Uint8Array(W*H),spine=new Uint8Array(W*H);
+  tiles.fill(T_VVOID);const rooms=[];const n=22;
+  for(let i=0;i<n;i++){
+    const cx=18+i*12,cy=40,rad=i===n-1?16:6;
+    const role=i===0?'start':i===n-1?'boss':i===4?'chest':'path';
+    dDisk(tiles,W,H,cx,cy,rad,T_VFLOOR,true,spine);
+    if(i)dLine(tiles,W,H,{x:rooms[i-1].cx,y:rooms[i-1].cy},{x:cx,y:cy},1,T_VFLOOR,true,spine);
+    rooms.push({cx,cy,rad,role,shape:'fallback',x0:cx-rad,y0:cy-rad,x1:cx+rad+1,y1:cy+rad+1});
+  }
+  const boss=rooms[n-1];
+  for(let a=0;a<TAU;a+=0.4){
+    const x=boss.cx+Math.round(Math.cos(a)*5),y=boss.cy+Math.round(Math.sin(a)*5);
+    if(tiles[y*W+x]===T_VFLOOR)tiles[y*W+x]=T_VRUNE;
+  }
+  const types=['acolyte','starwisp','runesworn','voideye'];
+  const spawn=dPix(rooms[0].cx,rooms[0].cy),anchor=dPix(boss.cx,boss.cy),exit=dPix(boss.cx-8,boss.cy);
+  const stock=dStock(R,tiles,spine,W,H,rooms,types,[spawn,anchor,exit]);
+  return dFinish(tiles,W,H,T_VVOID,rooms,spawn,anchor,exit,stock.encounters,stock.chests,n-1);
+}
+function layoutVoid(seed){
+  const base=seed|0;
+  for(let attempt=0;attempt<8;attempt++){
+    const L=tryVoid(mulberry((base+Math.imul(attempt+1,0x9E3779B9))|0));
+    if(L)return L;
+  }
+  return fallbackVoid(mulberry(base^0x51f15e));
+}
+function bakeDungeon(id,seed,L){
+  const d=DUNGEONS[id],wd=mkWorld(L.w,L.h);
+  wd.isDungeon=true;wd.dungeonId=id;wd.dname=d.name;wd.theme=d.theme;
+  wd.bossName=d.bossName;wd.mapBlurb=d.mapBlurb;wd.lore=d.lore;wd.voidFill=d.voidFill;
+  wd.tiles.set(L.tiles);
+  for(let i=0;i<wd.zone.length;i++)wd.zone[i]=SOLID.has(wd.tiles[i])?-1:0;
+  wd.spawn=L.spawn;wd.exit=L.exit;wd.exitOpen=false;wd.anchor=L.anchor;
+  wd.beacons=[];wd.encounters=L.encounters;wd.lootChests=L.chests;wd.rooms=L.rooms;
+  wd.layoutSig=L.sig;wd.seed=seed;wd.pathRooms=L.pathN||0;wd.roomCount=L.rooms.length;
+  renderWorld(wd);
+  return wd;
+}
+function genHexmire(seed){if(seed==null)seed=(Math.random()*0x7fffffff)|0;seed|=0;return bakeDungeon('hexmire',seed,layoutHexmire(seed));}
+function genCinder(seed){if(seed==null)seed=(Math.random()*0x7fffffff)|0;seed|=0;return bakeDungeon('cinder',seed,layoutCinder(seed));}
+function genVoid(seed){if(seed==null)seed=(Math.random()*0x7fffffff)|0;seed|=0;return bakeDungeon('voidsanctum',seed,layoutVoid(seed));}
+DUNGEONS.tideclaw.gen=genTideclaw;DUNGEONS.tideclaw.layout=layoutTideclaw;
+DUNGEONS.hexmire.gen=genHexmire;DUNGEONS.hexmire.layout=layoutHexmire;
+DUNGEONS.cinder.gen=genCinder;DUNGEONS.cinder.layout=layoutCinder;
+DUNGEONS.voidsanctum.gen=genVoid;DUNGEONS.voidsanctum.layout=layoutVoid;
+function auditDungeon(id,n){
+  n=n||40;const d=DUNGEONS[id];
+  if(!d||!d.layout)return {id,ok:false,error:'no layout'};
+  const sigs=new Set(),fails=[];let minR=1e9,maxR=0;
+  for(let s=1;s<=n;s++){
+    const L=d.layout(s);
+    if(!L){fails.push(s+':none');continue;}
+    if(sigs.has(L.sig))fails.push(s+':dup');
+    sigs.add(L.sig);
+    if(L.rooms.length<(d.minRooms||1))fails.push(s+':rooms '+L.rooms.length);
+    minR=Math.min(minR,L.rooms.length);maxR=Math.max(maxR,L.rooms.length);
+    if(!L.encounters||L.encounters.length<4)fails.push(s+':foes '+(L.encounters&&L.encounters.length));
+    const bad=p=>{const tx=Math.floor(p.x/TS),ty=Math.floor(p.y/TS);if(tx<0||ty<0||tx>=L.w||ty>=L.h)return true;return SOLID.has(L.tiles[ty*L.w+tx]);};
+    if(bad(L.spawn)||bad(L.anchor)||bad(L.exit))fails.push(s+':anchor');
+    const sx=Math.floor(L.spawn.x/TS),sy=Math.floor(L.spawn.y/TS);
+    const seen=dReach(L.tiles,L.w,L.h,sx,sy);
+    const ax=Math.floor(L.anchor.x/TS),ay=Math.floor(L.anchor.y/TS);
+    if(!seen[ay*L.w+ax])fails.push(s+':disconnected');
+  }
+  return {id,n,ok:!fails.length,failCount:fails.length,fails:fails.slice(0,6),minRooms:minR,maxRooms:maxR,unique:sigs.size};
 }
 
 /* ---------------- classes & items ---------------- */
@@ -1651,7 +2573,7 @@ function isDungeonUt(it){return !!(it&&(it.dungeonUt||it.name==='Tidepearl'));}
 function itemSpr(it){
   if(!it)return null;
   if(it.spr&&SPR[it.spr])return SPR[it.spr];
-  if(it.kind==='dungeonkey')return SPR.keyTide;
+  if(it.kind==='dungeonkey'){const d=DUNGEONS[it.dungeon];return (d&&d.keySpr&&SPR[d.keySpr])||SPR.keyTide;}
   if(it.kind==='weapon'&&it.test)return gearSpr(it.w,'test');
   if(it.kind==='weapon')return gearSpr(it.w,it.tier);
   if(it.kind==='armor')return gearSpr(it.a,it.tier);
@@ -1700,7 +2622,7 @@ function itemLines(it){
   if(it.kind==='mastery')L.push('Drink: raise every stat to this class\'s maximum');
   if(it.kind==='hp')L.push('Restores 120 HP');if(it.kind==='mp')L.push('Restores 100 MP');
   if(it.kind==='beaconkey')L.push('Use: unlock every region beacon');
-  if(it.kind==='dungeonkey'){const d=DUNGEONS[it.dungeon];L.push('Use: open a '+(d?d.name:'dungeon')+' portal');}
+  if(it.kind==='dungeonkey'){const d=DUNGEONS[it.dungeon];L.push('Use: open a '+(d?d.name:'dungeon')+' portal');if(d&&d.lore)L.push(d.lore);}
   return L;
 }
 let CATALOG=null;
@@ -1784,12 +2706,45 @@ const EN={
   barnacle:{name:'Barnacle Spit',spr:'barnacle',hp:70,def:2,spd:0,xp:10,r:4,aggro:96,ai:'keep',keep:1,pats:[{t:'aim',cd:2.6,n:1,spd:40,dmg:7,r:3.2,col:'#7ee0c8',life:2.5,slow:2}]},
   shellguard:{name:'Shellguard',spr:'shellguard',hp:130,def:2,spd:13,xp:16,r:5,aggro:78,ai:'keep',keep:46,pats:[{t:'aim',cd:1.8,n:3,sp:14,spd:54,dmg:8,r:3,col:'#ff7a4a',life:1.6}]},
   tidematron:{name:'Tide Matron',spr:'tidematron',hp:380,def:4,spd:16,xp:55,r:7,aggro:96,ai:'chase',mini:true,pats:[{t:'aim',cd:1.35,n:3,sp:14,spd:68,dmg:9,r:3,col:'#ffb070',life:1.6},{t:'ring',cd:2.7,n:8,spd:46,dmg:8,r:3.1,col:'#7ee0c8',life:2.2,slow:2},{t:'summon',cd:9,type:'pincer',n:2,cap:20}]},
+  heximp:{name:'Hex Imp',spr:'heximp',hp:240,def:2,spd:22,xp:34,r:4,aggro:88,ai:'keep',keep:64,pats:[{t:'aim',cd:1.25,n:2,sp:10,spd:96,dmg:16,r:2.8,col:'#d8a0ff',life:1.3,para:0.8},{t:'ring',cd:3.2,n:6,spd:54,dmg:14,r:2.8,col:'#b46aff',life:2}]},
+  bogtoad:{name:'Bog Toad',spr:'bogtoad',hp:340,def:4,spd:14,xp:40,r:4.6,aggro:80,ai:'chase',pats:[{t:'aim',cd:1.45,n:4,sp:16,spd:78,dmg:18,r:3.1,col:'#9fe07a',life:1.45,slow:1.8}]},
+  mirewisp:{name:'Mire Wisp',spr:'mirewisp',hp:190,def:1,spd:30,xp:32,r:3.6,aggro:92,ai:'orbit',keep:70,pats:[{t:'spiral',cd:0.32,arms:2,rot:0.4,spd:74,dmg:15,r:2.4,col:'#d090ff',life:1.8,burst:1.2,rest:1.3,weak:1.8}]},
+  cursetree:{name:'Cursed Treant',spr:'cursetree',hp:480,def:8,spd:8,xp:48,r:5.4,aggro:86,ai:'wander',pats:[{t:'ring',cd:2.4,n:10,spd:48,dmg:17,r:3.2,col:'#7fd06a',life:2.3,slow:2.2},{t:'aim',cd:1.9,n:1,spd:80,dmg:18,r:3.2,col:'#c6a15a',life:1.7}]},
+  hexmatron:{name:'Hex Matriarch',spr:'hexmatron',hp:3400,def:10,spd:16,xp:420,r:13,ai:'boss',boss:true,dungeonBoss:true,orbit:48,orbitSpd:0.7,toastCol:'#c6e060',
+    phaseLines:['The Hex Matriarch: "The marsh takes your name."','The Hex Matriarch: "Kneel. The cauldron is already boiling."'],
+    fallText:'THE HEX MATRIARCH SINKS',
+    phases:[
+      {above:0.66,pats:[{t:'aim',cd:1.15,n:3,sp:12,spd:100,dmg:22,r:3,col:'#d8a0ff',life:1.4,para:1},{t:'ring',cd:2.6,n:8,spd:52,dmg:18,r:3,col:'#9fe07a',life:2.2,slow:1.8}]},
+      {above:0.33,pats:[{t:'ring',cd:1.8,n:12,spd:58,dmg:22,r:3.1,col:'#b46aff',life:2.2,alt:1,weak:2},{t:'aim',cd:1.3,n:5,sp:10,spd:110,dmg:24,r:2.8,col:'#fff04a',life:1.3},{t:'summon',cd:8,type:'heximp',n:2,cap:28}]},
+      {above:0,pats:[{t:'spiral',cd:0.22,arms:3,rot:0.36,spd:72,dmg:24,r:2.7,col:'#c6e060',life:1.9,burst:1.6,rest:0.9},{t:'aim',cd:1.5,n:1,spd:86,dmg:28,r:3.4,col:'#d090ff',life:2,para:1.2},{t:'ring',cd:2.2,n:14,spd:46,dmg:22,r:3.2,col:'#8fd16a',life:2.4,slow:2}]}]},
+  drone:{name:'Hive Drone',spr:'drone',hp:560,def:6,spd:32,xp:70,r:4,aggro:96,ai:'orbit',keep:62,pats:[{t:'aim',cd:0.95,n:2,sp:8,spd:120,dmg:24,r:2.6,col:'#ffb060',life:1.05}]},
+  larva:{name:'Cinder Larva',spr:'larva',hp:680,def:4,spd:16,xp:74,r:4.4,aggro:84,ai:'chase',pats:[{t:'aim',cd:1.2,n:5,sp:14,spd:96,dmg:22,r:3,col:'#ff7a28',life:1.2,slow:1.4}]},
+  spitter:{name:'Lava Spitter',spr:'spitter',hp:500,def:5,spd:8,xp:72,r:4.2,aggro:110,ai:'keep',keep:78,pats:[{t:'spiral',cd:0.24,arms:2,rot:0.42,spd:88,dmg:26,r:2.7,col:'#ff5a18',life:1.7,burst:1.3,rest:1.1},{t:'aim',cd:1.8,n:1,spd:70,dmg:24,r:3.4,col:'#ffd34a',life:2,weak:1.6}]},
+  broodling:{name:'Broodling',spr:'broodling',hp:820,def:10,spd:18,xp:86,r:5,aggro:90,ai:'charge',keep:20,pats:[{t:'aim',cd:1.25,n:4,sp:12,spd:104,dmg:28,r:3.2,col:'#ff8a30',life:1.15}]},
+  broodqueen:{name:'Magma Brood Queen',spr:'broodqueen',hp:7200,def:16,spd:14,xp:980,r:14,ai:'boss',boss:true,dungeonBoss:true,orbit:56,orbitSpd:0.55,toastCol:'#ff8a3a',
+    phaseLines:['The Brood Queen: "The hive answers."','The Brood Queen: "Every egg splits at once."'],
+    fallText:'THE BROOD QUEEN COLLAPSES',
+    phases:[
+      {above:0.66,pats:[{t:'aim',cd:1.15,n:5,sp:12,spd:112,dmg:32,r:3.2,col:'#ff7a28',life:1.2},{t:'ring',cd:2.3,n:10,spd:58,dmg:28,r:3.3,col:'#ffb060',life:2.1,slow:1.6}]},
+      {above:0.33,pats:[{t:'spiral',cd:0.18,arms:3,rot:0.34,spd:84,dmg:30,r:2.8,col:'#ff5a18',life:1.8,burst:1.5,rest:0.85},{t:'aim',cd:1.4,n:3,sp:8,spd:130,dmg:34,r:2.8,col:'#ffe14a',life:1.15},{t:'summon',cd:7.5,type:'drone',n:2,cap:26}]},
+      {above:0,pats:[{t:'spiral',cd:0.14,arms:4,rot:-0.4,spd:92,dmg:34,r:2.8,col:'#ff3a10',life:1.7,burst:1.8,rest:0.7},{t:'ring',cd:1.7,n:16,spd:64,dmg:36,r:3.4,col:'#ffd34a',life:2.2,alt:1},{t:'aim',cd:1.6,n:1,spd:78,dmg:40,r:3.6,col:'#ffb060',life:2,weak:2}]}]},
+  acolyte:{name:'Void Acolyte',spr:'acolyte',hp:2400,def:12,spd:20,xp:180,r:4.6,aggro:110,ai:'keep',keep:84,pats:[{t:'aim',cd:0.9,n:3,sp:8,spd:140,dmg:38,r:2.7,col:'#e8d8ff',life:1.2},{t:'ring',cd:2.4,n:10,spd:70,dmg:34,r:3,col:'#c46aff',life:2,para:1}]},
+  starwisp:{name:'Star Wisp',spr:'starwisp',hp:1500,def:6,spd:36,xp:160,r:3.8,aggro:120,ai:'orbit',keep:78,pats:[{t:'spiral',cd:0.16,arms:2,rot:0.46,spd:100,dmg:32,r:2.4,col:'#f4f0ff',life:1.6,burst:1.4,rest:0.8}]},
+  runesworn:{name:'Rune Sworn',spr:'runesworn',hp:3000,def:16,spd:14,xp:200,r:5,aggro:100,ai:'chase',pats:[{t:'aim',cd:1.05,n:4,sp:9,spd:118,dmg:42,r:3.1,col:'#ff4ad0',life:1.25,stun:0.35},{t:'ring',cd:2.6,n:12,spd:62,dmg:38,r:3.3,col:'#c46aff',life:2.2,slow:1.6}]},
+  voideye:{name:'Hollow Eye',spr:'voideye',hp:1900,def:8,spd:24,xp:170,r:4.2,aggro:120,ai:'orbit',keep:90,pats:[{t:'aim',cd:0.55,n:1,spd:160,dmg:36,r:2.5,col:'#ffffff',life:1.15},{t:'ring',cd:2.2,n:14,spd:74,dmg:34,r:3,col:'#7af0ff',life:2,alt:1}]},
+  voidarchon:{name:'Void Archon',spr:'voidarchon',hp:36000,def:26,spd:15,xp:5200,r:16,ai:'boss',boss:true,dungeonBoss:true,orbit:64,orbitSpd:0.42,toastCol:'#d2b0ff',
+    phaseLines:['The Void Archon: "The herald was only a door."','The Void Archon: "Stars bow. You will not."'],
+    fallText:'THE ARCHON UNRAVELS',
+    phases:[
+      {above:0.7,pats:[{t:'spiral',cd:0.16,arms:3,rot:0.28,spd:88,dmg:48,r:2.8,col:'#c46aff',life:2,burst:1.6,rest:0.7},{t:'aim',cd:1.1,n:4,sp:7,spd:150,dmg:52,r:2.6,col:'#ffffff',life:1.15}]},
+      {above:0.35,pats:[{t:'ring',cd:1.35,n:20,spd:78,dmg:54,r:3.3,col:'#ff4ad0',life:2.3,alt:1},{t:'aim',cd:2.2,n:1,spd:70,dmg:50,r:3.4,col:'#e8d8ff',life:2.1,para:1.1},{t:'summon',cd:9,type:'acolyte',n:1,cap:22}]},
+      {above:0,pats:[{t:'spiral',cd:0.12,arms:4,rot:0.3,spd:96,dmg:56,r:2.8,col:'#c46aff',life:1.9},{t:'spiral',cd:0.14,arms:3,rot:-0.34,spd:84,dmg:52,r:2.9,col:'#7af0ff',life:2},{t:'ring',cd:1.6,n:18,spd:60,dmg:60,r:3.6,col:'#ffe9a0',life:2.4},{t:'aim',cd:0.7,n:3,sp:6,spd:168,dmg:58,r:2.5,col:'#ffffff',life:1.05}]}]},
   tideclaw:{name:'Old Tideclaw',spr:'tideclaw',hp:1100,def:3,spd:20,xp:160,r:11,ai:'boss',boss:true,dungeonBoss:true,
     phases:[
       {above:0.62,pats:[{t:'aim',cd:1.55,n:3,sp:16,spd:72,dmg:9,r:3.1,col:'#ffb070',life:1.7},{t:'aim',cd:2.7,n:1,spd:48,dmg:7,r:3.6,col:'#7ee0c8',life:2.4,slow:2}]},
       {above:0.32,pats:[{t:'ring',cd:2.15,n:10,spd:46,dmg:8,r:3.2,col:'#7ee0c8',life:2.5,slow:2.2},{t:'aim',cd:1.25,n:4,sp:12,spd:86,dmg:10,r:3,col:'#ff7a4a',life:1.5},{t:'summon',cd:8,type:'pincer',n:2,cap:16}]},
       {above:0,pats:[{t:'spiral',cd:0.2,arms:2,rot:0.34,spd:62,dmg:9,r:2.8,col:'#e25a32',life:2,burst:1.5,rest:1.05,weak:2},{t:'aim',cd:2.5,n:1,spd:74,dmg:12,r:3.5,col:'#d090ff',life:2.1,para:1.3},{t:'ring',cd:2.5,n:8,spd:42,dmg:11,r:3.3,col:'#ffd27a',life:2.3,slow:2}]}]},
-  king:{name:'Morvane, the Hollow King',spr:'king',hp:60000,def:20,spd:16,xp:3000,r:9,ai:'boss',boss:true,
+  king:{name:'Morvane, the Hollow King',spr:'king',hp:60000,def:20,spd:16,xp:3000,r:13,ai:'boss',boss:true,
     phases:[
       {above:0.66,pats:[{t:'spiral',cd:0.11,arms:4,rot:0.21,spd:80,dmg:48,r:3,col:'#c46aff',life:2.6},{t:'aim',cd:2,n:5,sp:10,spd:110,dmg:52,r:4,col:'#ffd34a',life:2}]},
       {above:0.33,pats:[{t:'ring',cd:1.2,n:24,spd:70,dmg:50,r:3.5,col:'#ff4a8a',life:3,alt:1},{t:'aim',cd:0.7,n:3,sp:6,spd:160,dmg:45,r:2.5,col:'#ffffff',life:1.6},{t:'summon',cd:10,type:'oracle',n:1}]},
@@ -1989,15 +2944,25 @@ function createAudio(){
     realm:[220,262,196,247,175,233,196,165],
     boss:[156,185,147,175,139,165,131,156],
     burrow:[880,698,587,523,466,587,440,349],
-    burrowBoss:[784,659,523,466,392,523,349,311]
+    burrowBoss:[784,659,523,466,392,523,349,311],
+    mire:[294,349,330,392,349,311,262,294],
+    mireBoss:[262,311,294,349,311,277,233,262],
+    cinder:[110,165,110,98,147,110,82,123],
+    cinderBoss:[98,147,82,73,110,98,65,87],
+    void:[523,587,659,784,659,587,698,523],
+    voidBoss:[392,494,587,698,587,494,523,440]
   };
-  const DRONE={haven:131,realm:110,boss:73,burrow:55,burrowBoss:41};
-  const MSTEP={haven:0.5,realm:0.32,boss:0.18,burrow:0.68,burrowBoss:0.46};
+  const DRONE={haven:131,realm:110,boss:73,burrow:55,burrowBoss:41,mire:73,mireBoss:49,cinder:55,cinderBoss:41,void:196,voidBoss:147};
+  const MSTEP={haven:0.5,realm:0.32,boss:0.18,burrow:0.68,burrowBoss:0.46,mire:0.62,mireBoss:0.42,cinder:0.2,cinderBoss:0.14,void:0.78,voidBoss:0.52};
   function mood(){
     if(layoutC.portrait||state!=='play'||!P||!world||!musicOn)return 'none';
     if(world.isDungeon){
-      if(world.boss&&Math.hypot(world.boss.x-P.x,world.boss.y-P.y)<200)return 'burrowBoss';
-      return 'burrow';
+      const near=world.boss&&Math.hypot(world.boss.x-P.x,world.boss.y-P.y)<200;
+      const id=world.dungeonId||'tideclaw';
+      if(id==='hexmire')return near?'mireBoss':'mire';
+      if(id==='cinder')return near?'cinderBoss':'cinder';
+      if(id==='voidsanctum')return near?'voidBoss':'void';
+      return near?'burrowBoss':'burrow';
     }
     if(!peaceful()&&world.boss&&Math.hypot(world.boss.x-P.x,world.boss.y-P.y)<340)return 'boss';
     return peaceful()?'haven':'realm';
@@ -2010,7 +2975,7 @@ function createAudio(){
       drone.connect(droneG);droneG.connect(musicBus);drone.start();
     }
     if(droneMood!==m){drone.frequency.setTargetAtTime(DRONE[m],ctx.currentTime,0.4);droneMood=m;}
-    const g=m==='boss'?0.02:m==='burrowBoss'?0.016:m==='burrow'?0.011:0.012;
+    const g=m==='boss'?0.02:m==='burrowBoss'?0.016:m==='burrow'?0.011:m==='mireBoss'?0.02:m==='mire'?0.014:m==='cinderBoss'?0.022:m==='cinder'?0.015:m==='voidBoss'?0.016:m==='void'?0.01:0.012;
     droneG.gain.setTargetAtTime(g,ctx.currentTime,0.25);
   }
   function musicTone(freq,when,dur,type,gain,slide){
@@ -2052,13 +3017,59 @@ function createAudio(){
       dripTick(t,boss?0.04:0.025);
     }else if(boss&&i%2===0)dripTick(t+0.02,0.02);
   }
+  function noiseTick(when,freq,q,gain,dur){
+    if(!ctx||!noiseBuf)return;
+    try{
+      const src=ctx.createBufferSource();src.buffer=noiseBuf;
+      const f=ctx.createBiquadFilter();f.type='bandpass';f.frequency.value=freq;f.Q.value=q||0.8;
+      const gn=ctx.createGain();
+      gn.gain.setValueAtTime(gain,when);
+      gn.gain.exponentialRampToValueAtTime(0.0001,when+(dur||0.05));
+      src.connect(f);f.connect(gn);gn.connect(musicBus);
+      src.start(when);src.stop(when+(dur||0.05)+0.02);
+    }catch(e){}
+  }
+  function scheduleMire(m,t){
+    const boss=m==='mireBoss';
+    const seq=MELODY[m],i=musicStep%seq.length,f=seq[i];
+    musicStep++;
+    musicTone(f,t,boss?0.34:0.48,'triangle',boss?0.016:0.011,f*0.7);
+    if(i%2===0)musicTone(f*0.5,t,0.22,'sine',boss?0.012:0.008);
+    if(i%3===0){
+      musicTone(boss?92:118,t,0.09,'square',boss?0.014:0.009,boss?48:62);
+      noiseTick(t,boss?220:280,0.55,boss?0.028:0.016,0.07);
+    }
+  }
+  function scheduleCinder(m,t){
+    const boss=m==='cinderBoss';
+    const seq=MELODY[m],i=musicStep%seq.length,f=seq[i];
+    musicStep++;
+    noiseTick(t,boss?130:170,0.45,boss?0.042:0.028,0.04);
+    if(i%2===0)noiseTick(t+0.05,boss?2200:1600,0.7,boss?0.02:0.012,0.03);
+    musicTone(f,t,0.08,'sawtooth',boss?0.018:0.012,Math.max(40,f*0.7));
+    if(i%4===0)musicTone(boss?55:73,t,0.1,'square',boss?0.02:0.013,40);
+  }
+  function scheduleVoid(m,t){
+    const boss=m==='voidBoss';
+    const seq=MELODY[m],i=musicStep%seq.length,f=seq[i];
+    musicStep++;
+    const g=boss?0.012:0.008;
+    musicTone(f,t,boss?0.72:0.95,'sine',g);
+    musicTone(f*1.5,t+0.02,boss?0.64:0.82,'sine',g*0.65);
+    musicTone(f*2,t+0.04,boss?0.5:0.7,'sine',g*0.38);
+    if(boss)musicTone(f*0.5,t,0.8,'sine',0.01);
+    if(i%4===0)musicTone(boss?98:131,t,0.55,'sine',boss?0.014:0.008);
+  }
   function schedule(m){
     if(!ctx||m==='none'){musicTime=0;return;}
     const now=ctx.currentTime;
     if(!musicTime||musicTime<now)musicTime=now+0.04;
     const step=MSTEP[m];let guard=0;
-    while(musicTime<now+0.25&&guard++<6){
+    while(musicTime<now+0.25&&guard++<8){
       if(m==='burrow'||m==='burrowBoss')scheduleBurrow(m,musicTime,step);
+      else if(m==='mire'||m==='mireBoss')scheduleMire(m,musicTime);
+      else if(m==='cinder'||m==='cinderBoss')scheduleCinder(m,musicTime);
+      else if(m==='void'||m==='voidBoss')scheduleVoid(m,musicTime);
       else{
         const seq=MELODY[m],f=seq[musicStep%seq.length];musicStep++;
         try{
@@ -2314,16 +3325,19 @@ function enterRealm(){
 function spawnBoss(wd){wd.boss=spawnEnemy(wd,'king',wd.cx,wd.cy,3,false);AUD.roar();}
 function enterDungeon(id,seed){
   const d=DUNGEONS[id]||DUNGEONS.tideclaw;
-  dungeon=genTideclaw(seed);
+  const gen=d.gen||genTideclaw;
+  dungeon=gen(seed);
   world=dungeon;
   P.x=dungeon.spawn.x;P.y=dungeon.spawn.y;
   clearBullets();
-  for(const s of dungeon.encounters||[])spawnEnemy(dungeon,s.type,s.x,s.y,0,false);
-  dungeon.boss=spawnEnemy(dungeon,'tideclaw',dungeon.anchor.x,dungeon.anchor.y,0,false);
+  const zone=d.zone||0;
+  for(const s of dungeon.encounters||[])spawnEnemy(dungeon,s.type,s.x,s.y,zone,false);
+  dungeon.boss=spawnEnemy(dungeon,d.boss||'tideclaw',dungeon.anchor.x,dungeon.anchor.y,zone,false);
   quest=null;questT=0;
   revealDungeonRoom();
   AUD.portal();
-  toast('Entered '+d.name,'#ffb070');
+  toast('Entered '+d.name,d.col||'#ffb070');
+  if(d.lore&&d.id!=='tideclaw')toast(d.lore,d.col||'#ffb070');
   saveGame();
 }
 
@@ -2354,16 +3368,16 @@ function killEnemy(e){
   if(e.elite){P.eliteKills++;toast('Defeated '+e.name.split(' (')[0]+'!','#ffd34a');}
   if(e.d.dungeonBoss){
     wd.boss=null;wd.exitOpen=true;
-    toast('OLD TIDECLAW FALLS','#ffb070');
+    toast(e.d.fallText||'OLD TIDECLAW FALLS',e.d.toastCol||'#ffb070');
     toast('A way back to the Haven opens','#7ee0c8');
-    addFX(e.x,e.y,4,70,1,'#ffb070');
-    const items=dungeonLoot(true);
+    addFX(e.x,e.y,4,70,1,e.d.toastCol||'#ffb070');
+    const items=dungeonLoot(true,wd.dungeonId);
     if(items.length){spawnLootBag(e.x,e.y,items,180);playDropSound(items);}
     return;
   }
   if(e.d.boss){P.bossKills++;wd.boss=null;wd.bossT=120;toast('MORVANE HAS FALLEN!','#ff5577');toast('He will rise again in 2 minutes...','#c46aff');addFX(e.x,e.y,4,90,1.2,'#c46aff');}
   if(wd.isDungeon){
-    const items=dungeonLoot(false);
+    const items=dungeonLoot(false,wd.dungeonId);
     if(items.length){spawnLootBag(e.x,e.y,items,90);playDropSound(items);}
     return;
   }
@@ -2447,30 +3461,61 @@ function rollPortal(type){
 function openDungeonPortal(wd,x,y,id){
   const d=DUNGEONS[id];if(!d||!wd)return null;
   if(!wd.portals)wd.portals=[];
-  const p={id,name:d.name,dungeon:id,x,y,t:60,delay:0.45};
+  const p={id,name:d.name,dungeon:id,x,y,t:60,delay:0.45,lore:d.lore||'',colors:d.colors,spr:d.portalSpr||'',col:d.col||'#7ee0c8'};
   wd.portals.push(p);
-  toast(d.name+' portal opened','#7ee0c8');
+  toast(d.name+' portal opened',d.col||'#7ee0c8');
   return p;
 }
-function dungeonLoot(boss){
+function dungeonLoot(boss,id){
   const items=[];
-  if(boss){
-    const n=Math.random()<0.45?2:1;
-    for(let i=0;i<n;i++)items.push(randomGear(rollTier(2,4)));
-    if(Math.random()<0.7)items.push(mkPot('hp'));
-    if(Math.random()<0.45)items.push(mkPot('mp'));
-    if(Math.random()<0.12)items.push(mkTidepearl());
-    if(Math.random()<0.08)items.push(mkDungeonKey('tideclaw'));
-  }else if(Math.random()<0.22){
-    items.push(randomGear(rollTier(2,3)));
-    if(Math.random()<0.3)items.push(mkPot('hp'));
+  if(!id||id==='tideclaw'){
+    if(boss){
+      const n=Math.random()<0.45?2:1;
+      for(let i=0;i<n;i++)items.push(randomGear(rollTier(2,4)));
+      if(Math.random()<0.7)items.push(mkPot('hp'));
+      if(Math.random()<0.45)items.push(mkPot('mp'));
+      if(Math.random()<0.12)items.push(mkTidepearl());
+      if(Math.random()<0.08)items.push(mkDungeonKey('tideclaw'));
+    }else if(Math.random()<0.22){
+      items.push(randomGear(rollTier(2,3)));
+      if(Math.random()<0.3)items.push(mkPot('hp'));
+    }
+    return items.filter(it=>it&&!isTestItem(it)&&!isMastery(it));
   }
-  return items.filter(it=>it&&!isTestItem(it)&&!isMastery(it));
+  const loot=DUNGEONS[id]&&DUNGEONS[id].loot;
+  if(!loot)return [];
+  if(boss){
+    let n=loot.bossN||1;
+    if(loot.bossHi!=null&&Math.random()<loot.bossHi)n++;
+    for(let i=0;i<n;i++)items.push(randomGear(rollTier(loot.boss[0],loot.boss[1])));
+    if(Math.random()<(loot.hp==null?0.7:loot.hp))items.push(mkPot('hp'));
+    if(loot.mp&&Math.random()<loot.mp)items.push(mkPot('mp'));
+    if(loot.elixir>=1){const en=loot.elixirN||1;for(let i=0;i<en;i++)items.push(mkElixir());}
+    else if(loot.elixir&&Math.random()<loot.elixir)items.push(mkElixir());
+    if(loot.key&&Math.random()<loot.key)items.push(mkDungeonKey(id));
+  }else if(Math.random()<loot.minionP){
+    items.push(randomGear(rollTier(loot.minion[0],loot.minion[1])));
+    if(loot.minionHp&&Math.random()<loot.minionHp)items.push(mkPot('hp'));
+    if(loot.minionMp&&Math.random()<loot.minionMp)items.push(mkPot('mp'));
+    if(loot.minionElixir&&Math.random()<loot.minionElixir)items.push(mkElixir());
+  }
+  return items.filter(it=>{
+    if(!it||isTestItem(it)||isMastery(it)||isDungeonUt(it))return false;
+    if(it.kind==='dungeonkey'||it.kind==='hp'||it.kind==='mp'||it.kind==='elixir')return true;
+    return (it.tier|0)<=7;
+  });
 }
 function tideChestLoot(){
   const items=[randomGear(rollTier(2,3))];
   if(Math.random()<0.55)items.push(mkPot('hp'));
   return items.filter(it=>it&&!isTestItem(it)&&!isMastery(it)&&!isDungeonUt(it)&&it.kind!=='dungeonkey');
+}
+function dungeonChestLoot(id){
+  const loot=DUNGEONS[id]&&DUNGEONS[id].loot;
+  if(!loot)return tideChestLoot();
+  const items=[randomGear(rollTier(loot.minion[0],loot.minion[1]))];
+  if(Math.random()<0.55)items.push(mkPot('hp'));
+  return items.filter(it=>it&&!isTestItem(it)&&!isMastery(it)&&!isDungeonUt(it)&&it.kind!=='dungeonkey'&&(it.tier|0)<=7);
 }
 const BAG_RANK={brown:0,pink:1,purple:2,blue:3,cyan:4,white:5};
 function itemBagColor(it){
@@ -2586,7 +3631,9 @@ function simLoot(n){
       const rolls=[];
       for(let i=0;i<n;i++)rolls.push(lootItemsFor({zone:reg.zone,elite:false,boss:false,type}));
       const s=summarize(rolls);
-      out.enemyBands.push({type,name:EN[type].name,zone:reg.zone,region:reg.name,ai:EN[type].ai,god:!!EN[type].god,span:tierSpan(reg.zone,false),ut:s.ut,gear:s.gear,test:s.test,mastery:s.mastery,dungeonUt:s.dungeonUt,keys:s.keys,n:s.n,godPot:GOD_POT[type]||null,elixirStats:s.elixirStats,hpPots:s.hpPots,lifeElixirs:s.lifeElixirs,elixirs:s.elixirs});
+      let portalRate=0,portalDungeon=null;
+      for(const id in DUNGEONS)if(DUNGEONS[id].enemy===type){portalRate=DUNGEONS[id].portalRate;portalDungeon=DUNGEONS[id].name;}
+      out.enemyBands.push({type,name:EN[type].name,zone:reg.zone,region:reg.name,ai:EN[type].ai,god:!!EN[type].god,span:tierSpan(reg.zone,false),ut:s.ut,gear:s.gear,test:s.test,mastery:s.mastery,dungeonUt:s.dungeonUt,keys:s.keys,n:s.n,godPot:GOD_POT[type]||null,elixirStats:s.elixirStats,hpPots:s.hpPots,lifeElixirs:s.lifeElixirs,elixirs:s.elixirs,portalRate,portalPct:Math.round(portalRate*1000)/10,portalDungeon});
     }
   }
   const dBoss=[],dMin=[];
@@ -2598,6 +3645,8 @@ function simLoot(n){
   }
   const bs=summarize(dBoss),ms=summarize(dMin);
   out.dungeon={boss:bs,minion:ms,bossGear:dGear,utName:'Tidepearl',enemy:'crab',portalRate:DUNGEONS.tideclaw.portalRate};
+  out.portalSources=[];
+  for(const id in DUNGEONS){const d=DUNGEONS[id];out.portalSources.push({id,name:d.name,enemy:d.enemy,source:EN[d.enemy]&&EN[d.enemy].name,portalRate:d.portalRate,portalPct:Math.round(d.portalRate*1000)/10,zone:d.zone||0,boss:d.bossName});}
   out.testDrops+=bs.test+ms.test;
   out.mastery+=bs.mastery+ms.mastery;
   return out;
@@ -2915,7 +3964,7 @@ function worldPOIs(){
   if(!world)return [];
   if(world.isDungeon){
     const list=[];
-    if(world.boss)list.push({id:'d:boss',x:world.boss.x,y:world.boss.y,name:'Old Tideclaw',boss:true,always:true,dungeon:true});
+    if(world.boss)list.push({id:'d:boss',x:world.boss.x,y:world.boss.y,name:world.bossName||'Old Tideclaw',boss:true,always:true,dungeon:true});
     if(world.exitOpen&&world.exit)list.push({id:'d:exit',x:world.exit.x,y:world.exit.y,name:'Haven',always:true});
     return list;
   }
@@ -3020,9 +4069,10 @@ function update(dt){
     for(const c of world.lootChests||[]){
       if(c.open||Math.hypot(P.x-c.x,P.y-c.y)>=16)continue;
       c.open=true;
-      const items=tideChestLoot();
+      const den=DUNGEONS[world.dungeonId]||DUNGEONS.tideclaw;
+      const items=(!world.dungeonId||world.dungeonId==='tideclaw')?tideChestLoot():dungeonChestLoot(world.dungeonId);
       if(items.length){spawnLootBag(c.x,c.y,items,120);playDropSound(items);}
-      toast('A tide chest cracks open','#ffd34a');
+      toast(den.chestLine||'A tide chest cracks open','#ffd34a');
     }
   }else if(!world.isVault){
     const z=zoneAt(world,P.x,P.y);if(z>P.maxZone){P.maxZone=z;toast('Now entering '+ZONES[z].name,ZONES[z].col);}
@@ -3118,12 +4168,18 @@ function updateEnemies(dt){
       if(ph!==e.phase){
         const prev=e.phase;e.phase=ph;e.pats=d0.phases[ph].pats;resetPats(e);
         if(ph>0){
-          if(d0.dungeonBoss)toast(ph===1?'Old Tideclaw burrows. The tide turns.':'Old Tideclaw rears both claws!','#ffb070');
+          if(d0.dungeonBoss){
+            if(d0.phaseLines&&d0.phaseLines[ph-1])toast(d0.phaseLines[ph-1],d0.toastCol||'#ffb070');
+            else toast(ph===1?'Old Tideclaw burrows. The tide turns.':'Old Tideclaw rears both claws!','#ffb070');
+          }
           else toast(ph===1?'Morvane: "You dare wound me?"':'Morvane: "THE CROWN DEMANDS YOUR SOUL!"','#c46aff');
         }
         if(prev>=0&&ph>prev)AUD.phase();
       }
-      if(d0.dungeonBoss){const a=time*0.95;vx=e.ax+Math.cos(a)*42-e.x;vy=e.ay+Math.sin(a*1.35)*18-e.y;}
+      if(d0.dungeonBoss){
+        if(d0.orbit){const a=time*(d0.orbitSpd||0.7),rad=d0.orbit;vx=e.ax+Math.cos(a)*rad-e.x;vy=e.ay+Math.sin(a*1.2)*(rad*0.42)-e.y;}
+        else{const a=time*0.95;vx=e.ax+Math.cos(a)*42-e.x;vy=e.ay+Math.sin(a*1.35)*18-e.y;}
+      }
       else{const a=time*0.4;vx=world.cx+Math.cos(a)*22-e.x;vy=world.cy+Math.sin(a*1.3)*16-e.y;}
       const l=Math.hypot(vx,vy)||1;const s=Math.min(sp,l*2);vx=vx/l*s;vy=vy/l*s;
     }else if(d<aggro*1.3){
@@ -3165,7 +4221,7 @@ function findQuest(){
   quest=null;
   if(world.isDungeon){
     if(world.exitOpen&&world.exit)quest={x:world.exit.x,y:world.exit.y,label:'Haven'};
-    else if(world.boss)quest={x:world.boss.x,y:world.boss.y,label:'Old Tideclaw'};
+    else if(world.boss)quest={x:world.boss.x,y:world.boss.y,label:world.bossName||'Old Tideclaw'};
     return;
   }
   if(world.isVault&&world.portal){quest={x:world.portal.x,y:world.portal.y,label:'Exit'};return;}
@@ -3230,7 +4286,7 @@ function render(){
   ctx.fillStyle='#0c0a14';ctx.fillRect(0,0,cv.width,cv.height);
   ctx.save();
   ctx.beginPath();ctx.rect(0,0,Math.max(1,play.w*DPR),Math.max(1,play.h*DPR));ctx.clip();
-  ctx.fillStyle=peaceful()?'#120f1c':(world&&world.isDungeon)?'#040605':'#264ea0';ctx.fillRect(0,0,play.w*DPR+2,play.h*DPR+2);
+  ctx.fillStyle=peaceful()?'#120f1c':(world&&world.isDungeon)?(world.voidFill||'#040605'):'#264ea0';ctx.fillRect(0,0,play.w*DPR+2,play.h*DPR+2);
   ctx.setTransform(S,0,0,S,-ox,-oy);
   if(world&&world.isDungeon)drawDungeonVoid(world);
   drawTerrain(world);
@@ -3276,7 +4332,7 @@ function render(){
       for(let i=4;i>=1;i--){ctx.fillStyle=['#3a3010','#a07820','#ffd34a','#fff6c8'][i-1];ctx.beginPath();ctx.arc(p.x,p.y,i*2.2+Math.sin(time*3+i)*0.7,0,TAU);ctx.fill();}
       labels.push([p.x,p.y-16,'Haven','#ffd34a']);
     }
-    labels.push([world.spawn.x,world.spawn.y+16,world.dname||'Dungeon','#ffb070']);
+    labels.push([world.spawn.x,world.spawn.y+16,world.dname||'Dungeon',(DUNGEONS[world.dungeonId]&&DUNGEONS[world.dungeonId].col)||'#ffb070']);
     for(const c of world.lootChests||[]){
       if(c.open||c.x<x0-16||c.x>x1+16||c.y<y0-16||c.y>y1+16)continue;
       const bob=Math.sin(time*2)*0.5;
@@ -3285,8 +4341,11 @@ function render(){
   }
   for(const p of world.portals||[]){
     if(p.x<x0-20||p.x>x1+20||p.y<y0-24||p.y>y1+20)continue;
-    for(let i=4;i>=1;i--){ctx.fillStyle=['#3a2018','#c45a30','#7ee0c8','#fff1dc'][i-1];ctx.beginPath();ctx.arc(p.x,p.y,i*2.3+Math.sin(time*4+i)*0.8,0,TAU);ctx.fill();}
-    labels.push([p.x,p.y-16,p.name,'#7ee0c8']);
+    const cols=p.colors||['#3a2018','#c45a30','#7ee0c8','#fff1dc'];
+    for(let i=4;i>=1;i--){ctx.fillStyle=cols[i-1];ctx.beginPath();ctx.arc(p.x,p.y,i*2.3+Math.sin(time*4+i)*0.8,0,TAU);ctx.fill();}
+    if(p.spr&&SPR[p.spr]){const s=SPR[p.spr];drawSpr(s,p.x-s.w,p.y-s.h,s.w*2,s.h*2);}
+    labels.push([p.x,p.y-16,p.name,cols[2]]);
+    if(p.lore)labels.push([p.x,p.y-28,p.lore,cols[2]]);
   }
   for(const b of world.beacons||[]){
     if(b.x<x0-24||b.x>x1+24||b.y<y0-30||b.y>y1+24)continue;
@@ -3537,11 +4596,11 @@ function rectsHit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y
 function portalChoices(){
   if(!P||!world)return [];
   const list=[];
-  const add=(x,y,name,col,fn)=>{
+  const add=(x,y,name,col,fn,lore)=>{
     if(x==null||y==null||!name)return;
     const d=Math.hypot(P.x-x,P.y-y);
     if(d>PORTAL_REACH)return;
-    list.push({x,y,name,col,fn,d});
+    list.push({x,y,name,col,fn,d,lore:lore||''});
   };
   if(world.isHub){
     if(world.portal)add(world.portal.x,world.portal.y,'Shardwild','#c9b0ff',enterRealm);
@@ -3551,7 +4610,7 @@ function portalChoices(){
   }else if(world.isDungeon){
     if(world.exitOpen&&world.exit)add(world.exit.x,world.exit.y,'Haven','#ffd34a',()=>{enterHub();toast('Returned to the Haven','#ffd34a');});
   }else{
-    for(const p of world.portals||[])if(!(p.delay>0))add(p.x,p.y,p.name,'#7ee0c8',()=>enterDungeon(p.dungeon));
+    for(const p of world.portals||[])if(!(p.delay>0))add(p.x,p.y,p.name,p.col||'#7ee0c8',()=>enterDungeon(p.dungeon),p.lore);
   }
   list.sort((a,b)=>a.d-b.d||(a.name<b.name?-1:1));
   return list;
@@ -3572,6 +4631,14 @@ function drawEnterButton(){
   for(let i=0;i<14&&blocks.some(b=>rectsHit({x,y,w:bw,h:bh},b));i++)y-=8;
   if(y<8)y=8;
   x=clamp(x,play.x+6,Math.max(play.x+6,play.x+play.w-bw-6));
+  if(p.lore){
+    font(11);
+    const lw=clamp(Math.ceil(ctx.measureText(p.lore).width+16),Math.min(bw,play.w-16),Math.min(460,play.w-12));
+    const lx=clamp(Math.round(x+(bw-lw)/2),play.x+6,Math.max(play.x+6,play.x+play.w-lw-6));
+    const ly=Math.max(8,y-22);
+    ctx.fillStyle='rgba(8,6,16,.82)';ctx.fillRect(lx,ly,lw,18);
+    fitTxt(p.lore,lx+lw/2,ly+9,11,p.col,lw-10,'center');
+  }
   sqBtn(x,y,bw,bh,label,p.col,p.fn,{tag:'portal-enter',label});
 }
 function drawVaultPanel(Pnl,inner,gap,x0,y0,slot,chest){
@@ -3680,7 +4747,7 @@ function drawBigMap(){
   panel(x,y,w,h,0.98);
   const title=world.isDungeon?(world.dname||'Dungeon'):world.isVault?'The Vault':world.isHub?'The Haven — full map':'Shardwild — full map';
   txt(title,x+12,y+16,15,'#ffd34a','left');
-  const sub=world.isDungeon?'Crab warren. The gold portal leaves after Old Tideclaw falls.':world.isVault?'Storage shared by every hero. The gold portal leaves.':world.isHub?'Purple portal to the Shardwild. Teal portal to the Vault.':'Shore to center. Tap a lit beacon to warp. '+world.w+' tiles across.';
+  const sub=world.isDungeon?(world.mapBlurb||'Crab warren. The gold portal leaves after Old Tideclaw falls.'):world.isVault?'Storage shared by every hero. The gold portal leaves.':world.isHub?'Purple portal to the Shardwild. Teal portal to the Vault.':'Shore to center. Tap a lit beacon to warp. '+world.w+' tiles across.';
   fitTxt(sub,x+12,y+34,11,'#b7b0d0',w-150);
   const legendW=Math.min(200,Math.max(140,w*0.26));
   const vx=x+8,vy=y+46,vw=w-legendW-22,vh=h-56;
@@ -3723,7 +4790,7 @@ function drawBigMap(){
     const p=mxy(poi.x,poi.y);
     if(poi.boss){
       ctx.fillStyle=poi.dungeon?'#ffb070':'#e040ff';ctx.beginPath();ctx.moveTo(p.x,p.y-6);ctx.lineTo(p.x+5,p.y+4);ctx.lineTo(p.x-5,p.y+4);ctx.closePath();ctx.fill();
-      plate(poi.dungeon?'Old Tideclaw':'Hollow King',p.x,p.y-12,10,poi.dungeon?'#ffb070':'#e0b0ff');
+      plate(poi.name,p.x,p.y-12,10,poi.dungeon?(world.theme==='void'?'#d2b0ff':world.theme==='hive'?'#ff8a3a':world.theme==='mire'?'#c6e060':'#ffb070'):'#e0b0ff');
     }else if(poi.portal){
       ctx.fillStyle='#7ee0c8';ctx.beginPath();ctx.arc(p.x,p.y,4,0,TAU);ctx.fill();
       plate(poi.name,p.x,p.y-12,10,'#7ee0c8');
@@ -3750,7 +4817,7 @@ function drawBigMap(){
   txt('Legend',lx,ly,12,'#ffd34a','left');
   let yy=ly+16;
   const lines=world.isDungeon
-    ?[['#ffff60','You'],['#ffb070','Old Tideclaw'],['#ffd34a','Haven exit'],['#7ee0c8','Tide pools']]
+    ?[['#ffff60','You'],[world.theme==='void'?'#d2b0ff':world.theme==='hive'?'#ff8a3a':world.theme==='mire'?'#c6e060':'#ffb070',world.bossName||'Old Tideclaw'],['#ffd34a','Haven exit'],[world.theme==='hive'?'#ff5a18':world.theme==='void'?'#c46aff':world.theme==='mire'?'#3c9a58':'#7ee0c8',world.theme==='hive'?'Lava':world.theme==='void'?'Star platforms':world.theme==='mire'?'Bog water':'Tide pools']]
     :world.isVault
     ?[['#ffff60','You'],['#ffd34a','Exit'],['#e7c98a','Chest'],['#ffe9a0','Discovered']]
     :world.isHub
@@ -4210,7 +5277,36 @@ function contactSheet(kind){
     }
   });
 }
-window.__shardwild={version:GAME_VERSION,get state(){return state;},get P(){return P;},get world(){return world;},startNew,enterRealm,enterHub,useAbility,sampleTerrain,get fps(){return fps;},get bullets(){return ebN;},get shots(){return pbN;},previewSheet,contactSheet,
+function bestiarySheet(){
+  const rows=[
+    ['Hex Imp','heximp'],['Bog Toad','bogtoad'],['Mire Wisp','mirewisp'],['Cursed Treant','cursetree'],['Hex Matriarch','hexmatron'],
+    ['Hive Drone','drone'],['Cinder Larva','larva'],['Lava Spitter','spitter'],['Broodling','broodling'],['Magma Brood Queen','broodqueen'],
+    ['Void Acolyte','acolyte'],['Star Wisp','starwisp'],['Rune Sworn','runesworn'],['Hollow Eye','voideye'],['Void Archon','voidarchon'],
+    ['Morvane, the Hollow King','king']
+  ];
+  const scale=4,gap=12,labelH=28,cols=4;
+  const cellW=150,cellH=120;
+  const c=document.createElement('canvas');
+  c.width=gap+cols*(cellW+gap);c.height=36+Math.ceil(rows.length/cols)*(cellH+labelH+gap);
+  const g=c.getContext('2d');g.imageSmoothingEnabled=false;
+  g.fillStyle='#14121a';g.fillRect(0,0,c.width,c.height);
+  g.font='bold 16px ui-monospace,Menlo,Consolas,monospace';
+  g.fillStyle='#ffd34a';g.textAlign='left';g.fillText('Shardwild '+GAME_VERSION+' — dungeon roster',gap,22);
+  rows.forEach((row,i)=>{
+    const col=i%cols,r=(i/cols)|0;
+    const x=gap+col*(cellW+gap),y=36+r*(cellH+labelH+gap);
+    g.fillStyle='#1c1824';g.fillRect(x,y,cellW,cellH);
+    const s=SPR[row[1]];
+    if(s){
+      const sc=Math.max(2,Math.min(scale,Math.floor((cellH-8)/s.h),Math.floor((cellW-8)/s.w)));
+      g.drawImage(s.c,x+(cellW-s.w*sc)/2,y+(cellH-s.h*sc)/2,s.w*sc,s.h*sc);
+    }
+    g.fillStyle='#d8d0ea';g.textAlign='center';g.font='bold 12px ui-monospace,Menlo,Consolas,monospace';
+    g.fillText(row[0],x+cellW/2,y+cellH+16);
+  });
+  return c.toDataURL('image/png');
+}
+window.__shardwild={version:GAME_VERSION,get state(){return state;},get P(){return P;},get world(){return world;},startNew,enterRealm,enterHub,useAbility,sampleTerrain,get fps(){return fps;},get bullets(){return ebN;},get shots(){return pbN;},previewSheet,contactSheet,bestiarySheet,
   teleport(x,y){if(P){P.x=x;P.y=y;}},setInv(){},get invOpen(){return false;},
   get ui(){return uiRects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,kind:r.kind,tag:r.tag||'',tab:r.tab||'',beacon:r.beacon||'',unlocked:!!r.unlocked,where:r.where||'',slot:r.slot==null?-1:r.slot,stat:r.stat||'',maxed:!!r.maxed,label:r.label||''}));},
   get slots(){return uiRects.filter(r=>r.kind==='slot').map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,area:r.ref.area,i:r.ref.i,slot:r.ref.slot,name:r.item?r.item.name:null,tier:r.item?r.item.tier:null,kind:r.item?r.item.kind:null,stat:r.item?(r.item.stat||r.item.kind||''):'',wep:r.item&&r.item.w?r.item.w:'',dim:!!(r.item&&classLocked(r.item)),tag:r.tag||''}));},
@@ -4298,7 +5394,7 @@ window.__shardwild={version:GAME_VERSION,get state(){return state;},get P(){retu
   },
   debugStatus(fx){if(!P)return;addEB(P.x,P.y,0,0,0,4,0.4,'#d8a0ff',fx,'test');},
   holdKey(code,on){input.keys[code]=!!on;},
-  enterDungeon,auditBurrows,
+  enterDungeon,auditBurrows,auditDungeon,bestiarySheet,
   spawnInfo(){return SPAWN_CFG.map((c,z)=>({name:ZONES[z].name,cap:c.cap,every:c.every,n:c.n.slice(),elite:c.elite,types:ZONES[z].types.slice()}));},
   zoneSpot(z){
     if(!world||world.isHub||world.cx==null)return null;

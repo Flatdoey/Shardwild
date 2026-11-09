@@ -112,10 +112,19 @@ async function main() {
     assert(sim.keysOutside === 0, 'dungeon key leaked into the overworld: ' + sim.keysOutside);
     const portals = sim.portalByType || {};
     assert(portals.crab > N * 0.01 && portals.crab < N * 0.06, 'crab portal rate ' + portals.crab + '/' + N);
+    assert(portals.hexer > N * 0.01 && portals.hexer < N * 0.06, 'hexer portal rate ' + portals.hexer + '/' + N);
+    assert(portals.beetle > N * 0.01 && portals.beetle < N * 0.06, 'beetle portal rate ' + portals.beetle + '/' + N);
+    assert(portals.herald > N * 0.05 && portals.herald < N * 0.15, 'herald portal rate ' + portals.herald + '/' + N);
     for (const t of Object.keys(portals)) {
-      if (t === 'crab') continue;
+      if (t === 'crab' || t === 'hexer' || t === 'beetle' || t === 'herald') continue;
       assert(portals[t] === 0, 'portal dropped from ' + t + ': ' + portals[t]);
     }
+    const bands = sim.enemyBands || [];
+    const byType = {};
+    for (const row of bands) byType[row.type] = row;
+    assert(byType.crab && byType.crab.portalDungeon === 'Tideclaw Burrow' && byType.crab.portalPct === 3, 'crab portal info ' + JSON.stringify(byType.crab && {portalDungeon: byType.crab.portalDungeon, portalPct: byType.crab.portalPct}));
+    assert(byType.hexer && byType.hexer.portalPct === 3 && byType.beetle && byType.beetle.portalPct === 3, 'green/ash portal pct');
+    assert(byType.herald && byType.herald.portalPct === 9 && byType.herald.portalDungeon === 'Void Sanctum', 'herald portal info ' + JSON.stringify(byType.herald && {portalDungeon: byType.herald.portalDungeon, portalPct: byType.herald.portalPct}));
     const den = sim.dungeon;
     assert(den && den.enemy === 'crab' && den.utName === 'Tidepearl', 'dungeon sim ' + JSON.stringify(den && {enemy: den.enemy, utName: den.utName}));
     assert(den.bossGear === N, 'dungeon boss did not always drop T2-T4 gear ' + den.bossGear + '/' + N);
@@ -135,7 +144,6 @@ async function main() {
     assert(burrows && burrows.ok && burrows.n === 200, 'Tideclaw layouts ' + JSON.stringify(burrows));
     assert(burrows.bossMin >= 26 && burrows.bossMax <= 32, 'boss room size ' + burrows.bossMin + '-' + burrows.bossMax);
     console.log('Tideclaw layouts ' + burrows.n + ' seeds connected, boss room ' + burrows.bossMin + '-' + burrows.bossMax + ' tiles');
-    const bands = sim.enemyBands || [];
     assert(bands.length >= 24, 'enemy loot bands missing ' + bands.length);
     const byRegion = {};
     for (const row of bands) {
