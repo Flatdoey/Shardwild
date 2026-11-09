@@ -70,6 +70,7 @@ async function main() {
     assert(utRate > 0.15 && utRate < 0.45, 'boss UT rate should be modest, got ' + utRate.toFixed(3));
     for (let t = 0; t <= 5; t++) assert(!sim.boss.gear[t], 'boss gear leaked T' + t + ': ' + fmtGear(sim.boss.gear));
     assert(sim.boss.gear[8] === sim.boss.ut && sim.boss.gear[6] > 0 && sim.boss.gear[7] > 0, 'boss tier mix ' + fmtGear(sim.boss.gear));
+    assert(!sim.boss.abilityBad, 'boss dropped a T6 or T7 ability');
 
     console.log('Loot sim, ' + N + ' kills each (normal, elite, and the Hollow King)');
     for (const reg of sim.regions) {
@@ -77,6 +78,7 @@ async function main() {
         const outside = gearInSpan(row.gear, span[0], span[1]);
         assert(outside < 0, reg.name + ' ' + label + ' tier ' + outside + ' outside ' + span.join('-') + ' ' + fmtGear(row.gear));
         assert(row.ut === 0, reg.name + ' ' + label + ' dropped a UT');
+        assert(!row.abilityBad, reg.name + ' ' + label + ' dropped a T6 or T7 ability');
         assert(row.gear[span[0]] > 0 && row.gear[span[1]] > 0, reg.name + ' ' + label + ' missing an endpoint ' + fmtGear(row.gear));
         assert(row.gear[span[0]] > row.gear[span[1]], reg.name + ' ' + label + ' higher tier was not rarer ' + fmtGear(row.gear));
         const weapons = row.weapons;
@@ -111,7 +113,7 @@ async function main() {
     assert(sim.dungeonUtOutside === 0, 'dungeon UT leaked into the overworld: ' + sim.dungeonUtOutside);
     assert(sim.keysOutside === 0, 'dungeon key leaked into the overworld: ' + sim.keysOutside);
     const portals = sim.portalByType || {};
-    const portalBand = {crab: [0.01, 0.06], hexer: [0.01, 0.06], beetle: [0.01, 0.06], herald: [0.04, 0.16]};
+    const portalBand = {crab: [0.01, 0.06], hexer: [0.01, 0.06], beetle: [0.01, 0.06], herald: [0.04, 0.16], serpent: [0.04, 0.16]};
     for (const t of Object.keys(portals)) {
       const band = portalBand[t];
       if (!band) assert(portals[t] === 0, 'portal dropped from ' + t + ': ' + portals[t]);
@@ -162,7 +164,7 @@ async function main() {
     assert(godPots.eye === 'wis' && godPots.colossus === 'vit' && godPots.oracle === 'mp' && godPots.saint === 'def', 'god pots ' + JSON.stringify(godPots));
     assert(godPots.wyrm === 'spd' && godPots.titan === 'att' && godPots.serpent === 'dex' && godPots.herald === 'mp' && godPots.idol === 'def', 'god pots ' + JSON.stringify(godPots));
     assert(byRegion['Saltmarsh Shore'] >= 6 && byRegion['Greenmarch'] >= 6 && byRegion['Ashen Wilds'] >= 6 && byRegion['Godlands'] >= 8, 'enemies per region ' + JSON.stringify(byRegion));
-    const wantPortal = {crab: 0.03, hexer: 0.03, beetle: 0.03, herald: 0.09};
+    const wantPortal = {crab: 0.03, hexer: 0.03, beetle: 0.03, herald: 0.09, serpent: 0.09};
     for (const row of bands) {
       const want = wantPortal[row.type] || 0;
       assert(row.portalRate === want, row.type + ' portal chance ' + row.portalRate + ' expected ' + want);
