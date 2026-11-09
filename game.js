@@ -519,35 +519,34 @@ const GEAR={
     utRows:['.pppppp.','ppcccccp','ppcrcccp','ppcrcccp','.tttttt.','.cccccc.','..cccc..','..tttt..'],
     ut:{p:'#7af0ff',c:'#3a5080',r:'#ff4ad0',t:'#ffd34a',h:'#e8fcff'},
   },
-  // Wands are short and thick, not a thin staff. The head (gem, star, or skull)
-  // fills about a third of the icon. The grip is two pixels wide, with a wrap, and
-  // stops well short of the staff's full diagonal. Tier colors stay on that shape.
+  // One wand mask every tier. H is the star head, G the gem, S the thin shaft,
+  // W the wrapped grip, P the pommel. Only the colors change.
   wand:{
     rows:[
-      ['....ggg.','...ggggm','...sggg.','..ssw...','..ss....','.p......','........','........'],
-      ['....gmg.','...ggggm','...sggg.','..ssw...','..ss....','.p......','........','........'],
-      ['....mggm','...ggggg','...rggg.','..rsw...','..rr....','.p......','........','........'],
-      ['...ggggm','..gggggg','...sgggm','..ssw...','..ss....','.pp.....','........','........'],
-      ['...oYYoo','..oooooo','...sooYo','..ssw...','..ss....','.p......','........','........'],
-      ['....m.m.','...ggggg','..mgggm.','..ssw...','..ss....','.p......','........','........'],
-      ['...YgYg.','..gggggg','...sgYYg','..ssw...','..ss....','.p......','........','........'],
-      ['...gYgYg','..gggggg','...psgY.','..pww...','..pp....','.p......','........','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
     ],
     pal:[
-      {g:'#d2b48a',m:'#f0e0c0',s:'#6a5040',w:'#a08060',p:'#4a3428'},
-      {g:'#8a9098',m:'#d0d6de',s:'#5a6068',w:'#9aa2aa',p:'#3a4048'},
-      {g:'#c4a060',m:'#e8d0a0',s:'#6a5438',r:'#8a6848',w:'#c4a878',p:'#4a3828'},
-      {g:'#e0b050',m:'#fff0c0',s:'#7a5840',w:'#c4a060',p:'#a07830'},
-      {o:'#3aa8c0',Y:'#e8fbff',s:'#4a6878',w:'#c4a878',p:'#8a6840'},
-      {g:'#a060c0',m:'#f0d0ff',s:'#5a4868',w:'#c4a060',p:'#6a5030'},
-      {g:'#ff7030',Y:'#fff6c0',s:'#c04818',w:'#ffd34a',p:'#a03010'},
-      {g:'#ff4040',Y:'#ffffff',s:'#ffb020',w:'#ffe08a',p:'#ffd34a'},
+      {H:'#c4a070',G:'#f0e0c8',S:'#6a4a30',W:'#8a5a38',P:'#6a6e78'},
+      {H:'#8a9098',G:'#e8eef6',S:'#5a6068',W:'#3e444c',P:'#c8ced6'},
+      {H:'#c4a060',G:'#fff0c0',S:'#6a5430',W:'#7a5430',P:'#d0c0a0'},
+      {H:'#e0b040',G:'#fff6c0',S:'#8a6840',W:'#a07030',P:'#e8d8b0'},
+      {H:'#3aa8c0',G:'#e8fbff',S:'#4a6878',W:'#2a4858',P:'#d0d8e0'},
+      {H:'#a060c0',G:'#f4d8ff',S:'#5a4868',W:'#3a2848',P:'#c8c0d0'},
+      {H:'#ff7030',G:'#fff6c0',S:'#c04818',W:'#8a2808',P:'#ffd34a'},
+      {H:'#ff4040',G:'#ffffff',S:'#e8b040',W:'#a06020',P:'#ffe08a'},
     ],
-    utRows:['....gYg.','...gggg.','..ssgYg.','..ssw...','..ss....','.p......','........','........'],
-    ut:{g:'#ff9adf',Y:'#ffffff',s:'#6a30a0',w:'#c080e0',p:'#ffe08a'},
+    utRows:['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+    ut:{H:'#ff9adf',G:'#ffffff',S:'#6a30a0',W:'#4a1868',P:'#ffe08a'},
     shot:['#c4a070','#b0b6be','#c4a070','#e0b050','#3ad4f0','#c080e0','#ffe040','#ff5058'],
     utShot:'#ff4ad0',utShape:'ring',
-    test:{rows:['....gYg.','...gggg.','..ssgYg.','..ssw...','..ss....','.p......','........','........'],pal:{g:'#ffffff',Y:'#ffe14a',s:'#ff3355',w:'#fff6c0',p:'#ffffff'}}
+    test:{rows:['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],pal:{H:'#ffffff',G:'#ffe14a',S:'#ff3355',W:'#c8a050',P:'#ffffff'}}
   },
   // Daggers: 6px on the sword diagonal. Short grip, a 3px guard across the blade, then a 2px blade to the tip.
   dagger:{
@@ -577,31 +576,30 @@ const GEAR={
     utShot:'#ff4040',utShape:'slash',
     test:{rows:['.......t','......hb','.....hb.','...ghg..','...r....','..p.....','........','........'],pal:{t:'#ffffff',h:'#fff6c0',b:'#ffe14a',g:'#ff3355',r:'#c8a050',p:'#ffffff'}}
   },
-  // Tomes are thick closed books at a slight angle: spine on the left, a cream
-  // page stripe on the right, and a holy cross. Not the wide flat spellbook.
+  // One closed-book mask every tier. S spine, C cover, X the cross, P the page edges.
   tome:{
     rows:[
-      ['.scccc..','ssccccpp','sc.x.cpp','scxxxcpp','sc.x.cpp','ssccccpp','.pppppp.','..pppp..'],
-      ['.scccc..','ssccccpp','sc.x.cpp','scxxxcpp','sc.x.cpp','ssccccpp','.pppppp.','..pppp..'],
-      ['.scccc..','ssccccpp','sc.x.cpp','scxxxcpp','sc.x.cpp','ssccccpp','.pppppp.','..pppp..'],
-      ['.scccc..','ssccccpp','sc.x.cpp','scxxxcpp','sc.x.cpp','ssccccpp','.pppppp.','..pppp..'],
-      ['gsccccg.','ssccccpp','sc.x.cpp','scxxxcpp','sc.x.cpp','gsccccpp','.pppppp.','..pppp..'],
-      ['gsccccg.','ssccccpp','sc.x.cpp','scxxxcpp','sc.x.cpp','gsccccpp','.pppppp.','..pppp..'],
-      ['gsccccg.','ssccccpp','sc.x.cpp','scxxxcpp','sc.x.cpp','gsccccpp','.pppppp.','..pppp..'],
-      ['gsccccg.','ssccccpp','sc.x.cpp','scxxxcpp','sc.x.cpp','gsccccpp','.pppppp.','..pppp..'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
     ],
     pal:[
-      {s:'#5a4630',c:'#d2c0a0',x:'#9a8450',p:'#fffef8'},
-      {s:'#4a5058',c:'#d4d8e0',x:'#7a8088',p:'#fffef8'},
-      {s:'#6a4830',c:'#c8a878',x:'#b08840',p:'#fffef6'},
-      {s:'#2a4870',c:'#b9d4f0',x:'#d0a848',p:'#fffef8'},
-      {s:'#7a6230',c:'#fff4d4',x:'#e0b040',p:'#fffef8',g:'#c49830'},
-      {s:'#8a6820',c:'#fff1cc',x:'#ffd060',p:'#ffffff',g:'#e8b040'},
-      {s:'#2a5888',c:'#d0e4ff',x:'#ffd34a',p:'#ffffff',g:'#e0b040'},
-      {s:'#1a5090',c:'#f4f8ff',x:'#ffe14a',p:'#ffffff',g:'#ffd34a'},
+      {S:'#5c3a24',C:'#a07850',X:'#b89850',P:'#d9d0c2'},
+      {S:'#4a5058',C:'#9aa0a8',X:'#c4a050',P:'#d9d0c2'},
+      {S:'#8a6840',C:'#c8a878',X:'#d0a848',P:'#e4dcc8'},
+      {S:'#3a5878',C:'#b9d4f0',X:'#e0b040',P:'#e6dece'},
+      {S:'#d4a84a',C:'#fff4d4',X:'#e8c050',P:'#d4ccc0'},
+      {S:'#e0b040',C:'#fffef8',X:'#ffd060',P:'#d4ccc0'},
+      {S:'#e8c050',C:'#eef6ff',X:'#e01828',P:'#d4ccc0'},
+      {S:'#ffd34a',C:'#fffef8',X:'#ff2438',P:'#d4ccc0'},
     ],
-    utRows:['gsccccg.','ssccccpp','sc.x.cpp','scxxxcpp','sc.x.cpp','gsccccpp','.pppppp.','..pppp..'],
-    ut:{s:'#ffd34a',c:'#fffef6',x:'#ffffff',p:'#ffe08a',g:'#ff4ad0'},
+    utRows:['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+    ut:{S:'#ffd34a',C:'#fffef6',X:'#ffffff',P:'#e6dece'},
   },
   // Helms are a front-facing helmet: rounded dome, visor slit, cheek guards.
   // Iron, then steel, then gold, then crimson and gold. Higher tiers add a crest or plume.
