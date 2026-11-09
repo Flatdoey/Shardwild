@@ -294,24 +294,26 @@ function buildSprites(){
   SPR.constrictor=mkSprite(['.gggggg.','gggggggg','ggyyyggg','gggggggg','.gggggg.','ggg..ggg','g......g','.gggggg.'],{g:'#245c28',y:'#e0c060'});
   SPR.hatchling=mkSprite(['........','..gg....','.gyyg...','.gggg...','...gg...','..g..g..','........','........'],{g:'#6aaa38',y:'#ffd34a'});
   SPR.serpentbody=mkSprite(['.gggggg.','gggyyggg','ggyyyggg','gggggggg','gggyyggg','ggyyyggg','.gggggg.','........'],{g:'#2f7a30',y:'#e0c060'});
+  SPR.serpenttail=mkSprite(['.gggggg.','gggyyggg','ggyyyggg','.gggggg.','..gggg..','...gg...','....g...','........'],{g:'#2f7a30',y:'#e0c060'});
+  // Top-down snake head: crown on the skull, snout pointing down, no limbs.
   SPR.ourohead=mkSprite([
-    '....c..c..c.....',
-    '...cccyyyccc....',
-    '..gggggggggggg..',
-    '.ggggyyyyyggggg.',
-    'gggkyywwyykgggg.',
-    'ggkyyywwyyykggg.',
-    'gggkyyyyyykgggg.',
-    '.gggggggggggggg.',
-    '..gggggggggggg..',
-    '.gg.gggggggg.gg.',
-    'gg..gggggggg..gg',
-    'g....gggggg....g',
-    '.gg..gggggg..gg.',
-    '..gg........gg..',
-    '...g........g...',
-    '....gg....gg....'
-  ],{c:'#ffd34a',y:'#fff6c0',g:'#2f7a30',k:'#e8ffc0',w:'#1a1408'});
+    '...c....c....c..',
+    '..cccccccccccc..',
+    '.bbbbbbbbbbbbbb.',
+    '.bbggggggggggbb.',
+    'bbgggddddddgggbb',
+    'bykyggddddggykyb',
+    '.bggggddddggggb.',
+    '..bgggddddgggb..',
+    '...bggddddggb...',
+    '....bnnddnnb....',
+    '...bnnnnnnnb....',
+    '....bfnnnnfb....',
+    '.....ffttff.....',
+    '.......tt.......',
+    '......t..t......',
+    '................'
+  ],{c:'#ffd34a',b:'#8fd15a',g:'#2f7a30',d:'#143818',n:'#3d8a28',y:'#ffe14a',k:'#140c08',f:'#f7f7ff',t:'#e02028'});
 }
 
 /* ---------------- tiered gear sprites ---------------- */
@@ -646,15 +648,15 @@ const GEAR={
       ['..hhh..','.hh.hh.','h..c..h','hhhhhhh','h.f.f.h','hhfffhh','h.f.f.h','h..h..h'],
       ['..hhh..','.hh.hh.','h..c..h','hhhhhhh','h.f.f.h','hhfffhh','h.f.f.h','h..h..h'],
       ['..hhh..','.hh.hh.','h..c..h','hhhhhhh','h.f.f.h','hhfffhh','h.f.f.h','h..h..h'],
-      ['.ttttt.','th.h.ht','t..c..t','thhhhht','h.f.f.h','hhfffhh','h.f.f.h','t..h..t'],
+      ['.ttttt.','thhhhht','thhchht','thhvhht','hhhvhhh','hhhvhhh','hhhhhhh','.ttttt.'],
     ],
     pal:[
       {h:'#8a9098',f:'#5c636c',c:'#d8dce4'},
       {h:'#8a6844',f:'#5a3c24',c:'#e0c090'},
       {h:'#24543c',f:'#102818',c:'#c8b060'},
       {h:'#5a3870',f:'#2c1840',c:'#e0c878'},
-      {h:'#2a1844',f:'#120818',c:'#c0a050'},
-      {h:'#16161c',f:'#0a0a0e',c:'#ffd34a',t:'#e8b84a'},
+      {h:'#5c3c96',f:'#3a2468',c:'#e0c060'},
+      {h:'#3a3848',t:'#f0d060',c:'#d070ff',v:'#9a58e0'},
     ],
     utRows:['.ttttt.','th.h.ht','t..c..t','thhhhht','h.f.f.h','hhfffhh','h.f.f.h','t..h..t'],
     ut:{h:'#100818',f:'#08040c',c:'#ff9adf',t:'#ffe08a'},
@@ -5110,7 +5112,11 @@ function render(){
   for(const e of world.enemies){if(e.x<x0-80||e.x>x1+80||e.y<y0-80||e.y>y1+80)continue;
     if(e.segs&&SPR.serpentbody){
       for(let i=e.segs.length-1;i>=0;i--){
-        const s=e.segs[i],sp=SPR.serpentbody,sc=Math.max(1.15,1.7-i*0.03);
+        const last=i===e.segs.length-1;
+        const sp=last&&SPR.serpenttail?SPR.serpenttail:SPR.serpentbody;
+        const k=i/Math.max(1,e.segs.length-1);
+        const sc=last?0.9:(1.7-k*0.95);
+        const s=e.segs[i];
         drawSpr(sp,Math.round(s.x-sp.w*sc/2),Math.round(s.y-sp.h*sc/2),sp.w*sc,sp.h*sc,i&1);
       }
     }
