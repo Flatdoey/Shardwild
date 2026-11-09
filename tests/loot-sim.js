@@ -146,9 +146,22 @@ async function main() {
       assert(ENEMY_AI[row.ai], row.name + ' ai ' + row.ai);
       if (row.region === 'Godlands') assert(row.god, row.name + ' is not a god');
       else assert(!row.god, row.name + ' is marked as a god');
+      if (row.god) {
+        assert(row.godPot && row.hpPots === 0 && row.lifeElixirs === 0, row.name + ' life/hp or missing pot ' + JSON.stringify({godPot: row.godPot, hpPots: row.hpPots, life: row.lifeElixirs, stats: row.elixirStats}));
+        const keys = Object.keys(row.elixirStats || {});
+        assert(keys.length === 1 && keys[0] === row.godPot, row.name + ' elixir mix ' + JSON.stringify(row.elixirStats));
+        const rate = row.elixirStats[row.godPot] / row.n;
+        assert(rate > 0.12 && rate < 0.32, row.name + ' pot rate ' + rate.toFixed(3));
+      } else {
+        assert(!row.godPot, row.name + ' has a god pot');
+      }
     }
+    const godPots = {};
+    for (const row of bands) if (row.god) godPots[row.type] = row.godPot;
+    assert(godPots.eye === 'wis' && godPots.colossus === 'vit' && godPots.oracle === 'mp' && godPots.saint === 'def', 'god pots ' + JSON.stringify(godPots));
+    assert(godPots.wyrm === 'spd' && godPots.titan === 'att' && godPots.serpent === 'dex' && godPots.herald === 'mp' && godPots.idol === 'def', 'god pots ' + JSON.stringify(godPots));
     assert(byRegion['Saltmarsh Shore'] >= 6 && byRegion['Greenmarch'] >= 6 && byRegion['Ashen Wilds'] >= 6 && byRegion['Godlands'] >= 8, 'enemies per region ' + JSON.stringify(byRegion));
-    console.log('Enemy bands ' + bands.map(r => r.region.slice(0, 4) + ':' + r.type).join(' '));
+    console.log('Enemy bands ' + bands.map(r => r.region.slice(0, 4) + ':' + r.type + (r.godPot ? '=' + r.godPot : '')).join(' '));
   } finally {
     try { await browser.close(); } catch (e) {}
     try { server.close(); } catch (e) {}
