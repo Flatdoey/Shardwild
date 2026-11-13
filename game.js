@@ -106,116 +106,170 @@ function buildSprites(){
   SPR.ogre=mkSprite(['..gggg..','.gggggg.','ggwggwgg','ggkkkkgg','.gtttkg.','gggggggg','g.g..g.g','g......g'],{g:'#6f8f4a',w:'#fff',k:'#ff5a3a',t:'#e8d8a0'});
   SPR.wisp=mkSprite(['...c....','..cccc..','.cwwwc..','.cwywc..','.cwwwc..','..cccc..','...cc...','....c...'],{c:'#4fe6ff',w:'#e8ffff',y:'#1a3040'});
   SPR.eye=mkSprite([
-    '................',
-    '....rrrrrr......',
-    '..rrwwwwwwrr....',
-    '.rwwwwwwwwwwr...',
-    '.rwwkwwwwkwwr...',
-    'rwwkwyyyywkwr...',
-    'rwwkwywwywkwr...',
-    'rwwkwyyyywkwr...',
-    '.rwwkwwwwkwwr...',
-    '.rwwwwwwwwwwr...',
-    '..rrwwttwwrr....',
-    '....rrrrrr......',
-    '...t......t.....',
-    '..t........t....',
-    '.t..........t...',
-    '................'
-  ],{r:'#a0204a',w:'#f4e6ea',k:'#2a1020',y:'#140810',t:'#c04060'});
+    '........................',
+    '........................',
+    '.........aaaaab.........',
+    '......aaaaaabbbbbb......',
+    '.....aaaaabbbbbbbcc.....',
+    '....aeeeeeeeeeeeeeee....',
+    '...aeaaffffggggghccec...',
+    '...aaafffgkkllhhhhcdd...',
+    '..aabffggkkllmmhhiiddd..',
+    '..abbfggklqqpmnniiiddd..',
+    '..bbbgggllppppnoiijdde..',
+    '..bbbgghhmmppnoiijjdee..',
+    '...bbchhhmnnnoojjjeee...',
+    '...cccchiiioojjjjeeee...',
+    '....cdcciiijjjjjeede....',
+    '....ccccdddddddddddd....',
+    '...ccccdddddeecccdddd...',
+    '...ccccddddeeecccdddd...',
+    '..cccccdddd...cccddddd..',
+    '.cccccdddd....ccccddddd.',
+    '.ccac.dddd....cccc.ddad.',
+    '.cccc.dda......cac.ddddd',
+    '.ccc..ddd......cccc.dddd',
+    '.ccc..ddd......cccc..ddd'
+  ],{a:'#ffd0dc',b:'#e07090',c:'#c04068',d:'#8a2048',e:'#4a1028',f:'#ffffff',g:'#f4e6ea',h:'#e0c8d0',i:'#c0a0aa',j:'#806070',k:'#fff6c0',l:'#ffd34a',m:'#e09020',n:'#a05018',o:'#5a2808',p:'#140810',q:'#ffffff'});
   SPR.colossus=mkSprite([
-    '......hhhh......',
-    '.....hhhhhh.....',
-    '....hhheehhh....',
-    '....hhhyyhhh....',
-    '...sshhhhhhss...',
-    '..ssshhhhhhsss..',
-    '..sggccccccggs..',
-    '...hccggggcch...',
-    '...hccccccccc...',
-    '....hccccccch...',
-    '....hh.cc.hh....',
-    '...hh..cc..hh...',
-    '..hh...cc...hh..',
-    '.hh....cc....hh.',
-    '................',
-    '................'
-  ],{h:'#c8ccd4',e:'#7af0ff',y:'#103040',s:'#8a9098',g:'#e3c25a',c:'#5a6470'});
+    '........................',
+    '........................',
+    '..........aabb..........',
+    '.........aabbcc.........',
+    '.........bbbccd.........',
+    '.........beqqee.........',
+    '..aaabbb.ccddeeaaabbb...',
+    '.aabbbccaaddeebcbbbccc..',
+    '.abbcccdaabbbbccbcccdd..',
+    '.bbcccdaabbbbcccdccdde..',
+    '.cccdddabbbfgccdddddee..',
+    '..ccccebbbfghiddddccc...',
+    '..cccc.bbbghijddd.ccc...',
+    '..cccc.bbccijddde.ccc...',
+    '..ccc..bcccddddee.ccc...',
+    '.cccc...ccddddee..cccc..',
+    '.cccc..ddddddddd..cccc..',
+    '.ccc...ddddeeddd...ccc..',
+    '.ccc...dddd..ddd...ccc..',
+    '.ccc...ddd...ddd...cccc.',
+    'abcd...ddd...ddd...abcd.',
+    'bcde...ddd...ddd...bcde.',
+    '.......ddd...dddd.......',
+    '.......add...ddda.......'
+  ],{a:'#f4f7fb',b:'#d0d6e0',c:'#9aa4b0',d:'#5c6672',e:'#2a3038',f:'#fff6c0',g:'#ffe14a',h:'#e0a020',i:'#a06810',j:'#5a3808',q:'#7af0ff',k:'#061018'});
   // Morvane: bone skull under a gold crown. Five spikes, tallest in the middle, red gem in the band.
   SPR.king=mkSprite([
-    ".......ss.......",
-    ".....s.ss.s.....",
-    "...s.s.ss.s.s...",
-    "..gggggrrggggg..",
-    "....wwwwwwww....",
-    "...wwwwwwwwww...",
-    "..wwkwwwwwwkww..",
-    "..wkeewwwwwekww.",
-    "..wkeEwwwwEekww.",
-    "...wwwwwnwwww...",
-    "....wwwnnnwww...",
-    "...wwwwwwwwww...",
-    "..wwtwwtwwtwww..",
-    "...wwttttttww...",
-    "....wwwwwwww....",
-    ".....kkkkkk.....",
-    "....kppppppk....",
-    "...kp......pk..."
-  ],{s:'#ffe14a',g:'#e0a018',r:'#e01828',w:'#f4efe6',k:'#140c14',e:'#ff5a18',E:'#ffd34a',n:'#1a1218',t:'#fffef8',p:'#3a1848'});
+    '................................',
+    '................................',
+    '................................',
+    '................f...............',
+    '.........f..f...f...f..f........',
+    '.........g..g...g...g..g........',
+    '........gggggggggggggggg........',
+    '........hhhhhaaabbbhhhhh........',
+    '............aaabbbbc............',
+    '...........aaabbbbccc...........',
+    '..........ayybbbcccyyd..........',
+    '..........yfyybcccyfyy..........',
+    '........kkyyyqcccdyyyqlm........',
+    '.......kkkbqqcccdddqqemmm.......',
+    '......kkkkkcccddddeeemmmmm......',
+    '.....kkkkkklcdddddeemmmmmmm.....',
+    '.....kkkklllldeeeeemmmmmmnn.....',
+    '....kkkklddlllllmmmmmmdmnnnn....',
+    '....kkllddddllmmmmmmmdddnnnn....',
+    '....kllddddllmmmmmmmmddddnnn....',
+    '....llddddlmcccccccccnddddno....',
+    '....lldddlmmmmmmmmnnnnndddoo....',
+    '....ldddmmmmcccccccccnnndddo....',
+    '....ddddmmmmmmmnnnnnnnnodddd....',
+    '...ddddmmmmmcccccccccoooodddd...',
+    '...dddmmmmmmnnnnnnnnooooooddd...',
+    '...add.mmmnnnnnnnnooooooo..dad..',
+    '....b...mnnnnnnnnooooooo...bd...',
+    '..........nnnnnooooooo..........',
+    '............nnoooooo............',
+    '................................',
+    '................................'
+  ],{a:'#ffffff',b:'#f4efe6',c:'#d8d0c0',d:'#a09888',e:'#5a5048',f:'#fff6c0',g:'#ffe14a',h:'#e0a018',i:'#8a5808',j:'#4a2808',k:'#c060c0',l:'#7a30b0',m:'#4a1868',n:'#2a0838',o:'#140418',q:'#ff5a18',r:'#e01828',y:'#140c14'});
   SPR.oracle=mkSprite([
-    '......pppp......',
-    '.....pppppp.....',
-    '....ppywwypp....',
-    '....ppswwspp....',
-    '...wwwwwwwwww...',
-    '..wwwggggggwww..',
-    '..wwggyyyygwww..',
-    '...wwgggggww....',
-    '....wwwwwwww....',
-    '...ww.ww.ww.....',
-    '..ww..ww..ww....',
-    '.w....ww....w...',
-    '......ss........',
-    '.....syyys......',
-    '......ss........',
-    '................'
-  ],{p:'#c8b8e8',y:'#ffe14a',w:'#f4f0ff',s:SK,g:'#6a48a0'});
+    '........................',
+    '............d...........',
+    '...........dbd..........',
+    '..........dbbbd....klk..',
+    '.........dbbbbbd..klklk.',
+    '........dbgggggbd..klk..',
+    '........dbqggqgbd...k...',
+    '........dbhhhhhbd...n...',
+    '..........hiihh.....n...',
+    '.........ebblbbe....n...',
+    '.........ebblbbe....n...',
+    '.........ebblbbed...n...',
+    '........ebbblbbddd..n...',
+    '........ebbblbbbddd.n...',
+    '........ebbblbbbedddn...',
+    '.......ebbbblbbbbeddn...',
+    '.......ebbbblbbbbe.dnd..',
+    '.......ecccclcccce..n...',
+    '......eccccclccccce.n...',
+    '......eccccclccccce.n...',
+    '......eccccclccccce.n...',
+    '.....ecccccclccccccen...',
+    '.....ecccccclcccccce.n..',
+    '........................'
+  ],{a:'#f4e8ff',b:'#c8b0e8',c:'#8a68b8',d:'#4a2878',e:'#241238',f:'#fff0e0',g:'#f0d0b8',h:'#d0a888',i:'#a07858',j:'#604030',k:'#fff6c0',l:'#ffe14a',m:'#e0a018',n:'#8a6010',o:'#4a3008',q:'#ffe14a'});
   SPR.saint=mkSprite([
-    '......yyyy......',
-    '.....ywwwwy.....',
-    'wwwwywssewywwww.',
-    'ww..ywwwwwwy..ww',
-    'w....wwccww....w',
-    '.....wwwwww.....',
-    '....wwwwwwww....',
-    '....ww.cc.ww....',
-    '.....wwwwww.....',
-    '....ww.ww.ww....',
-    '...ww..ww..ww...',
-    '..w....ww....w..',
-    '................',
-    '................',
-    '................',
-    '................'
-  ],{y:'#fff6c0',w:'#e8fff8',s:SK,e:EY,c:'#3ec8ff'});
+    '........................',
+    '............k...........',
+    '........lllllllll.......',
+    '........k......k........',
+    '........................',
+    '..........qqqqq.........',
+    '.ccbaa....qtqtq...aabcc.',
+    '.e........qqqqq.......e.',
+    '.ccbbaa....qqq...aabbcc.',
+    '.e........hhghh.......e.',
+    '.ccbbbaa..hhghh.aabbbcc.',
+    '.e........hhghh.......e.',
+    '.ccbbaa...hhlhh..aabbcc.',
+    '.e.......hhhlhhh......e.',
+    '.ccbaa...hkkkkkh..aabcc.',
+    '.e.......hhhlhhh......e.',
+    '.ccaa....iiiliii...aacc.',
+    '.e......iiiiliiii.....e.',
+    '........iiiigiiii.......',
+    '........iiiigiiii.......',
+    '........iiiigiiii.......',
+    '.......iiiiigiiiii......',
+    '.......iiiiigiiiii......',
+    '........................'
+  ],{a:'#ffffff',b:'#f4f7ff',c:'#d0d8ea',d:'#98a4bc',e:'#5a6478',f:'#ffffff',g:'#f7f4ea',h:'#e0d8c0',i:'#b0a488',j:'#706848',k:'#fff6c0',l:'#ffe14a',m:'#e0a018',n:'#a07010',o:'#5a3808',p:'#fff0e0',q:'#f0d0b0',r:'#d0a880',s:'#a07858',t:'#604838'});
   SPR.wyrm=mkSprite([
-    'gg..........gg..',
-    'ggg........ggg..',
-    '.gggggggggggg...',
-    '.ggyykkwwkkyyg..',
-    'gggyykwwwwkyygg.',
-    '.gggggggggggg...',
-    '..ggg.gg.ggg....',
-    '...g...g...g....',
-    '..gg...g...gg...',
-    '.g.....g.....g..',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................'
-  ],{g:'#c8d0dc',y:'#7af0ff',k:'#1a2030',w:'#fff'});
+    '.....m...........mm.....',
+    '.c..mkm.........mmkm.cc.',
+    'ccc.mmmm.......mmmm.cccc',
+    '.caabmmmm.....mmmmabbcc.',
+    '.abbccmmmaaabbmmmbbccd..',
+    'dbccddemmmbbbcmmmccddedd',
+    'ddddee..mbbcccdm.ddeeddd',
+    'dddddcc.bbzfgzdeccdddddd',
+    '.dddddccccyghyeecddddd..',
+    '...ddddaachhijeccddd....',
+    '....dddaabbqqcccddd.....',
+    '......dabbbbcccddd......',
+    '.......bbbffggddd.......',
+    '.......bbbfgghddd.......',
+    '.......bbfgghhhde.......',
+    '.......bcgghhhiee.......',
+    '.......ccghhhiiee.......',
+    '......ddchhhiijed.......',
+    '.....dddddhiijeddd......',
+    '....dddd..iijj.dddd.....',
+    '...dddd.........dddd....',
+    '...ddd...........ddd....',
+    '...ddd............ddd...',
+    '....d..............d....'
+  ],{a:'#f4fbff',b:'#c8d8ea',c:'#7a90aa',d:'#3a4c64',e:'#1a2434',f:'#ffffff',g:'#d8f6ff',h:'#7af0ff',i:'#2a8898',j:'#104048',k:'#fff6c0',l:'#e0c878',m:'#a08848',n:'#605028',o:'#302814',q:'#ff5030',z:'#ffffff',y:'#061018'});
   SPR.gull=mkSprite(['..wwww..','.wwwwww.','wwywwyww','.wwwwww.','w.w..w.w','.ww..ww.'],{w:'#f4f7fb',y:'#e2b13a'});
   SPR.slime=mkSprite(['..gggg..','.gggggg.','ggwygwg.','gggggggg','.gggggg.','..gggg..'],{g:'#6ecf4a',w:'#e8ffe0',y:'#1a3010'});
   SPR.hermit=mkSprite(['..ssss..','.ssoess.','ssosskss','.ssssss.','r.r..r.r','rr....rr'],{s:'#d07a48',o:'#f0c090',e:'#fff',k:EY,r:'#e0603a'});
@@ -229,77 +283,109 @@ function buildSprites(){
   SPR.beetle=mkSprite(['..oooo..','.orrroo.','orykyo.o','oooooooo','.o.oo.o.','o..o..o.'],{o:'#c84820',r:'#ffb060',y:'#fff6c0',k:'#1a0c08'});
   SPR.hound=mkSprite(['e.....rr','rrr.rrrr','rrywryyr','.rrrrrrr','.r.r.r.r','rr.r.r.r'],{r:'#e07030',y:'#ffe14a',e:'#3a1808',w:'#fff'});
   SPR.titan=mkSprite([
-    '......yyyy......',
-    '.....yyyyyy.....',
-    '....yywyywyy....',
-    '....yyyyyyyy....',
-    '...ooyyyyyyoo...',
-    '..oooyyyyyyooo..',
-    '..ooyyggggyyoo..',
-    '...yyyyyyyyyy...',
-    '....yyyyyyyy....',
-    '...yy..yy..yy...',
-    '..yy....yy..yy..',
-    '.y......yy....y.',
-    '........yy......',
-    '................',
-    '................',
-    '................'
-  ],{y:'#ffd34a',w:'#fff6c0',o:'#ff6a28',g:'#fff0a0'});
+    '............f...........',
+    '........g.g.g.g.g.......',
+    '........h.hahbh.h.......',
+    '.........aabbcc.........',
+    '.........bbbccd.........',
+    '...aaabbbbcygydaabbb....',
+    '..aabbbccccddeebbbccc...',
+    '..bbbcccaaddeebbcccdd...',
+    '..bbcccaahhbbbbcccddd...',
+    '..cccccaahbbbbiccccce...',
+    '...ccccaahbbbciccccc....',
+    '..cccccabhbbccicdcccc...',
+    '.accccbbhbbccccidccccc..',
+    '.bccc.bbhccccddiddcccc..',
+    '.bccc.bbhcccdddieecccc..',
+    '.cccc.bchccddddeiecccc..',
+    '.......chcddddeee.......',
+    '.......ddddddeddd.......',
+    '.......dddddeeddd.......',
+    '.......ddddeeeddd.......',
+    '.......ddd....ddd.......',
+    '.......ddd....ddd.......',
+    '.......ddd....dddd......',
+    '.......ddd....dddd......'
+  ],{a:'#fff0c0',b:'#e0c080',c:'#a07840',d:'#5a3818',e:'#2a1808',f:'#fff6c0',g:'#ffe14a',h:'#ff6a28',i:'#c03010',j:'#5a1008',y:'#1a0c08'});
   SPR.herald=mkSprite([
-    'ww............ww',
-    'www..........www',
-    '.wwppppppppww...',
-    '..ppwwwwwwpp....',
-    '..ppwkyykwpp....',
-    '...ppwwwwpp.....',
-    '....pppppppp....',
-    '...p.pppp.p.....',
-    '..p...pp...p....',
-    '.p....pp....p...',
-    '......pp........',
-    '.....p..p.......',
-    '................',
-    '................',
-    '................',
-    '................'
-  ],{w:'#e8d8ff',p:'#3a1860',k:'#ff4ad0',y:'#fff'});
+    '........................',
+    '........................',
+    '........................',
+    '........................',
+    '........eegggggee.......',
+    '.....eee.cgggggc.eee....',
+    '..eee.cdddeqeqedddc.eee.',
+    '....cdd...hhhhh...ddc...',
+    '........eehhhhhee.......',
+    '.....eeedddddddddeee....',
+    '..eee.cddbbbbbbbddc.eee.',
+    'ee.cddd..bbbbbbb..dddc.e',
+    '..cd....ebbbbbbbe....dc.',
+    '.....eee.bbbbbbb.eee....',
+    '...ee.cdccccaccccdc.ee..',
+    '.....cd.ccccacccc.dc....',
+    '........ccccacccc.......',
+    '........ccccacccc.......',
+    '........ccccacccc.......',
+    '.........cccaccc........',
+    '..........ccacc.........',
+    '...........cac..........',
+    '............a...........',
+    '........................'
+  ],{a:'#f0e0ff',b:'#b090e0',c:'#6a38a8',d:'#32145c',e:'#140818',f:'#ffffff',g:'#e8e0ff',h:'#b0a8c8',i:'#706880',j:'#302838',q:'#ff4ad0'});
   SPR.idol=mkSprite([
-    '.....wwwwww.....',
-    '....wwyyyyww....',
-    '....wwywwyww....',
-    '....wwwwwwww....',
-    '...ggwwwwwwgg...',
-    '..gggwwwwwwggg..',
-    '..ggwwggggwwgg..',
-    '...wwwwwwwwww...',
-    '....wwwwwwww....',
-    '...ww..ww..ww...',
-    '..ww....ww..ww..',
-    '.w......ww....w.',
-    '................',
-    '................',
-    '................',
-    '................'
-  ],{w:'#e8e4dc',y:'#ffd34a',g:'#c8b060'});
+    '........................',
+    '.......f.f..f..f.f......',
+    '........fffggghh........',
+    '.......fgggghhhii.......',
+    '.......gghhhiiiij.......',
+    '........hhiiijjj........',
+    '.......bbabbbbabb.......',
+    '.......baggggggbb.......',
+    '.......abggggggbb.......',
+    '.......bbgeggegba.......',
+    '.....cbccggggggacbc.....',
+    '.....cbccgghhggccbc.....',
+    '.....cbcaccccacccbc.....',
+    '.....cbaccccaccccbc.....',
+    '.....cbccccaccccabc.....',
+    '.....cbcccaccccacbc.....',
+    '.....cbddaddddaddbc.....',
+    '.....cbdaddddadddbc.....',
+    '.......addddadddd.......',
+    '.......ddddadddda.......',
+    '....ddfddddddddddfdd....',
+    '....eeeeeeeeeeeeeeee....',
+    '....cccccccccccccccc....',
+    '........................'
+  ],{a:'#ffffff',b:'#e8e4dc',c:'#c0b8a8',d:'#887868',e:'#483828',f:'#fff6c0',g:'#ffe14a',h:'#e0a018',i:'#8a6010',j:'#4a3008'});
   SPR.serpent=mkSprite([
-    'y..............y',
-    '.ycc........ccy.',
-    '..cccccccccccc..',
-    '.ccyyyyyyyyyycc.',
-    'ccyywwwwwwwwyycc',
-    '.ccywkwwwwkwycc.',
-    '..ccyyyyyyyycc..',
-    '...cccccccccc...',
-    '....cc....cc....',
-    '...cc......cc...',
-    '..c..........c..',
-    '.c............c.',
-    '................',
-    '................',
-    '................',
-    '................'
-  ],{y:'#ffd34a',c:'#6a8a30',w:'#e8ffc0',k:'#142008'});
+    '........................',
+    '............f...........',
+    '.........g..g..g........',
+    '.........heeheeh........',
+    '........eebbbbbee.......',
+    '......eeccbbbbbccee.....',
+    '....eeccccbbbbbccccee...',
+    '...eecccccbbbbbcccccee..',
+    '...eecccccqbbqbcccccee..',
+    '....eeccccyccycccccee...',
+    '.....eecccccccccccee....',
+    '.......eecccccccee......',
+    '........eebqbqbee.......',
+    '...........z.z..........',
+    '........................',
+    '........................',
+    '....dbccbccd............',
+    '....cccccccc............',
+    '........................',
+    '..........dbccbccbcd....',
+    '..........cccccccccc....',
+    '........................',
+    '.....dccbccbd...........',
+    '.....cccccccc...........'
+  ],{a:'#e8ffc0',b:'#8fd16a',c:'#3d8a28',d:'#1a5a18',e:'#0c3010',f:'#fff6c0',g:'#ffe14a',h:'#e0a018',i:'#8a6010',j:'#4a2808',q:'#ffffff',y:'#140c08',z:'#ff4040'});
   SPR.tidematron=mkSprite([".r.rr.r.",".rrrrrr.","rrwrrwrr","rrrrrrrr",".rppppr.","rr.rr.rr","r..r..r."],{r:'#e07040',w:'#fff',p:'#7ee0c8'});
   // HP and MP draughts keep the older narrow flask. Stat potions are a round bulb, short neck, and cork.
   const pot=['...cc...','...nn...','..nlln..','.nlllln.','.nlllln.','.nlgln..','.nlllln.','..nnnn..'];
@@ -362,7 +448,40 @@ function buildSprites(){
   SPR.pincer=mkSprite([".r.r.r.","rrrrrrr.",".rwkrwr.",".rrrrrr.","r.r.r.r."],{r:'#f0a070',w:'#fff',k:EY});
   SPR.barnacle=mkSprite(["..ggg..",".gwwgw.",".gggggg.","gkgkgkg",".ggggg."],{g:'#6a8a84',w:'#e8fff8',k:'#243430'});
   SPR.shellguard=mkSprite(["r.rr.rr.r","rrrrrrrrr",".rrwkkwrr","rrrrrrrrr","r.rr.rr.r","rr.....rr"],{r:'#c44828',w:'#fff',k:EY});
-  SPR.tideclaw=mkSprite(["r..rr..rr..r","rrr.rrrr.rrr",".rrrrrrrrrr.","rrrwkkrrwrrr","rrrrrrrrrrrr",".rrrrrrrrrr.","rr.rr..rr.rr","r..r....r..r"],{r:'#e25a32',w:'#fff4ea',k:'#1a1210'});
+  SPR.tideclaw=mkSprite([
+    '................................',
+    '................................',
+    '................................',
+    '................................',
+    '................................',
+    '................................',
+    '..fgg......................ggf..',
+    '..hhhggg................ggghhh..',
+    '.....hhhgf............fghhh.....',
+    '........hh...q....q...hh........',
+    '.............y....y.............',
+    '.......iiih..c....c.hhiii.......',
+    '...iiiihhhhh.c....chhhhhhiiii...',
+    '...hhhh..hhhhc....chhh...hhhh...',
+    '..........hheeaaaaaee...........',
+    '...........heeaaaaaee...........',
+    '...........eeaaaaaaaee..........',
+    '...........eebbcbbbcee..........',
+    '..........eebbcbbbcbbee.........',
+    '..........eebcbbbcbbbee.........',
+    '..........eecbbbcbbbcee.........',
+    '...........eebbcbbbcee..........',
+    '...........eebcbbbcbee..........',
+    '............eebbbcbee...........',
+    '..........d.edbbcbdeed..........',
+    '..........d..decbbde.d..........',
+    '.........d..d......d..d.........',
+    '.........d..d......d..d.........',
+    '........d..d........d..d........',
+    '........d..d........d..d........',
+    '.......d..d..........d..d.......',
+    '................................'
+  ],{a:'#ffe0c8',b:'#f0a070',c:'#d06030',d:'#8a3018',e:'#3a140c',f:'#fff4ea',g:'#ffc8a0',h:'#e07040',i:'#a04020',j:'#4a180c',q:'#ffffff',y:'#1a0c08'});
   SPR.tidepearl=mkRaw(['...tt...','..twwt..','.twppwt.','twpwwpwt','.twwwwt.','..twwt..','...tt...','...cc...'],{t:'#1a9a90',w:'#f4fffc',p:'#ffffff',c:'#e07040'});
   SPR.keyTide=keyArt('#7ee0c8','#1a9a90','#e25a32');
   SPR.keyHex=keyArt('#9a5ad0','#6a38a0','#8fd16a');
@@ -378,67 +497,117 @@ function buildSprites(){
   SPR.hextotem=mkSprite(['..pppp..','.pgyygp.','.pggggp.','pppppppp','.pwwwpp.','.pppppp.','..pppp..','...tt...'],{p:'#6a3a28',g:'#8fd16a',y:'#fff04a',w:'#e8ffc0',t:'#3a2418'});
   SPR.mirebat=mkSprite(['pp......pp','ppp....ppp','.ppwwwwpp.','..p.ww.p..','...pppp...','....pp....','...p..p...','..p....p..'],{p:'#3a1848',w:'#e0b0ff'});
   SPR.hexmatron=mkSprite([
-    '.....gggg.....',
-    '....gggggg....',
-    '...gggppggg...',
-    '..ggp.yy.pgg..',
-    '..gppyyyyypg..',
-    '.pppppppppppp.',
-    'ppwwppppppwwpp',
-    'ppyywwppwwyypp',
-    'ppy..pwwp..ypp',
-    '.pppppppppppp.',
-    '..pppppppppp..',
-    '.pp.p.pp.p.pp.',
-    'pp..pppppp..pp',
-    'p...p....p...p',
-    '.pp.p....p.pp.',
-    'p..pp....pp..p'
-  ],{g:'#1a1028',p:'#6a2fa0',y:'#8fd16a',w:'#fff04a'});
+    '................................',
+    '...............kk...............',
+    '..............kllm..............',
+    '..............llmn..............',
+    '..........kkkklmnnllmm..........',
+    '........kkllllmnnommmnnzqqk.....',
+    '........lllmmmmnonnnnnoqqkm.....',
+    '..........mmnnnfgooooo.qkmm.....',
+    '.............ffgghh....kmmo.....',
+    '.............gggqhi....nnn......',
+    '.............gyhiiy....nnn......',
+    '.............aaaabb....nnn......',
+    '............aaaabbbb...nnn......',
+    '..........aaaaabbbbbbc.nnn......',
+    '..........aaaabbbbbccc.nnn......',
+    '.........ddaabbbbbcccccnnn......',
+    '........ddddbbbbqccccccnnn......',
+    '.......ddddbbbbbccccccdnnn......',
+    '......ddddbbbbbcccccddddnnn.....',
+    '......dddbbbbbccqccdddddnnn.....',
+    '.....dddbbbbbcccccddddddnnn.....',
+    '....ddddbbbbcccccdddddeennn.....',
+    '...ddddeebccccccqddddeeennn.....',
+    '...ddd.e.ccccccdddddeee.nnn.....',
+    '...ddde..cccccdddddeeee.nnn.....',
+    '....d.e...cccdddqdeeee..nnn.....',
+    '.....e....cddddddeeeee..nnn.....',
+    '.....e......ddddeeee....nnn.....',
+    '.....e.......ddeqee......nnn....',
+    '..........................n.....',
+    '................................',
+    '................................'
+  ],{a:'#e8d0ff',b:'#9a58d0',c:'#5a2890',d:'#2c1050',e:'#140820',f:'#f4ffe8',g:'#c8e0a0',h:'#8aaa68',i:'#4a6840',j:'#243018',k:'#d0b0ff',l:'#8a44c8',m:'#4a1878',n:'#2a0848',o:'#100418',q:'#8fd16a',y:'#140818',z:'#fff6c0'});
   SPR.hivedrone=mkSprite(['w......w','.ww..ww.','..oooo..','.oywyyo.','oooooooo','.o.oo.o.','o..o..o.','.o....o.'],{o:'#c84820',y:'#ffd34a',w:'#fff6c0'});
   SPR.ashlarva=mkSprite(['..oooo..','.oyyyyo.','.oywyyo.','oooooooo','.oooooo.','..oooo..','...oo...','........'],{o:'#e8c090',y:'#ff6a28',w:'#fff0c0'});
   SPR.lavaspit=mkSprite(['.rrrrrr.','rrrrrrrr','ryyyywwr','rrrrrrrr','.rrrrrr.','r.r..r.r','.r....r.','........'],{r:'#a03018',y:'#ffd34a',w:'#fff6c0'});
   SPR.cindermite=mkSprite(['o..o..o.','.o.oo.o.','ooywyyoo','.oooooo.','o.o..o.o','.o....o.','o......o','........'],{o:'#e05820',y:'#ffb060',w:'#fff0c0'});
   SPR.broodguard=mkSprite(['.r.yy.r.','rrrrrrrr','rryykyyr','rrrrrrrr','.rrrrrr.','rr.rr.rr','r..rr..r','.r....r.'],{r:'#8a2810',y:'#ffd34a',k:'#1a0c08'});
   SPR.broodqueen=mkSprite([
-    '...r......r...',
-    '..rrr....rrr..',
-    '.rrryyrrryyrr.',
-    'rrrrrrrrrrrrrr',
-    'rrwwkrrrrkwwrr',
-    'rrrrrrrrrrrrrr',
-    '.rrryyyyyyrrr.',
-    '..rrrrrrrrrr..',
-    '.r.rr.rr.rr.r.',
-    'rr.r.rrrr.r.rr',
-    'r..r......r..r',
-    '.r..r....r..r.',
-    'r...r....r...r',
-    '.rr........rr.'
-  ],{r:'#c04018',y:'#ffd34a',w:'#fff0c0',k:'#1a0c08'});
+    '................................',
+    '................................',
+    '................................',
+    '................a...............',
+    '..............bbbcb.............',
+    '.............abbccd.............',
+    '.............bqcddq.............',
+    '............eeyddey.............',
+    '....ffffgg.eeeebbeee.ffffgg.....',
+    '..ffffggggeeeebccceeeffgggghh...',
+    '.fffggggheeebbcccddeeeggghhhhi..',
+    '.fgggghhheeeiccdddegeeehhhhiii..',
+    '.ggghhhhiieij.ddeegggehhhiiiij..',
+    '.ghhhhiiiijjjaaabbghhhhiiiijjj..',
+    '..hhiiiijddddaabbbbhdidiijjjj...',
+    '....iijjddddaabbbbbcddddjjj.....',
+    '.......ddddaacacacacad.d........',
+    '.......d.daabbbbcccccdd.d.......',
+    '......d.daabbbbcccccdddddd......',
+    '.....ddddbbbcacacacacddd.d......',
+    '....dddd.bbbbcccccddddddddd.....',
+    '....d.d..bbbcccccddddee.d.d.....',
+    '....d.d..bbcacacacacaee..d.d....',
+    '..........cccccddddeee..........',
+    '..........cccdddddeeee..........',
+    '...........ccacacacac...........',
+    '............ddddeeee............',
+    '..............deee..............',
+    '................................',
+    '................................',
+    '................................',
+    '................................'
+  ],{a:'#ffe0a0',b:'#ffb060',c:'#e05820',d:'#8a2808',e:'#3a1004',f:'#fff6c0',g:'#ffe08a',h:'#e0a050',i:'#a07030',j:'#5a3810',q:'#ffffff',y:'#1a0c08'});
   SPR.acolyte=mkSprite(['..pppp..','.ppwwpp.','ppkyykpp','.pppppp.','p.pppp.p','.p.pp.p.','pp....pp','.p....p.'],{p:'#2a1848',w:'#e8d8ff',k:'#ff4ad0',y:'#fff'});
   SPR.starwisp=mkSprite(['...w....','..wyw...','w.yyyy.w','.yyyyyy.','w.yyyy.w','..wyw...','...w....','........'],{w:'#ffffff',y:'#c8b0ff'});
   SPR.runeguard=mkSprite(['..oooo..','.oyyyyo.','ookkkkoo','oooooooo','.o.oo.o.','oo.oo.oo','o..o..o.','........'],{o:'#1a1028',y:'#c46aff',k:'#fff'});
   SPR.eclipser=mkSprite(['..vvvv..','.vvvwwv.','vvwwkwwv','vvwkykwv','vvwwkwwv','.vvvvvv.','..v..v..','.v....v.'],{v:'#140818',w:'#e8e0ff',k:'#ff4ad0',y:'#fff'});
   SPR.voidshade=mkSprite(['..aaaa..','.aawwaa.','aayyyaaa','.aaaaaa.','a..aa..a','.a....a.','a......a','........'],{a:'#2a1840',w:'#e8d8ff',y:'#ff4ad0'});
   SPR.archon=mkSprite([
-    '....w......w....',
-    '...wyw....wyw...',
-    '..wyyyyyyyyyyw..',
-    '.vyyyyyyyyyyyyv.',
-    'vvyykkkyyykkkyvv',
-    '.vvyykyyyyykyyv.',
-    '..vv.yyyyyy.vv..',
-    '.vvvvvvvvvvvvvv.',
-    'vvwwvvvvvvvvwwvv',
-    'vv.w.vvvvvv.w.vv',
-    '.vv.vvvvvvvv.vv.',
-    'v...v......v...v',
-    '.vv.v......v.vv.',
-    'v..vv......vv..v',
-    '.v............v.',
-    '..vv........vv..'
-  ],{w:'#ffffff',y:'#d0b8ff',k:'#ff4ad0',v:'#1a0830'});
+    '................................',
+    '................................',
+    '................................',
+    '............g.gg.f.g............',
+    '.............f..f..f............',
+    '...........f........g...........',
+    '..........g...bbbbb..g..........',
+    '.............bbbbbbb............',
+    '..........g..bqbbbqb..f.........',
+    '..........g..byyyyyb.g..........',
+    '..ccccaa...f..bbbbb.g...aacccc..',
+    '...............bbb..............',
+    '..cccccaa...gccccccc...aaccccc..',
+    '.............ccccccc............',
+    '..ccccccaa...ccccccc..aacccccc..',
+    '.............ccccccc............',
+    '..cccccaa....ccccccc...aaccccc..',
+    '.............ccbhbcc............',
+    '..ccccaa....cccgfgccc...aacccc..',
+    '............cccbhbccc...........',
+    '..cccaa.....cccbbbccc....aaccc..',
+    '............cccbbbccc...........',
+    '............ccccccccc...........',
+    '............ccccccccc...........',
+    '...........ccccccccccc..........',
+    '...........ccccccccccc..........',
+    '...........ccccccccccc..........',
+    '...........ccccccccccc..........',
+    '...........ccccccccccc..........',
+    '...........ccccccccccc..........',
+    '................................',
+    '................................'
+  ],{a:'#ffffff',b:'#d8c8ff',c:'#8060c0',d:'#3a1868',e:'#140820',f:'#ffffff',g:'#ffe14a',h:'#ff9adf',i:'#c46aff',j:'#6a38a8',q:'#ffffff',y:'#ff4ad0'});
   SPR.keyCoil=keyArt('#3d8a28','#1a5a20','#ffd34a');
   SPR.portalCoil=mkSprite(['..gggg..','.g.yy.g.','g.yssy.g','gy.ss.yg','gy.ss.yg','g.yssy.g','.g.yy.g.','..gggg..'],{g:'#2a6a28',y:'#ffd34a',s:'#7dce4a'});
   SPR.cobraspitter=mkSprite(['h..gg..h','hhgggghh','hgwyywgh','hggggggh','.hggggh.','..gggg..','.gg..gg.','gg....gg'],{h:'#e0c060',g:'#3d8a28',w:'#e8ffc0',y:'#ffd34a'});
@@ -451,97 +620,177 @@ function buildSprites(){
   SPR.serpenttail=mkSprite(['.gggggg.','gggyyggg','ggyyyggg','.gggggg.','..gggg..','...gg...','....g...','........'],{g:'#2f7a30',y:'#e0c060'});
   // Top-down snake head: crown on the skull, snout pointing down, no limbs.
   SPR.ourohead=mkSprite([
-    '...c....c....c..',
-    '..cccccccccccc..',
-    '.bbbbbbbbbbbbbb.',
-    '.bbggggggggggbb.',
-    'bbgggddddddgggbb',
-    'bykyggddddggykyb',
-    '.bggggddddggggb.',
-    '..bgggddddgggb..',
-    '...bggddddggb...',
-    '....bnnddnnb....',
-    '...bnnnnnnnb....',
-    '....bfnnnnfb....',
-    '.....ffttff.....',
-    '.......tt.......',
-    '......t..t......',
-    '................'
-  ],{c:'#ffd34a',b:'#8fd15a',g:'#2f7a30',d:'#143818',n:'#3d8a28',y:'#ffe14a',k:'#140c08',f:'#f7f7ff',t:'#e02028'});
+    '................................',
+    '................................',
+    '................................',
+    '..........f..f..f..f..f.........',
+    '..........g..gaagabg..g.........',
+    '........ggggggggggggggggg.......',
+    '.........aaaaabbbbbbbcc.........',
+    '........aaaaabbbbbbbcccc........',
+    '.......aaaabbbbbbbccccccc.......',
+    '.......aaabbbbbbbccccccdd.......',
+    '......aabbqqbbbcccccqqdddd......',
+    '......abbqfqqccccccqfqqddd......',
+    '......bbbqqyyccccccqqyydde......',
+    '......bbbbyycccccdddyyddee......',
+    '.......bbcccccaaabddddeee.......',
+    '.......ccccccaaabbbddeeee.......',
+    '........accaaaabbaccaeea........',
+    '.........ccaaabbbcccdee.........',
+    '..........dabbbbcccdde..........',
+    '...........bbbbcccddd...........',
+    '...........bbbbccdddd...........',
+    '...........bbbccdddde...........',
+    '...........bccddddeee...........',
+    '............ccdddeee............',
+    '.............dqdeeq.............',
+    '..............zeeez.............',
+    '................................',
+    '...............z.z..............',
+    '................................',
+    '................................',
+    '................................',
+    '................................'
+  ],{a:'#e8ffc0',b:'#7dce4a',c:'#2f7a30',d:'#144018',e:'#081808',f:'#fff6c0',g:'#ffe14a',h:'#e0a018',i:'#8a6010',j:'#4a2808',q:'#ffffff',y:'#140c08',z:'#e02028'});
   SPR.campfire=mkSprite(['...y...','..oyo..','..rrr..','..ooo..','...w...','..www..'],{y:'#fff6c0',o:'#ffd34a',r:'#ff6a28',w:'#5a4030'});
   SPR.statue=mkSprite(['...g...','..ggg..','.gsssg.','..eee..','.eeeee.','..e.e..','..e.e..','.ee.ee.'],{g:'#ffd34a',s:'#f4efe6',e:'#c8c4bc'});
   SPR.saltwyrm=mkSprite([
-    '................',
-    '......cccc......',
-    '....ccbbbbcc....',
-    '...cbbffffbbc...',
-    '..cbbf.ee.fbbc..',
-    '..cbf.eyye.fbc..',
-    '...cbf.ee.fbc...',
-    '....ccbbbbcc....',
-    '...ffcbbbbccff..',
-    '..f..ccbbcc..f..',
-    '......cbbc......',
-    '.....cc..cc.....',
-    '....c......c....',
-    '................',
-    '................',
-    '................'
-  ],{c:'#2a8a78',b:'#d8ece4',f:'#7ee0c8',e:'#fff',y:'#143028'});
+    '................................',
+    '................................',
+    '................................',
+    '................................',
+    '................g.....g.........',
+    '..............g.....g...........',
+    '............g.....gaaabbb.......',
+    '............h.h.hahahbhbccc.....',
+    '................aaabbbbccccd....',
+    '..........hh...aabbbbccqqdabbb..',
+    '.........hhhh.aabbbcaccdyaabccd.',
+    '..........hhhhhbbckklldddbccdde.',
+    '...........hhhhhakllmmndeedddz..',
+    '.............hhhhlmmnnoee..d....',
+    '.........iiiiiiiihnnooe.....d...',
+    '........iiiiiiiiiideee.......d..',
+    '........iiiiaiiiideee.........d.',
+    '.........ibbbcccddd.............',
+    '.........bbbcccddde.............',
+    '..g......bcccddddee.............',
+    '.ggg...aaaccdddeee..............',
+    '..gggaaaabbbddee................',
+    '...gggabbbbccccd................',
+    '....gggbbccccddd................',
+    '....bgggcccdddde................',
+    '...hhhhccddddeee................',
+    '.hhhhhhhdddeeee.................',
+    'hhhhhhhddeeee...................',
+    'hhhh............................',
+    '.h..............................',
+    '................................',
+    '................................'
+  ],{a:'#f4fffc',b:'#9ee8dc',c:'#2a9a88',d:'#146858',e:'#082820',f:'#e8fff8',g:'#7ee0c8',h:'#1a8a78',i:'#0c5048',j:'#083028',k:'#ffffff',l:'#e8fff4',m:'#b0ddd0',n:'#609888',o:'#305850',q:'#fff6c0',y:'#081410',z:'#ff4040'});
   SPR.briarstag=mkSprite([
-    't..............t',
-    '.t.....gg.....t.',
-    '..t...gggg...t..',
-    '.....ggssgg.....',
-    '....ggsyysgg....',
-    '....ggswwsgg....',
-    '.....gggggg.....',
-    '....gggggggg....',
-    '...ggg.gg.ggg...',
-    '..g....gg....g..',
-    '......gggg......',
-    '.....g....g.....',
-    '................',
-    '................',
-    '................',
-    '................'
-  ],{t:'#6b4a2a',g:'#3d8a28',s:'#c6a878',y:'#ffe14a',w:'#142008'});
+    '................................',
+    '....m.....................mm....',
+    '..knmm...................mmnnk..',
+    '....nnm.................mnnm....',
+    '.....nnm...............mmn......',
+    '....n.mmm.............mmm.n.....',
+    '....n..mmm...........mmm...n....',
+    '........mmm.........mmm.........',
+    '.........fgm.fffggg.mfg.........',
+    '........fghifffggghhfghi........',
+    '........ghijfgggghhhghij........',
+    '.........ijfggghhhiiiij.........',
+    '...........ggqhhhiqij...........',
+    '...........ghyaaabyjj...........',
+    '............aaaiibbb............',
+    '...........aaaabbbbcc...........',
+    '..........aaabbbbbccac..........',
+    '.........aaabbbbbcccccd.........',
+    '.........aabbabbccacddd.........',
+    '.........abbbbcccccdddd.........',
+    '.........bbbbcccccdddde.........',
+    '.........bbbccccdddddee.........',
+    '.........bcccccdddddeee.........',
+    '..........hhccdddddehe..........',
+    '.........hhhhddddeehhh..........',
+    '.........hhhddddeeehhh..........',
+    '.........hhh.ddeeeehhh..........',
+    '........hhh.........hhh.........',
+    '........hhh.........hhh.........',
+    '........hhh.........hhh.........',
+    '........ehh..........hhe........',
+    '.........h............h.........'
+  ],{a:'#e8ffc0',b:'#8fd16a',c:'#3d8a28',d:'#1a5018',e:'#0c280c',f:'#f4e6c8',g:'#d8c098',h:'#a08058',i:'#6a5030',j:'#3a2818',k:'#f0d8a8',l:'#c4a878',m:'#8a6840',n:'#5a4028',o:'#2a1c10',q:'#ffe14a',y:'#142008'});
   SPR.ashphoenix=mkSprite([
-    'w..............w',
-    'ww............ww',
-    '.ww...yyyy...ww.',
-    '..ww.yyooyy.ww..',
-    '...wyyywwyyyw...',
-    '....yyywwyyy....',
-    '.....yyyyyy.....',
-    '......yyyy......',
-    '.....yy..yy.....',
-    '....y......y....',
-    '...o........o...',
-    '................',
-    '................',
-    '................',
-    '................',
-    '................'
-  ],{w:'#ff6a28',y:'#ffd34a',o:'#fff6c0'});
+    '................................',
+    '................................',
+    '................................',
+    '................................',
+    '................a...............',
+    '...............bab..............',
+    '.dddd...........c..........dddd.',
+    '.....dbaa......bbb.....aabd.....',
+    '.dddd.........qbbbq........dddd.',
+    '.....dbba.....ybbby....abbd.....',
+    '.dddd....a...gbbbbbg..a....dddd.',
+    '.....ddbb....ggbqbgg...bbdd.....',
+    '.ddddddbbbaa.ggdcdggaabbbdddddd.',
+    '.............ggggggg............',
+    '.ddddddbbaa..ggggggg.aabbdddddd.',
+    '.............ggggggg............',
+    '.dddddbbaa...hhhhhhh..aabbddddd.',
+    '.............hhhhhhh............',
+    '.dddddbaa.....hhhhh....aabddddd.',
+    '..............hhhhh.............',
+    '..............hhhhh.............',
+    '..............hhhhh.............',
+    '.............iihhhi.............',
+    '.............ibhchi.............',
+    '.............ib.c.i.............',
+    '............iib.c.ii............',
+    '............i.b.c.bi............',
+    '............i.b.c.bi............',
+    '............i.a.a.ai............',
+    '............e.......e...........',
+    '................................',
+    '................................'
+  ],{a:'#fff6c0',b:'#ffe14a',c:'#ff8a28',d:'#c03010',e:'#5a1008',f:'#fff0c0',g:'#e0a060',h:'#a05028',i:'#6a2810',j:'#2a1008',q:'#ffffff',y:'#1a0c08'});
   SPR.marblesphinx=mkSprite([
-    'ww............ww',
-    'www....ss....www',
-    '.ww...ssss...ww.',
-    '.....ssyyss.....',
-    '.....sswwss.....',
-    '....ggssssgg....',
-    '...gggssssggg...',
-    '..ggggssssgggg..',
-    '...ggg.ss.ggg...',
-    '....g..ss..g....',
-    '.......ss.......',
-    '......s..s......',
-    '.....s....s.....',
-    '................',
-    '................',
-    '................'
-  ],{w:'#d8d4e8',s:'#f4efe6',y:'#ffd34a',g:'#c8b898'});
+    '................................',
+    '................................',
+    '................................',
+    '....aaab...............aaab.....',
+    '...aaabbb..gggggggggggaaabbb....',
+    '..aaabbbcc..haabbbch.aaabbbcc...',
+    '..aabbbccc..aabbbccc.aabbbccc...',
+    '.aabbbbcccd.bbqcccqdaabbbbcccd..',
+    '.abbbbcccdd.bbyccdydabbbbcccdd..',
+    '.bbbbcccddd.cccdddeebbbbcccddd..',
+    '.bbbcccdddd..cddeee.bbbcccdddd..',
+    '.bbcccdddde....ee...bbcccdddde..',
+    '.bcccddddee...kkll..bcccddddee..',
+    '..cccdddee..kkklllmm.cccdddee...',
+    '..ccdddeee.kkllllmmmnccdddeee...',
+    '...dddeeeaaklllmmmnnnbcddeee....',
+    '....deeeaaalllmmmnnnoccceee.....',
+    '.......aaaalmmmnnnnoocccc.......',
+    '......aaabbbmmnnnooocccddd......',
+    '......abbbbbbbnnooccdddddd......',
+    '......bbbbbbccccccddddddde......',
+    '......bbbcccccccdddddddeee......',
+    '......aabbccccdddddddaabb.......',
+    '.....abbccdcdddddddeabbccd......',
+    '.....bacddeddddddeeebccdda......',
+    '......ddee..dddeeeee.ddee.......',
+    '................................',
+    '................................',
+    '................................',
+    '................................',
+    '................................',
+    '................................'
+  ],{a:'#ffffff',b:'#f4efe6',c:'#d8d0c4',d:'#a09888',e:'#5a5048',f:'#fff6c0',g:'#ffe14a',h:'#d0a040',i:'#8a6820',j:'#4a3810',k:'#f0e0c0',l:'#d8c098',m:'#a88860',n:'#6a5838',o:'#3a3020',q:'#ffe14a',y:'#241810'});
 }
 
 /* ---------------- tiered gear sprites ---------------- */
@@ -833,7 +1082,7 @@ const GEAR={
       {P:'#607080',H:'#e8eef4',B:'#c4a060'},
       {P:'#a08868',H:'#f4ead8',B:'#e0b060'},
       {P:'#d8e6ff',H:'#ffffff',B:'#ffd34a'},
-      {P:'#ffb020',H:'#fff6c0',B:'#ff2860'}
+      {P:'#ff3860',H:'#ffe14a',B:'#6a1020'}
     ],
     utRows:['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','t......t'],
     ut:{P:'#7af0ff',H:'#ffffff',B:'#3a5080',t:'#ffd34a'}
@@ -860,12 +1109,12 @@ const GEAR={
   },
   cloak:{
     rows:[
-      ['..HHHH..','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH'],
-      ['..HHHH..','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH'],
-      ['..HHHH..','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH'],
-      ['..HHHH..','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','TTTTTTTT','TTTTTTTT'],
-      ['..HHHH..','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','TTTTTTTT','TTTTTTTT'],
-      ['..HHHH..','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','TTTTTTTT','TTTTTTTT']
+      ['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH'],
+      ['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH'],
+      ['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH'],
+      ['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHT'],
+      ['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHT'],
+      ['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHT']
     ],
     pal:[
       {H:'#8a9098',C:'#d0d4dc'},
@@ -875,7 +1124,7 @@ const GEAR={
       {H:'#3a2848',C:'#e0c060',T:'#ffd34a'},
       {H:'#2a2438',C:'#ffd34a',T:'#ff4ad0'}
     ],
-    utRows:['.TTTTTT.','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH','TTTTTTTT'],
+    utRows:['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','THHHHHHT'],
     ut:{H:'#100818',C:'#ff9adf',T:'#ffe08a'}
   }
 };
@@ -954,7 +1203,7 @@ function buildGear(){
   // Magma Staff: light charred shaft and a large molten orb. Outline is added at draw time.
   paintUnique('magmastaff',['......YO','.....oYO','....oYYo','...sso..','...ss...','..ss....','.s......','b.......'],{Y:'#fff4c0',O:'#ffd24a',o:'#ff5a18',s:'#c4b09a',b:'#8a7868'});
   // Serpent Wand: the wand mask, with a green-and-gold snake head in the tip.
-  paintUnique('serpentwand',['.......h','.....hgh','......h.','....s...','...w....','..ww....','p.......','pp......'],{h:'#3d8a28',g:'#ffd34a',s:'#e0b050',w:'#1a6a34',p:'#ffe08a'});
+  paintUnique('serpentwand',['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],{H:'#7dce4a',G:'#e8ffc0',S:'#ffd34a',W:'#1a5a20',P:'#c6e070'});
 }
 function gearSpr(kind,tier){
   if(tier==='test')return GEARSPR[kind+'|test']||null;
@@ -1021,7 +1270,7 @@ const T_HFLOOR=40,T_HWALL=41,T_HPOOL=42,T_HROOT=43,T_HTOTEM=44,T_HCAUL=45,T_HSHA
 const T_CFLOOR=50,T_CWALL=51,T_CLAVA=52,T_CEGG=53,T_CROCK=54,T_CASH=55;
 const T_VFLOOR=60,T_VWALL=61,T_VRUNE=62,T_VVOID=63,T_VPILLAR=64;
 const T_SFLOOR=70,T_SWALL=71,T_SBREAK=72,T_SJADE=73;
-const T_FIRE=80,T_STATUE=81;
+const T_FIRE=80,T_STATUE=81,T_LAVA=82;
 const TCOL={
   0:[38,78,160],1:[196,182,120],2:[228,206,140],3:[86,150,70],4:[58,108,58],5:[104,102,120],6:[92,48,72],
   10:[118,116,134],11:[52,48,64],12:[120,40,56],
@@ -1601,70 +1850,56 @@ function field(tx,ty,s){
 }
 function groundRGB(tx,ty,px,py,base){
   const h=hash2(tx,ty),n=hash2(tx*13+px,ty*17+py);
-  const blob=field(tx,ty,7);
   const at=(set,i)=>set[i%set.length];
   const wx=tx*8+px,wy=ty*8+py;
+  const tone=field(tx+px/8,ty+py/8,6);
+  const mix=(a,b,t)=>[a[0]+(b[0]-a[0])*t|0,a[1]+(b[1]-a[1])*t|0,a[2]+(b[2]-a[2])*t|0];
   if(base===T_WATER){
-    let c=blob<0.42?GROUND.water[0]:blob<0.74?GROUND.water[1]:GROUND.water[2];
-    const crest=hash2((wx>>3)*3,(wy>>4)+2);
-    if(crest>0.84&&((wy+((wx>>2)&3))&7)===2)c=GROUND.water[3];
-    else if(n>0.97)c=GROUND.water[3];
+    let c=mix(GROUND.water[2],GROUND.water[1],tone);
+    const crest=field(wx/10,wy/7,2.4);
+    if(crest>0.78&&crest<0.86&&((wy>>1)&3)===1)c=GROUND.water[3];
     return c;
   }
   if(base===T_WET){
-    let c=blob<0.55?GROUND.wet[0]:GROUND.wet[2];
-    if(n<0.14)c=GROUND.wet[1];
-    if(hash2(tx>>1,ty>>1)>0.74&&px>1&&px<6&&py>2&&py<6)c=[38,70,58];
-    if(h>0.8&&h<0.88&&(px===2||px===5)&&py<5)c=py<2?[118,148,68]:[68,96,46];
-    if(h>0.91){
+    let c=mix(GROUND.wet[1],GROUND.wet[0],tone);
+    if(h>0.93){
       const dx=px-3.5,dy=py-4;
-      if(dx*dx+dy*dy<4.2)c=(px===4&&py===3)?[214,196,96]:[44,108,50];
-    }
+      if(dx*dx+dy*dy<5.5)c=dx*dx+dy*dy<1.2?[196,186,90]:[36,96,48];
+    }else if(h>0.86&&h<0.9&&px>1&&px<4&&py<6)c=py<2?[108,138,62]:[52,84,40];
     return c;
   }
   if(base===T_SAND){
-    let c=blob<0.58?GROUND.sand[0]:GROUND.sand[2];
-    if(n>0.95)c=GROUND.sand[1];
-    if(n<0.035)c=GROUND.sand[3];
-    if(h>0.968&&px>2&&px<6&&py>3&&py<7)c=(px===4&&py===5)?[250,244,230]:[206,176,146];
-    if(h>0.94&&h<=0.968&&px===2&&py===2)c=[142,118,86];
-    if(field(tx,ty,11)>0.82&&py>2&&py<5&&n>0.55)c=GROUND.sand[1];
+    let c=mix(GROUND.sand[2],GROUND.sand[0],tone);
+    if(h>0.975&&px>1&&px<6&&py>2&&py<6)c=(px>3&&py>4)?[168,140,96]:[206,176,140];
     return c;
   }
   if(base===T_GRASS){
-    let c=blob<0.5?GROUND.grass[0]:GROUND.grass[1];
-    if(n<0.08)c=GROUND.grass[2];
-    if(n>0.9)c=GROUND.grass[3];
-    if(py<=2&&(px===1||px===4||px===6)&&hash2(tx+px,ty+3)<0.32)c=GROUND.grass[3];
-    if(n>0.988)c=[214,78,112];
-    if(hash2(tx>>1,ty>>1)>0.9&&px>2&&px<6&&py>2&&py<6)c=[118,94,52];
+    let c=mix(GROUND.grass[2],GROUND.grass[1],tone);
+    if(h>0.97&&px>1&&px<5&&py<4)c=py===0?GROUND.grass[3]:GROUND.grass[2];
+    if(h>0.988&&px>3&&px<7&&py>3&&py<7)c=[196,78,108];
     return c;
   }
   if(base===T_DARK){
-    let c=blob<0.5?GROUND.ash[0]:GROUND.ash[1];
-    if(n<0.1)c=GROUND.ash[3];
-    if(n>0.9)c=GROUND.ash[2];
-    if(hash2(tx*9+2,ty*4+5)<0.08&&(px===3||px===4)&&py>0&&py<7)c=at(GROUND.lava,py<4?0:1);
-    if(n>0.978)c=[255,168,46];
-    if(hash2(tx*2,ty*7)>0.93&&px===py&&py>1)c=GROUND.ash[3];
+    let c=mix(GROUND.ash[3],GROUND.ash[0],tone);
+    if(h>0.93){
+      const crack=1+((h*5)|0)%5;
+      if((py===crack||py===crack+1)&&px>1&&px<7)c=GROUND.lava[0];
+    }
     return c;
   }
   if(base===T_ROCK){
-    let c=blob<0.5?GROUND.rock[0]:GROUND.rock[1];
-    if(n>0.94)c=GROUND.rock[2];
-    if(h>0.94){
-      const o=(hash2(tx+4,ty)*5)|0;
-      if(px===(2+(o%3))&&py>1&&py<6)c=GROUND.rock[3];
-      else if(py===(2+(o%4))&&px>1&&px<6&&hash2(tx,ty+9)>0.55)c=GROUND.rock[3];
-    }
-    if(h>0.985&&py>5)c=[96,124,84];
-    if(h>0.93&&h<=0.955&&px===5&&py===3)c=[150,148,140];
+    const row=Math.floor(wy/22),off=(row&1)?10:0;
+    const col=Math.floor((wx+off)/26);
+    const stone=hash2(col*3+1,row*5+2);
+    let c=stone<0.45?GROUND.rock[1]:stone<0.8?GROUND.rock[0]:GROUND.rock[2];
+    const lx=(wx+off)%26,ly=wy%22;
+    if((lx<1||ly<1)&&hash2(col+4,row+1)>0.4)c=GROUND.rock[3];
+    if(h>0.985&&px>2&&px<6&&py>4)c=[104,128,90];
     return c;
   }
   if(base===T_ARENA){
-    let c=blob<0.5?GROUND.arena[0]:GROUND.arena[2];
-    if(n>0.92)c=GROUND.arena[1];
-    if((Math.abs(px-3.5)+Math.abs(py-3.5))<1.2&&h>0.45)c=[158,78,112];
+    let c=tone<0.5?GROUND.arena[0]:GROUND.arena[2];
+    if(tone>0.82)c=GROUND.arena[1];
     return c;
   }
   if(base===T_FLOOR)return havenFloor(tx,ty,px,py);
@@ -1708,6 +1943,11 @@ function coilFloor(t,tx,ty,px,py){
 function tileRGB(wd,tx,ty,px,py){
   if(tx<0||ty<0||tx>=wd.w||ty>=wd.h)return [8,12,16];
   const i=ty*wd.w+tx,t=wd.tiles[i];
+  if(t===T_LAVA){
+    const b=field(tx+px/8,ty+py/8,2.2);
+    if(b>0.72&&px>1&&px<6&&py>1&&py<6)return [255,186,64];
+    return b<0.4?[168,42,16]:[214,78,24];
+  }
   if(t===T_WALL||t===T_BWALL||t===T_SWALL||t===T_SBREAK||DEN_WALL[t])return wallRGB(wd,tx,ty,px,py,t);
   if(t===T_SFLOOR||t===T_SJADE){
     if(ty>0&&py<2){
@@ -1928,48 +2168,7 @@ function genRealm(seed){
   // Godlands, ruins out in the Ashen Wilds).
   ring(Math.round(N*0.065),18,3,T_PILLAR,3);
   ring(Math.round(N*0.195),28,4,T_RUIN,2);
-  function disk(tx,ty,rad,tile,only){
-    for(let y=-rad;y<=rad;y++)for(let x=-rad;x<=rad;x++){
-      if(x*x+y*y>rad*rad)continue;
-      const X=tx+x,Y=ty+y;
-      if(X<2||Y<2||X>=N-2||Y>=N-2)continue;
-      const i=Y*N+X;
-      if(wd.tiles[i]===T_WATER)continue;
-      if(only!=null&&wd.zone[i]!==only)continue;
-      wd.tiles[i]=tile;
-    }
-  }
-  function spot(ang,dd,zone){
-    const rad=dd*(N/2);
-    const p=findOpen(wd,Math.round(cx+Math.cos(ang)*rad),Math.round(cy+Math.sin(ang)*rad),zone);
-    clearSolids(wd,p.tx,p.ty,5);
-    return p;
-  }
-  const wreck=spot(1.15,0.84,0);
-  disk(wreck.tx,wreck.ty,4,T_SAND,0);
-  for(const [dx,dy] of [[-3,1],[-2,2],[-1,2],[0,2],[1,2],[2,2],[3,1]]){
-    const x=wreck.tx+dx,y=wreck.ty+dy;
-    if(x>2&&y>2&&x<N-2&&y<N-2&&wd.zone[y*N+x]===0)wd.tiles[y*N+x]=T_BOULDER;
-  }
-  if(wd.zone[wreck.ty*N+wreck.tx]===0)wd.tiles[wreck.ty*N+wreck.tx]=T_DRIFT;
-  const stones=spot(4.55,0.63,1);
-  disk(stones.tx,stones.ty,5,T_GRASS,1);
-  for(let i=0;i<8;i++){
-    const a=i*TAU/8,x=stones.tx+Math.round(Math.cos(a)*4),y=stones.ty+Math.round(Math.sin(a)*4);
-    if(x>2&&y>2&&x<N-2&&y<N-2)wd.tiles[y*N+x]=T_BOULDER;
-  }
-  wd.tiles[stones.ty*N+stones.tx]=T_FLOWER;
-  const spire=spot(2.85,0.4,2);
-  disk(spire.tx,spire.ty,4,T_DARK,2);
-  wd.tiles[spire.ty*N+spire.tx]=T_PILLAR;
-  if(spire.ty>3)wd.tiles[(spire.ty-1)*N+spire.tx]=T_VENT;
-  if(spire.tx+1<N-2)wd.tiles[spire.ty*N+spire.tx+1]=T_RUIN;
-  if(spire.tx>3)wd.tiles[spire.ty*N+spire.tx-1]=T_RUIN;
-  wd.landmarks=[
-    {id:'r:wreck',name:'Gull Wreck',x:(wreck.tx+0.5)*TS,y:(wreck.ty+0.5)*TS},
-    {id:'r:stones',name:'Briar Stones',x:(stones.tx+0.5)*TS,y:(stones.ty+0.5)*TS},
-    {id:'r:spire',name:'Cinder Spire',x:(spire.tx+0.5)*TS,y:(spire.ty+0.5)*TS}
-  ];
+  wd.landmarks=[];
   wd.beacons=[];
   const spots=[
     {id:'shore',name:'Saltmarsh Shore',zone:0,ang:0.4,dd:0.82},
@@ -1995,53 +2194,115 @@ function nearBeacon(wd,tx,ty,rad){
   return false;
 }
 function placeStructures(wd,R,N,cx,cy){
-  const legend={b:T_BOULDER,c:T_CRATE,f:T_FIRE,s:T_STUMP,W:T_WALL,V:T_VENT,P:T_PILLAR,F:T_FLOWER,R:T_RUIN,D:T_DRIFT,S:T_STATUE,T:T_TREE};
+  const legend={b:T_BOULDER,c:T_CRATE,f:T_FIRE,s:T_STUMP,W:T_WALL,V:T_VENT,P:T_PILLAR,F:T_FLOWER,R:T_RUIN,D:T_DRIFT,S:T_STATUE,T:T_TREE,L:T_LAVA};
   const plans={
-    camp:['b...b','.c.f.','..s..','b...b'],
-    hut:['WWWWW','W...W','W.F.W','WW.WW'],
-    tower:['.WWW.','.W.W.','.WPW.','..V..'],
-    wall:['WW.WWW.WW'],
-    shrine:['P...P','..F..','.S.S.','P...P'],
-    dock:['bbb..','.....','DDDDD','..R..'],
-    statue:['..S..','.RSR.','..S..','.RRR.'],
-    pillars:['P...P','.....','..S..','P...P'],
-    ruin:['R.WWW','..W..','W....','RR..R']
+    wreck:[
+      '...WWWWWWWWWWW...',
+      '...WWWWWWWWWWW...',
+      '..WW.........WW..',
+      '.WW.c..........WW',
+      'WW..............W',
+      'WW.........c....W',
+      '.WWWWWWWWWWWWWW..',
+      '....DDDDDDDDD....'
+    ],
+    dock:[
+      'bbbbbbbbbbbbbb',
+      '..............',
+      'DDDDDDDDDDDDDD',
+      '......RRRR....',
+      '......RRRR....'
+    ],
+    circle:[
+      '...P.......P...',
+      '.P...........P.',
+      'P.............P',
+      'P......F......P',
+      '.P...........P.',
+      '..P....f....P..',
+      '....P..s..P....',
+      '......TTT......'
+    ],
+    camp:[
+      'TT....c....TT',
+      'T..s..f..s..T',
+      '....ssssss...',
+      '..s..b.b..s..',
+      'TT....s....TT',
+      '.....sss.....'
+    ],
+    temple:[
+      '.WWWWWWWWWWW.',
+      'WW.P.....P.WW',
+      'W...........W',
+      'W.....S.....W',
+      'W...........W',
+      'WW.P.....P.WW',
+      '.WWWWW.WWWWW.',
+      '......P.P....'
+    ],
+    pillars:[
+      'P....R....P....R',
+      '................',
+      '..P........R....',
+      'R...............',
+      '......P....P....',
+      '....R...........',
+      'P..........P....',
+      '.......S........'
+    ],
+    ruin:[
+      'WWWWW.....WWWWW',
+      'W..R..L.L..R..W',
+      'W.............W',
+      '...LLLLLLLLL...',
+      'W......L......W',
+      'WWWWW.....WWWWW',
+      '....P.....P....'
+    ],
+    lava:[
+      '...LLL...',
+      '.LLLLLLL.',
+      'LLLLLLLLL',
+      '.LLLLLLL.',
+      '...VLL...'
+    ]
   };
   const spots=[
-    {z:0,ang:0.95,dd:0.83,kind:'camp',name:'Salt Camp'},
-    {z:0,ang:2.35,dd:0.87,kind:'dock',name:'Tide Dock'},
-    {z:0,ang:4.15,dd:0.80,kind:'camp'},
-    {z:0,ang:5.5,dd:0.86,kind:'ruin'},
-    {z:1,ang:0.55,dd:0.63,kind:'hut',name:'Briar Hut'},
-    {z:1,ang:1.7,dd:0.58,kind:'shrine',name:'Reed Chapel'},
-    {z:1,ang:3.25,dd:0.66,kind:'camp'},
-    {z:1,ang:4.6,dd:0.60,kind:'ruin'},
-    {z:1,ang:5.7,dd:0.64,kind:'hut'},
-    {z:2,ang:0.35,dd:0.40,kind:'tower',name:'Ember Tower'},
-    {z:2,ang:1.55,dd:0.36,kind:'wall'},
-    {z:2,ang:2.9,dd:0.42,kind:'camp'},
-    {z:2,ang:4.35,dd:0.34,kind:'ruin'},
-    {z:2,ang:5.45,dd:0.39,kind:'tower'},
-    {z:3,ang:0.7,dd:0.18,kind:'shrine',name:'Marble Shrine'},
-    {z:3,ang:2.15,dd:0.15,kind:'statue'},
-    {z:3,ang:3.6,dd:0.19,kind:'wall'},
-    {z:3,ang:5.05,dd:0.16,kind:'pillars'}
+    {z:0,ang:0.95,dd:0.84,kind:'wreck',name:'Gull Wreck'},
+    {z:0,ang:2.4,dd:0.86,kind:'dock',name:'Tide Dock'},
+    {z:0,ang:4.2,dd:0.81,kind:'wreck'},
+    {z:0,ang:5.55,dd:0.85,kind:'dock'},
+    {z:1,ang:0.55,dd:0.62,kind:'circle',name:'Briar Stones'},
+    {z:1,ang:1.75,dd:0.58,kind:'camp',name:'Woodcutter Camp'},
+    {z:1,ang:3.3,dd:0.66,kind:'circle'},
+    {z:1,ang:4.65,dd:0.60,kind:'camp'},
+    {z:1,ang:5.75,dd:0.64,kind:'circle'},
+    {z:2,ang:0.4,dd:0.40,kind:'ruin',name:'Obsidian Ruin'},
+    {z:2,ang:1.6,dd:0.36,kind:'lava',name:'Lava Pool'},
+    {z:2,ang:2.95,dd:0.42,kind:'ruin'},
+    {z:2,ang:4.4,dd:0.34,kind:'lava'},
+    {z:2,ang:5.5,dd:0.39,kind:'ruin'},
+    {z:3,ang:0.75,dd:0.18,kind:'temple',name:'Marble Temple'},
+    {z:3,ang:2.2,dd:0.15,kind:'pillars',name:'Broken Pillars'},
+    {z:3,ang:3.65,dd:0.19,kind:'temple'},
+    {z:3,ang:5.1,dd:0.16,kind:'pillars'}
   ];
   function stamp(tx,ty,rows,zone){
     const h=rows.length,w=rows[0].length;
     const x0=tx-((w/2)|0),y0=ty-((h/2)|0);
+    const ground=zone<=0?T_SAND:zone===1?T_GRASS:zone===2?T_DARK:T_ROCK;
     const cells=[];
+    let blocked=0;
     for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-      const ch=rows[y][x];
-      if(ch==='.'||!legend[ch])continue;
       const X=x0+x,Y=y0+y;
-      if(X<3||Y<3||X>=N-3||Y>=N-3)continue;
+      if(X<3||Y<3||X>=N-3||Y>=N-3){blocked++;continue;}
       const i=Y*N+X;
-      if(wd.zone[i]!==zone||wd.tiles[i]===T_WATER||wd.tiles[i]===T_ARENA)continue;
-      if(nearBeacon(wd,X,Y,10))continue;
-      cells.push([X,Y,legend[ch]]);
+      if(wd.zone[i]!==zone||wd.tiles[i]===T_WATER||wd.tiles[i]===T_ARENA||nearBeacon(wd,X,Y,12)){blocked++;continue;}
+      const ch=rows[y][x];
+      cells.push([X,Y,ch&&legend[ch]?legend[ch]:ground]);
     }
-    if(cells.length<3)return cells.length;
+    if(blocked>8||cells.length<12)return 0;
     for(const [X,Y,t] of cells)wd.tiles[Y*N+X]=t;
     return cells.length;
   }
@@ -2049,12 +2310,12 @@ function placeStructures(wd,R,N,cx,cy){
   for(const s of spots){
     const rad=s.dd*(N/2);
     let placed=false;
-    for(let k=0;k<28&&!placed;k++){
-      const a=s.ang+(R()-0.5)*0.7,d=rad+(R()-0.5)*50;
+    for(let k=0;k<36&&!placed;k++){
+      const a=s.ang+(R()-0.5)*0.55,d=rad+(R()-0.5)*40;
       const tx=Math.round(cx+Math.cos(a)*d),ty=Math.round(cy+Math.sin(a)*d);
       if(Math.hypot(tx-cx,ty-cy)<N*0.05)continue;
       const got=stamp(tx,ty,plans[s.kind],s.z);
-      if(got>=3){
+      if(got>=12){
         placed=true;placedN++;
         if(s.name)wd.landmarks.push({id:'r:'+s.kind+Math.round(s.ang*10),name:s.name,x:(tx+0.5)*TS,y:(ty+0.5)*TS});
       }
@@ -3833,15 +4094,15 @@ const EN={
   beetle:{name:'Magma Beetle',spr:'beetle',hp:490,def:8,spd:16,xp:62,r:4.6,ai:'charge',keep:22,pats:[{t:'aim',cd:1.5,n:4,sp:14,spd:92,dmg:24,r:3.2,col:'#ffb060',life:1.2,slow:1.8}]},
   hound:{name:'Ember Hound',spr:'hound',hp:370,def:4,spd:38,xp:56,r:4,ai:'chase',pats:[{t:'aim',cd:0.9,n:2,sp:9,spd:118,dmg:21,r:2.6,col:'#ff7030',life:0.9}]},
   // Godlands: large gods only. Sprites render at 2x with matching hitboxes. No small trash.
-  eye:{name:'Watcher Eye',spr:'eye',hp:6400,def:18,spd:16,xp:240,r:10,scale:2,god:true,ai:'keep',keep:96,pats:[{t:'ring',cd:1.8,n:16,spd:96,dmg:42,r:3.4,col:'#7eb6ff',life:2.3,slow:2},{t:'aim',cd:0.7,n:5,sp:7,spd:150,dmg:36,r:2.4,col:'#ffffff',life:1.15}]},
-  colossus:{name:'Starborn Colossus',spr:'colossus',hp:8800,def:24,spd:12,xp:280,r:12,scale:2,god:true,ai:'charge',keep:56,pats:[{t:'ring',cd:1.35,n:14,spd:72,dmg:52,r:4.8,col:'#7af0ff',life:2.6,alt:1},{t:'aim',cd:1.8,n:7,sp:8,spd:120,dmg:46,r:3.2,col:'#ffe14a',life:1.4,stun:0.5}]},
-  oracle:{name:'Pale Oracle',spr:'oracle',hp:5600,def:14,spd:20,xp:220,r:10,scale:2,god:true,ai:'orbit',keep:88,pats:[{t:'spiral',cd:0.16,arms:3,rot:0.32,spd:84,dmg:34,r:2.8,col:'#e8e0ff',life:2.2,burst:1.6,rest:1.2},{t:'ring',cd:2.4,n:18,spd:64,dmg:40,r:3.2,col:'#ffe14a',life:2.4},{t:'aim',cd:2.8,n:1,spd:70,dmg:28,r:3.4,col:'#d090ff',life:2.2,para:1.4}]},
-  saint:{name:'Glass Saint',spr:'saint',hp:6200,def:16,spd:15,xp:230,r:10,scale:2,god:true,ai:'keep',keep:78,pats:[{t:'aim',cd:0.42,n:1,spd:168,dmg:38,r:2.6,col:'#d8fff8',life:1.35},{t:'ring',cd:2.6,n:20,spd:80,dmg:44,r:3.4,col:'#c6d67a',life:2.2,alt:1,weak:2}]},
-  wyrm:{name:'Marble Wyrm',spr:'wyrm',hp:7200,def:20,spd:18,xp:250,r:11,scale:2,god:true,ai:'keep',keep:70,pats:[{t:'aim',cd:1.15,n:6,sp:11,spd:130,dmg:40,r:3,col:'#9ec0ff',life:1.3,slow:1.5},{t:'spiral',cd:0.22,arms:2,rot:-0.45,spd:70,dmg:36,r:3.2,col:'#7af0ff',life:2.3,burst:1.4,rest:1.5}]},
-  titan:{name:'Solar Titan',spr:'titan',hp:7800,def:22,spd:13,xp:265,r:12,scale:2,god:true,ai:'charge',keep:50,pats:[{t:'ring',cd:1.6,n:12,spd:68,dmg:48,r:4.2,col:'#ffd34a',life:2.4,stun:0.45},{t:'aim',cd:1.5,n:5,sp:9,spd:110,dmg:44,r:3.2,col:'#ff6a28',life:1.4}]},
-  herald:{name:'Void Herald',spr:'herald',hp:5400,def:14,spd:22,xp:225,r:10,scale:2,god:true,ai:'orbit',keep:92,pats:[{t:'spiral',cd:0.2,arms:3,rot:-0.28,spd:78,dmg:32,r:2.7,col:'#c46aff',life:2.1,burst:1.4,rest:1.3},{t:'aim',cd:2.6,n:1,spd:64,dmg:30,r:3.4,col:'#ff4ad0',life:2.2,para:1.3}]},
-  idol:{name:'Marble Idol',spr:'idol',hp:9200,def:26,spd:8,xp:275,r:12,scale:2,god:true,ai:'wander',pats:[{t:'ring',cd:2.1,n:16,spd:60,dmg:50,r:3.6,col:'#e8e4dc',life:2.6,slow:2.2,alt:1},{t:'aim',cd:1.9,n:3,sp:8,spd:90,dmg:42,r:3.4,col:'#ffd34a',life:1.8,weak:2}]},
-  serpent:{name:'Crown Serpent',spr:'serpent',hp:7000,def:18,spd:24,xp:255,r:11,scale:2,god:true,ai:'chase',pats:[{t:'aim',cd:1.05,n:6,sp:10,spd:124,dmg:40,r:2.9,col:'#b6e060',life:1.25,slow:1.6},{t:'ring',cd:2.8,n:10,spd:70,dmg:38,r:3.2,col:'#ffd34a',life:2.2}]},
+  eye:{name:'Watcher Eye',spr:'eye',hp:6400,def:18,spd:16,xp:240,r:10,scale:2.4,god:true,ai:'keep',keep:96,pats:[{t:'ring',cd:1.8,n:16,spd:96,dmg:42,r:3.4,col:'#7eb6ff',life:2.3,slow:2},{t:'aim',cd:0.7,n:5,sp:7,spd:150,dmg:36,r:2.4,col:'#ffffff',life:1.15}]},
+  colossus:{name:'Starborn Colossus',spr:'colossus',hp:8800,def:24,spd:12,xp:280,r:12,scale:2.4,god:true,ai:'charge',keep:56,pats:[{t:'ring',cd:1.35,n:14,spd:72,dmg:52,r:4.8,col:'#7af0ff',life:2.6,alt:1},{t:'aim',cd:1.8,n:7,sp:8,spd:120,dmg:46,r:3.2,col:'#ffe14a',life:1.4,stun:0.5}]},
+  oracle:{name:'Pale Oracle',spr:'oracle',hp:5600,def:14,spd:20,xp:220,r:10,scale:2.4,god:true,ai:'orbit',keep:88,pats:[{t:'spiral',cd:0.16,arms:3,rot:0.32,spd:84,dmg:34,r:2.8,col:'#e8e0ff',life:2.2,burst:1.6,rest:1.2},{t:'ring',cd:2.4,n:18,spd:64,dmg:40,r:3.2,col:'#ffe14a',life:2.4},{t:'aim',cd:2.8,n:1,spd:70,dmg:28,r:3.4,col:'#d090ff',life:2.2,para:1.4}]},
+  saint:{name:'Glass Saint',spr:'saint',hp:6200,def:16,spd:15,xp:230,r:10,scale:2.4,god:true,ai:'keep',keep:78,pats:[{t:'aim',cd:0.42,n:1,spd:168,dmg:38,r:2.6,col:'#d8fff8',life:1.35},{t:'ring',cd:2.6,n:20,spd:80,dmg:44,r:3.4,col:'#c6d67a',life:2.2,alt:1,weak:2}]},
+  wyrm:{name:'Marble Wyrm',spr:'wyrm',hp:7200,def:20,spd:18,xp:250,r:11,scale:2.4,god:true,ai:'keep',keep:70,pats:[{t:'aim',cd:1.15,n:6,sp:11,spd:130,dmg:40,r:3,col:'#9ec0ff',life:1.3,slow:1.5},{t:'spiral',cd:0.22,arms:2,rot:-0.45,spd:70,dmg:36,r:3.2,col:'#7af0ff',life:2.3,burst:1.4,rest:1.5}]},
+  titan:{name:'Solar Titan',spr:'titan',hp:7800,def:22,spd:13,xp:265,r:12,scale:2.4,god:true,ai:'charge',keep:50,pats:[{t:'ring',cd:1.6,n:12,spd:68,dmg:48,r:4.2,col:'#ffd34a',life:2.4,stun:0.45},{t:'aim',cd:1.5,n:5,sp:9,spd:110,dmg:44,r:3.2,col:'#ff6a28',life:1.4}]},
+  herald:{name:'Void Herald',spr:'herald',hp:5400,def:14,spd:22,xp:225,r:10,scale:2.4,god:true,ai:'orbit',keep:92,pats:[{t:'spiral',cd:0.2,arms:3,rot:-0.28,spd:78,dmg:32,r:2.7,col:'#c46aff',life:2.1,burst:1.4,rest:1.3},{t:'aim',cd:2.6,n:1,spd:64,dmg:30,r:3.4,col:'#ff4ad0',life:2.2,para:1.3}]},
+  idol:{name:'Marble Idol',spr:'idol',hp:9200,def:26,spd:8,xp:275,r:12,scale:2.4,god:true,ai:'wander',pats:[{t:'ring',cd:2.1,n:16,spd:60,dmg:50,r:3.6,col:'#e8e4dc',life:2.6,slow:2.2,alt:1},{t:'aim',cd:1.9,n:3,sp:8,spd:90,dmg:42,r:3.4,col:'#ffd34a',life:1.8,weak:2}]},
+  serpent:{name:'Crown Serpent',spr:'serpent',hp:7000,def:18,spd:24,xp:255,r:11,scale:2.4,god:true,ai:'chase',pats:[{t:'aim',cd:1.05,n:6,sp:10,spd:124,dmg:40,r:2.9,col:'#b6e060',life:1.25,slow:1.6},{t:'ring',cd:2.8,n:10,spd:70,dmg:38,r:3.2,col:'#ffd34a',life:2.2}]},
   pincer:{name:'Pincerling',spr:'pincer',hp:48,def:0,spd:14,xp:8,r:3.6,aggro:70,ai:'wander',pats:[{t:'aim',cd:2.3,n:1,spd:46,dmg:6,r:2.8,col:'#ffb070',life:2.1}]},
   barnacle:{name:'Barnacle Spit',spr:'barnacle',hp:70,def:2,spd:0,xp:10,r:4,aggro:96,ai:'keep',keep:1,pats:[{t:'aim',cd:2.6,n:1,spd:40,dmg:7,r:3.2,col:'#7ee0c8',life:2.5,slow:2}]},
   shellguard:{name:'Shellguard',spr:'shellguard',hp:130,def:2,spd:13,xp:16,r:5,aggro:78,ai:'keep',keep:46,pats:[{t:'aim',cd:1.8,n:3,sp:14,spd:54,dmg:8,r:3,col:'#ff7a4a',life:1.6}]},
@@ -3861,22 +4122,22 @@ const EN={
   runeguard:{name:'Rune Guard',spr:'runeguard',hp:6400,def:18,spd:14,xp:280,r:5.4,aggro:120,ai:'keep',keep:56,pats:[{t:'ring',cd:2.2,n:12,spd:64,dmg:46,r:3.4,col:'#b48cff',life:2.2,slow:1.6},{t:'aim',cd:1.3,n:3,sp:8,spd:110,dmg:42,r:3,col:'#ffffff',life:1.2}]},
   eclipser:{name:'Eclipse Seer',spr:'eclipser',hp:3800,def:10,spd:16,xp:230,r:4.4,aggro:140,ai:'keep',keep:96,pats:[{t:'aim',cd:1.6,n:1,spd:72,dmg:40,r:3.4,col:'#d090ff',life:2,para:1.3},{t:'spiral',cd:0.2,arms:3,rot:-0.26,spd:74,dmg:36,r:2.6,col:'#9a6aff',life:1.9,burst:1.2,rest:1.2}]},
   voidshade:{name:'Void Shade',spr:'voidshade',hp:3200,def:8,spd:26,xp:220,r:4,aggro:130,ai:'chase',pats:[{t:'aim',cd:1.05,n:3,sp:9,spd:128,dmg:40,r:2.6,col:'#ff4ad0',life:1.15,weak:1.8}]},
-  tideclaw:{name:'Old Tideclaw',spr:'tideclaw',hp:1100,def:3,spd:20,xp:160,r:11,ai:'boss',boss:true,dungeonBoss:true,phaseCol:'#ffb070',phaseLines:['Old Tideclaw burrows. The tide turns.','Old Tideclaw rears both claws!'],
+  tideclaw:{name:'Old Tideclaw',spr:'tideclaw',hp:1100,def:3,spd:20,xp:160,r:11,scale:2.2,ai:'boss',boss:true,dungeonBoss:true,phaseCol:'#ffb070',phaseLines:['Old Tideclaw burrows. The tide turns.','Old Tideclaw rears both claws!'],
     phases:[
       {above:0.62,pats:[{t:'aim',cd:1.55,n:3,sp:16,spd:72,dmg:9,r:3.1,col:'#ffb070',life:1.7},{t:'aim',cd:2.7,n:1,spd:48,dmg:7,r:3.6,col:'#7ee0c8',life:2.4,slow:2}]},
       {above:0.32,pats:[{t:'ring',cd:2.15,n:10,spd:46,dmg:8,r:3.2,col:'#7ee0c8',life:2.5,slow:2.2},{t:'aim',cd:1.25,n:4,sp:12,spd:86,dmg:10,r:3,col:'#ff7a4a',life:1.5},{t:'summon',cd:8,type:'pincer',n:2,cap:16}]},
       {above:0,pats:[{t:'spiral',cd:0.2,arms:2,rot:0.34,spd:62,dmg:9,r:2.8,col:'#e25a32',life:2,burst:1.5,rest:1.05,weak:2},{t:'aim',cd:2.5,n:1,spd:74,dmg:12,r:3.5,col:'#d090ff',life:2.1,para:1.3},{t:'ring',cd:2.5,n:8,spd:42,dmg:11,r:3.3,col:'#ffd27a',life:2.3,slow:2}]}]},
-  hexmatron:{name:'Hex Matriarch',spr:'hexmatron',hp:3600,def:6,spd:16,xp:460,r:12,scale:2.4,aggro:180,orbit:48,ai:'boss',boss:true,dungeonBoss:true,phaseCol:'#c48aff',phaseLines:['The hollow answers the Matriarch.','She unbinds every name in the mire.'],
+  hexmatron:{name:'Hex Matriarch',spr:'hexmatron',hp:3600,def:6,spd:16,xp:460,r:12,scale:2.15,aggro:180,orbit:48,ai:'boss',boss:true,dungeonBoss:true,phaseCol:'#c48aff',phaseLines:['The hollow answers the Matriarch.','She unbinds every name in the mire.'],
     phases:[
       {above:0.66,pats:[{t:'aim',cd:1.35,n:3,sp:12,spd:88,dmg:16,r:3,col:'#d8a0ff',life:1.5},{t:'aim',cd:2.4,n:1,spd:60,dmg:14,r:3.4,col:'#8fd16a',life:2,slow:1.8}]},
       {above:0.34,pats:[{t:'ring',cd:2,n:12,spd:52,dmg:15,r:3.1,col:'#b46aff',life:2.2,weak:1.8},{t:'aim',cd:1.15,n:4,sp:10,spd:100,dmg:18,r:2.8,col:'#fff04a',life:1.3},{t:'summon',cd:8,type:'heximp',n:2,cap:22}]},
       {above:0,pats:[{t:'spiral',cd:0.18,arms:3,rot:0.3,spd:70,dmg:16,r:2.7,col:'#9a40e0',life:1.9,burst:1.4,rest:0.9,para:1},{t:'ring',cd:2.3,n:10,spd:46,dmg:18,r:3.2,col:'#8fd16a',life:2.2,slow:2},{t:'aim',cd:2.2,n:1,spd:68,dmg:20,r:3.4,col:'#ff4ad0',life:1.8,para:1.2}]}]},
-  broodqueen:{name:'Magma Brood Queen',spr:'broodqueen',hp:11000,def:14,spd:14,xp:1200,r:14,scale:2.6,aggro:210,orbit:62,ai:'boss',boss:true,dungeonBoss:true,phaseCol:'#ff8a3a',phaseLines:['The hive wakes around her.','The Queen splits the chamber open.'],
+  broodqueen:{name:'Magma Brood Queen',spr:'broodqueen',hp:11000,def:14,spd:14,xp:1200,r:14,scale:2.15,aggro:210,orbit:62,ai:'boss',boss:true,dungeonBoss:true,phaseCol:'#ff8a3a',phaseLines:['The hive wakes around her.','The Queen splits the chamber open.'],
     phases:[
       {above:0.68,pats:[{t:'aim',cd:1.25,n:5,sp:12,spd:110,dmg:30,r:3.2,col:'#ff8a3a',life:1.25},{t:'spiral',cd:0.24,arms:2,rot:0.28,spd:72,dmg:24,r:2.8,col:'#ffd34a',life:1.8,burst:1.2,rest:1.1}]},
       {above:0.34,pats:[{t:'ring',cd:1.7,n:14,spd:64,dmg:28,r:3.3,col:'#ff5a28',life:2,slow:1.5},{t:'aim',cd:1,n:4,sp:9,spd:130,dmg:34,r:2.8,col:'#ffb060',life:1.1},{t:'summon',cd:7.5,type:'hivedrone',n:2,cap:24}]},
       {above:0,pats:[{t:'spiral',cd:0.14,arms:3,rot:0.34,spd:86,dmg:30,r:2.8,col:'#ff3a18',life:1.7,burst:1.5,rest:0.75},{t:'spiral',cd:0.14,arms:3,rot:-0.28,spd:70,dmg:26,r:3,col:'#ffd34a',life:1.8,burst:1.5,rest:0.75},{t:'ring',cd:2.1,n:16,spd:58,dmg:36,r:3.6,col:'#ff8a3a',life:2.1},{t:'summon',cd:9,type:'ashlarva',n:1,cap:24}]}]},
-  archon:{name:'Void Archon',spr:'archon',hp:32000,def:22,spd:16,xp:2800,r:16,scale:2.9,aggro:280,orbit:84,ai:'boss',boss:true,dungeonBoss:true,phaseCol:'#d0a0ff',phaseLines:['The sanctum forgets the sky.','The Archon speaks in collapsing stars.'],
+  archon:{name:'Void Archon',spr:'archon',hp:32000,def:22,spd:16,xp:2800,r:16,scale:2.2,aggro:280,orbit:84,ai:'boss',boss:true,dungeonBoss:true,phaseCol:'#d0a0ff',phaseLines:['The sanctum forgets the sky.','The Archon speaks in collapsing stars.'],
     phases:[
       {above:0.7,pats:[{t:'spiral',cd:0.16,arms:4,rot:0.22,spd:90,dmg:48,r:2.8,col:'#d8c8ff',life:1.9,burst:1.5,rest:0.85},{t:'aim',cd:1.3,n:3,sp:7,spd:150,dmg:52,r:2.6,col:'#ffffff',life:1.15}]},
       {above:0.38,pats:[{t:'ring',cd:1.55,n:18,spd:72,dmg:50,r:3.2,col:'#c46aff',life:2.1,alt:1},{t:'aim',cd:2.1,n:1,spd:68,dmg:46,r:3.6,col:'#ff4ad0',life:2,para:1.2},{t:'summon',cd:8,type:'acolyte',n:1,cap:18}]},
@@ -3887,24 +4148,24 @@ const EN={
   clutch:{name:'Snake Egg Clutch',spr:'clutch',hp:1800,def:4,spd:0,xp:160,r:4.6,aggro:110,ai:'keep',keep:1,pats:[{t:'summon',cd:4.5,type:'hatchling',n:2,cap:18}]},
   constrictor:{name:'Coiled Constrictor',spr:'constrictor',hp:4800,def:14,spd:12,xp:240,r:6,aggro:110,ai:'chase',pats:[{t:'ring',cd:2.2,n:12,spd:52,dmg:42,r:3.4,col:'#5aaa38',life:2.2,slow:1.6},{t:'aim',cd:1.5,n:1,spd:80,dmg:46,r:3.6,col:'#c6e070',life:1.6}]},
   hatchling:{name:'Serpent Hatchling',spr:'hatchling',hp:900,def:2,spd:28,xp:40,r:2.8,aggro:120,ai:'chase',pats:[{t:'aim',cd:1.1,n:1,spd:130,dmg:22,r:2.2,col:'#b6e060',life:0.9}]},
-  ouroboros:{name:'Ouroboros, the Crowned Coil',spr:'ourohead',hp:34000,def:20,spd:28,xp:2800,r:13,scale:2.4,aggro:280,orbit:78,ai:'boss',boss:true,dungeonBoss:true,serpent:true,segments:14,phaseCol:'#7dce4a',phaseLines:['The coil tightens.','The body answers.','The eggs split.'],
+  ouroboros:{name:'Ouroboros, the Crowned Coil',spr:'ourohead',hp:34000,def:20,spd:28,xp:2800,r:13,scale:2.2,aggro:280,orbit:78,ai:'boss',boss:true,dungeonBoss:true,serpent:true,segments:14,phaseCol:'#7dce4a',phaseLines:['The coil tightens.','The body answers.','The eggs split.'],
     phases:[
       {above:0.75,pats:[{t:'aim',cd:1.15,n:7,sp:11,spd:130,dmg:48,r:2.8,col:'#7dce4a',life:1.35,poison:2,pdmg:24},{t:'aim',cd:2.4,n:3,sp:6,spd:90,dmg:44,r:3.2,col:'#ffd34a',life:1.8}]},
       {above:0.5,pats:[{t:'aim',cd:0.9,n:5,sp:14,spd:150,dmg:50,r:2.6,col:'#c6e070',life:1.1,poison:1.6,pdmg:20}]},
       {above:0.25,pats:[{t:'segs',cd:1.35,n:8,every:2,spd:70,dmg:42,r:2.8,col:'#3d8a28',life:1.8},{t:'aim',cd:1.6,n:4,sp:8,spd:120,dmg:48,r:2.6,col:'#ffd34a',life:1.2}]},
       {above:0,pats:[{t:'summon',cd:6.5,type:'hatchling',n:3,cap:16},{t:'aim',cd:1,n:6,sp:10,spd:140,dmg:52,r:2.7,col:'#7dce4a',life:1.2,poison:2.2,pdmg:26},{t:'ring',cd:2.2,n:14,spd:64,dmg:46,r:3.2,col:'#e0c060',life:2}]}]},
-  king:{name:'Morvane, the Hollow King',spr:'king',hp:60000,def:20,spd:16,xp:3000,r:12,ai:'boss',boss:true,
+  king:{name:'Morvane, the Hollow King',spr:'king',hp:60000,def:20,spd:16,xp:3000,r:12,scale:2.2,ai:'boss',boss:true,
     phases:[
       {above:0.66,pats:[{t:'spiral',cd:0.11,arms:4,rot:0.21,spd:80,dmg:48,r:3,col:'#c46aff',life:2.6},{t:'aim',cd:2,n:5,sp:10,spd:110,dmg:52,r:4,col:'#ffd34a',life:2}]},
       {above:0.33,pats:[{t:'ring',cd:1.2,n:24,spd:70,dmg:50,r:3.5,col:'#ff4a8a',life:3,alt:1},{t:'aim',cd:0.7,n:3,sp:6,spd:160,dmg:45,r:2.5,col:'#ffffff',life:1.6},{t:'summon',cd:10,type:'oracle',n:1}]},
       {above:0,pats:[{t:'spiral',cd:0.09,arms:3,rot:0.26,spd:90,dmg:52,r:3,col:'#c46aff',life:2.4},{t:'spiral',cd:0.09,arms:3,rot:-0.26,spd:90,dmg:52,r:3,col:'#ff4a8a',life:2.4},{t:'ring',cd:2.2,n:12,spd:45,dmg:65,r:6,col:'#ffd34a',life:4}]}]},
-  saltwyrm:{name:'Saltwyrm',short:'Saltwyrm',spr:'saltwyrm',hp:5600,def:8,spd:18,xp:420,r:13,scale:2.1,event:true,zone:0,portal:'tideclaw',phaseCol:'#7ee0c8',
+  saltwyrm:{name:'Saltwyrm',short:'Saltwyrm',spr:'saltwyrm',hp:5600,def:8,spd:18,xp:420,r:13,scale:2.3,event:true,zone:0,portal:'tideclaw',phaseCol:'#7ee0c8',
     announce:'A Saltwyrm surfaces in the Saltmarsh!',fall:'The Saltwyrm sinks',
     ai:'orbit',keep:86,pats:[{t:'ring',cd:2.1,n:12,spd:58,dmg:14,r:3.2,col:'#7ee0c8',life:2.2,slow:2},{t:'aim',cd:1.45,n:3,sp:14,spd:86,dmg:16,r:3,col:'#ffb070',life:1.5}]},
-  briarstag:{name:'Briar Stag',short:'Briar Stag',spr:'briarstag',hp:9800,def:12,spd:26,xp:720,r:13,scale:2.2,event:true,zone:1,portal:'hexmire',phaseCol:'#8fd16a',
+  briarstag:{name:'Briar Stag',short:'Briar Stag',spr:'briarstag',hp:9800,def:12,spd:26,xp:720,r:13,scale:2.3,event:true,zone:1,portal:'hexmire',phaseCol:'#8fd16a',
     announce:'The Briar Stag walks the Greenmarch!',fall:'The Briar Stag falls',
     ai:'charge',keep:36,pats:[{t:'aim',cd:1.3,n:4,sp:10,spd:110,dmg:22,r:2.8,col:'#c6e070',life:1.2},{t:'spiral',cd:0.22,arms:2,rot:0.3,spd:64,dmg:16,r:2.8,col:'#3d8a28',life:1.8,burst:1.3,rest:1.2,slow:1.6},{t:'summon',cd:8,type:'wolf',n:1,cap:10}]},
-  ashphoenix:{name:'Ash Phoenix',short:'Ash Phoenix',spr:'ashphoenix',hp:15000,def:14,spd:30,xp:1100,r:13,scale:2.2,event:true,zone:2,portal:'cinderhive',phaseCol:'#ff8a3a',
+  ashphoenix:{name:'Ash Phoenix',short:'Ash Phoenix',spr:'ashphoenix',hp:15000,def:14,spd:30,xp:1100,r:13,scale:2.3,event:true,zone:2,portal:'cinderhive',phaseCol:'#ff8a3a',
     announce:'An Ash Phoenix rises over the Ashen Wilds!',fall:'The Ash Phoenix burns out',
     ai:'dash',keep:20,pats:[{t:'spiral',cd:0.16,arms:3,rot:0.34,spd:92,dmg:28,r:2.7,col:'#ff6a28',life:1.7,burst:1.4,rest:0.9},{t:'ring',cd:2.2,n:14,spd:70,dmg:26,r:3.2,col:'#ffd34a',life:2,weak:1.6},{t:'aim',cd:1.5,n:3,sp:8,spd:140,dmg:30,r:2.6,col:'#fff0c0',life:1.1}]},
   marblesphinx:{name:'Marble Sphinx',short:'Sphinx',spr:'marblesphinx',hp:24000,def:20,spd:16,xp:1600,r:14,scale:2.3,event:true,zone:3,portal:['sanctum','coil'],phaseCol:'#e8e0ff',
@@ -7049,15 +7310,18 @@ function exportArt(){
       });
     });
   })();
-  function foeSheet(title,names){
-    const fw=220,fh=220,cols=4,rows=Math.ceil(names.length/cols);
-    return board(gap+cols*(fw+gap),40+rows*(fh+28),g=>{
+  function foeSheet(title,names,zoom){
+    const sample=names.map(n=>SPR[n]).filter(Boolean);
+    const biggest=sample.reduce((m,s)=>Math.max(m,s.w,s.h),8);
+    const sc0=zoom||Math.min(8,Math.floor(200/biggest));
+    const fw=Math.max(160,biggest*sc0+24),fh=fw,cols=zoom?5:4,rows=Math.ceil(names.length/cols);
+    return board(gap+cols*(fw+gap),48+rows*(fh+28),g=>{
       g.fillStyle='#ffd34a';g.fillText(title,12,24);
       g.font='bold 14px ui-monospace,Menlo,Consolas,monospace';
       names.forEach((name,i)=>{
         const s=SPR[name];if(!s)return;
         const col=i%cols,row=(i/cols)|0,x=gap+col*(fw+gap),y=40+row*(fh+28);
-        const sc=Math.min(8,Math.floor((fw-16)/Math.max(s.w,s.h)));
+        const sc=zoom||Math.min(8,Math.floor((fw-16)/Math.max(s.w,s.h)));
         g.imageSmoothingEnabled=false;
         g.drawImage(s.c,x+(fw-s.w*sc)/2,y+(fh-s.h*sc)/2,s.w*sc,s.h*sc);
         g.fillStyle='#d8d0ea';g.textAlign='center';g.fillText(name,x+fw/2,y+fh+14);
@@ -7070,6 +7334,8 @@ function exportArt(){
     'king','tideclaw','hexmatron','broodqueen','archon','ourohead','tidematron','heximp','bogtoad','cursetreant','hivedrone','ashlarva','acolyte','naga','viper'
   ]);
   const events=foeSheet('Realm events',['saltwyrm','briarstag','ashphoenix','marblesphinx']);
+  const gods=foeSheet('Godlands gods',['eye','colossus','oracle','saint','wyrm','titan','herald','idol','serpent','king'],6);
+  const bosses=foeSheet('Events and bosses',['saltwyrm','briarstag','ashphoenix','marblesphinx','tideclaw','hexmatron','broodqueen','archon','ourohead','king'],6);
   const heroes=(()=>{
     const keys=CLASSKEYS,fw=160;
     return board(gap+keys.length*(fw+gap),fw+70,g=>{
@@ -7084,7 +7350,7 @@ function exportArt(){
       });
     });
   })();
-  return {weapons,abilities,armors,rings:ringSheet,goods,enemies,events,heroes};
+  return {weapons,abilities,armors,rings:ringSheet,goods,enemies,events,heroes,gods,bosses};
 }
 window.__shardwild={version:GAME_VERSION,get state(){return state;},get P(){return P;},get world(){return world;},startNew,continueGame,enterRealm,enterHub,useAbility,sampleTerrain,get fps(){return fps;},get bullets(){return ebN;},get shots(){return pbN;},previewSheet,contactSheet,renderPlate,exportArt,hubOverview,
   teleport(x,y){if(P){P.x=x;P.y=y;}},setInv(){},get invOpen(){return false;},
