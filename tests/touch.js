@@ -337,7 +337,10 @@ async function charactersVaultWeapons(page, cdp) {
   assert(armed.name === 'Godslayer Bow' && armed.shot === 'star' && armed.lethal && armed.tier === 9, 'godslayer equip ' + JSON.stringify(armed));
   await walkTo(page, cdp, testChest.x + 36, testChest.y, () => !window.__shardwild.chestOpen, 12);
   // The chest sits beside the Haven beacon and a pillar. A shot from there is shoved off the beacon or dies on the pillar, so step into an open lane first.
-  await page.evaluate(() => window.__shardwild.teleport(32, 72));
+  await page.evaluate(() => {
+    const s = window.__shardwild.world.spawn;
+    window.__shardwild.teleport(s.x, s.y);
+  });
   await frames(page, 2);
   const beforeKills = await page.evaluate(() => window.__shardwild.P.kills);
   const foe = await page.evaluate(() => window.__shardwild.spawnFoe('colossus'));
@@ -554,7 +557,8 @@ async function tideclawAndStatus(page, cdp) {
   const status = await page.evaluate(() => {
     const sw = window.__shardwild;
     sw.clearFoes();
-    sw.teleport(112, 96);
+    const home = sw.world.spawn;
+    sw.teleport(home.x - 48, home.y);
     sw.P.invuln = 3;
     sw.P.eq.weapon = sw.makeItem({k: 'weapon', w: 'bow', t: 6});
     sw.P.aim = 0;
@@ -893,7 +897,7 @@ async function terrainRegionsAndHeroes(page) {
   await page.screenshot({path: path.join(ART, 'screenshot_hud_overworld.png')});
 
   const report = await page.evaluate(() => window.__shardwild.sampleTerrain());
-  assert(report && report.w === 800 && report.h === 800, 'terrain sample missing ' + JSON.stringify(report && {w: report.w, h: report.h}));
+  assert(report && report.w === 1200 && report.h === 1200, 'terrain sample missing ' + JSON.stringify(report && {w: report.w, h: report.h}));
   const f = report.frac;
   assert(f['-1'] > 0.18 && f['-1'] < 0.42, 'water band ' + f['-1']);
   assert(f['0'] > 0.16 && f['0'] < 0.40, 'shore band ' + f['0']);
@@ -1820,7 +1824,7 @@ async function main() {
         mini: !!(w.mini && w.mini.width === w.w && w.mini.height === w.h)
       };
     });
-    assert(realm.w === 800 && realm.h === 800, 'realm should be 800x800, got ' + realm.w + 'x' + realm.h);
+    assert(realm.w === 1200 && realm.h === 1200, 'realm should be 1200x1200, got ' + realm.w + 'x' + realm.h);
     assert(realm.w === realm.h, 'realm should stay square');
     assert(realm.w * realm.h >= 400 * 400 * 3.5, 'playable area is not about four times the 400-tile realm ' + (realm.w * realm.h));
     assert(realm.chunked === true && !realm.canvas && realm.mini, 'realm should draw chunks and keep a prerendered minimap');
@@ -1898,7 +1902,7 @@ async function main() {
     assert(gods.info.types.length >= 8 && gods.info.kinds.every(k => k.god && k.scale >= 2 && k.r >= 8 && k.hp >= 4000), 'Godlands kinds ' + JSON.stringify(gods.info.kinds));
     assert(!gods.info.types.some(t => ['crab', 'imp', 'wolf', 'hexer', 'ogre', 'wisp'].indexOf(t) >= 0), 'trash still lives in the Godlands');
     assert(gods.zone === 3, 'player did not stand in the Godlands ' + gods.zone);
-    assert(gods.foes.length >= 3 && gods.foes.every(f => f.god && f.scale >= 2 && f.r >= 8), 'spawned foes are not large gods ' + JSON.stringify(gods.foes));
+    assert(gods.foes.filter(f => !f.event).length >= 3 && gods.foes.filter(f => !f.event).every(f => f.god && f.scale >= 2 && f.r >= 8), 'spawned foes are not large gods ' + JSON.stringify(gods.foes));
     await frames(page, 3);
     await page.screenshot({path: path.join(ART, 'screenshot_godlands.png')});
     const spawnedMore = await page.evaluate(() => {
@@ -1907,7 +1911,7 @@ async function main() {
       for (let n = 0; n < 8; n++) sw.pump(10);
       return sw.foes.filter(f => !f.boss).map(f => ({type: f.type, god: f.god, scale: f.scale, r: f.r}));
     });
-    assert(spawnedMore.length >= 3 && spawnedMore.every(f => f.god && f.scale >= 2 && f.r >= 8), 'spawner added something that is not a large god ' + JSON.stringify(spawnedMore));
+    assert(spawnedMore.filter(f => !f.event).length >= 3 && spawnedMore.filter(f => !f.event).every(f => f.god && f.scale >= 2 && f.r >= 8), 'spawner added something that is not a large god ' + JSON.stringify(spawnedMore));
 
     const leash = await page.evaluate(() => {
       const sw = window.__shardwild;
