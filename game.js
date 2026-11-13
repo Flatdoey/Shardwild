@@ -309,57 +309,57 @@ function buildSprites(){
     '.......ddd....dddd......'
   ],{a:'#fff0c0',b:'#e0c080',c:'#a07840',d:'#5a3818',e:'#2a1808',f:'#fff6c0',g:'#ffe14a',h:'#ff6a28',i:'#c03010',j:'#5a1008',y:'#1a0c08'});
   SPR.herald=mkSprite([
-    '........................',
-    '........................',
-    '........................',
-    '........................',
-    '........eegggggee.......',
-    '.....eee.cgggggc.eee....',
-    '..eee.cdddeqeqedddc.eee.',
-    '....cdd...hhhhh...ddc...',
-    '........eehhhhhee.......',
-    '.....eeedddddddddeee....',
-    '..eee.cddbbbbbbbddc.eee.',
-    'ee.cddd..bbbbbbb..dddc.e',
-    '..cd....ebbbbbbbe....dc.',
-    '.....eee.bbbbbbb.eee....',
-    '...ee.cdccccaccccdc.ee..',
-    '.....cd.ccccacccc.dc....',
-    '........ccccacccc.......',
-    '........ccccacccc.......',
-    '........ccccacccc.......',
-    '.........cccaccc........',
-    '..........ccacc.........',
-    '...........cac..........',
-    '............a...........',
+    '...........gg...........',
+    '..........gggg..........',
+    '.........g.gg.g.........',
+    '.......mmmmmmmmmm.......',
+    '.....mmwwmmmmmmwwmm.....',
+    '....mww...mmmm...wwm....',
+    '...mw.....mssm.....wm...',
+    '..mw......msem......wm..',
+    '.mw.......mssm.......wm.',
+    'mw........rrrr........wm',
+    '.m.......rrhhrr.......m.',
+    '........rrrrrrrr........',
+    '.......rrrrrrrrrr.......',
+    '......rrrrrrrrrrrr......',
+    '.....rr...rrrr...rr.....',
+    '....rr....rrrr....rr....',
+    '...r......rrrr......r...',
+    '..gg......rrrr......gg..',
+    '........rrrrrrrr........',
+    '.......rrrrrrrrrr.......',
+    '........rrrrrrrr........',
+    '.........rrrrrr.........',
+    '..........rrrr..........',
     '........................'
-  ],{a:'#f0e0ff',b:'#b090e0',c:'#6a38a8',d:'#32145c',e:'#140818',f:'#ffffff',g:'#e8e0ff',h:'#b0a8c8',i:'#706880',j:'#302838',q:'#ff4ad0'});
+  ],{g:'#ffe14a',m:'#241048',w:'#c8b0ff',s:'#f4f0ff',e:'#ff4ad0',r:'#5a28a0',h:'#c8a0ff'});
   SPR.idol=mkSprite([
-    '........................',
-    '.......f.f..f..f.f......',
-    '........fffggghh........',
-    '.......fgggghhhii.......',
-    '.......gghhhiiiij.......',
-    '........hhiiijjj........',
-    '.......bbabbbbabb.......',
-    '.......baggggggbb.......',
-    '.......abggggggbb.......',
-    '.......bbgeggegba.......',
-    '.....cbccggggggacbc.....',
-    '.....cbccgghhggccbc.....',
-    '.....cbcaccccacccbc.....',
-    '.....cbaccccaccccbc.....',
-    '.....cbccccaccccabc.....',
-    '.....cbcccaccccacbc.....',
-    '.....cbddaddddaddbc.....',
-    '.....cbdaddddadddbc.....',
-    '.......addddadddd.......',
-    '.......ddddadddda.......',
-    '....ddfddddddddddfdd....',
-    '....eeeeeeeeeeeeeeee....',
-    '....cccccccccccccccc....',
+    '..........gggg..........',
+    '.........gsssssg........',
+    '........gsssssssg.......',
+    '........gsskksssg.......',
+    '........gsssssssg.......',
+    '.......ssgssssgsss......',
+    '......sss.....ssss......',
+    '.....sssshhhhhsssss.....',
+    '......ssshhhsssss.......',
+    '.......sssssssss........',
+    '......sssssssssss.......',
+    '.....ss..sssss..sss.....',
+    '....ss...sssss...ss.....',
+    '...ss....sssss....ss....',
+    '..........ssss..........',
+    '.........sssssss........',
+    '........ss....ss........',
+    '.......ss......ss.......',
+    '......ss........ss......',
+    '.....ppppppppppppp......',
+    '....ppppppppppppppp.....',
+    '...ppddddddddddddpp.....',
+    '....pppppppppppppp......',
     '........................'
-  ],{a:'#ffffff',b:'#e8e4dc',c:'#c0b8a8',d:'#887868',e:'#483828',f:'#fff6c0',g:'#ffe14a',h:'#e0a018',i:'#8a6010',j:'#4a3008'});
+  ],{g:'#ffe14a',s:'#e8e0d0',k:'#8a7860',h:'#fff6c0',p:'#c8b080',d:'#6a5430'});
   SPR.serpent=mkSprite([
     '........................',
     '............f...........',
@@ -862,8 +862,8 @@ const GEAR={
       ['.....GG.','....GHHG','....GHHG','...S.GG.','..S.....','.S......','S.......','........'],
       ['....mGG.','....GHHG','....GHHG','...S.GG.','..S.....','.S......','S.......','........'],
       ['....mGG.','...mGHHG','....GHHG','...S.GG.','..S.....','.S......','S.......','........'],
-      ['...mmGG.','...mGHHG','....GHHG','...S.GG.','..S.....','.S......','SS......','S.......'],
-      ['..mmmGG.','...mGHHG','...mGHHG','...S.GG.','..SS....','.S......','SS......','SS......']
+      ['.....GG.','....GHHG','....GHHm','...S.GG.','..SS....','.SS.....','SS......','S.......'],
+      ['.....GGm','....GHHm','....GHHG','...SSGG.','..SSS...','.SS.....','SSS.....','SS......']
     ],
     pal:[
       {G:'#8a6840',H:'#c4b090',S:'#5c4030'},
@@ -977,23 +977,23 @@ const GEAR={
   },
   spell:{
     rows:[
-      ['........','.WW..WW.','WWWWWWWW','WLWWWLWW','WWWWWWWW','CCCCCCCC','.C....C.','........'],
-      ['........','.WW..WW.','WWWWWWWW','WLWWWLWW','WWWWWWWW','CCCCCCCC','.C....C.','........'],
-      ['........','.WW..WW.','WWWWWWWW','WLWWWLWW','WWWWWWWW','CCCCCCCC','.CC..CC.','........'],
-      ['........','.WW..WW.','WWWWWWWW','WLWWWLWW','WWWWWWWW','CCCCCCCC','.CC..CC.','........'],
-      ['........','.WW..WW.','WWWWWWWW','WLLWWLLW','WWWWWWWW','CCCCCCCC','.CC..CC.','........'],
-      ['WW....WW','.WW..WW.','WWWWWWWW','WLLWWLLW','WWWWWWWW','CCCCCCCC','.CC..CC.','........']
+      ['.CCCCCC.','CWWWSWWC','CTTTSTTC','CWWWSWWC','CTTTSTTC','CWWWSWWC','.CCCCCC.','........'],
+      ['.CCCCCC.','CWWWSWWC','CTTTSTTC','CWWWSWWC','CTTTSTTC','CWWWSWWC','.CCCCCC.','........'],
+      ['CCCCCCC.','CWWWSWWC','CTTTSTTC','CWWWSWWC','CTTTSTTC','CWWWSWWC','.CCCCCC.','........'],
+      ['CCCCCCC.','CWWWSWWC','CTTTSTTC','CWWWSWWC','CTTTSTTC','CWWWSWWC','.CCCCCC.','........'],
+      ['.CCCCCC.','CWWWSWWC','CTTTSTTC','CWWWSWWC','CTTTSTTC','CWWWSWWC','C......C','........'],
+      ['CCCCCCCC','CWWWSWWC','CTTTSTTC','CWWWSWWC','CTTTSTTC','CWWWSWWC','CCCCCCCC','........']
     ],
     pal:[
-      {W:'#8a6848',L:'#5c4030',C:'#6a5038'},
-      {W:'#7a7e86',L:'#4a4e56',C:'#5c6068'},
-      {W:'#6a5440',L:'#4a3828',C:'#5a4632'},
-      {W:'#3a5888',L:'#2a4068',C:'#d0b070'},
-      {W:'#ff7030',L:'#ffe14a',C:'#c04020'},
-      {W:'#ffffff',L:'#ff40c0',C:'#ff2860'}
+      {C:'#6a5038',W:'#e4dcc8',S:'#8a7050',T:'#5c4838'},
+      {C:'#5a6068',W:'#d8dce4',S:'#7a8088',T:'#4a5058'},
+      {C:'#6a5840',W:'#e0d4c0',S:'#8a6848',T:'#5a4030'},
+      {C:'#3a5888',W:'#e8eef8',S:'#6a80a0',T:'#2a4068'},
+      {C:'#ff7030',W:'#fffef8',S:'#c8a060',T:'#6a4030'},
+      {C:'#ff2860',W:'#ffffff',S:'#ffe08a',T:'#5a3020'}
     ],
-    utRows:['.W....W.','.WW..WW.','WWWWWWWW','WLWWWLWW','WWWWWWWW','CCCCCCCC','.C....C.','........'],
-    ut:{W:'#ffd34a',L:'#ff2a4a',C:'#4a2080'}
+    utRows:['gCCCCCC.','CWWWSWWC','CTTTSTTC','CWWWSWWC','CTTTSTTC','CWWWSWWC','.CCCCCC.','...C....'],
+    ut:{C:'#ffd34a',W:'#fffef6',S:'#ffffff',T:'#6a2848',g:'#ff4ad0'}
   },
   tome:{
     rows:[
@@ -1065,14 +1065,14 @@ const GEAR={
   },
   heavy:{
     rows:[
-      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','........'],
-      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','........'],
-      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','........'],
-      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','........'],
-      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','.P....P.'],
-      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','.P....P.'],
-      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','.PP..PP.'],
-      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','PP....PP']
+      ['PP....PP','PPPPPPPP','.PPHHPP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','........'],
+      ['PP....PP','PPPPPPPP','.PPHHPP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','........'],
+      ['PP....PP','PPPPPPPP','.PPHHPP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','........'],
+      ['PP....PP','PPPPPPPP','.PPHHPP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','........'],
+      ['PP....PP','PPPPPPPP','.PPHHPP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','.P....P.'],
+      ['PP....PP','PPPPPPPP','.PPHHPP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','.P....P.'],
+      ['PP....PP','PPPPPPPP','.PPHHPP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','.PP..PP.'],
+      ['PP....PP','PPPPPPPP','.PPHHPP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','PP....PP']
     ],
     pal:[
       {P:'#9a968e',H:'#d4d0c6',B:'#6a6660'},
@@ -1084,7 +1084,7 @@ const GEAR={
       {P:'#d8e6ff',H:'#ffffff',B:'#ffd34a'},
       {P:'#ff3860',H:'#ffe14a',B:'#6a1020'}
     ],
-    utRows:['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','t......t'],
+    utRows:['PP....PP','PPPPPPPP','.PPHHPP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','t......t'],
     ut:{P:'#7af0ff',H:'#ffffff',B:'#3a5080',t:'#ffd34a'}
   },
   helm:{
@@ -1109,23 +1109,23 @@ const GEAR={
   },
   cloak:{
     rows:[
-      ['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH'],
-      ['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH'],
-      ['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH'],
-      ['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHT'],
-      ['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHT'],
-      ['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHT']
+      ['....H...','...HHH..','..HLLH..','.HLLLLH.','HH.C.HH.','HHHHHHHH','HHH..HHH','HHHHHHHH'],
+      ['....H...','...HHH..','..HLLH..','.HLLLLH.','HH.C.HH.','HHHHHHHH','HHH..HHH','HHHHHHHH'],
+      ['....H...','...HHH..','..HLLH..','.HLLLLH.','HH.C.HH.','HHHHHHHH','HHH..HHH','HHHHHHHH'],
+      ['....H...','...HHH..','..HLLH..','.HLLLLH.','HH.C.HH.','HHHHHHHH','HHH..HHH','HHTHTHHH'],
+      ['...HT...','...HHH..','..HLLH..','.HLLLLH.','HH.C.HH.','HHTHTHHH','HHH..HHH','TTTHTHTT'],
+      ['...HT...','...HTH..','..HLLH..','.HLLLLH.','TT.C.TT.','HHTHTHHH','HHH..HHH','TTTHTHTT']
     ],
     pal:[
-      {H:'#8a9098',C:'#d0d4dc'},
-      {H:'#8a6844',C:'#e0c090'},
-      {H:'#24543c',C:'#b09868'},
-      {H:'#5a3870',C:'#e0c878',T:'#c8a060'},
-      {H:'#3a2848',C:'#e0c060',T:'#ffd34a'},
-      {H:'#2a2438',C:'#ffd34a',T:'#ff4ad0'}
+      {H:'#8a9098',L:'#3a4048',C:'#d8dce4'},
+      {H:'#8a6844',L:'#3a2818',C:'#e0c090'},
+      {H:'#2a6848',L:'#143028',C:'#c8e090'},
+      {H:'#7a48a8',L:'#2a1848',C:'#ffe08a',T:'#ffd34a'},
+      {H:'#3a78c8',L:'#1a3058',C:'#ffffff',T:'#ffe14a'},
+      {H:'#e04898',L:'#5a1848',C:'#fff6c0',T:'#ffe14a'}
     ],
-    utRows:['...HH...','..H..H..','.H....H.','HH....HH','HHHHHHHH','HHHHHHHH','HHHHHHHH','THHHHHHT'],
-    ut:{H:'#100818',C:'#ff9adf',T:'#ffe08a'}
+    utRows:['...HT...','...HHH..','..HLLH..','.HLLLLH.','HH.C.HH.','HHHHHHHH','HHH..HHH','TTTHTHTT'],
+    ut:{H:'#2a1848',L:'#100818',C:'#ff9adf',T:'#ffe08a'}
   }
 };
 function installRingSprites(){
@@ -1869,22 +1869,37 @@ function groundRGB(tx,ty,px,py,base){
     return c;
   }
   if(base===T_SAND){
-    let c=mix(GROUND.sand[2],GROUND.sand[0],tone);
-    if(h>0.975&&px>1&&px<6&&py>2&&py<6)c=(px>3&&py>4)?[168,140,96]:[206,176,140];
+    const sand=field(tx+px/8,ty+py/8,3.4);
+    let c=mix(GROUND.sand[2],GROUND.sand[0],sand);
+    if(h>0.955&&px>1&&px<6&&py>2&&py<6)c=(px>3&&py>4)?[168,140,96]:[214,186,140];
+    if(h>0.972&&py>3&&py<6&&px>0&&px<7)c=py===4?[150,116,70]:[196,164,112];
     return c;
   }
   if(base===T_GRASS){
-    let c=mix(GROUND.grass[2],GROUND.grass[1],tone);
-    if(h>0.97&&px>1&&px<5&&py<4)c=py===0?GROUND.grass[3]:GROUND.grass[2];
-    if(h>0.988&&px>3&&px<7&&py>3&&py<7)c=[196,78,108];
+    const patch=field(tx+px/8,ty+py/8,3.2),broad=field(tx+18,ty-6,8);
+    let c=mix(GROUND.grass[2],GROUND.grass[0],patch*0.7+broad*0.3);
+    if(broad>0.58)c=mix(c,GROUND.grass[1],Math.min(1,(broad-0.58)*2));
+    if(h>0.82&&h<0.88&&px>1&&px<6&&py<5)c=py<2&&(px===2||px===4)?GROUND.grass[3]:GROUND.grass[2];
+    if(h>0.90&&h<0.932){
+      const dx=px-3.5,dy=py-4;
+      if(dx*dx+dy*dy<6)c=dx*dx+dy*dy<1.5?[232,210,96]:[190,72,104];
+    }
+    if(h>0.946&&h<0.962&&px>2&&px<6&&py>2&&py<7)c=(px+py)&1?[132,122,104]:[96,90,78];
+    if(h>0.968&&h<0.978&&py>2&&py<5&&px>0)c=py===3?[156,112,62]:[96,64,36];
+    if(h>0.986){
+      const dx=px-3.5,dy=py-3.5,d=dx*dx+dy*dy;
+      if(d>2.5&&d<7)c=d>5?[230,214,186]:[186,64,72];
+    }
     return c;
   }
   if(base===T_DARK){
-    let c=mix(GROUND.ash[3],GROUND.ash[0],tone);
+    const ash=field(tx+px/8,ty+py/8,3.6);
+    let c=mix(GROUND.ash[3],GROUND.ash[0],ash);
     if(h>0.93){
       const crack=1+((h*5)|0)%5;
       if((py===crack||py===crack+1)&&px>1&&px<7)c=GROUND.lava[0];
     }
+    if(h>0.97&&h<=0.985&&px>1&&px<6&&py>2&&py<6)c=[58,50,44];
     return c;
   }
   if(base===T_ROCK){
