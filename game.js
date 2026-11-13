@@ -346,6 +346,9 @@ function buildSprites(){
   SPR.vent=mkSprite(["...cc...","..cggc..",".cggggc.","cggggggc",".cggggc."],{c:'#5a6a72',g:'#9fd0d8'});
   SPR.pillar=mkSprite(["..cccc..",".cwwwc..","..cccc..","..cccc..","..cccc..",".cccccc.",".cssssc."],{c:'#c8b8d0',w:'#fff6e0',s:'#6a5a78'});
   SPR.banner=mkSprite(["..gggg..",".gwwwg..",".grrrg..",".grrrg..",".gwwwg..","..g..g..","...gg...","....g..."],{g:'#c4a15a',w:'#f4e2b0',r:'#8a2848'});
+  SPR.bannerB=mkSprite(["..gggg..",".gwwwg..",".grrrg..",".grrrg..",".gwwwg..","..g..g..","...gg...","....g..."],{g:'#c4a15a',w:'#dcecff',r:'#2a58a8'});
+  SPR.bannerG=mkSprite(["..gggg..",".gwwwg..",".grrrg..",".grrrg..",".gwwwg..","..g..g..","...gg...","....g..."],{g:'#c4a15a',w:'#e8ffd0',r:'#248848'});
+  SPR.bush=mkSprite(['...gggg...','..ggddgg..','.gggggggg.','ggdggggdgg','.gggggggg.','..gttttg..','...gggg...'],{g:'#2c7a34',d:'#9ed86a',t:'#4a6a30'});
   SPR.torch=mkSprite(["...o....","..oyo...","..fff...","...w....","...w....","..www...","..wsw...","...w...."],{o:'#ffd34a',y:'#ff6a28',f:'#ff9a3a',w:'#6a5038',s:'#3a2c20'});
   SPR.planter=mkSprite(["..ggg...","ggggggg.","g.gyg.g.",".ttttt..",".tthtt..",".ttttt..",".ttttt..","........"],{g:'#3f8a32',y:'#ffe14a',t:'#8a5030',h:'#c4843c'});
   SPR.bench=mkSprite(["........",".wwwwww.",".whhhhw.",".w....w.",".w....w.",".ww..ww.","........","........"],{w:'#6a5038',h:'#c4a06a'});
@@ -604,57 +607,57 @@ const GEAR={
   },
   staff:{
     rows:[
-      ['......oo','.....ooo','....soo.','...s....','..s.....','s.......','s.......','b.......'],
-      ['......oo','.....ooo','....soo.','...s....','..s.....','ss......','s.......','b.......'],
-      ['......oo','.....ooo','....soo.','...ss...','..s.....','ss......','s.......','bb......'],
-      ['......oo','.....omo','....so..','...sm...','..s.....','ss......','ss......','bb......'],
-      ['.....moo','.....omo','....s...','...sm...','..ss....','ss......','ss......','bb......'],
-      ['.....moo','....smom','....s...','...sm...','..ss....','ss......','ss......','bbb.....'],
-      ['......oo','.....omo','....ms..','...smm..','..ss....','.sss....','ss......','bbbb....'],
-      ['......mo','.....moo','....ms..','...ssm..','..sss...','ssss....','ss......','bbbb....']
+      ['.....GG.','....GHHG','....GHHG','...S.GG.','..S.....','.S......','S.......','........'],
+      ['.....GG.','....GHHG','....GHHG','...S.GG.','..S.....','.S......','S.......','........'],
+      ['.....GG.','....GHHG','....GHHG','...S.GG.','..S.....','.S......','S.......','........'],
+      ['.....GG.','....GHHG','....GHHG','...S.GG.','..S.....','.S......','S.......','........'],
+      ['....mGG.','....GHHG','....GHHG','...S.GG.','..S.....','.S......','S.......','........'],
+      ['....mGG.','...mGHHG','....GHHG','...S.GG.','..S.....','.S......','S.......','........'],
+      ['...mmGG.','...mGHHG','....GHHG','...S.GG.','..S.....','.S......','SS......','S.......'],
+      ['..mmmGG.','...mGHHG','...mGHHG','...S.GG.','..SS....','.S......','SS......','SS......']
     ],
     pal:[
-      {o:'#8a6848',s:'#6a5038',b:'#5c4030'},
-      {o:'#7a7e86',s:'#5c6068',b:'#4a4e56'},
-      {o:'#7a6248',s:'#5a4632',b:'#4a3828'},
-      {o:'#c07040',m:'#d0b070',s:'#6a5848',b:'#5c4030'},
-      {o:'#d8f4f8',m:'#3ad4f0',s:'#5a7890',b:'#4a6070'},
-      {o:'#e0d0f0',m:'#c080e0',s:'#5a4868',b:'#4a3858'},
-      {o:'#fff0c0',m:'#ffe040',s:'#e09020',b:'#c06010'},
-      {o:'#ffffff',m:'#ff2860',s:'#ffd060',b:'#c07020'}
+      {G:'#8a6840',H:'#c4b090',S:'#5c4030'},
+      {G:'#7a7e86',H:'#b0b6be',S:'#4a5058'},
+      {G:'#7a6248',H:'#b09070',S:'#5a4632'},
+      {G:'#c07040',H:'#e0b070',S:'#6a5040'},
+      {G:'#d8f4f8',H:'#eef8fc',S:'#4a6878',m:'#3ad4f0'},
+      {G:'#e0d0f0',H:'#f4e8ff',S:'#5a4868',m:'#c080e0'},
+      {G:'#fff0c0',H:'#ffe040',S:'#c06010',m:'#ff2860'},
+      {G:'#ffffff',H:'#ffd060',S:'#e09020',m:'#ff4040'}
     ],
-    utRows:['......cg','.....mcg','....m...','...sm...','..ss....','.ss.....','ss......','bb......'],
-    ut:{c:'#ff4ad0',g:'#ffe14a',s:'#2a1248',b:'#6a30a0',m:'#ffffff'},
+    utRows:['....mGG.','...mGHHg','....GHHG','...S.GG.','..S.....','.S......','S.......','B.......'],
+    ut:{G:'#ffe14a',H:'#ffffff',S:'#2a1248',m:'#ff4ad0',g:'#ff9adf',B:'#6a30a0'},
     shot:['#c07840','#a8adb8','#8a7048','#e88830','#3ad4f0','#b070e8','#ff9a1a','#ff3868'],
     utShot:'#ff4aa0',utShape:'ring',
     test:{rows:['......oo','.....soo','....s...','...s....','..s.....','s.......','s.......','w.......'],pal:{o:'#ffffff',s:'#ff3355',w:'#ffe14a'}}
   },
   wand:{
     rows:[
-      ['..h.h...','h..g..h.','..h.h...','...s....','..w.....','..w.....','p.......','p.......'],
-      ['..h.h...','h..g..h.','..h.h...','...s....','..w.....','..ww....','p.......','p.......'],
-      ['.h.h.h..','h..g..h.','..h.h...','...s....','..ww....','..ww....','p.......','pp......'],
-      ['.h.h.sh.','h..g..h.','..h.sh..','...ss...','..ww....','..ww....','pp......','pp......'],
-      ['h.h.h.sh','hs.g.shh','..h.sh..','...ss...','..www...','..ww....','ppp.....','pp......'],
-      ['h.h.h.sh','hs.g.sh.','h.h.sh..','..sss...','..www...','..www...','pppp....','ppp.....'],
-      ['hh.hh.sh','hssgsshh','h.h.shh.','..sss...','..wwww..','..www...','ppppp...','pppp....'],
-      ['hhh.hhhh','hssgsshh','hh.sshh.','..ssss..','..wwww..','..wwww..','pppppp..','ppppp...']
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+      ['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........']
     ],
     pal:[
-      {h:'#c4a070',g:'#e8d8c0',s:'#6a4a30',w:'#8a5a38',p:'#6a6e78'},
-      {h:'#8a9098',g:'#d0d6de',s:'#5a6068',w:'#4a5058',p:'#b0b6be'},
-      {h:'#c4a060',g:'#e8dcc0',s:'#6a5430',w:'#7a5430',p:'#c8b898'},
-      {h:'#e0b040',g:'#fff0c0',s:'#8a6840',w:'#a07030',p:'#e0c888'},
-      {h:'#3ad4f0',g:'#e8fbff',s:'#4a6878',w:'#2a4858',p:'#c0d0dc'},
-      {h:'#c080e0',g:'#f4d8ff',s:'#5a4868',w:'#3a2848',p:'#c8c0d0'},
-      {h:'#ff7030',g:'#fff6c0',s:'#ffd34a',w:'#8a2808',p:'#ffe08a'},
-      {h:'#ff4040',g:'#ffffff',s:'#ffe080',w:'#c06020',p:'#fff6c0'}
+      {H:'#c4a070',G:'#e8d8c0',S:'#6a4a30',W:'#8a5a38',P:'#6a6e78'},
+      {H:'#8a9098',G:'#d0d6de',S:'#5a6068',W:'#4a5058',P:'#b0b6be'},
+      {H:'#c4a060',G:'#e8dcc0',S:'#6a5430',W:'#7a5430',P:'#c8b898'},
+      {H:'#e0b040',G:'#fff0c0',S:'#8a6840',W:'#a07030',P:'#e0c888'},
+      {H:'#3ad4f0',G:'#e8fbff',S:'#4a6878',W:'#2a4858',P:'#c0d0dc'},
+      {H:'#c080e0',G:'#f4d8ff',S:'#5a4868',W:'#3a2848',P:'#c8c0d0'},
+      {H:'#ff7030',G:'#fff6c0',S:'#ffd34a',W:'#8a2808',P:'#ffe08a'},
+      {H:'#ff4040',G:'#ffffff',S:'#ffe080',W:'#c06020',P:'#fff6c0'}
     ],
-    utRows:['hhh.hhhh','hssgsshh','hh.sshh.','..ssss..','..wwwww.','..wwwww.','ppppppp.','pppppp..'],
-    ut:{h:'#ff9adf',g:'#ffffff',s:'#ffe08a',w:'#4a1868',p:'#ffd34a'},
+    utRows:['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],
+    ut:{H:'#ff9adf',G:'#ffffff',S:'#ffe08a',W:'#4a1868',P:'#ffd34a'},
     shot:['#c4a070','#b0b6be','#c4a070','#e0b050','#3ad4f0','#c080e0','#ffe040','#ff5058'],
     utShot:'#ff4ad0',utShape:'ring',
-    test:{rows:['..h.h...','h..g..h.','..h.h...','...s....','..w.....','..w.....','p.......','p.......'],pal:{h:'#ffffff',g:'#ffe14a',s:'#ff3355',w:'#c8a050',p:'#ffffff'}}
+    test:{rows:['......H.','.....HGH','....S.H.','...S....','..WW....','.WW.....','.P......','........'],pal:{H:'#ffffff',G:'#ffe14a',S:'#ff3355',W:'#c8a050',P:'#ffffff'}}
   },
   dagger:{
     rows:[
@@ -685,155 +688,155 @@ const GEAR={
   },
   shield:{
     rows:[
-      ['.bbbbbb.','bbbbbbbb','bb.dd.bb','bb.dd.bb','b.bddb.b','..bbbb..','...bb...','........'],
-      ['.bbbbbb.','bbbbbbbb','bb.dd.bb','bb.dd.bb','b.bddb.b','..bbbb..','...bb...','...tt...'],
-      ['tbbbbbbt','bbbbbbbb','bb.dd.bb','bb.dd.bb','b.bddb.b','..bbbb..','...bb...','...tt...'],
-      ['tbbbbbbt','bbbbbbbb','bt.dd.tb','bbtddtbb','b.bddb.b','.tbbbbt.','..bbbb..','...tt...'],
-      ['tbbbbbbt','tbbbbbbt','bt.dd.tb','bbtddtbb','b.bddb.b','.tbbbbt.','..bbbb..','..tttt..'],
-      ['tbbbbbbt','tbbbbbbt','bttddttb','bbtddtbb','bttttttb','.tbbbbt.','..tttt..','..tttt..']
+      ['.RRRRRR.','RMMMMMMR','RMMBBMMR','RMBBBBMR','RMMBBMMR','.RMMMMR.','..RMMR..','...RR...'],
+      ['.RRRRRR.','RMMMMMMR','RMMBBMMR','RMBBBBMR','RMMBBMMR','.RMMMMR.','..RMMR..','...RR...'],
+      ['.RRRRRR.','RMMMMMMR','RMMBBMMR','RMBBBBMR','RMMBBMMR','.RMMMMR.','..RMMR..','..RRR...'],
+      ['.RRRRRR.','RMMMMMMR','RMMBBMMR','RMBBBBMR','RMMBBMMR','.RMMMMR.','..RMMR..','..RRR...'],
+      ['RRRRRRR.','RMMMMMMR','RMMBBMMR','RMBBBBMR','RMMBBMMR','.RMMMMR.','..RMMR..','..RRR...'],
+      ['RRRRRRRR','RMMMMMMR','RMMBBMMR','RMBBBBMR','RMMBBMMR','.RMMMMR.','..RMMR..','..RRRR..']
     ],
     pal:[
-      {b:'#8a8680',d:'#6a6660',t:'#5a564e'},
-      {b:'#7a8490',d:'#5a646e',t:'#4a545c'},
-      {b:'#6a7078',d:'#4e545c',t:'#3e444c'},
-      {b:'#3a5a88',d:'#c8a868',t:'#c4a060'},
-      {b:'#d8e6ff',d:'#ff2860',t:'#ffd34a'},
-      {b:'#fff0c0',d:'#ff2028',t:'#ff4ad0'}
+      {R:'#6a6660',M:'#8a8680',B:'#5a564e'},
+      {R:'#5a646e',M:'#7a8490',B:'#4a545c'},
+      {R:'#4e545c',M:'#6a7078',B:'#3e444c'},
+      {R:'#c4a060',M:'#3a5a88',B:'#d0b070'},
+      {R:'#ffd34a',M:'#d8e6ff',B:'#ff2860'},
+      {R:'#ff4ad0',M:'#fff0c0',B:'#ff2028'}
     ],
-    utRows:['s.bbbb.s','sbbbbbbs','bbxxxxbb','bbxxxxbb','.bxxxxb.','..bbbb..','...bb...','...ss...'],
-    ut:{s:'#ffd34a',b:'#243058',x:'#7af0ff'}
+    utRows:['.RRRRRR.','RMMMMMMR','RMMBBMMR','RMBBBBMR','RMMBBMMR','.RMMMMR.','..RMMR..','s..RR..s'],
+    ut:{R:'#ffd34a',M:'#243058',B:'#7af0ff',s:'#ffffff'}
   },
   quiver:{
     rows:[
-      ['.f.f.f..','.f.a.f..','aaaaaaa.','aaaaaaa.','a.t.a.a.','aaaaaaa.','aaaaa...','........'],
-      ['.f.f.f..','.f.a.f..','aaaaaaaf','aaaaaaa.','a.t.a.a.','aaaaaaa.','aaaaaa..','........'],
-      ['fff.f...','fa.aaf..','aaaaaf..','aataaa..','ataaaa..','aaaaaa..','aaaaaa..','........'],
-      ['fff.ff..','faaaaaf.','aaaaaaf.','aataaaa.','ataaaaa.','aaaaaaa.','aaaaaaa.','........'],
-      ['fff.ff..','faaaaaf.','haaaaaf.','aataaah.','ataaaaa.','aaaaaaa.','aaaaaaa.','f.......'],
-      ['ffffff..','faaaaaaf','haaaaahf','aataaahh','ataaaaaa','aaaaaaaa','aaaaaaaa','fff.....']
+      ['....F.F.','...FAFA.','...LLL..','..LLLL..','.LBLL...','.LLL....','LLL.....','.L......'],
+      ['....F.F.','...FAFA.','...LLL..','..LLLL..','.LBLL...','.LLL....','LLL.....','.L......'],
+      ['...FF.F.','...FAFA.','...LLL..','..LLLL..','.LBLL...','.LLL....','LLL.....','.L......'],
+      ['...FF.F.','...FAFA.','...LLL..','..LLLL..','.LBLL...','.LLL....','LLL.....','.L......'],
+      ['..FFF.F.','...FAFA.','...LLL..','..LLLL..','.LBLL...','.LLL....','LLL.....','.L......'],
+      ['..FFF.FF','...FAFA.','...LLL..','..LLLL..','.LBLL...','.LLL....','LLL.....','LL......']
     ],
     pal:[
-      {f:'#8a6840',a:'#c4b090',t:'#6a5038'},
-      {f:'#7a7e86',a:'#b0b4ba',t:'#5c6068'},
-      {f:'#8a7050',a:'#c0b090',t:'#6a5840'},
-      {f:'#3a7848',a:'#c8e0a0',t:'#6a8850'},
-      {f:'#e8ff40',a:'#ffffff',t:'#ffd34a',h:'#ff2860'},
-      {f:'#ffe080',a:'#ffffff',t:'#ff4040',h:'#ffffff'}
+      {F:'#8a6840',A:'#c4b090',L:'#6a5038',B:'#5c4030'},
+      {F:'#7a7e86',A:'#b0b4ba',L:'#5c6068',B:'#4a4e56'},
+      {F:'#8a7050',A:'#c0b090',L:'#6a5840',B:'#5a4632'},
+      {F:'#6a8850',A:'#c8e0a0',L:'#3a6840',B:'#2a5030'},
+      {F:'#ffe14a',A:'#ffffff',L:'#40c040',B:'#ff2860'},
+      {F:'#ffffff',A:'#ffe080',L:'#ffb020',B:'#ff4040'}
     ],
-    utRows:['p.p.p...','paaaaap.','kaaaaap.','aataaak.','ataaaaa.','aaaaaaa.','aaaaaaa.','ppp.....'],
-    ut:{p:'#ff4ad0',a:'#ffe14a',k:'#1c1028',t:'#3dffa0'}
+    utRows:['....F.F.','...FAFA.','...LLL..','..LLLL..','.LBLL...','.LLL....','LLL.....','pL......'],
+    ut:{F:'#ff4ad0',A:'#ffe14a',L:'#1c1028',B:'#3dffa0',p:'#ffffff'}
   },
   spell:{
     rows:[
-      ['llllllll','lr....rl','lr.gg.rl','lrggggrl','lr.gg.rl','lr....rl','llllllll','l......l'],
-      ['llllllll','lr.r..rl','lr.gg.rl','lrggggrl','lr.gg.rl','lr....rl','llllllll','l......l'],
-      ['llllllll','lrr..rrl','lr.gg.rl','lrggggrl','lr.gg.rl','lrr..rrl','llllllll','ll....ll'],
-      ['llllllll','lrrrrrrl','lrggggrl','lggggggl','lrggggrl','lrrrrrrl','llllllll','ll....ll'],
-      ['llllllll','lr.tt.rl','lrtttttr','lggttggl','lrtttttr','lr....rl','llllllll','ll....ll'],
-      ['llttttll','lr.tt.rl','lrtttttr','lggttggl','lrtttttr','llllllll','llllllll','llttttll']
+      ['........','.WW..WW.','WWWWWWWW','WLWWWLWW','WWWWWWWW','CCCCCCCC','.C....C.','........'],
+      ['........','.WW..WW.','WWWWWWWW','WLWWWLWW','WWWWWWWW','CCCCCCCC','.C....C.','........'],
+      ['........','.WW..WW.','WWWWWWWW','WLWWWLWW','WWWWWWWW','CCCCCCCC','.CC..CC.','........'],
+      ['........','.WW..WW.','WWWWWWWW','WLWWWLWW','WWWWWWWW','CCCCCCCC','.CC..CC.','........'],
+      ['........','.WW..WW.','WWWWWWWW','WLLWWLLW','WWWWWWWW','CCCCCCCC','.CC..CC.','........'],
+      ['WW....WW','.WW..WW.','WWWWWWWW','WLLWWLLW','WWWWWWWW','CCCCCCCC','.CC..CC.','........']
     ],
     pal:[
-      {l:'#5c4030',r:'#8a6848',g:'#6a5038'},
-      {l:'#4a4e56',r:'#7a7e86',g:'#5c6068'},
-      {l:'#4a3828',r:'#6a5440',g:'#5a4632'},
-      {l:'#2a4068',r:'#3a5888',g:'#d0b070'},
-      {l:'#c04020',r:'#ff7030',g:'#ffe14a',t:'#ff4040'},
-      {l:'#ff2860',r:'#ffd060',g:'#ffffff',t:'#ff40c0'}
+      {W:'#8a6848',L:'#5c4030',C:'#6a5038'},
+      {W:'#7a7e86',L:'#4a4e56',C:'#5c6068'},
+      {W:'#6a5440',L:'#4a3828',C:'#5a4632'},
+      {W:'#3a5888',L:'#2a4068',C:'#d0b070'},
+      {W:'#ff7030',L:'#ffe14a',C:'#c04020'},
+      {W:'#ffffff',L:'#ff40c0',C:'#ff2860'}
     ],
-    utRows:['ll....rr','ll.ee.rr','lleeerrr','lggggeer','lleeerrr','llllllll','llllllll','ll....rr'],
-    ut:{l:'#1c1028',r:'#4a2080',e:'#ff2a4a',g:'#ffd34a'}
+    utRows:['.W....W.','.WW..WW.','WWWWWWWW','WLWWWLWW','WWWWWWWW','CCCCCCCC','.C....C.','........'],
+    ut:{W:'#ffd34a',L:'#ff2a4a',C:'#4a2080'}
   },
   tome:{
     rows:[
-      ['.cccccc.','sccccccs','cc.x..cc','cc.xx.cc','cc.x..cc','cccccccc','sccccccs','.ssssss.'],
-      ['.cccccc.','sccccccs','cc.xx.cc','ccxxxxcc','cc.xx.cc','cccccccc','sccccccs','.ssssss.'],
-      ['gccccccg','sccccccs','cc.xx.cc','ccxxxxcc','cc.xx.cc','cccccccc','sccccccs','g......g'],
-      ['gccccccg','sccccccs','cc.xx.cc','ccxxxxcc','cc.xx.cc','cccccccc','ssccccss','gssssssg'],
-      ['gccccccg','scttttcs','cc.tt.cc','cctttttc','cc.tt.cc','cccbcccc','s.b..b.s','g..bb..g'],
-      ['.tttttt.','gttttttg','sttttcts','cttttttc','cttttttc','stttttts','gttttttg','.tttttt.']
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+      ['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.']
     ],
     pal:[
-      {s:'#5c3a24',c:'#a07850',x:'#9a7840'},
-      {s:'#4a5058',c:'#8a9098',x:'#a89050'},
-      {s:'#6a5038',c:'#b89870',x:'#c4a060',g:'#d8c090'},
-      {s:'#3a5878',c:'#b9d4f0',x:'#e0b040',g:'#e8d8a0'},
-      {s:'#e8c050',c:'#eef6ff',t:'#e01828',g:'#ffd34a',b:'#c04030'},
-      {s:'#ffd34a',c:'#fffef8',t:'#ff2438',g:'#ffffff'}
+      {S:'#5c3a24',C:'#a07850',X:'#b89850',P:'#d9d0c2'},
+      {S:'#4a5058',C:'#9aa0a8',X:'#c4a050',P:'#d9d0c2'},
+      {S:'#8a6840',C:'#c8a878',X:'#d0a848',P:'#e4dcc8'},
+      {S:'#3a5878',C:'#b9d4f0',X:'#e0b040',P:'#e6dece'},
+      {S:'#e8c050',C:'#eef6ff',X:'#e01828',P:'#d4ccc0'},
+      {S:'#ffd34a',C:'#fffef8',X:'#ff2438',P:'#d4ccc0'}
     ],
-    utRows:['..g..g..','gccccccg','sc.ww.cs','ccwwwwcc','sc.ww.cs','sccccccs','gccccccg','..g..g..'],
-    ut:{s:'#ffd34a',c:'#fffef6',w:'#ffffff',g:'#ffe08a'}
+    utRows:['.CCCCCC.','SCCCCCCP','SCCXCCCP','SCXXXCCP','SCCXCCCP','SCCXCCCP','SCCCCCCP','.PPPPPP.'],
+    ut:{S:'#ffd34a',C:'#fffef6',X:'#ffffff',P:'#e6dece'}
   },
   robe:{
     rows:[
-      ['..hhhh..','.h.dd.h.','.rrrrrr.','r.r..r.r','rrrrrrrr','rrrrrrrr','rr.rr.rr','r.r..r.r'],
-      ['..hhhh..','.h.dd.h.','.rrrrrr.','r.r..r.r','rrrrrrrr','rrrrrrrr','rr.rr.rr','rr.r.rr.'],
-      ['..htth..','.h.dd.h.','.rrrrrr.','r.rttr.r','rrrrrrrr','rrrrrrrr','rr.rr.rr','tt.r.tt.'],
-      ['..tttt..','.thddht.','.rrrrrr.','r.rtttrr','rrrrrrrr','rrrrrrrr','rrtrrrtr','tttttttt'],
-      ['..tttt..','.thddht.','.rggggr.','.trtttrt','rrtrrrtr','rrrrrrrr','rrtrrrtr','tttttttt'],
-      ['..tttt..','.thddht.','.rggggr.','.trtttrt','rrtrrrtr','rrrrrrrr','rtrttrtr','ttggggtt'],
-      ['..tggt..','.thddht.','.trrrrt.','.trtttrt','rrtrrrtr','rrrrrrrr','rtrttrtr','ttggggtt'],
-      ['...gg...','.thddht.','.trrrrt.','ttgttgtt','rrtggtrr','rrrrrrrr','trtrrrrt','tttttttt']
+      ['..HHHH..','.HRRRRH.','.RRTRRR.','RRRTRRRR','.RRTRRR.','.RRTRRR.','RRRTRRRR','RRRRRRRR'],
+      ['..HHHH..','.HRRRRH.','.RRTRRR.','RRRTRRRR','.RRTRRR.','.RRTRRR.','RRRTRRRR','RRRRRRRR'],
+      ['..HHHH..','.HRRRRH.','.RRTRRR.','RRRTRRRR','.RRTRRR.','.RRTRRR.','RRRTRRRR','RRRRRRRR'],
+      ['..HHHH..','.HRRRRH.','.RRTRRR.','RRRTRRRR','.RRTRRR.','.RRTRRR.','RRRTRRRR','RRRRRRRR'],
+      ['.HHHHH..','.HRRRRH.','.RRTRRR.','RRRTRRRR','.RRTRRR.','.RRTRRR.','RRRTRRRR','RRRRRRRR'],
+      ['.HHHHH..','.HRRRRH.','.RRTRRR.','RRRTRRRR','.RRTRRR.','.RRTRRR.','RRRTRRRR','RRRRRRRR'],
+      ['HHHHHHH.','.HRRRRH.','.RRTRRR.','RRRTRRRR','.RRTRRR.','.RRTRRR.','RRRTRRRR','RRRRRRRR'],
+      ['HHHHHHHH','.HRRRRH.','.RRTRRR.','RRRTRRRR','.RRTRRR.','.RRTRRR.','RRRTRRRR','RRRRRRRR']
     ],
     pal:[
-      {h:'#6a5870',d:'#3a3048',r:'#5a4860'},
-      {h:'#7a7e88',d:'#3a3e48',r:'#5a5e68'},
-      {h:'#6a5040',d:'#3a2820',r:'#4a3828',t:'#8a7050'},
-      {h:'#7a68b0',d:'#3a3060',r:'#5a4890',t:'#c4a060'},
-      {h:'#5a78a8',d:'#2a4068',r:'#3a5888',t:'#d0b070',g:'#e0c888'},
-      {h:'#8a5070',d:'#4a2840',r:'#6a3858',t:'#e0b060',g:'#f0d8a0'},
-      {h:'#ff7030',d:'#a03018',r:'#ff4018',t:'#ffe14a',g:'#ffffff'},
-      {h:'#ff70c0',d:'#a02060',r:'#ff40a0',t:'#ffe14a',g:'#ffffff'}
+      {H:'#6a5870',R:'#5a4860',T:'#3a3048'},
+      {H:'#7a7e88',R:'#5a5e68',T:'#3a3e48'},
+      {H:'#6a5040',R:'#4a3828',T:'#8a7050'},
+      {H:'#7a68b0',R:'#5a4890',T:'#c4a060'},
+      {H:'#5a78a8',R:'#3a5888',T:'#d0b070'},
+      {H:'#8a5070',R:'#6a3858',T:'#e0b060'},
+      {H:'#ff7030',R:'#ff4018',T:'#ffe14a'},
+      {H:'#ff70c0',R:'#ff40a0',T:'#ffffff'}
     ],
-    utRows:['..tggt..','.thddht.','ttrrrrtt','ttgttgtt','rrtggtrr','rrrrrrrr','trtrrrrt','tttttttt'],
-    ut:{h:'#ff4ad0',d:'#2a1244',r:'#7a30b0',t:'#ffd34a',g:'#fff6c0'}
+    utRows:['H.HHHH..','.HRRRRH.','.RRTRRR.','RRRTRRRR','.RRTRRR.','.RRTRRR.','RRRTRRRR','RRRRRRRg'],
+    ut:{H:'#ffd34a',R:'#7a30b0',T:'#fff6c0',g:'#ff4ad0'}
   },
   leather:{
     rows:[
-      ['.ss..ss.','ssssssss','s.s..s.s','ssssssss','.bbbbbb.','ssssssss','.s....s.','........'],
-      ['.ss..ss.','ssssssss','s.s..s.s','ssssssss','.bbbbbb.','ssssssss','.ss..ss.','........'],
-      ['.ss..ss.','ssssssss','s.s..s.s','ssssssss','.tbbbtt.','ssssssss','.ss..ss.','........'],
-      ['.ss..ss.','ssssssss','s.s..s.s','ssssssss','.tttttt.','ssssssss','.ss..ss.','s......s'],
-      ['.ss..ss.','ssssssss','s.ts.st.','ssssssss','tttttttt','ssssssss','.ss..ss.','ss....ss'],
-      ['.ss..ss.','ssssssss','s.ts.st.','ssssssss','tttttttt','stststst','.ss..ss.','ss....ss'],
-      ['.ss..ss.','ssssssss','s.tg.gt.','ssssssss','.ttgttt.','stttttts','.ssssss.','ssssssss'],
-      ['.ss..ss.','ssssssss','s.tt.tt.','ssssssss','tttttttt','stttttts','.ssssss.','ssssssss']
+      ['.LL..LL.','LLLLLLLL','LLLLLLLL','.LLLLLL.','.BBBBBB.','.LLLLLL.','.LL..LL.','........'],
+      ['.LL..LL.','LLLLLLLL','LLLLLLLL','.LLLLLL.','.BBBBBB.','.LLLLLL.','.LL..LL.','........'],
+      ['.LL..LL.','LLLLLLLL','LLLLLLLL','.LLLLLL.','.BBBBBB.','.LLLLLL.','.LL..LL.','........'],
+      ['.LL..LL.','LLLLLLLL','LLLLLLLL','.LLLLLL.','.BBBBBB.','.LLLLLL.','.LL..LL.','........'],
+      ['.LL..LL.','LLLLLLLL','LLLLLLLL','.LLLLLL.','.BBBBBB.','.LLLLLL.','.LL..LL.','.L......'],
+      ['.LL..LL.','LLLLLLLL','LLLLLLLL','.LLLLLL.','.BBBBBB.','.LLLLLL.','.LL..LL.','.L......'],
+      ['.LL..LL.','LLLLLLLL','LLLLLLLL','.LLLLLL.','.BBBBBB.','.LLLLLL.','.LL..LL.','.LL..LL.'],
+      ['.LL..LL.','LLLLLLLL','LLLLLLLL','.LLLLLL.','.BBBBBB.','.LLLLLL.','.LL..LL.','LLL..LLL']
     ],
     pal:[
-      {s:'#c4b090',b:'#4a3424'},
-      {s:'#b0b4ba',b:'#3a3e46'},
-      {s:'#c0b090',b:'#3a2c20',t:'#8a7050'},
-      {s:'#e0c8a0',b:'#5a3820',t:'#c4a060'},
-      {s:'#7aaa68',b:'#142818',t:'#c4b060'},
-      {s:'#d0b080',b:'#6a3810',t:'#e0a848'},
-      {s:'#d4ff9a',b:'#0c3010',t:'#ffd34a',g:'#ff2860'},
-      {s:'#ffffff',b:'#ff3038',t:'#ffd020'}
+      {L:'#c4b090',B:'#4a3424'},
+      {L:'#b0b4ba',B:'#3a3e46'},
+      {L:'#c0b090',B:'#3a2c20'},
+      {L:'#e0c8a0',B:'#5a3820'},
+      {L:'#7aaa68',B:'#142818'},
+      {L:'#d0b080',B:'#6a3810'},
+      {L:'#d4ff9a',B:'#ff2860'},
+      {L:'#ffffff',B:'#ff3038'}
     ],
-    utRows:['.ss..ss.','ssssssss','s.tt.tt.','ssssssss','.tttttt.','stttttts','.ssssss.','........'],
-    ut:{s:'#b6ff3a',t:'#ffd34a',b:'#6a4428'}
+    utRows:['.LL..LL.','LLLLLLLL','LLLLLLLL','.LLLLLL.','.BBGBBB.','.LLLLLL.','.LL..LL.','L......L'],
+    ut:{L:'#b6ff3a',B:'#6a4428',G:'#ffd34a'}
   },
   heavy:{
     rows:[
-      ['pppppppp','pssssssp','ss.mm.ss','ssmmmmss','.mmmmmm.','..mmmm..','.s....s.','........'],
-      ['pppppppp','pssssssp','ss.mm.ss','ssmmmmss','.mmmmmm.','..mmmm..','.ss..ss.','........'],
-      ['pppppppp','pssssssp','ss.mm.ss','ssmmmmss','.tttttt.','..mmmm..','.ss..ss.','........'],
-      ['pppppppp','pssssssp','ss.tt.ss','ssttttss','.tttttt.','..mmmm..','.ss..ss.','..tttt..'],
-      ['tttttttt','tsssssst','ss.rr.ss','ssrrrrss','.tttttt.','..ssss..','.ss..ss.','..tttt..'],
-      ['tttttttt','tsssssst','ss.tt.ss','ssttttss','.tttttt.','..ssss..','.ssssss.','..tttt..'],
-      ['hhhhhhhh','hhsssshh','ss.tt.ss','ssttttss','tttttttt','.ssssss.','..ssss..','..hhhh..'],
-      ['hhhhhhhh','hhrrrrhh','ss.rr.ss','ssrrrrss','tttttttt','.stttts.','..ssss..','..tttt..']
+      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','........'],
+      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','........'],
+      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','........'],
+      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','........'],
+      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','.P....P.'],
+      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','.P....P.'],
+      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','.PP..PP.'],
+      ['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','PP....PP']
     ],
     pal:[
-      {p:'#d4d0c6',s:'#7a766e',m:'#9a968e'},
-      {p:'#d4dce4',s:'#7a828a',m:'#9aa4ae'},
-      {p:'#9aa0a8',s:'#5a6068',m:'#6a7078',t:'#7a6848'},
-      {p:'#d0c0a0',s:'#7a6a50',m:'#8a7860',t:'#c4a060'},
-      {p:'#e8eef4',s:'#607080',r:'#ff2860',t:'#ffd34a'},
-      {p:'#f4ead8',s:'#a08868',t:'#e0b060'},
-      {h:'#ffffff',s:'#d8e6ff',t:'#ffd34a'},
-      {h:'#fff6c0',s:'#ffb020',r:'#ff2860',t:'#ff4ad0'}
+      {P:'#9a968e',H:'#d4d0c6',B:'#6a6660'},
+      {P:'#8a929a',H:'#d4dce4',B:'#5a646e'},
+      {P:'#6a7078',H:'#9aa0a8',B:'#4a5058'},
+      {P:'#7a6a50',H:'#d0c0a0',B:'#5a4830'},
+      {P:'#607080',H:'#e8eef4',B:'#c4a060'},
+      {P:'#a08868',H:'#f4ead8',B:'#e0b060'},
+      {P:'#d8e6ff',H:'#ffffff',B:'#ffd34a'},
+      {P:'#ffb020',H:'#fff6c0',B:'#ff2860'}
     ],
-    utRows:['.pppppp.','ppsssssp','ss.rr.ss','ssrrrrss','.tttttt.','..ssss..','..ssss..','..tttt..'],
-    ut:{p:'#7af0ff',s:'#3a5080',r:'#ff4ad0',t:'#ffd34a'}
+    utRows:['PP....PP','PPPPPPPP','.PHPPHP.','.PPHHPP.','.PPPPPP.','.BBBBBB.','.PP..PP.','t......t'],
+    ut:{P:'#7af0ff',H:'#ffffff',B:'#3a5080',t:'#ffd34a'}
   },
   helm:{
     rows:[
@@ -857,23 +860,23 @@ const GEAR={
   },
   cloak:{
     rows:[
-      ['..hhhh..','.h....h.','h..cc..h','hhhhhhhh','hhhffhhh','hhffffhh','hffffffh','..hhhh..'],
-      ['..hhhh..','hh....hh','h..cc..h','hhhhhhhh','hhhffhhh','hhffffhh','hffffffh','..hhhh..'],
-      ['.tttttt.','hh....hh','h..cc..h','hhhhhhhh','hhhffhhh','hhffffhh','hffffffh','h.hhhh.h'],
-      ['.tttttt.','thh..hht','h..cc..h','hhhhhhhh','hhhffhhh','hhffffhh','hffffffh','hhhhhhhh'],
-      ['.tttttt.','thhhhhht','th.cc.ht','hhhhhhhh','hhvffvhh','hhffffhh','hffffffh','ttttttht'],
-      ['.tttttt.','thhhhhht','thhcccht','thhhhhht','hhvvvvhh','hhvvvvhh','hhhhhhhh','tttttttt']
+      ['..HHHH..','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH'],
+      ['..HHHH..','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH'],
+      ['..HHHH..','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH'],
+      ['..HHHH..','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','TTTTTTTT','TTTTTTTT'],
+      ['..HHHH..','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','TTTTTTTT','TTTTTTTT'],
+      ['..HHHH..','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','TTTTTTTT','TTTTTTTT']
     ],
     pal:[
-      {h:'#8a9098',f:'#5c636c',c:'#d0d4dc'},
-      {h:'#8a6844',f:'#5a3c24',c:'#e0c090'},
-      {h:'#24543c',f:'#102818',c:'#b09868',t:'#8a7848'},
-      {h:'#5a3870',f:'#2c1840',c:'#e0c878',t:'#c8a060'},
-      {h:'#3a2848',f:'#241830',c:'#e0c060',t:'#ffd34a',v:'#ff2860'},
-      {h:'#1a1820',t:'#ffe08a',c:'#ff4ad0',v:'#9a58e0'}
+      {H:'#8a9098',C:'#d0d4dc'},
+      {H:'#8a6844',C:'#e0c090'},
+      {H:'#24543c',C:'#b09868'},
+      {H:'#5a3870',C:'#e0c878',T:'#c8a060'},
+      {H:'#3a2848',C:'#e0c060',T:'#ffd34a'},
+      {H:'#2a2438',C:'#ffd34a',T:'#ff4ad0'}
     ],
-    utRows:['.tttttt.','th.h.tht','t..cc..t','thhhhhht','h.f..f.h','hh.ff.hh','h..ff..h','t..h..t.'],
-    ut:{h:'#100818',f:'#08040c',c:'#ff9adf',t:'#ffe08a'}
+    utRows:['.TTTTTT.','.H....H.','H..CC..H','HHHHHHHH','HHHHHHHH','HHHHHHHH','HHHHHHHH','TTTTTTTT'],
+    ut:{H:'#100818',C:'#ff9adf',T:'#ffe08a'}
   }
 };
 function installRingSprites(){
@@ -1236,22 +1239,26 @@ function stoneFront(px,py,tx,ty){
   return n>0.5?[58,52,74]:[70,64,88];
 }
 function manorWall(wd,tx,ty,px,py){
-  const north=ty>0&&wd.tiles[(ty-1)*wd.w+tx]===T_WALL;
-  const n=hash2(tx*5+px,ty*7+py);
-  const post=hash2(tx,1)>0.7&&(px===1||px===2||px===5);
-  if(py<3){
-    if(py===0)return north?[196,168,120]:[232,208,154];
-    if(post)return [96,66,40];
-    if(brickSeam(px,tx,ty)&&n>0.45)return [154,112,76];
-    return n>0.5?[216,188,152]:[198,170,138];
+  const kind=wd.wallKind?wd.wallKind[ty*wd.w+tx]:0;
+  const n=field(tx,ty,7);
+  if(kind){
+    const edge=px===0||px===7;
+    if(py===0)return kind===2?[255,238,204]:[232,210,168];
+    if(py<3)return edge?[118,90,58]:[206,176,132];
+    if(py===3)return [92,68,42];
+    if(py===7)return [46,34,22];
+    let c=edge?[102,78,50]:(n>0.55?[168,140,100]:[154,126,90]);
+    if(px>2&&px<5&&py===5)c=[88,66,40];
+    return c;
   }
-  if(post)return [72,48,32];
-  if(py===7)return [42,28,22];
-  if(brickSeam(px,tx,ty)&&n>0.3)return [124,82,58];
-  let c=n>0.55?[176,148,126]:[158,132,114];
-  if(n>0.975&&py>4)c=[96,132,72];
-  if(!north&&py===3&&(px===3||px===4))c=[212,168,84];
-  return c;
+  const leaf=n<0.42?[64,124,44]:n<0.7?[78,142,52]:[92,158,62];
+  if(py===0)return [leaf[0]+36,leaf[1]+28,leaf[2]+10];
+  if(py<3)return [leaf[0]+12,leaf[1]+10,leaf[2]+4];
+  if(py===7)return [28,44,20];
+  const hx=1+((hash2(tx+3,ty)*5)|0),hy=4+((hash2(ty+1,tx)*2)|0);
+  if(px===hx&&py===hy)return [158,198,78];
+  if(px===((hx+3)%5)+1&&py===6)return [32,68,26];
+  return py>4?[40,88,30]:leaf;
 }
 function biomeWall(wd,tx,ty,px,py){
   const z=wd.zone[ty*wd.w+tx];
@@ -1530,14 +1537,35 @@ function sameTile(wd,tx,ty,tile){
   return wd.tiles[ty*wd.w+tx]===tile;
 }
 function havenFloor(tx,ty,px,py){
-  const n=hash2(tx*5+px,ty*9+py);
-  const span=4+((hash2(ty,3)*3)|0);
-  const off=(hash2(ty,8)*6)|0;
-  const seamY=py===0&&hash2(tx,ty)>0.55;
-  const seamX=((px+off)%span)===0&&hash2(tx+py,ty)>0.62;
-  let c=n>0.5?[172,126,82]:[154,112,72];
-  if(seamY||seamX)c=[98,70,44];
-  if(n>0.965)c=[198,158,110];
+  const wx=tx*8+px,wy=ty*8+py;
+  const row=Math.floor(wy/18);
+  const off=(row&1)?9:0;
+  const col=Math.floor((wx+off)/22);
+  const tone=hash2(col*4+1,row*7+3);
+  let c=tone<0.33?[188,158,116]:tone<0.66?[206,178,134]:[170,142,104];
+  const lx=(wx+off)%22,ly=wy%18;
+  if((lx<1||ly<1)&&hash2(col+8,row+2)>0.28)c=[124,98,68];
+  else if(lx===5&&ly===5)c=[c[0]+14,c[1]+10,c[2]+6];
+  return c;
+}
+function havenMeadow(tx,ty,px,py){
+  const wx=tx+px/8,wy=ty+py/8;
+  const b=field(wx,wy,8),warm=field(wx+24,wy-14,12);
+  let c=b<0.42?[58,122,44]:b<0.7?[76,150,54]:[94,168,64];
+  const lift=(warm-0.5)*26;
+  c=[c[0]+lift*0.35,c[1]+lift,c[2]+lift*0.15];
+  return clampRGB(c);
+}
+function havenPath(tx,ty,px,py){
+  const b=field(tx,ty,5);
+  let c=b<0.5?[198,166,110]:[176,146,94];
+  if(field(tx+3,ty-2,4)>0.78&&px>1&&px<6&&py>2&&py<6)c=[148,116,72];
+  return c;
+}
+function havenPond(tx,ty,px,py){
+  const b=field(tx+px*0.2,ty+py*0.2,3.2);
+  let c=b<0.45?[36,104,132]:[52,128,150];
+  if(b>0.78&&py<6)c=[168,214,210];
   return c;
 }
 function vaultFloor(tx,ty,px,py){
@@ -1698,9 +1726,13 @@ function tileRGB(wd,tx,ty,px,py){
   }
   if(ty>0&&py<2){
     const nt=wd.tiles[(ty-1)*wd.w+tx];
-    if(nt===T_WALL||nt===T_BWALL||DEN_WALL[nt])return wallLip(nt,tx,px,py);
+    if(wd.isHub&&nt===T_WALL){if(py===0)return [32,52,24];}
+    else if(nt===T_WALL||nt===T_BWALL||DEN_WALL[nt])return wallLip(nt,tx,px,py);
   }
   const base=tileBase(wd,i,t);
+  if(wd.isHub&&base===T_GRASS)return havenMeadow(tx,ty,px,py);
+  if(wd.isHub&&base===T_SAND)return havenPath(tx,ty,px,py);
+  if(wd.isHub&&base===T_WATER)return havenPond(tx,ty,px,py);
   if(base===T_FLOOR)return wd.isVault?vaultFloor(tx,ty,px,py):havenFloor(tx,ty,px,py);
   if(base===T_RUG)return rugRGB(wd,tx,ty,px,py);
   if(base===T_CARPET)return carpetRGB(wd,tx,ty,px,py);
@@ -2031,48 +2063,138 @@ function placeStructures(wd,R,N,cx,cy){
   wd.structN=placedN;
 }
 function genHub(){
-  const w=42,h=40,wd=mkWorld(w,h);wd.isHub=true;
+  const w=96,h=96,wd=mkWorld(w,h);wd.isHub=true;
+  wd.wallKind=new Uint8Array(w*h);
+  // Portal room, a short corridor, then the hall. Everything else is meadow.
+  const portal=(x,y)=>x>=40&&x<=55&&y>=26&&y<=33;
+  const corridor=(x,y)=>x>=45&&x<=50&&y>=34&&y<=39;
+  const hall=(x,y)=>x>=32&&x<=63&&y>=40&&y<=70;
+  const inside=(x,y)=>portal(x,y)||corridor(x,y)||hall(x,y);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-    wd.tiles[y*w+x]=T_WALL;wd.zone[y*w+x]=-1;
+    wd.tiles[y*w+x]=inside(x,y)?T_FLOOR:T_GRASS;
+    wd.zone[y*w+x]=0;
   }
-  function dig(x0,y0,x1,y1,t){
+  for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){
+    if(inside(x,y))continue;
+    let touch=false;
+    for(let dy=-1;dy<=1&&!touch;dy++)for(let dx=-1;dx<=1;dx++){
+      if(!dx&&!dy)continue;
+      if(inside(x+dx,y+dy)){touch=true;break;}
+    }
+    if(touch)wd.tiles[y*w+x]=T_WALL;
+  }
+  function wallAt(x,y){return x>=0&&y>=0&&x<w&&y<h&&wd.tiles[y*w+x]===T_WALL;}
+  for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){
+    if(!wallAt(x,y))continue;
+    const n=wallAt(x,y-1),s=wallAt(x,y+1),e=wallAt(x+1,y),wv=wallAt(x-1,y);
+    const straight=(n&&s&&!e&&!wv)||(e&&wv&&!n&&!s);
+    const ends=[n,s,e,wv].filter(Boolean).length;
+    let kind=0;
+    if(!straight)kind=1;
+    if(ends<=1)kind=2;
+    else if(straight&&((x+y*2)%6)===0)kind=1;
+    wd.wallKind[y*w+x]=kind;
+  }
+  for(const [x,y] of [[44,34],[51,34],[44,39],[51,39],[44,40],[51,40]]){
+    if(wallAt(x,y))wd.wallKind[y*w+x]=2;
+  }
+  function put(x,y,t){
+    if(x<1||y<1||x>=w-1||y>=h-1)return;
+    if(wd.tiles[y*w+x]===T_WALL)return;
+    wd.tiles[y*w+x]=t;
+  }
+  for(let y=27;y<=31;y++)for(let x=44;x<=51;x++)put(x,y,T_CARPET);
+  for(let y=34;y<=39;y++)for(let x=45;x<=50;x++)put(x,y,T_CARPET);
+  for(let y=40;y<=68;y++)for(let x=46;x<=49;x++)put(x,y,T_CARPET);
+  for(let y=44;y<=66;y++)for(let x=34;x<=39;x++){
+    if(y>=56&&y<=60)continue;
+    put(x,y,T_GRASS);
+  }
+  for(let y=44;y<=66;y++)for(let x=56;x<=61;x++){
+    if(y>=50&&y<=54)continue;
+    put(x,y,T_GRASS);
+  }
+  for(const [x,y] of [[34,44],[39,44],[34,66],[39,66],[56,44],[61,44],[56,66],[61,66]])put(x,y,T_PLANTER);
+  for(const [x,y] of [[35,47],[38,52],[36,63],[57,47],[60,58],[58,64]])put(x,y,T_FLOWER);
+  for(const [x,y] of [[35,46],[38,65],[60,46],[57,65]])put(x,y,T_TREE);
+  for(const [x,y] of [[36,42],[59,42],[36,68],[59,68]])put(x,y,T_PILLAR);
+  for(const [x,y] of [[44,48],[44,60],[51,48],[51,62]])put(x,y,T_BENCH);
+  function pond(cx,cy,r){
+    const y0=Math.floor(cy-r-3),y1=Math.ceil(cy+r+3),x0=Math.floor(cx-r-3),x1=Math.ceil(cx+r+3);
     for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){
-      if(x<=0||y<=0||x>=w-1||y>=h-1)continue;
-      wd.tiles[y*w+x]=t;wd.zone[y*w+x]=0;
+      if(x<2||y<2||x>=w-2||y>=h-2)continue;
+      if(wd.tiles[y*w+x]!==T_GRASS)continue;
+      const dx=x-cx,dy=y-cy,wob=(field(x,y,3)-0.35)*2.2;
+      if(dx*dx+dy*dy<(r+wob)*(r+wob))wd.tiles[y*w+x]=T_WATER;
     }
   }
-  function put(x,y,t){if(x>0&&y>0&&x<w-1&&y<h-1){wd.tiles[y*w+x]=t;wd.zone[y*w+x]=0;}}
-  // North gate room, a corridor, then the main hall.
-  dig(14,1,27,8,T_FLOOR);
-  dig(18,8,23,14,T_FLOOR);
-  dig(1,14,w-2,h-2,T_FLOOR);
-  for(let y=9;y<=14;y++)for(let x=19;x<=22;x++)put(x,y,T_CARPET);
-  for(let y=16;y<=34;y++)for(let x=19;x<=22;x++)put(x,y,T_CARPET);
-  for(let x=16;x<=25;x++)for(let y=3;y<=6;y++)put(x,y,T_CARPET);
-  dig(4,18,10,32,T_GRASS);
-  dig(31,18,37,32,T_GRASS);
-  for(let y=19;y<=31;y+=3){put(5,y,T_FLOWER);put(9,y,T_FLOWER);put(32,y,T_FLOWER);put(36,y,T_FLOWER);}
-  for(const [x,y] of [[4,18],[10,18],[4,32],[10,32],[31,18],[37,18],[31,32],[37,32]])put(x,y,T_PLANTER);
-  for(const [x,y] of [[6,20],[8,30],[33,20],[35,30]])put(x,y,T_FLOWER);
-  for(let x=5;x<=8;x++)for(let y=22;y<=26;y++)put(x,y,T_RUG);
-  for(let x=33;x<=36;x++)for(let y=26;y<=30;y++)put(x,y,T_RUG);
-  for(const [x,y] of [[15,17],[26,17],[15,30],[26,30]])put(x,y,T_PILLAR);
-  for(const [x,y] of [[16,4],[25,4]])put(x,y,T_PILLAR);
-  for(const [x,y] of [[16,20],[17,20],[24,28],[25,28]])put(x,y,T_BENCH);
-  for(const [x,y] of [[3,16],[38,16],[3,36],[38,36]])put(x,y,T_CRATE);
-  put(20,6,T_FLOOR);put(21,6,T_FLOOR);
+  pond(15,50,4.2);
+  pond(80,34,3.1);
+  for(let y=74;y<94;y++){
+    const x=Math.round(22+Math.sin((y-74)*0.42)*9+(y-74)*0.28);
+    for(let k=-1;k<=1;k++)if(x+k>1&&x+k<w-1&&wd.tiles[y*w+x+k]===T_GRASS)wd.tiles[y*w+x+k]=T_SAND;
+  }
+  for(let y=28;y<62;y++){
+    const x=Math.round(78+Math.sin((y-28)*0.33)*6);
+    if(x>1&&x<w-2&&wd.tiles[y*w+x]===T_GRASS)wd.tiles[y*w+x]=T_SAND;
+    if(x+1<w-1&&wd.tiles[y*w+x+1]===T_GRASS)wd.tiles[y*w+x+1]=T_SAND;
+  }
+  function clearOfWall(x,y,rad){
+    for(let dy=-rad;dy<=rad;dy++)for(let dx=-rad;dx<=rad;dx++){
+      const xx=x+dx,yy=y+dy;
+      if(xx<0||yy<0||xx>=w||yy>=h)return false;
+      if(wd.tiles[yy*w+xx]===T_WALL)return false;
+    }
+    return true;
+  }
+  let planted=0;
+  for(let y=2;y<h-2&&planted<48;y++)for(let x=2;x<w-2&&planted<48;x++){
+    if(wd.tiles[y*w+x]!==T_GRASS||hash2(x*3+1,y*5+4)<0.986)continue;
+    if(!clearOfWall(x,y,3))continue;
+    let close=false;
+    for(let dy=-4;dy<=4&&!close;dy++)for(let dx=-4;dx<=4;dx++){
+      const xx=x+dx,yy=y+dy;
+      if(xx<0||yy<0||xx>=w||yy>=h)continue;
+      if(wd.tiles[yy*w+xx]===T_TREE){close=true;break;}
+    }
+    if(close)continue;
+    wd.tiles[y*w+x]=T_TREE;planted++;
+  }
+  for(let s=0;s<14;s++){
+    const sx=3+((hash2(s,9)*88)|0),sy=3+((hash2(s,13)*88)|0);
+    const n=2+((hash2(s,4)*4)|0);
+    for(let k=0;k<n;k++){
+      const x=sx+((hash2(s,k+1)*5)|0)-2,y=sy+((hash2(k,s+3)*5)|0)-2;
+      if(x<2||y<2||x>=w-2||y>=h-2)continue;
+      if(wd.tiles[y*w+x]===T_GRASS)wd.tiles[y*w+x]=T_FLOWER;
+    }
+  }
   renderWorld(wd);
-  wd.portal={x:20.5*TS,y:4.5*TS};
-  wd.fountain={x:20.5*TS,y:24*TS};
-  wd.spawn={x:20.5*TS,y:34*TS};
-  wd.chest={x:8*TS,y:28*TS};
-  wd.vault={x:34*TS,y:23*TS};
+  wd.portal={x:48*TS,y:29*TS+4};
+  wd.fountain={x:48*TS,y:54*TS};
+  wd.spawn={x:48*TS,y:66*TS};
+  wd.chest={x:36*TS+4,y:58*TS};
+  wd.vault={x:60*TS,y:52*TS};
   wd.beacons=[];
+  wd.arches=[
+    {x:48*TS,y:34*TS,w:6*TS},
+    {x:48*TS,y:40*TS,w:6*TS}
+  ];
   const dress=[];
-  for(const x of [15,18,23,26])dress.push({k:'banner',x:x*TS+4,y:2*TS});
-  for(const x of [8,14,27,33])dress.push({k:'banner',x:x*TS+4,y:15*TS});
-  dress.push({k:'banner',x:2*TS,y:20*TS},{k:'banner',x:39*TS,y:20*TS},{k:'banner',x:2*TS,y:30*TS},{k:'banner',x:39*TS,y:30*TS});
-  for(const [x,y] of [[16,3],[25,3],[15,16],[26,16],[15,29],[26,29],[12,22],[29,22]])dress.push({k:'torch',x:x*TS+4,y:y*TS});
+  const banners=['banner','bannerB','bannerG'];
+  [[42,27],[53,27],[36,41],[59,41],[42,44],[53,44],[42,64],[53,64]].forEach((p,i)=>{
+    dress.push({k:banners[i%3],x:p[0]*TS+4,y:p[1]*TS});
+  });
+  for(const [x,y] of [[41,28],[54,28],[41,32],[54,32],[34,42],[61,42],[34,50],[61,50],[34,64],[61,64],[46,41],[49,41]]){
+    dress.push({k:'torch',x:x*TS+4,y:y*TS+4});
+  }
+  let bushes=0;
+  for(let y=3;y<h-3&&bushes<36;y++)for(let x=3;x<w-3&&bushes<36;x++){
+    if(wd.tiles[y*w+x]!==T_GRASS||hash2(x+20,y+8)<0.992)continue;
+    if(!clearOfWall(x,y,2))continue;
+    dress.push({k:'bush',x:x*TS+4,y:y*TS+8});
+    bushes++;
+  }
   wd.dress=dress;
   return wd;
 }
@@ -5538,6 +5660,24 @@ function txt(s,x,y,size,col,align,shadow){font(size);ctx.textAlign=align||'left'
 function panel(x,y,w,h,a){ctx.fillStyle='rgba(16,12,28,'+(a||0.88)+')';ctx.fillRect(x,y,w,h);ctx.strokeStyle='#5a4a8a';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,h-2);}
 function drawSpr(s,x,y,w,h,flip){ctx.imageSmoothingEnabled=false;ctx.drawImage(flip?s.f:s.c,Math.round(x),Math.round(y),w,h);}
 
+function drawGate(g,a){
+  const left=a.x-a.w/2,span=a.w,base=a.y-1;
+  g.fillStyle='#4a3424';
+  g.fillRect(left-2,base-4,6,16);
+  g.fillRect(left+span-4,base-4,6,16);
+  g.fillStyle='#d4bc90';
+  g.fillRect(left-2,base-4,6,2);
+  g.fillRect(left+span-4,base-4,6,2);
+  for(let i=0;i<10;i++){
+    const t=i/9;
+    const x=left+2+(span-10)*t;
+    const y=base-4-Math.sin(t*Math.PI)*11;
+    g.fillStyle='#7a5838';
+    g.fillRect(x|0,y|0,5,4);
+    g.fillStyle='#c4a070';
+    g.fillRect(x|0,y|0,5,1);
+  }
+}
 function render(){
   ctx.setTransform(1,0,0,1,0,0);ctx.imageSmoothingEnabled=false;uiRects=[];
   if(layoutC.portrait){drawRotateOverlay();return;}
@@ -5547,13 +5687,14 @@ function render(){
   ctx.fillStyle='#0c0a14';ctx.fillRect(0,0,cv.width,cv.height);
   ctx.save();
   ctx.beginPath();ctx.rect(0,0,Math.max(1,play.w*DPR),Math.max(1,play.h*DPR));ctx.clip();
-  ctx.fillStyle=peaceful()?'#120f1c':(world&&world.isDungeon)?'#040605':'#264ea0';ctx.fillRect(0,0,play.w*DPR+2,play.h*DPR+2);
+  ctx.fillStyle=(world&&world.isHub)?'#4e8a3c':peaceful()?'#120f1c':(world&&world.isDungeon)?'#040605':'#264ea0';ctx.fillRect(0,0,play.w*DPR+2,play.h*DPR+2);
   ctx.setTransform(S,0,0,S,-ox,-oy);
   if(world&&world.isDungeon)drawDungeonVoid(world);
   drawTerrain(world);
   const x0=camX-16,y0=camY-16,x1=camX+VW+16,y1=camY+VH+16;
   const labels=[];
   if(world.isHub){
+    for(const a of world.arches||[])drawGate(ctx,a);
     const p=world.portal;for(let i=4;i>=1;i--){ctx.fillStyle=['#2a1a5a','#5a3ad0','#9a6aff','#e0d0ff'][i-1];ctx.beginPath();ctx.arc(p.x,p.y,i*2.2+Math.sin(time*4+i)*0.8,0,TAU);ctx.fill();}
     labels.push([p.x,p.y-14,'Shardwild Portal','#c9b0ff']);
     const f=world.fountain;drawSpr(SPR.fountain,f.x-10,f.y-10,20,20);labels.push([f.x,f.y-14,'Healing Fountain','#9fe0ff']);
@@ -6825,6 +6966,26 @@ function renderPlate(kind){
   }
   return null;
 }
+function hubOverview(){
+  if(!hub)hub=genHub();
+  const src=hub.canvas;
+  const c=document.createElement('canvas');c.width=src.width;c.height=src.height;
+  const g=c.getContext('2d');g.imageSmoothingEnabled=false;
+  g.drawImage(src,0,0);
+  for(const a of hub.arches||[])drawGate(g,a);
+  const p=hub.portal;
+  g.fillStyle='#9a6aff';g.beginPath();g.arc(p.x,p.y,8,0,TAU);g.fill();
+  g.fillStyle='#e0d0ff';g.beginPath();g.arc(p.x,p.y,3,0,TAU);g.fill();
+  if(SPR.fountain)g.drawImage(SPR.fountain.c,hub.fountain.x-10,hub.fountain.y-10,20,20);
+  for(const d of hub.dress||[]){
+    const s=SPR[d.k];if(!s)continue;
+    g.drawImage(s.c,d.x-s.w/2,d.y-s.h);
+  }
+  if(hub.chest&&SPR.chest)g.drawImage(SPR.chest.c,hub.chest.x-9,hub.chest.y-11,18,16);
+  const vp=hub.vault;
+  if(vp){g.fillStyle='#3ad0a0';g.beginPath();g.arc(vp.x,vp.y,6,0,TAU);g.fill();}
+  return c.toDataURL('image/png');
+}
 function exportArt(){
   const scale=8,gap=14,cell=(8+2)*scale,label=22,nameW=120;
   function board(w,h,draw){
@@ -6925,7 +7086,7 @@ function exportArt(){
   })();
   return {weapons,abilities,armors,rings:ringSheet,goods,enemies,events,heroes};
 }
-window.__shardwild={version:GAME_VERSION,get state(){return state;},get P(){return P;},get world(){return world;},startNew,continueGame,enterRealm,enterHub,useAbility,sampleTerrain,get fps(){return fps;},get bullets(){return ebN;},get shots(){return pbN;},previewSheet,contactSheet,renderPlate,exportArt,
+window.__shardwild={version:GAME_VERSION,get state(){return state;},get P(){return P;},get world(){return world;},startNew,continueGame,enterRealm,enterHub,useAbility,sampleTerrain,get fps(){return fps;},get bullets(){return ebN;},get shots(){return pbN;},previewSheet,contactSheet,renderPlate,exportArt,hubOverview,
   teleport(x,y){if(P){P.x=x;P.y=y;}},setInv(){},get invOpen(){return false;},
   get ui(){return uiRects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,kind:r.kind,tag:r.tag||'',tab:r.tab||'',beacon:r.beacon||'',unlocked:!!r.unlocked,where:r.where||'',slot:r.slot==null?-1:r.slot,stat:r.stat||'',maxed:!!r.maxed,label:r.label||''}));},
   get slots(){return uiRects.filter(r=>r.kind==='slot').map(r=>({x:r.x,y:r.y,w:r.w,h:r.h,area:r.ref.area,i:r.ref.i,slot:r.ref.slot,name:r.item?r.item.name:null,tier:r.item?r.item.tier:null,kind:r.item?r.item.kind:null,stat:r.item?(r.item.stat||r.item.kind||''):'',wep:r.item&&r.item.w?r.item.w:'',dim:!!(r.item&&classLocked(r.item)),tag:r.tag||''}));},
