@@ -113,7 +113,7 @@ async function main() {
     assert(sim.dungeonUtOutside === 0, 'dungeon UT leaked into the overworld: ' + sim.dungeonUtOutside);
     assert(sim.keysOutside === 0, 'dungeon key leaked into the overworld: ' + sim.keysOutside);
     const portals = sim.portalByType || {};
-    const portalBand = {crab: [0.01, 0.06], hexer: [0.01, 0.06], beetle: [0.01, 0.06], herald: [0.04, 0.16], serpent: [0.04, 0.16]};
+    const portalBand = {crab: [0.01, 0.06], hexer: [0.01, 0.06], beetle: [0.01, 0.06], voidkeeper: [0.04, 0.16], serpent: [0.04, 0.16]};
     for (const t of Object.keys(portals)) {
       const band = portalBand[t];
       if (!band) assert(portals[t] === 0, 'portal dropped from ' + t + ': ' + portals[t]);
@@ -162,9 +162,9 @@ async function main() {
     const godPots = {};
     for (const row of bands) if (row.god) godPots[row.type] = row.godPot;
     assert(godPots.eye === 'wis' && godPots.colossus === 'vit' && godPots.oracle === 'mp' && godPots.saint === 'def', 'god pots ' + JSON.stringify(godPots));
-    assert(godPots.wyrm === 'spd' && godPots.titan === 'att' && godPots.serpent === 'dex' && godPots.herald === 'mp' && godPots.idol === 'def', 'god pots ' + JSON.stringify(godPots));
+    assert(godPots.wyrm === 'spd' && godPots.titan === 'att' && godPots.serpent === 'dex' && godPots.voidkeeper === 'mp' && godPots.idol === 'def', 'god pots ' + JSON.stringify(godPots));
     assert(byRegion['Saltmarsh Shore'] >= 6 && byRegion['Greenmarch'] >= 6 && byRegion['Ashen Wilds'] >= 6 && byRegion['Godlands'] >= 8, 'enemies per region ' + JSON.stringify(byRegion));
-    const wantPortal = {crab: 0.03, hexer: 0.03, beetle: 0.03, herald: 0.09, serpent: 0.09};
+    const wantPortal = {crab: 0.03, hexer: 0.03, beetle: 0.03, voidkeeper: 0.09, serpent: 0.09};
     for (const row of bands) {
       const want = wantPortal[row.type] || 0;
       assert(row.portalRate === want, row.type + ' portal chance ' + row.portalRate + ' expected ' + want);
