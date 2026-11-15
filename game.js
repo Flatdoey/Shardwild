@@ -1,7 +1,7 @@
 'use strict';
 /* Shardwild: an original mobile bullet-hell realm crawler. Plain JS + canvas, no build step. */
 (function(){
-const GAME_VERSION='v25';
+const GAME_VERSION='v26';
 const cv=document.getElementById('game');
 const ctx=cv.getContext('2d',{alpha:false});
 let W=1,H=1,DPR=1,S=4,VW=1,VH=1;
@@ -103,7 +103,7 @@ function mkAnim(frames, pal, fit){
 }
 function installV25Sprites(){
   const A = window.SHARD_ART;
-  if (!A) throw new Error('v25 art missing');
+  if (!A) throw new Error('v26 art missing');
   for (const k in A.ENEMY_FRAMES){
     const s = A.ENEMY_FRAMES[k];
     SPR[k] = mkAnim(s.frames, s.pal, V25_FIT);
@@ -171,41 +171,19 @@ function buildSprites(){
   SPR.key=keyArt('#ffd34a','#e0b040','#c89820');
   SPR.chest=mkSprite(["..gggg..","gggggggg","ggyyyggg","gggggggg","ggyyyggg","gggggggg"],{g:'#e3b33d',y:'#fff1a8'});
   SPR.beacon=mkSprite(["...cc...","..cwwc..","...cc...","...ll...","...ll...","..llll..","..lssl.."],{c:'#7af0ff',w:'#ffffff',l:'#d8dce8',s:'#5a6070'});
-  // Fat RotMG sack: two-flap tuft, one-row cord, body widest on the lower rows, flat bottom.
-  // Outline is baked by mkSprite. X is the body color, H highlight, S shadow, T the cord.
-  const bag=['..b..b..','..bbbb..','...cc...','..bbbb..','.bhbbbb.','bhbbbbdb','bbbbbddb','.bddddb.'];
-  function bagSprite(tuft,light,body,dark,cord){return mkSprite(bag,{b:body,h:light,d:dark,c:cord});}
-  SPR.bags={
-    brown:bagSprite('#f0d0a0','#e8b878','#c4843c','#7a4818','#3f240e'),
-    pink:bagSprite('#ffd6ea','#ff9cc8','#f04898','#a02868','#6a1844'),
-    purple:bagSprite('#f0d4ff','#d498f8','#9030d0','#541888','#300860'),
-    cyan:bagSprite('#eaffff','#98f4f8','#2ec4d0','#0e7080','#083840'),
-    blue:bagSprite('#dce6ff','#90b0ff','#3060e8','#1a2878','#101848'),
-    white:bagSprite('#ffffff','#f6f8ff','#e0e6f2','#a8b0c4','#6c748c')
+  // RotMG sack. Outline is baked by mkSprite. One palette per bag colour.
+  const BAG_ROWS=['.tT..Tt.','..tTTt..','...cc...','.bhhbbb.','bhhbbbbd','bhbbbbdd','bbbbbddd','.dddddd.'];
+  const BAG_PALS={
+    brown:{t:'#f0d0a0',T:'#e8b878',h:'#e8b878',b:'#c4843c',d:'#7a4818',c:'#3f240e'},
+    pink:{t:'#ffd6ea',T:'#ff9cc8',h:'#ff9cc8',b:'#f04898',d:'#a02868',c:'#6a1844'},
+    purple:{t:'#f0d4ff',T:'#d498f8',h:'#d498f8',b:'#9030d0',d:'#541888',c:'#300860'},
+    blue:{t:'#dce6ff',T:'#90b0ff',h:'#90b0ff',b:'#3060e8',d:'#1a2878',c:'#101848'},
+    cyan:{t:'#eaffff',T:'#98f4f8',h:'#98f4f8',b:'#2ec4d0',d:'#0e7080',c:'#083840'},
+    white:{t:'#ffffff',T:'#f6f8ff',h:'#f6f8ff',b:'#e0e6f2',d:'#a8b0c4',c:'#6c748c'}
   };
-  SPR.tree=mkSprite(["..gggg..",".gggggg.","gggdgggg","gggggdgg",".gggggg.","...tt...","...tt..."],{g:'#2f7d3a',d:'#4fa04a',t:'#6b4a2a'});
-  SPR.boulder=mkSprite(["..rrrr..",".rrlrrr.","rrlrrrrr","rrrrrrdr",".rrrrdr."],{r:'#7a7684',l:'#a9a5b4',d:'#55525e'});
-  SPR.fountain=mkSprite(["...ww...","..wbbw..","...bb...","sssbbsss","sbbbbbbs","sbbwbbbs","ssssssss"],{w:'#e9f7ff',b:'#4fa8ff',s:'#a9a5b4'});
-  SPR.reed=mkSprite([".g.g.g..","g.g.g.g.","..t.t...","..t.t..."],{g:'#7d9a45',t:'#6b5a32'});
-  SPR.drift=mkSprite(["........","..bbbb..",".bbbbbb.","bb.bb.bb"],{b:'#8a6a42'});
-  SPR.flower=mkSprite(["..y.y...","r.yyy.r.",".yyyyyy.","...g....","...g...."],{y:'#ffe14a',r:'#ff6a8a',g:'#3a8a40'});
-  SPR.stump=mkSprite([".tttttt.","tttttllt","tttttttt",".tttttt."],{t:'#6b4a2a',l:'#c4a06a'});
-  SPR.vent=mkSprite(["...cc...","..cggc..",".cggggc.","cggggggc",".cggggc."],{c:'#5a6a72',g:'#9fd0d8'});
-  SPR.pillar=mkSprite(["..cccc..",".cwwwc..","..cccc..","..cccc..","..cccc..",".cccccc.",".cssssc."],{c:'#c8b8d0',w:'#fff6e0',s:'#6a5a78'});
-  SPR.banner=mkSprite(["..gggg..",".gwwwg..",".grrrg..",".grrrg..",".gwwwg..","..g..g..","...gg...","....g..."],{g:'#c4a15a',w:'#f4e2b0',r:'#8a2848'});
-  SPR.bannerB=mkSprite(["..gggg..",".gwwwg..",".grrrg..",".grrrg..",".gwwwg..","..g..g..","...gg...","....g..."],{g:'#c4a15a',w:'#dcecff',r:'#2a58a8'});
-  SPR.bannerG=mkSprite(["..gggg..",".gwwwg..",".grrrg..",".grrrg..",".gwwwg..","..g..g..","...gg...","....g..."],{g:'#c4a15a',w:'#e8ffd0',r:'#248848'});
-  SPR.bush=mkSprite(['...gggg...','..ggddgg..','.gggggggg.','ggdggggdgg','.gggggggg.','..gttttg..','...gggg...'],{g:'#2c7a34',d:'#9ed86a',t:'#4a6a30'});
-  SPR.torch=mkSprite(["...o....","..oyo...","..fff...","...w....","...w....","..www...","..wsw...","...w...."],{o:'#ffd34a',y:'#ff6a28',f:'#ff9a3a',w:'#6a5038',s:'#3a2c20'});
-  SPR.planter=mkSprite(["..ggg...","ggggggg.","g.gyg.g.",".ttttt..",".tthtt..",".ttttt..",".ttttt..","........"],{g:'#3f8a32',y:'#ffe14a',t:'#8a5030',h:'#c4843c'});
-  SPR.bench=mkSprite(["........",".wwwwww.",".whhhhw.",".w....w.",".w....w.",".ww..ww.","........","........"],{w:'#6a5038',h:'#c4a06a'});
-  SPR.crate=mkSprite([".cccccc.","cchhhcc.","chcccch.","ccccccc.","ccccccc.","cchhhcc.",".cccccc.","........"],{c:'#a07840',h:'#e0c090'});
-  SPR.ruin=mkSprite(["rr.rr.rr","rrrrrrrr",".rrrrrr.","..r..r.."],{r:'#6a5a68'});
-  SPR.coral=mkSprite(['.o.p.o.','.ooopo.','.o.o.o.','..ooo..','..o.o..'],{o:'#e25a32',p:'#ffb090'});
-  SPR.brock=mkSprite(['..rrrr..','.rllrrr.','rrlldrr.','rrlddrr.','.rrddrr.','..rrrr..'],{r:'#6a7a78',l:'#b7ccc8',d:'#2c3c3c'});
-  SPR.plank=mkSprite(['.bbbbbb.','bb.bb.bb','.bbbbbb.','..b..b..'],{b:'#a07848'});
-  SPR.crystal=mkSprite(['...c....','..clc...','clclclc.','..clc...','.cclcc..','...c....'],{c:'#7ee0c8',l:'#f4fffc'});
-  SPR.weed=mkSprite(['g.g.g.g.','.g.g.g.g','g..g..g.','.g....g.'],{g:'#3c9a58'});
+  SPR.bags={};
+  for(const k in BAG_PALS)SPR.bags[k]=mkSprite(BAG_ROWS,BAG_PALS[k]);
+  installWorldProps();
   SPR.keyTide=keyArt('#7ee0c8','#1a9a90','#e25a32');
   SPR.keyHex=keyArt('#9a5ad0','#6a38a0','#8fd16a');
   SPR.keyCinder=keyArt('#ff6a28','#c04018','#ffd34a');
@@ -216,10 +194,26 @@ function buildSprites(){
   SPR.portalVoid=mkSprite(['..vvvv..','.v.ww.v.','v..ss..v','vws..swv','vws..swv','v..ss..v','.v.ww.v.','..vvvv..'],{v:'#3a1868',w:'#ffffff',s:'#c46aff'});
   SPR.keyCoil=keyArt('#3d8a28','#1a5a20','#ffd34a');
   SPR.portalCoil=mkSprite(['..gggg..','.g.yy.g.','g.yssy.g','gy.ss.yg','gy.ss.yg','g.yssy.g','.g.yy.g.','..gggg..'],{g:'#2a6a28',y:'#ffd34a',s:'#7dce4a'});
-  // Top-down snake head: crown on the skull, snout pointing down, no limbs.
-  SPR.campfire=mkSprite(['...y...','..oyo..','..rrr..','..ooo..','...w...','..www..'],{y:'#fff6c0',o:'#ffd34a',r:'#ff6a28',w:'#5a4030'});
-  SPR.statue=mkSprite(['...g...','..ggg..','.gsssg.','..eee..','.eeeee.','..e.e..','..e.e..','.ee.ee.'],{g:'#ffd34a',s:'#f4efe6',e:'#c8c4bc'});
   installV25Sprites();
+}
+function installWorldProps(){
+  function add(setName,set){
+    const props=set.props;
+    for(const name in props)SPR['w:'+setName+':'+name]=mkSprite(props[name],set.pal);
+  }
+  for(const k in WORLD_TILES)add(k,WORLD_TILES[k]);
+  add('haven',HAVEN_TILES);
+  // Dress sprites (bush, banners, torch, fountain) and the old prop names.
+  // Raster draws SPR['w:'+set+':'+name] from wtLayers, not these aliases.
+  const alias={
+    tree:['greenmarch','tree'],boulder:['greenmarch','boulder'],reed:['shore','reed'],drift:['shore','drift'],
+    flower:['greenmarch','flower'],stump:['greenmarch','stump'],vent:['ashen','vent'],pillar:['godlands','pillar'],
+    ruin:['godlands','ruin'],campfire:['greenmarch','campfire'],statue:['godlands','statue'],
+    planter:['haven','planter'],bench:['haven','bench'],crate:['haven','crate'],
+    bush:['haven','bush'],banner:['haven','banner'],bannerB:['haven','bannerB'],bannerG:['haven','bannerG'],
+    torch:['haven','torch'],fountain:['haven','fountain']
+  };
+  for(const k in alias){const a=alias[k];SPR[k]=SPR['w:'+a[0]+':'+a[1]];}
 }
 
 /* ---------------- tiered gear sprites ---------------- */
@@ -576,7 +570,7 @@ function buildGear(){
   const gearArt=window.SHARD_ART.ITEM_GEAR;
   for(const k in gearArt){
     const src=gearArt[k],g=GEAR[k];
-    if(!g)throw new Error('v25 gear '+k);
+    if(!g)throw new Error('v26 gear '+k);
     g.rows=src.rows;g.pal=src.pal;
     if(src.utRows)g.utRows=src.utRows;
     if(src.ut)g.ut=src.ut;
@@ -688,8 +682,7 @@ const TCOL={
 const SOLID=new Set([T_WATER,T_TREE,T_BOULDER,T_WALL,T_PILLAR,T_RUIN,T_STATUE,T_BWALL,T_BCORAL,T_BROCK,T_PLANTER,T_BENCH,T_CRATE,T_HWALL,T_HPOOL,T_HROOT,T_HTOTEM,T_HCAUL,T_CWALL,T_CLAVA,T_CEGG,T_CROCK,T_VWALL,T_VVOID,T_VPILLAR,T_SWALL,T_SBREAK]);
 const DECO_SPR={
   [T_TREE]:'tree',[T_BOULDER]:'boulder',[T_REED]:'reed',[T_DRIFT]:'drift',[T_FLOWER]:'flower',
-  [T_STUMP]:'stump',[T_VENT]:'vent',[T_PILLAR]:'pillar',[T_RUIN]:'ruin',[T_BCORAL]:'coral',
-  [T_BROCK]:'brock',[T_BPLANK]:'plank',[T_BCRYST]:'crystal',[T_BWEED]:'weed',
+  [T_STUMP]:'stump',[T_VENT]:'vent',[T_PILLAR]:'pillar',[T_RUIN]:'ruin',
   [T_PLANTER]:'planter',[T_BENCH]:'bench',[T_CRATE]:'crate',
   [T_FIRE]:'campfire',[T_STATUE]:'statue'
 };
@@ -763,59 +756,69 @@ function tileBase(wd,i,t){
   if(t===T_PLANTER||t===T_BENCH||t===T_CRATE||t===T_RUG)return t===T_RUG?T_RUG:T_FLOOR;
   return t;
 }
-function burrowWallAt(wd,tx,ty){
-  if(!wd)return true;
-  if(tx<0||ty<0||tx>=wd.w||ty>=wd.h)return !!wd.isDungeon;
-  return wd.tiles[ty*wd.w+tx]===T_BWALL;
+function dungeonSetOf(wd){
+  const th=wd&&wd.theme;
+  if(th==='tide'||(wd&&wd.dungeonId==='tideclaw'))return 'tideclaw';
+  if(th==='hex')return 'hexmire';
+  if(th==='cinder')return 'cinder';
+  if(th==='sanctum')return 'void';
+  if(th==='coil')return 'coil';
+  return null;
 }
-function clampRGB(c){return [clamp(c[0],0,255)|0,clamp(c[1],0,255)|0,clamp(c[2],0,255)|0];}
-// Raised Tideclaw wall. The cap is coral-stone brick; the face below is darker mortar.
-// Tiles outside the map count as more wall, so the rock continues past the canvas edge.
-function burrowWallPixel(wd,tx,ty,px,py){
-  const west=burrowWallAt(wd,tx-1,ty),east=burrowWallAt(wd,tx+1,ty);
-  const north=burrowWallAt(wd,tx,ty-1),south=burrowWallAt(wd,tx,ty+1);
-  const edgeL=!west&&px===0,edgeR=!east&&px===7;
-  const v=(hash2(tx*9+3,ty*7+11)*7)|0;
-  const mortar=brickSeam(px,tx,ty);
-  const n=hash2(tx*13+px*3,ty*17+py*5);
-  const shift=(hash2(tx*19+5,ty*23+2)-0.5)*22;
-  const crack=v===0&&(px===2||px===5)&&py>0&&py<6&&((py+tx)&1)===0;
-  const barn=v===1&&((px===3&&py===1)||(px===6&&py===2)||(px===4&&py===5));
-  const moss=v===2&&py<3&&px>1&&px<6&&((px+py)&1)===0;
-  const wet=v===3&&py<=1&&(px===3||px===4);
-  const coral=v===4||(v===5&&px>2&&px<6);
-  const chip=v===6&&px===1&&py===4;
-  if(edgeL||edgeR){
-    const outerTop=!north&&py===0;
-    if(outerTop)return [196,214,204];
-    if(py===0)return [120,138,132];
-    if(py<3)return (px+py)&1?[96,118,112]:[78,98,94];
-    if(py===7||py===3)return [14,18,20];
-    return (py&1)?[24,32,34]:[34,44,46];
+// Out-of-map counts as wall, matching burrowWallAt/denWallAt. T_VVOID is a pit, not a wall.
+// T_SBREAK is a wall so the coil seals pick a face or a cracked cap from their neighbours.
+function dunIsWall(set,wd,tx,ty){
+  if(!wd||tx<0||ty<0||tx>=wd.w||ty>=wd.h)return true;
+  const t=wd.tiles[ty*wd.w+tx];
+  if(set==='tideclaw')return t===T_BWALL;
+  if(set==='hexmire')return t===T_HWALL;
+  if(set==='cinder')return t===T_CWALL;
+  if(set==='void')return t===T_VWALL;
+  return t===T_SWALL||t===T_SBREAK;
+}
+function dunKind(set,wd,tx,ty){
+  if(!wd||tx<0||ty<0||tx>=wd.w||ty>=wd.h)return null;
+  const t=wd.tiles[ty*wd.w+tx];
+  if(set==='tideclaw'){
+    if(t===T_BPOOL)return 'pool';
+    if(t===T_BCORAL)return 'coral';
+    if(t===T_BPEARL)return 'pearlFloor';
+    if(t===T_BROCK)return 'rock';
+    if(t===T_BPLANK)return 'plank';
+    if(t===T_BCRYST)return 'crystal';
+    if(t===T_BWEED)return 'weed';
+    return null;
   }
-  if(py<3){
-    if(mortar)return [52,64,62];
-    if(crack)return [36,42,40];
-    if(barn)return [214,206,184];
-    if(moss)return [70,122,68];
-    if(wet)return [210,236,226];
-    let c=coral?((px+tx)&1?[176,116,100]:[150,96,86]):((px+tx+ty)&1?[128,146,140]:[108,126,122]);
-    c=[c[0]+shift,c[1]+shift*0.9,c[2]+shift*0.75];
-    if(py===0)c=[c[0]+(north?8:34),c[1]+(north?10:40),c[2]+(north?8:32)];
-    if(n>0.93&&py===1)c=[c[0]+20,c[1]+18,c[2]+14];
-    return clampRGB(c);
+  if(set==='hexmire'){
+    if(t===T_HPOOL)return 'pool';
+    if(t===T_HSHALLOW)return 'shallow';
+    if(t===T_HCLEAR)return 'clearing';
+    if(t===T_HROOT)return 'root';
+    if(t===T_HTOTEM)return 'totem';
+    if(t===T_HCAUL)return 'cauldron';
+    return null;
   }
-  if(py===3||mortar)return [20,26,28];
-  if(py===7)return [10,14,16];
-  if(crack)return [16,20,22];
-  if(barn)return [140,136,122];
-  if(chip)return [18,22,24];
-  if(moss&&py===4)return [48,78,50];
-  let c=(py&1)?[40,50,52]:[52,64,66];
-  if(coral&&px>2&&px<6)c=[c[0]+18,c[1]-6,c[2]-8];
-  c=[c[0]+shift*0.35,c[1]+shift*0.3,c[2]+shift*0.3];
-  if(!south&&py>5)c=[c[0]-10,c[1]-8,c[2]-6];
-  return clampRGB(c);
+  if(set==='cinder'){
+    if(t===T_CLAVA)return 'lava';
+    if(t===T_CASH)return 'ash';
+    if(t===T_CEGG)return 'egg';
+    if(t===T_CROCK)return 'rock';
+    return null;
+  }
+  if(set==='void'){
+    if(t===T_VRUNE)return 'rune';
+    if(t===T_VPILLAR)return 'pillar';
+    if(t===T_VVOID)return 'void';
+    return null;
+  }
+  if(t===T_SJADE)return 'jade';
+  if(t===T_SBREAK)return 'breakWall';
+  return null;
+}
+function dungeonLayers(wd,tx,ty){
+  const set=dungeonSetOf(wd);
+  if(!set)return null;
+  return {set:set,layers:dtLayers(set,(x,y)=>dunIsWall(set,wd,x,y),(x,y)=>dunKind(set,wd,x,y),tx,ty)};
 }
 function outsideDist(wd,tx,ty){
   const dx=tx<0?-tx:tx>=wd.w?tx-(wd.w-1):0;
@@ -828,427 +831,28 @@ function fadeVoid(c,tx,ty,px,py,dist,reach){
   const g=(hash2(tx*5+px,ty*9+py)-0.5)*12*fade;
   return [clamp(c[0]*k+g,0,255)|0,clamp(c[1]*k+g*0.9,0,255)|0,clamp(c[2]*k+g*0.75,0,255)|0];
 }
-function bogVoidPixel(tx,ty,px,py,dist){
-  const n=hash2(tx*7+px,ty*11+py);
-  let c=n<0.45?[16,30,22]:[10,20,16];
-  if(((px+(ty&3))&5)===0&&(py&3)===1)c=[26,44,32];
-  if(n>0.96)c=[48,78,40];
-  if((px*2+tx+py*3)%9===0&&n>0.35)c=[c[0]+8,c[1]+12,c[2]+6];
-  return fadeVoid(c,tx,ty,px,py,dist,12);
-}
-function cinderVoidPixel(tx,ty,px,py,dist){
-  const n=hash2(tx*8+px,ty*5+py);
-  let c=((px+tx+ty)&1)?[32,24,22]:[18,14,14];
-  if(n>0.9)c=[42,32,28];
-  const vein=hash2(tx*2+3,ty*3+1);
-  if(vein>0.8&&(px===2||px===3||px===4)&&py>0&&py<7)c=vein>0.93?[210,78,24]:[120,36,16];
-  else if(n>0.97)c=[255,160,48];
-  return fadeVoid(c,tx,ty,px,py,dist,12);
-}
-function starFieldPixel(tx,ty,px,py,dist){
-  const n=hash2(tx*9+px*3,ty*7+py*5);
-  const neb=hash2((tx>>1)*3+1,(ty>>1)*5+2);
-  let r=6,g=4,b=16;
-  if(neb>0.8){r+=24;g+=10;b+=40;}
-  else if(neb>0.64){r+=8;b+=18;}
-  if(n>0.988){r=220;g=220;b=240;}
-  else if(n>0.972){r=160;g=120;b=220;}
-  else if(n>0.955&&((px+py)&1)){r=80;g=56;b=130;}
-  const fade=dist<=1?1:clamp(1-(dist-1)/14,0,1);
-  const k=fade*fade;
-  return [clamp(r*k,0,255)|0,clamp(g*k,0,255)|0,clamp(b*k,0,255)|0];
+// Sanctum fills the outside with the void pit. Coil fills it with wallDeep. Tide, hex and cinder fade wallDeep to black.
+function outsideLayers(wd,tx,ty){
+  if(wd.theme==='sanctum'){
+    return {set:'void',layers:dtLayers('void',
+      (x,y)=>x>=0&&y>=0&&x<wd.w&&y<wd.h&&wd.tiles[y*wd.w+x]===T_VWALL,
+      (x,y)=>{
+        if(x<0||y<0||x>=wd.w||y>=wd.h)return 'void';
+        return wd.tiles[y*wd.w+x]===T_VVOID?'void':null;
+      },tx,ty)};
+  }
+  return {set:'coil',layers:dtLayers('coil',()=>true,()=>null,tx,ty)};
 }
 function voidRGB(wd,tx,ty,px,py){
-  const dist=outsideDist(wd,tx,ty);
   const theme=wd&&wd.theme;
-  if(theme==='hex')return bogVoidPixel(tx,ty,px,py,dist);
-  if(theme==='cinder')return cinderVoidPixel(tx,ty,px,py,dist);
-  if(theme==='sanctum')return starFieldPixel(tx,ty,px,py,dist);
-  if(theme==='coil'){
-    const n=hash2(tx*3+px,ty*5+py);
-    let c=n>0.5?[28,24,16]:[18,16,12];
-    if(n>0.96)c=[46,78,32];
-    return c;
+  if(theme==='sanctum'||theme==='coil'){
+    const pack=outsideLayers(wd,tx,ty);
+    return dtPixel(pack.set,pack.layers,px,py);
   }
-  const c=burrowWallPixel(wd,tx,ty,px,py);
-  const fade=dist<=2?1:clamp(1-(dist-2)/12,0,1);
-  const k=fade*fade;
-  const grain=(hash2(tx*5+px,ty*9+py)-0.5)*14*fade;
-  return [clamp(c[0]*k+grain,0,255)|0,clamp(c[1]*k+grain,0,255)|0,clamp(c[2]*k+grain*0.85,0,255)|0];
+  const set=theme==='hex'?'hexmire':theme==='cinder'?'cinder':'tideclaw';
+  return fadeVoid(dtRGBOf(set,'D'),tx,ty,px,py,outsideDist(wd,tx,ty),12);
 }
-function brickSeam(px,tx,ty){
-  const w=3+((hash2(ty*3+1,(tx>>2))*3)|0);
-  const off=(hash2(ty,11)*8)|0;
-  return ((px+off)%(w+1))===0;
-}
-function stoneTop(px,py,tx,ty){
-  const seam=brickSeam(px,tx,ty)||(py===2&&hash2(tx,ty)>0.4);
-  if(py===0&&hash2(tx+3,ty)>0.2)return [168,160,186];
-  if(seam)return [78,72,96];
-  return hash2(tx>>1,ty>>1)<0.5?[112,104,128]:[98,92,116];
-}
-function stoneFront(px,py,tx,ty){
-  const seam=brickSeam(px,tx,ty);
-  if(py===7)return [22,18,32];
-  if(seam&&hash2(px+tx,py+ty)>0.35)return [42,38,56];
-  const n=hash2(tx*3+px,ty*5+py);
-  if(n>0.96&&py>3)return [86,110,72];
-  return n>0.5?[58,52,74]:[70,64,88];
-}
-function manorWall(wd,tx,ty,px,py){
-  const kind=wd.wallKind?wd.wallKind[ty*wd.w+tx]:0;
-  const n=field(tx,ty,7);
-  if(kind){
-    const edge=px===0||px===7;
-    if(py===0)return kind===2?[255,238,204]:[232,210,168];
-    if(py<3)return edge?[118,90,58]:[206,176,132];
-    if(py===3)return [92,68,42];
-    if(py===7)return [46,34,22];
-    let c=edge?[102,78,50]:(n>0.55?[168,140,100]:[154,126,90]);
-    if(px>2&&px<5&&py===5)c=[88,66,40];
-    return c;
-  }
-  const leaf=n<0.42?[64,124,44]:n<0.7?[78,142,52]:[92,158,62];
-  if(py===0)return [leaf[0]+36,leaf[1]+28,leaf[2]+10];
-  if(py<3)return [leaf[0]+12,leaf[1]+10,leaf[2]+4];
-  if(py===7)return [28,44,20];
-  const hx=1+((hash2(tx+3,ty)*5)|0),hy=4+((hash2(ty+1,tx)*2)|0);
-  if(px===hx&&py===hy)return [158,198,78];
-  if(px===((hx+3)%5)+1&&py===6)return [32,68,26];
-  return py>4?[40,88,30]:leaf;
-}
-function biomeWall(wd,tx,ty,px,py){
-  const z=wd.zone[ty*wd.w+tx];
-  const north=ty>0&&wd.tiles[(ty-1)*wd.w+tx]===T_WALL;
-  const n=hash2(tx*9+px,ty*5+py);
-  const seam=brickSeam(px,tx,ty)&&n>0.28;
-  if(z<=0){
-    if(py<3)return py===0&&!north?[214,194,154]:seam?[124,102,72]:[180,156,114];
-    if(n>0.96)return [64,118,86];
-    if(n>0.9&&py>4)return [90,140,160];
-    return seam?[74,58,42]:[116,90,64];
-  }
-  if(z===1){
-    if(py<3){
-      if(n>0.62&&py>0)return [68,112,58];
-      return py===0&&!north?[150,168,110]:seam?[58,72,46]:[112,124,86];
-    }
-    if(n>0.72)return [46,82,42];
-    return seam?[42,50,36]:[76,82,58];
-  }
-  if(z===2){
-    if((px===3||px===4)&&py>1&&hash2(tx*2,ty)>0.48)return py<5?[214,96,32]:[132,42,18];
-    if(n>0.97)return [255,176,64];
-    if(py<3)return py===0&&!north?[120,108,100]:seam?[52,44,40]:[94,82,74];
-    return seam?[30,24,22]:[52,42,38];
-  }
-  if(py<3)return py===0&&!north?[232,230,238]:seam?[142,140,152]:[204,202,214];
-  if(n>0.975)return [255,214,110];
-  if(n>0.93&&py>4)return [120,140,110];
-  return seam?[92,90,104]:[156,154,166];
-}
-const DEN_WALL={
-  [T_HWALL]:{cap:[[86,108,52],[108,132,64],[64,82,40]],mortar:[34,28,20],face:[[40,34,26],[54,44,32]],edge:[20,26,16],accent:'hex'},
-  [T_CWALL]:{cap:[[78,68,62],[96,82,74],[52,44,40]],mortar:[30,22,20],face:[[38,28,26],[52,36,32]],edge:[20,12,10],accent:'cinder'},
-  [T_VWALL]:{cap:[[52,42,72],[72,58,96],[34,28,52]],mortar:[16,12,28],face:[[24,18,40],[36,26,52]],edge:[12,8,20],accent:'void'}
-};
-function denWallAt(wd,tx,ty,tile){
-  if(!wd)return true;
-  if(tx<0||ty<0||tx>=wd.w||ty>=wd.h)return !!wd.isDungeon;
-  return wd.tiles[ty*wd.w+tx]===tile;
-}
-function denWallPixel(wd,tx,ty,px,py,tile){
-  const L=DEN_WALL[tile];
-  const west=denWallAt(wd,tx-1,ty,tile),east=denWallAt(wd,tx+1,ty,tile);
-  const north=denWallAt(wd,tx,ty-1,tile),south=denWallAt(wd,tx,ty+1,tile);
-  const edgeL=!west&&px===0,edgeR=!east&&px===7;
-  const mortar=brickSeam(px,tx,ty);
-  const n=hash2(tx*13+px*3,ty*17+py*5);
-  const shift=(hash2(tx*19+5,ty*23+2)-0.5)*16;
-  let accent=null;
-  if(L.accent==='hex'){
-    if(n>0.93&&py>0&&py<6)accent=[132,78,190];
-    else if(py<3&&((px+tx)&3)===1&&n>0.55)accent=[78,128,52];
-  }else if(L.accent==='cinder'){
-    if((px===3||px===4)&&py>1&&py<7&&hash2(tx*3+1,ty*5)>0.52)accent=py<4?[220,96,28]:[140,42,16];
-    else if(n>0.95)accent=[255,186,70];
-  }else if(n>0.965)accent=[230,220,255];
-  else if(((px*3+py+tx)&7)===0&&py>3)accent=[150,90,230];
-  if(edgeL||edgeR){
-    if(!north&&py===0)return clampRGB([L.cap[0][0]+28,L.cap[0][1]+20,L.cap[0][2]+14]);
-    if(py<3)return (px+py)&1?L.cap[2]:L.edge;
-    if(py===3||py===7)return [8,6,10];
-    return accent&&py>3?accent:((py&1)?L.edge:L.face[0]);
-  }
-  if(py<3){
-    if(mortar)return L.mortar;
-    if(accent&&py>0)return accent;
-    let c=L.cap[(px+tx+ty)&1?0:1].slice();
-    if(py===0)c=[c[0]+(north?6:26),c[1]+(north?8:20),c[2]+(north?6:16)];
-    return clampRGB([c[0]+shift,c[1]+shift*0.85,c[2]+shift*0.7]);
-  }
-  if(accent&&!mortar)return accent;
-  if(py===3||mortar)return L.mortar;
-  if(py===7)return [8,6,10];
-  const c=(py&1)?L.face[0].slice():L.face[1].slice();
-  if(!south&&py>5){c[0]-=8;c[1]-=6;c[2]-=6;}
-  return clampRGB([c[0]+shift*0.3,c[1]+shift*0.25,c[2]+shift*0.25]);
-}
-function coilWallPixel(tx,ty,px,py,door){
-  const n=hash2(tx*11+px,ty*13+py);
-  if(!door){
-    const scale=brickSeam(px,tx,ty)?0:(n>0.62?1:2);
-    let c=scale===0?[36,78,34]:n>0.6?[28,58,28]:[48,40,24];
-    if(py===0&&hash2(tx,ty)>0.25)c=[196,164,72];
-    if(py===7)c=[18,28,16];
-    if((px===1||px===6)&&n>0.72)c=[210,176,80];
-    if(n>0.97&&py>2)c=[70,120,48];
-    return c;
-  }
-  let c=n>0.5?[186,154,96]:[158,128,74];
-  if((px*3+py+tx)%5===0||(py>2&&py<6&&px===3))c=[42,28,18];
-  if(py===1&&px>1&&px<6)c=[210,180,110];
-  if((px===2||px===5)&&py>2&&py<6)c=[70,120,48];
-  return c;
-}
-function wallRGB(wd,tx,ty,px,py,t){
-  if(t===T_BWALL)return burrowWallPixel(wd,tx,ty,px,py);
-  if(t===T_SWALL)return coilWallPixel(tx,ty,px,py,false);
-  if(t===T_SBREAK)return coilWallPixel(tx,ty,px,py,true);
-  if(DEN_WALL[t])return denWallPixel(wd,tx,ty,px,py,t);
-  if(t===T_WALL&&wd.isHub)return manorWall(wd,tx,ty,px,py);
-  if(t===T_WALL&&!wd.isVault)return biomeWall(wd,tx,ty,px,py);
-  const west=tx>0&&wd.tiles[ty*wd.w+tx-1]===t;
-  const east=tx+1<wd.w&&wd.tiles[ty*wd.w+tx+1]===t;
-  if((px===0&&!west)||(px===7&&!east)){
-    if(py<3)return hash2(tx,py)>0.5?[108,100,124]:[96,90,112];
-    return [36,32,50];
-  }
-  if(py<3)return stoneTop(px,py,tx,ty);
-  return stoneFront(px,py,tx,ty);
-}
-function wallLip(t,tx,px,py){
-  if(t===T_SWALL||t===T_SBREAK){
-    if(py===0)return [28,22,14];
-    return [72,58,32];
-  }
-  if(t===T_BWALL){
-    if(py===0)return [14,20,22];
-    if(((px+((tx&1)?2:0))&3)===0)return [24,32,34];
-    return [32,44,46];
-  }
-  const L=DEN_WALL[t];
-  if(L){
-    if(py===0)return L.edge;
-    if(((px+((tx&1)?2:0))&3)===0)return L.mortar;
-    return L.face[0];
-  }
-  return py===0?[28,24,40]:((px+tx)&3)===0?[48,42,62]:[62,56,78];
-}
-function denGround(t,tx,ty,px,py){
-  const wx=tx*8+px,wy=ty*8+py,n=hash2(wx*3+1,wy*5+2),q=(wx+wy)&1;
-  if(t===T_HFLOOR||t===T_HSHALLOW||t===T_HCLEAR){
-    const lift=t===T_HCLEAR?22:0;
-    let c=q?[54+lift,70+lift,32]:[40+lift,52+lift,24];
-    if(n>0.9)c=[c[0]+18,c[1]+14,c[2]+6];
-    if(n<0.08)c=[c[0]-12,c[1]-10,c[2]-6];
-    if(hash2((wx>>2)*3,(wy>>2)*5)>0.82&&(wx&7)>1&&(wx&7)<6)c=[22,48,34];
-    if(((wx+wy*2)%11)===0&&hash2(tx+3,ty)>0.4)c=[52,32,16];
-    if(t===T_HSHALLOW)c=[c[0]+6,c[1]+14,c[2]+8];
-    if(hash2(tx*3,ty*5)>0.94&&px>2&&px<5&&py>3&&py<6)c=[168,64,52];
-    if(hash2(tx+9,ty+4)>0.96&&py<3&&(px===2||px===5))c=[48,90,40];
-    return clampRGB(c);
-  }
-  if(t===T_HPOOL){
-    let c=(px+py+tx)&1?[16,36,28]:[24,52,40];
-    if(((px+ty)&3)===0&&(py&1)===0)c=[48,86,62];
-    if(hash2(tx,ty)>0.8&&px>2&&px<6&&py>2&&py<5)c=py===3?[40,110,48]:[22,70,32];
-    return c;
-  }
-  if(t===T_HROOT){
-    const on=(px===2||px===3||px===5)&&py>0;
-    if(on)return (py&1)?[62,40,22]:[40,26,14];
-    if(px===4&&py>1)return [28,48,24];
-    return q?[50,64,30]:[36,48,22];
-  }
-  if(t===T_HTOTEM){
-    if(px>1&&px<6){
-      if(py===1)return [120,70,190];
-      if(py===2&&(px===3||px===4))return [232,220,80];
-      if(py<6)return (px+py)&1?[92,58,36]:[64,40,24];
-    }
-    if(px===3||px===4)return [48,32,18];
-    return q?[46,60,28]:[32,42,20];
-  }
-  if(t===T_HCAUL){
-    if(py>1&&py<7&&px>1&&px<6){
-      if(py<4&&px>2&&px<5)return (px+py)&1?[70,170,60]:[120,220,90];
-      if(py===4)return [40,36,34];
-      return px===2||px===5?[28,26,24]:[58,54,50];
-    }
-    return q?[44,58,28]:[30,40,18];
-  }
-  if(t===T_CFLOOR||t===T_CASH){
-    let c=n>0.55?[56,48,44]:[38,32,30];
-    if(n>0.92)c=[84,70,62];
-    if(n<0.06)c=[24,20,18];
-    if(hash2((wx>>1)+9,(wy>>1)*3)>0.9&&(wy&3)<2)c=n>0.5?[168,58,22]:[96,30,14];
-    if(t===T_CASH)c=[c[0]+16,c[1]+12,c[2]+8];
-    if(hash2(tx*4,ty)>0.95&&py>4&&px>1&&px<6)c=n>0.5?[40,36,34]:[70,64,60];
-    return clampRGB(c);
-  }
-  if(t===T_CLAVA){
-    if(n>0.82)return [255,n>0.92?214:150,48];
-    if(n>0.35)return q?[210,78,22]:[150,42,14];
-    return [48,20,12];
-  }
-  if(t===T_CEGG){
-    if(px>1&&px<6&&py>1&&py<6){
-      if((px===3&&py===3)||(px===4&&py===4))return [255,150,40];
-      return n>0.7?[210,170,90]:[168,130,70];
-    }
-    return q?[58,48,44]:[36,30,28];
-  }
-  if(t===T_CROCK){
-    if(px===0||py===7)return [20,16,14];
-    if(px<2||py>5)return [48,40,36];
-    return n>0.8?[120,100,90]:[78,66,60];
-  }
-  if(t===T_VFLOOR||t===T_VRUNE){
-    let c=n>0.5?[24,18,38]:[14,10,26];
-    if(n>0.94)c=[36,28,58];
-    if(n>0.985)c=[210,200,240];
-    if(t===T_VRUNE){
-      const ring=Math.abs((px-3.5)*(px-3.5)+(py-3.5)*(py-3.5)-8);
-      if(ring<2.2)c=[176,120,255];
-      if(px===3&&py===3)c=[255,240,255];
-    }
-    if(hash2(tx,ty)>0.945){
-      if(py>4&&px>1&&px<6)c=[214,204,186];
-      if(py===4&&(px===3||px===4))c=[255,214,110];
-      if(py===5&&px===3)c=[90,70,48];
-    }
-    return c;
-  }
-  if(t===T_VPILLAR){
-    if(px<2||px>5)return q?[22,16,36]:[14,10,24];
-    if(py<2)return [90,70,130];
-    if(py===2)return [40,24,60];
-    return (py&1)?[36,24,58]:[52,36,78];
-  }
-  if(t===T_VVOID)return starFieldPixel(tx,ty,px,py,0);
-  return [40,40,40];
-}
-function burrowFloor(tx,ty,px,py){
-  const n=hash2(tx*13+px,ty*17+py),v=(hash2(tx*3+1,ty*5+9)*7)|0;
-  let c=((px+py+tx)&1)?[158,118,76]:[184,146,98];
-  if(n>0.94)c=[210,176,128];
-  if(v===1){
-    if(py>=3&&py<=5&&px>=2&&px<=5)c=px===5?[176,150,120]:[232,214,180];
-    if(py===4&&px===3)c=[250,240,220];
-  }else if(v===2){
-    if(px>1&&px<6&&py>1&&py<6)c=[32,96,108];
-    if(px>2&&px<5&&py>2&&py<5)c=[78,170,178];
-    if(py===2&&px===4)c=[200,240,240];
-  }else if(v===3){
-    if((px===2||px===3)&&py>0)c=(py&1)?[36,120,64]:[24,86,48];
-    if(px===5&&py>1&&py<7)c=[48,140,72];
-  }else if(v===4){
-    if(px===py||px===py-1)c=[96,70,48];
-    if(px+py===7)c=[80,58,40];
-  }else if(v===5){
-    if((px===1&&py===2)||(px===5&&py===5)||(px===3&&py===6))c=[196,198,188];
-    if((px===2&&py===2)||(px===6&&py===5)||(px===4&&py===6))c=[120,124,116];
-  }else if(v===6&&px>2&&px<6&&py>3&&py<7)c=[120,96,70];
-  return c;
-}
-function pearlFloor(tx,ty,px,py){
-  const n=hash2(tx*9+px,ty*4+py);
-  let c=((px+tx)&1)?[214,186,140]:[196,164,116];
-  if(n>0.9)c=[236,220,180];
-  if((px===3||px===4)&&py===3)c=[240,230,200];
-  if(px===0||py===7)c=[150,118,78];
-  return c;
-}
-// One 8x8 palette per ground. Godlands stays pale stone. Ash is gray-brown, with a
-// crack of lava on a few tiles — never a solid red field.
-const GROUND={
-  water:[[28,64,138],[42,92,184],[16,40,96],[86,142,210]],
-  wet:[[118,128,74],[74,98,62],[150,142,88],[48,74,58]],
-  sand:[[236,214,152],[210,180,108],[248,230,180],[176,146,84]],
-  grass:[[48,132,44],[74,168,58],[32,96,30],[132,196,78]],
-  ash:[[112,98,86],[84,74,64],[136,120,104],[58,50,44]],
-  lava:[[188,48,26],[228,92,32],[110,24,14]],
-  rock:[[190,190,200],[166,166,178],[214,214,222],[120,120,132]],
-  arena:[[176,174,186],[154,152,166],[200,198,210]],
-  floor:[[132,130,148],[108,106,124],[150,148,164]],
-  wall:[[64,58,80],[40,36,54],[92,84,108]],
-  carpet:[[142,44,60],[176,62,78],[96,26,40]],
-  bfloor:[[172,126,78],[144,102,62],[196,152,100]],
-  bwall:[[96,54,46],[62,34,30],[124,76,60]],
-  bpool:[[26,104,122],[16,74,92],[72,164,176]],
-  bpearl:[[210,172,122],[230,194,146],[164,124,80]]
-};
-function sameTile(wd,tx,ty,tile){
-  if(!wd||tx<0||ty<0||tx>=wd.w||ty>=wd.h)return false;
-  return wd.tiles[ty*wd.w+tx]===tile;
-}
-function havenFloor(tx,ty,px,py){
-  const wx=tx*8+px,wy=ty*8+py;
-  const row=Math.floor(wy/18);
-  const off=(row&1)?9:0;
-  const col=Math.floor((wx+off)/22);
-  const tone=hash2(col*4+1,row*7+3);
-  let c=tone<0.33?[188,158,116]:tone<0.66?[206,178,134]:[170,142,104];
-  const lx=(wx+off)%22,ly=wy%18;
-  if((lx<1||ly<1)&&hash2(col+8,row+2)>0.28)c=[124,98,68];
-  else if(lx===5&&ly===5)c=[c[0]+14,c[1]+10,c[2]+6];
-  return c;
-}
-function havenMeadow(tx,ty,px,py){
-  const wx=tx+px/8,wy=ty+py/8;
-  const b=field(wx,wy,8),warm=field(wx+24,wy-14,12);
-  let c=b<0.42?[58,122,44]:b<0.7?[76,150,54]:[94,168,64];
-  const lift=(warm-0.5)*26;
-  c=[c[0]+lift*0.35,c[1]+lift,c[2]+lift*0.15];
-  return clampRGB(c);
-}
-function havenPath(tx,ty,px,py){
-  const b=field(tx,ty,5);
-  let c=b<0.5?[198,166,110]:[176,146,94];
-  if(field(tx+3,ty-2,4)>0.78&&px>1&&px<6&&py>2&&py<6)c=[148,116,72];
-  return c;
-}
-function havenPond(tx,ty,px,py){
-  const b=field(tx+px*0.2,ty+py*0.2,3.2);
-  let c=b<0.45?[36,104,132]:[52,128,150];
-  if(b>0.78&&py<6)c=[168,214,210];
-  return c;
-}
-function vaultFloor(tx,ty,px,py){
-  const n=hash2(tx*3+px,ty*7+py);
-  const blob=hash2(tx>>1,ty>>1);
-  let c=blob<0.5?[120,118,136]:[138,136,152];
-  if(n>0.9)c=[158,156,172];
-  if(hash2(tx,ty)>0.82&&(px===2||px===5)&&py>1&&py<6)c=[92,90,108];
-  return c;
-}
-function rugRGB(wd,tx,ty,px,py){
-  const edge=(px<1&&!sameTile(wd,tx-1,ty,T_RUG))||(px>6&&!sameTile(wd,tx+1,ty,T_RUG))||(py<1&&!sameTile(wd,tx,ty-1,T_RUG))||(py>6&&!sameTile(wd,tx,ty+1,T_RUG));
-  if(edge)return [186,144,64];
-  const gx=tx*8+px,gy=ty*8+py;
-  const mx=Math.abs((gx%28)-14),my=Math.abs((gy%28)-14);
-  if(mx+my<6)return mx+my<2?[244,220,150]:[214,176,96];
-  return ((gx>>1)+(gy>>1))&1?[52,64,118]:[74,90,148];
-}
-function carpetRGB(wd,tx,ty,px,py){
-  const edge=(px===0&&!sameTile(wd,tx-1,ty,T_CARPET))||(px===7&&!sameTile(wd,tx+1,ty,T_CARPET))||(py===0&&!sameTile(wd,tx,ty-1,T_CARPET))||(py===7&&!sameTile(wd,tx,ty+1,T_CARPET));
-  if(edge)return [214,170,64];
-  const n=hash2(tx*4+px,ty*6+py);
-  let c=((py+tx)>>1)&1?[148,40,60]:[178,64,80];
-  if(n>0.93)c=[198,96,108];
-  return c;
-}
+
 function field(tx,ty,s){
   const x=tx/s,y=ty/s,x0=Math.floor(x),y0=Math.floor(y),fx=x-x0,fy=y-y0;
   const sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy);
@@ -1256,158 +860,83 @@ function field(tx,ty,s){
   const a=h(x0,y0),b=h(x0+1,y0),c=h(x0,y0+1),d=h(x0+1,y0+1);
   return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy;
 }
-function groundRGB(tx,ty,px,py,base){
-  const h=hash2(tx,ty),n=hash2(tx*13+px,ty*17+py);
-  const at=(set,i)=>set[i%set.length];
-  const wx=tx*8+px,wy=ty*8+py;
-  const tone=field(tx+px/8,ty+py/8,6);
-  const mix=(a,b,t)=>[a[0]+(b[0]-a[0])*t|0,a[1]+(b[1]-a[1])*t|0,a[2]+(b[2]-a[2])*t|0];
-  if(base===T_WATER){
-    let c=mix(GROUND.water[2],GROUND.water[1],tone);
-    const crest=field(wx/10,wy/7,2.4);
-    if(crest>0.78&&crest<0.86&&((wy>>1)&3)===1)c=GROUND.water[3];
-    return c;
+function paintWorldTile(wd,wx,wy){
+  if(wd.isDungeon){
+    const pack=dungeonLayers(wd,wx,wy);
+    return {col:(px,py)=>pack?dtPixel(pack.set,pack.layers,px,py):[8,12,16],deco:null};
   }
-  if(base===T_WET){
-    let c=mix(GROUND.wet[1],GROUND.wet[0],tone);
-    if(h>0.93){
-      const dx=px-3.5,dy=py-4;
-      if(dx*dx+dy*dy<5.5)c=dx*dx+dy*dy<1.2?[196,186,90]:[36,96,48];
-    }else if(h>0.86&&h<0.9&&px>1&&px<4&&py<6)c=py<2?[108,138,62]:[52,84,40];
-    return c;
-  }
-  if(base===T_SAND){
-    const sand=field(tx+px/8,ty+py/8,3.4);
-    let c=mix(GROUND.sand[2],GROUND.sand[0],sand);
-    if(h>0.955&&px>1&&px<6&&py>2&&py<6)c=(px>3&&py>4)?[168,140,96]:[214,186,140];
-    if(h>0.972&&py>3&&py<6&&px>0&&px<7)c=py===4?[150,116,70]:[196,164,112];
-    return c;
-  }
-  if(base===T_GRASS){
-    const patch=field(tx+px/8,ty+py/8,3.2),broad=field(tx+18,ty-6,8);
-    let c=mix(GROUND.grass[2],GROUND.grass[0],patch*0.7+broad*0.3);
-    if(broad>0.58)c=mix(c,GROUND.grass[1],Math.min(1,(broad-0.58)*2));
-    if(h>0.82&&h<0.88&&px>1&&px<6&&py<5)c=py<2&&(px===2||px===4)?GROUND.grass[3]:GROUND.grass[2];
-    if(h>0.90&&h<0.932){
-      const dx=px-3.5,dy=py-4;
-      if(dx*dx+dy*dy<6)c=dx*dx+dy*dy<1.5?[232,210,96]:[190,72,104];
-    }
-    if(h>0.946&&h<0.962&&px>2&&px<6&&py>2&&py<7)c=(px+py)&1?[132,122,104]:[96,90,78];
-    if(h>0.968&&h<0.978&&py>2&&py<5&&px>0)c=py===3?[156,112,62]:[96,64,36];
-    if(h>0.986){
-      const dx=px-3.5,dy=py-3.5,d=dx*dx+dy*dy;
-      if(d>2.5&&d<7)c=d>5?[230,214,186]:[186,64,72];
-    }
-    return c;
-  }
-  if(base===T_DARK){
-    const ash=field(tx+px/8,ty+py/8,3.6);
-    let c=mix(GROUND.ash[3],GROUND.ash[0],ash);
-    if(h>0.93){
-      const crack=1+((h*5)|0)%5;
-      if((py===crack||py===crack+1)&&px>1&&px<7)c=GROUND.lava[0];
-    }
-    if(h>0.97&&h<=0.985&&px>1&&px<6&&py>2&&py<6)c=[58,50,44];
-    return c;
-  }
-  if(base===T_ROCK){
-    const row=Math.floor(wy/22),off=(row&1)?10:0;
-    const col=Math.floor((wx+off)/26);
-    const stone=hash2(col*3+1,row*5+2);
-    let c=stone<0.45?GROUND.rock[1]:stone<0.8?GROUND.rock[0]:GROUND.rock[2];
-    const lx=(wx+off)%26,ly=wy%22;
-    if((lx<1||ly<1)&&hash2(col+4,row+1)>0.4)c=GROUND.rock[3];
-    if(h>0.985&&px>2&&px<6&&py>4)c=[104,128,90];
-    return c;
-  }
-  if(base===T_ARENA){
-    let c=tone<0.5?GROUND.arena[0]:GROUND.arena[2];
-    if(tone>0.82)c=GROUND.arena[1];
-    return c;
-  }
-  if(base===T_FLOOR)return havenFloor(tx,ty,px,py);
-  if(base===T_WALL){
-    if(py<3)return py===0?[168,160,186]:[104,98,122];
-    if(py===7)return [22,18,32];
-    return hash2(tx+px,ty+py)>0.5?[58,52,74]:[72,66,90];
-  }
-  if(base===T_CARPET){
-    if(px===0||px===7)return [214,170,64];
-    return at(GROUND.carpet,((py+tx)>>1)&1);
-  }
-  if(base===T_RUG){
-    const gx=tx*8+px,gy=ty*8+py;
-    const mx=Math.abs((gx%24)-12),my=Math.abs((gy%24)-12);
-    if(px===0||py===0||px===7||py===7)return [186,144,64];
-    if(mx+my<5)return mx+my<2?[244,220,150]:[214,176,96];
-    return ((gx>>1)+(gy>>1))&1?[46,58,108]:[68,84,138];
-  }
-  if(base===T_BFLOOR)return burrowFloor(tx,ty,px,py);
-  if(base===T_BWALL)return burrowWallPixel(null,tx,ty,px,py);
-  if(base===T_BPOOL){
-    if(px>1&&px<6&&py>1&&py<6)return (px+py)&1?[28,120,132]:[64,176,184];
-    if(((px+ty)&3)===0&&(py&1)===0)return [120,210,214];
-    return ((px+py+tx)&1)?[24,92,104]:[18,70,84];
-  }
-  if(base===T_BPEARL)return pearlFloor(tx,ty,px,py);
-  const src=TCOL[base]||[90,90,90],j=(n-0.5)*12;
-  return [clamp(src[0]+j,0,255)|0,clamp(src[1]+j,0,255)|0,clamp(src[2]+j,0,255)|0];
-}
-function coilFloor(t,tx,ty,px,py){
-  const n=hash2(tx*7+px*3,ty*9+py);
-  const q=(px+py+tx)&1;
-  let c=q?[168,140,86]:[148,122,74];
-  if(n>0.9)c=[186,160,96];
-  if(n<0.08)c=[120,98,58];
-  if(((tx*3+ty)%7)===0&&px>2&&px<6&&py>2&&py<6)c=[42,110,58];
-  if(t===T_SJADE)c=(px+py)&1?[36,140,78]:[210,176,72];
-  return c;
+  const pack=wtLayers(wd,wx,wy);
+  return {col:(px,py)=>wtPixel(pack.layers,px,py),deco:pack.deco};
 }
 function tileRGB(wd,tx,ty,px,py){
-  if(tx<0||ty<0||tx>=wd.w||ty>=wd.h)return [8,12,16];
-  const i=ty*wd.w+tx,t=wd.tiles[i];
-  if(t===T_LAVA){
-    const b=field(tx+px/8,ty+py/8,2.2);
-    if(b>0.72&&px>1&&px<6&&py>1&&py<6)return [255,186,64];
-    return b<0.4?[168,42,16]:[214,78,24];
-  }
-  if(t===T_WALL||t===T_BWALL||t===T_SWALL||t===T_SBREAK||DEN_WALL[t])return wallRGB(wd,tx,ty,px,py,t);
-  if(t===T_SFLOOR||t===T_SJADE){
-    if(ty>0&&py<2){
-      const nt=wd.tiles[(ty-1)*wd.w+tx];
-      if(nt===T_SWALL||nt===T_SBREAK)return wallLip(nt,tx,px,py);
-    }
-    return coilFloor(t,tx,ty,px,py);
-  }
-  if(t===T_VVOID)return starFieldPixel(tx,ty,px,py,0);
-  if(t>=40&&t<=64){
-    if(ty>0&&py<2){
-      const nt=wd.tiles[(ty-1)*wd.w+tx];
-      if(DEN_WALL[nt]||nt===T_BWALL||nt===T_WALL)return wallLip(nt,tx,px,py);
-    }
-    return denGround(t,tx,ty,px,py);
-  }
-  if(ty>0&&py<2){
-    const nt=wd.tiles[(ty-1)*wd.w+tx];
-    if(wd.isHub&&nt===T_WALL){if(py===0)return [32,52,24];}
-    else if(nt===T_WALL||nt===T_BWALL||DEN_WALL[nt])return wallLip(nt,tx,px,py);
-  }
-  const base=tileBase(wd,i,t);
-  if(wd.isHub&&base===T_GRASS)return havenMeadow(tx,ty,px,py);
-  if(wd.isHub&&base===T_SAND)return havenPath(tx,ty,px,py);
-  if(wd.isHub&&base===T_WATER)return havenPond(tx,ty,px,py);
-  if(base===T_FLOOR)return wd.isVault?vaultFloor(tx,ty,px,py):havenFloor(tx,ty,px,py);
-  if(base===T_RUG)return rugRGB(wd,tx,ty,px,py);
-  if(base===T_CARPET)return carpetRGB(wd,tx,ty,px,py);
-  return groundRGB(tx,ty,px,py,base);
+  if(!wd||tx<0||ty<0||tx>=wd.w||ty>=wd.h)return [8,12,16];
+  return paintWorldTile(wd,tx,ty).col(px,py);
 }
 function minimapRGB(wd,tx,ty){
-  const i=ty*wd.w+tx,t=wd.tiles[i],k=DECO_SPR[t]?0.62:1;
-  let r=0,g=0,b=0;
-  for(const [px,py] of [[1,1],[4,2],[3,5],[6,4]]){
-    const c=tileRGB(wd,tx,ty,px,py);r+=c[0];g+=c[1];b+=c[2];
+  const t=wd.tiles[ty*wd.w+tx],k=DECO_SPR[t]?0.62:1;
+  if(wd.isDungeon){
+    let r=0,g=0,b=0;
+    const pack=dungeonLayers(wd,tx,ty);
+    for(const [px,py] of [[1,1],[4,2],[3,5],[6,4]]){
+      const c=pack?dtPixel(pack.set,pack.layers,px,py):[8,12,16];
+      r+=c[0];g+=c[1];b+=c[2];
+    }
+    return [(r*k/4)|0,(g*k/4)|0,(b*k/4)|0];
   }
-  return [(r*k/4)|0,(g*k/4)|0,(b*k/4)|0];
+  const c=wtPixel(wtLayers(wd,tx,ty).layers,4,4);
+  return [(c[0]*k)|0,(c[1]*k)|0,(c[2]*k)|0];
+}
+function blitTile(d,width,tx,ty,colAt){
+  for(let py=0;py<TS;py++)for(let px=0;px<TS;px++){
+    const col=colAt(px,py),p=((ty*TS+py)*width+(tx*TS+px))*4;
+    d[p]=col[0];d[p+1]=col[1];d[p+2]=col[2];d[p+3]=255;
+  }
+}
+function drawProp(g,tx,ty,deco){
+  if(!deco)return;
+  const s=SPR['w:'+deco[0]+':'+deco[1]];
+  if(s)g.drawImage(s.c,tx*TS-1,ty*TS-1);
+}
+function raster(wd,x0,y0,tw,th){
+  const c=document.createElement('canvas');c.width=tw*TS;c.height=th*TS;
+  const g=c.getContext('2d');g.imageSmoothingEnabled=false;
+  const img=g.createImageData(c.width,c.height),d=img.data;
+  const decos=[];
+  for(let ty=0;ty<th;ty++)for(let tx=0;tx<tw;tx++){
+    const wx=x0+tx,wy=y0+ty;
+    if(wx<0||wy<0||wx>=wd.w||wy>=wd.h)continue;
+    // One neighbour pass per tile. Dungeons still paint through the 8x8 pieces; the realm does not.
+    const tile=paintWorldTile(wd,wx,wy);
+    if(tile.deco)decos.push([tx,ty,tile.deco]);
+    blitTile(d,c.width,tx,ty,tile.col);
+  }
+  g.putImageData(img,0,0);
+  for(const deco of decos)drawProp(g,deco[0],deco[1],deco[2]);
+  return c;
+}
+function rasterVoid(wd,x0,y0,tw,th){
+  const c=document.createElement('canvas');c.width=tw*TS;c.height=th*TS;
+  const g=c.getContext('2d'),img=g.createImageData(c.width,c.height),d=img.data;
+  const decos=[];
+  const hub=!!(wd&&wd.isHub);
+  for(let ty=0;ty<th;ty++)for(let tx=0;tx<tw;tx++){
+    const wx=x0+tx,wy=y0+ty;
+    if(wx>=0&&wy>=0&&wx<wd.w&&wy<wd.h)continue;
+    let colAt;
+    if(hub){
+      const pack=wtLayers(wd,wx,wy);
+      colAt=(px,py)=>wtPixel(pack.layers,px,py);
+      const deco=wtOutsideDeco(wx,wy);
+      if(deco)decos.push([tx,ty,deco]);
+    }else if(wd.theme==='sanctum'||wd.theme==='coil'){
+      const pack=outsideLayers(wd,wx,wy);
+      colAt=(px,py)=>dtPixel(pack.set,pack.layers,px,py);
+    }else colAt=(px,py)=>voidRGB(wd,wx,wy,px,py);
+    blitTile(d,c.width,tx,ty,colAt);
+  }
+  g.putImageData(img,0,0);
+  for(const deco of decos)drawProp(g,deco[0],deco[1],deco[2]);
+  return c;
 }
 function paintMinimap(wd){
   const mini=document.createElement('canvas');mini.width=wd.w;mini.height=wd.h;
@@ -1419,48 +948,16 @@ function paintMinimap(wd){
   mg.putImageData(img,0,0);
   wd.mini=mini;wd.map=mini;
 }
-function raster(wd,x0,y0,tw,th){
-  const c=document.createElement('canvas');c.width=tw*TS;c.height=th*TS;
-  const g=c.getContext('2d');g.imageSmoothingEnabled=false;
-  const img=g.createImageData(c.width,c.height),d=img.data;
-  for(let ty=0;ty<th;ty++)for(let tx=0;tx<tw;tx++){
-    const wx=x0+tx,wy=y0+ty;
-    for(let py=0;py<TS;py++)for(let px=0;px<TS;px++){
-      const col=tileRGB(wd,wx,wy,px,py),p=((ty*TS+py)*c.width+(tx*TS+px))*4;
-      d[p]=col[0];d[p+1]=col[1];d[p+2]=col[2];d[p+3]=255;
-    }
-  }
-  g.putImageData(img,0,0);
-  for(let ty=0;ty<th;ty++)for(let tx=0;tx<tw;tx++){
-    const name=DECO_SPR[wd.tiles[(y0+ty)*wd.w+(x0+tx)]];
-    if(name&&SPR[name])g.drawImage(SPR[name].c,tx*TS-1,ty*TS-1);
-  }
-  return c;
-}
 function renderWorld(wd){
   paintMinimap(wd);
-  // Haven and the Vault fit in one canvas. The realm is chunked so an 800-tile map
+  // Haven and the Vault fit in one canvas. The realm is chunked so a 1200-tile map
   // never allocates a full pixel buffer, and only the tiles on screen are drawn.
   if(wd.w*wd.h<=96*96){wd.canvas=raster(wd,0,0,wd.w,wd.h);wd.chunked=false;wd.chunks=null;}
   else{wd.canvas=null;wd.chunked=true;wd.chunks=new Map();}
 }
 let chunkTick=0;
-function rasterVoid(wd,x0,y0,tw,th){
-  const c=document.createElement('canvas');c.width=tw*TS;c.height=th*TS;
-  const g=c.getContext('2d'),img=g.createImageData(c.width,c.height),d=img.data;
-  for(let ty=0;ty<th;ty++)for(let tx=0;tx<tw;tx++){
-    const wx=x0+tx,wy=y0+ty;
-    if(wx>=0&&wy>=0&&wx<wd.w&&wy<wd.h)continue;
-    for(let py=0;py<TS;py++)for(let px=0;px<TS;px++){
-      const col=voidRGB(wd,wx,wy,px,py),p=((ty*TS+py)*c.width+(tx*TS+px))*4;
-      d[p]=col[0];d[p+1]=col[1];d[p+2]=col[2];d[p+3]=255;
-    }
-  }
-  g.putImageData(img,0,0);
-  return c;
-}
 function drawDungeonVoid(wd){
-  if(!wd||!wd.isDungeon)return;
+  if(!wd||(!wd.isDungeon&&!wd.isHub))return;
   if(!wd.voidChunks)wd.voidChunks=new Map();
   chunkTick++;
   const tx0=Math.floor(camX/TS)-1,ty0=Math.floor(camY/TS)-1,tx1=Math.ceil((camX+VW)/TS)+1,ty1=Math.ceil((camY+VH)/TS)+1;
@@ -1469,7 +966,7 @@ function drawDungeonVoid(wd){
     if(x0>=0&&y0>=0&&x1<=wd.w&&y1<=wd.h)continue;
     const dx=x1<=0?1-x1:x0>=wd.w?x0-(wd.w-1):0;
     const dy=y1<=0?1-y1:y0>=wd.h?y0-(wd.h-1):0;
-    if(Math.max(dx,dy)>18)continue;
+    if(Math.max(dx,dy)>(wd.isHub?80:18))continue;
     const key=cx+','+cy;
     let ch=wd.voidChunks.get(key);
     if(!ch){
@@ -1518,7 +1015,7 @@ function drawTerrain(wd){
   }
 }
 
-// Bands are fractions of the disc. A thin dither mixes the two tiles on each edge.
+// Bands are fractions of the disc. A smooth noise offset waves the borders. It does not call R().
 const BANDS=[
   {dd:0.95,t:T_WATER,z:-1},
   {dd:0.90,t:T_WET,z:0},
@@ -1528,14 +1025,10 @@ const BANDS=[
   {dd:-1,t:T_ROCK,z:3}
 ];
 function pickBand(dd,x,y){
-  let i=BANDS.length-1;
-  for(let k=0;k<BANDS.length-1;k++)if(dd>BANDS[k].dd){i=k;break;}
-  const D=0.012,h=hash2(x*3+11,y*5+7);
-  let flip=0,dist=D;
-  if(i>0){const d=BANDS[i-1].dd-dd;if(d>0&&d<dist){dist=d;flip=-1;}}
-  if(i<BANDS.length-1){const d=dd-BANDS[i].dd;if(d>0&&d<dist){dist=d;flip=1;}}
-  if(flip&&h<(1-dist/D))return BANDS[i+flip];
-  return BANDS[i];
+  const j=(field(x,y,7)-0.5)*0.018+(field(x+91,y+37,2.6)-0.5)*0.008;
+  const v=dd+j;
+  for(let k=0;k<BANDS.length-1;k++)if(v>BANDS[k].dd)return BANDS[k];
+  return BANDS[BANDS.length-1];
 }
 // Value noise wraps, so a second octave (nx*2+phase) stays on the grid. The v10
 // octave indexed past a 50-wide buffer; those reads were undefined, dd became NaN,
@@ -1776,7 +1269,6 @@ function genHub(){
     let kind=0;
     if(!straight)kind=1;
     if(ends<=1)kind=2;
-    else if(straight&&((x+y*2)%6)===0)kind=1;
     wd.wallKind[y*w+x]=kind;
   }
   for(const [x,y] of [[44,34],[51,34],[44,39],[51,39],[44,40],[51,40]]){
@@ -3516,16 +3008,17 @@ const EN={
   wraith:{name:'Ash Wraith',spr:'wraith',hp:310,def:2,spd:26,xp:50,r:4,ai:'wander',pats:[{t:'aim',cd:1.15,n:1,spd:108,dmg:20,r:2.8,col:'#c8c0d0',life:1.5,weak:2.4},{t:'ring',cd:3.2,n:8,spd:58,dmg:16,r:2.8,col:'#ff9a3a',life:2}]},
   beetle:{name:'Magma Beetle',spr:'beetle',hp:490,def:8,spd:16,xp:62,r:4.6,ai:'charge',keep:22,pats:[{t:'aim',cd:1.5,n:4,sp:14,spd:92,dmg:24,r:3.2,col:'#ffb060',life:1.2,slow:1.8}]},
   hound:{name:'Ember Hound',spr:'hound',hp:370,def:4,spd:38,xp:56,r:4,ai:'chase',pats:[{t:'aim',cd:0.9,n:2,sp:9,spd:118,dmg:21,r:2.6,col:'#ff7030',life:0.9}]},
-  // Godlands: large gods only. 16px art draws at 3.6 so the old 24px gods stay the same size. Hitboxes unchanged.
-  eye:{name:'Watcher Eye',spr:'eye',hp:6400,def:18,spd:16,xp:240,r:10,scale:3.6,god:true,ai:'keep',keep:96,pats:[{t:'ring',cd:1.8,n:16,spd:96,dmg:42,r:3.4,col:'#7eb6ff',life:2.3,slow:2},{t:'aim',cd:0.7,n:5,sp:7,spd:150,dmg:36,r:2.4,col:'#ffffff',life:1.15}]},
-  colossus:{name:'Starborn Colossus',spr:'colossus',hp:8800,def:24,spd:12,xp:280,r:12,scale:3.6,god:true,ai:'charge',keep:56,pats:[{t:'ring',cd:1.35,n:14,spd:72,dmg:52,r:4.8,col:'#7af0ff',life:2.6,alt:1},{t:'aim',cd:1.8,n:7,sp:8,spd:120,dmg:46,r:3.2,col:'#ffe14a',life:1.4,stun:0.5}]},
-  oracle:{name:'Pale Oracle',spr:'oracle',hp:5600,def:14,spd:20,xp:220,r:10,scale:3.6,god:true,ai:'orbit',keep:88,pats:[{t:'spiral',cd:0.16,arms:3,rot:0.32,spd:84,dmg:34,r:2.8,col:'#e8e0ff',life:2.2,burst:1.6,rest:1.2},{t:'ring',cd:2.4,n:18,spd:64,dmg:40,r:3.2,col:'#ffe14a',life:2.4},{t:'aim',cd:2.8,n:1,spd:70,dmg:28,r:3.4,col:'#d090ff',life:2.2,para:1.4}]},
-  saint:{name:'Glass Saint',spr:'saint',hp:6200,def:16,spd:15,xp:230,r:10,scale:3.6,god:true,ai:'keep',keep:78,pats:[{t:'aim',cd:0.42,n:1,spd:168,dmg:38,r:2.6,col:'#d8fff8',life:1.35},{t:'ring',cd:2.6,n:20,spd:80,dmg:44,r:3.4,col:'#c6d67a',life:2.2,alt:1,weak:2}]},
-  wyrm:{name:'Marble Wyrm',spr:'wyrm',hp:7200,def:20,spd:18,xp:250,r:11,scale:3.6,god:true,ai:'keep',keep:70,pats:[{t:'aim',cd:1.15,n:6,sp:11,spd:130,dmg:40,r:3,col:'#9ec0ff',life:1.3,slow:1.5},{t:'spiral',cd:0.22,arms:2,rot:-0.45,spd:70,dmg:36,r:3.2,col:'#7af0ff',life:2.3,burst:1.4,rest:1.5}]},
-  titan:{name:'Solar Titan',spr:'titan',hp:7800,def:22,spd:13,xp:265,r:12,scale:3.6,god:true,ai:'charge',keep:50,pats:[{t:'ring',cd:1.6,n:12,spd:68,dmg:48,r:4.2,col:'#ffd34a',life:2.4,stun:0.45},{t:'aim',cd:1.5,n:5,sp:9,spd:110,dmg:44,r:3.2,col:'#ff6a28',life:1.4}]},
-  voidkeeper:{name:'Void Keeper',spr:'voidkeeper',hp:5400,def:14,spd:22,xp:225,r:10,scale:3.6,god:true,ai:'orbit',keep:92,pats:[{t:'spiral',cd:0.2,arms:3,rot:-0.28,spd:78,dmg:32,r:2.7,col:'#c46aff',life:2.1,burst:1.4,rest:1.3},{t:'aim',cd:2.6,n:1,spd:64,dmg:30,r:3.4,col:'#ff4ad0',life:2.2,para:1.3}]},
-  idol:{name:'Marble Idol',spr:'idol',hp:9200,def:26,spd:8,xp:275,r:12,scale:3.6,god:true,ai:'wander',pats:[{t:'ring',cd:2.1,n:16,spd:60,dmg:50,r:3.6,col:'#e8e4dc',life:2.6,slow:2.2,alt:1},{t:'aim',cd:1.9,n:3,sp:8,spd:90,dmg:42,r:3.4,col:'#ffd34a',life:1.8,weak:2}]},
-  serpent:{name:'Crown Serpent',spr:'serpent',hp:7000,def:18,spd:24,xp:255,r:11,scale:3.6,god:true,ai:'chase',pats:[{t:'aim',cd:1.05,n:6,sp:10,spd:124,dmg:40,r:2.9,col:'#b6e060',life:1.25,slow:1.6},{t:'ring',cd:2.8,n:10,spd:70,dmg:38,r:3.2,col:'#ffd34a',life:2.2}]},
+  // Godlands gods. Class sprites draw at 10px; 16px god art (canvas 18) at 20/18 is twice that.
+  // Radii are the old hitboxes times 20/64.8, the same shrink as the sprite.
+  eye:{name:'Watcher Eye',spr:'eye',hp:3840,def:14,spd:16,xp:240,r:3.1,scale:20/18,god:true,ai:'keep',keep:96,pats:[{t:'ring',cd:1.8,n:16,spd:96,dmg:42,r:3.4,col:'#7eb6ff',life:2.3,slow:2},{t:'aim',cd:0.7,n:5,sp:7,spd:150,dmg:36,r:2.4,col:'#ffffff',life:1.15}]},
+  colossus:{name:'Starborn Colossus',spr:'colossus',hp:5280,def:20,spd:12,xp:280,r:3.7,scale:20/18,god:true,ai:'charge',keep:56,pats:[{t:'ring',cd:1.35,n:14,spd:72,dmg:52,r:4.8,col:'#7af0ff',life:2.6,alt:1},{t:'aim',cd:1.8,n:7,sp:8,spd:120,dmg:46,r:3.2,col:'#ffe14a',life:1.4,stun:0.5}]},
+  oracle:{name:'Pale Oracle',spr:'oracle',hp:3360,def:10,spd:20,xp:220,r:3.1,scale:20/18,god:true,ai:'orbit',keep:88,pats:[{t:'spiral',cd:0.16,arms:3,rot:0.32,spd:84,dmg:34,r:2.8,col:'#e8e0ff',life:2.2,burst:1.6,rest:1.2},{t:'ring',cd:2.4,n:18,spd:64,dmg:40,r:3.2,col:'#ffe14a',life:2.4},{t:'aim',cd:2.8,n:1,spd:70,dmg:28,r:3.4,col:'#d090ff',life:2.2,para:1.4}]},
+  saint:{name:'Glass Saint',spr:'saint',hp:3720,def:12,spd:15,xp:230,r:3.1,scale:20/18,god:true,ai:'keep',keep:78,pats:[{t:'aim',cd:0.42,n:1,spd:168,dmg:38,r:2.6,col:'#d8fff8',life:1.35},{t:'ring',cd:2.6,n:20,spd:80,dmg:44,r:3.4,col:'#c6d67a',life:2.2,alt:1,weak:2}]},
+  wyrm:{name:'Marble Wyrm',spr:'wyrm',hp:4320,def:16,spd:18,xp:250,r:3.4,scale:20/18,god:true,ai:'keep',keep:70,pats:[{t:'aim',cd:1.15,n:6,sp:11,spd:130,dmg:40,r:3,col:'#9ec0ff',life:1.3,slow:1.5},{t:'spiral',cd:0.22,arms:2,rot:-0.45,spd:70,dmg:36,r:3.2,col:'#7af0ff',life:2.3,burst:1.4,rest:1.5}]},
+  titan:{name:'Solar Titan',spr:'titan',hp:4680,def:18,spd:13,xp:265,r:3.7,scale:20/18,god:true,ai:'charge',keep:50,pats:[{t:'ring',cd:1.6,n:12,spd:68,dmg:48,r:4.2,col:'#ffd34a',life:2.4,stun:0.45},{t:'aim',cd:1.5,n:5,sp:9,spd:110,dmg:44,r:3.2,col:'#ff6a28',life:1.4}]},
+  voidkeeper:{name:'Void Keeper',spr:'voidkeeper',hp:3240,def:10,spd:22,xp:225,r:3.1,scale:20/18,god:true,ai:'orbit',keep:92,pats:[{t:'spiral',cd:0.2,arms:3,rot:-0.28,spd:78,dmg:32,r:2.7,col:'#c46aff',life:2.1,burst:1.4,rest:1.3},{t:'aim',cd:2.6,n:1,spd:64,dmg:30,r:3.4,col:'#ff4ad0',life:2.2,para:1.3}]},
+  idol:{name:'Marble Idol',spr:'idol',hp:5520,def:22,spd:8,xp:275,r:3.7,scale:20/18,god:true,ai:'wander',pats:[{t:'ring',cd:2.1,n:16,spd:60,dmg:50,r:3.6,col:'#e8e4dc',life:2.6,slow:2.2,alt:1},{t:'aim',cd:1.9,n:3,sp:8,spd:90,dmg:42,r:3.4,col:'#ffd34a',life:1.8,weak:2}]},
+  serpent:{name:'Crown Serpent',spr:'serpent',hp:4200,def:14,spd:24,xp:255,r:3.4,scale:20/18,god:true,ai:'chase',pats:[{t:'aim',cd:1.05,n:6,sp:10,spd:124,dmg:40,r:2.9,col:'#b6e060',life:1.25,slow:1.6},{t:'ring',cd:2.8,n:10,spd:70,dmg:38,r:3.2,col:'#ffd34a',life:2.2}]},
   pincer:{name:'Pincerling',spr:'pincer',hp:48,def:0,spd:14,xp:8,r:3.6,aggro:70,ai:'wander',pats:[{t:'aim',cd:2.3,n:1,spd:46,dmg:6,r:2.8,col:'#ffb070',life:2.1}]},
   barnacle:{name:'Barnacle Spit',spr:'barnacle',hp:70,def:2,spd:0,xp:10,r:4,aggro:96,ai:'keep',keep:1,pats:[{t:'aim',cd:2.6,n:1,spd:40,dmg:7,r:3.2,col:'#7ee0c8',life:2.5,slow:2}]},
   shellguard:{name:'Shellguard',spr:'shellguard',hp:130,def:2,spd:13,xp:16,r:5,aggro:78,ai:'keep',keep:46,pats:[{t:'aim',cd:1.8,n:3,sp:14,spd:54,dmg:8,r:3,col:'#ff7a4a',life:1.6}]},
@@ -3571,7 +3064,7 @@ const EN={
   clutch:{name:'Snake Egg Clutch',spr:'clutch',hp:1800,def:4,spd:0,xp:160,r:4.6,aggro:110,ai:'keep',keep:1,pats:[{t:'summon',cd:4.5,type:'hatchling',n:2,cap:18}]},
   constrictor:{name:'Coiled Constrictor',spr:'constrictor',hp:4800,def:14,spd:12,xp:240,r:6,aggro:110,ai:'chase',pats:[{t:'ring',cd:2.2,n:12,spd:52,dmg:42,r:3.4,col:'#5aaa38',life:2.2,slow:1.6},{t:'aim',cd:1.5,n:1,spd:80,dmg:46,r:3.6,col:'#c6e070',life:1.6}]},
   hatchling:{name:'Serpent Hatchling',spr:'hatchling',hp:900,def:2,spd:28,xp:40,r:2.8,aggro:120,ai:'chase',pats:[{t:'aim',cd:1.1,n:1,spd:130,dmg:22,r:2.2,col:'#b6e060',life:0.9}]},
-  ouroboros:{name:'Serpent King',spr:'ourohead',hp:34000,def:20,spd:28,xp:2800,r:13,scale:34*2.2/26,aggro:280,orbit:78,ai:'boss',boss:true,dungeonBoss:true,serpent:true,segments:14,phaseCol:'#7dce4a',phaseLines:['The coil tightens.','The body answers.','The eggs split.'],
+  ouroboros:{name:'Serpent King',spr:'ourohead',hp:34000,def:20,spd:28,xp:2800,r:4.3,scale:25/26,aggro:280,orbit:78,ai:'boss',boss:true,dungeonBoss:true,serpent:true,segments:14,phaseCol:'#7dce4a',phaseLines:['The coil tightens.','The body answers.','The eggs split.'],
     phases:[
       {above:0.75,pats:[{t:'aim',cd:1.15,n:7,sp:11,spd:130,dmg:48,r:2.8,col:'#7dce4a',life:1.35,poison:2,pdmg:24},{t:'aim',cd:2.4,n:3,sp:6,spd:90,dmg:44,r:3.2,col:'#ffd34a',life:1.8}]},
       {above:0.5,pats:[{t:'aim',cd:0.9,n:5,sp:14,spd:150,dmg:50,r:2.6,col:'#c6e070',life:1.1,poison:1.6,pdmg:20}]},
@@ -4174,7 +3667,12 @@ function newPlayer(k){const C=CLASSES[k];return {cls:k,lvl:1,xp:0,xpTotal:0,stat
 function eff(k){let v=P.stats[k];const a=P.eq.armor,r=P.eq.ring;if(a){if(k==='def')v+=a.def;if(k==='hp')v+=a.hp;if(k==='mp')v+=a.mp;}if(r&&r.st&&r.st[k])v+=r.st[k];if(k==='dex'&&P.berserk>0)v+=(P.berserkDex|0);return v;}
 function statCap(cls,k){const C=CLASSES[cls||(P&&P.cls)];return C&&C.max&&C.max[k]!=null?C.max[k]:9999;}
 function statMaxed(k){return !!(P&&P.stats[k]>=statCap(P.cls,k));}
-const attMul=()=>(0.5+eff('att')*0.025)*(P&&P.weak>0?0.5:1);
+const attMul=()=>{
+  const a=eff('att');
+  // v25 slope through the Godlands band, then a shallower slope so 75 ATT does not run away.
+  const shaped=a<=45?a*0.025:45*0.025+(a-45)*0.012;
+  return (0.5+shaped)*(P&&P.weak>0?0.5:1);
+};
 const need=l=>Math.round(25*Math.pow(l,1.5));
 function noteItemId(it){if(it&&it.id>=itemId)itemId=it.id+1;}
 function bumpItemIds(){
@@ -5177,14 +4675,16 @@ function despawnLeashed(e){
 function stepSerpent(e){
   if(!e.trail)e.trail=[];
   const last=e.trail[e.trail.length-1];
-  if(!last||Math.hypot(e.x-last.x,e.y-last.y)>3)e.trail.push({x:e.x,y:e.y});
+  // v25 dropped a point every 3px under a ~16px segment. The 25px body keeps that gap-to-width ratio.
+  if(!last||Math.hypot(e.x-last.x,e.y-last.y)>4.7)e.trail.push({x:e.x,y:e.y});
   const n=e.d.segments||12,gap=3,cap=n*gap+8;
   if(e.trail.length>cap)e.trail.splice(0,e.trail.length-cap);
   e.segs=[];
   for(let i=0;i<n;i++){
     const idx=e.trail.length-1-(i+1)*gap;
     const p=idx>=0?e.trail[idx]:(e.trail[0]||{x:e.x,y:e.y});
-    e.segs.push({i,x:p.x,y:p.y,r:Math.max(5,e.d.r*(0.92-i/(n+3)))});
+    const taper=1-i/(n+5);
+    e.segs.push({i,x:p.x,y:p.y,r:6.5+2.5*taper});
   }
 }
 function updateEnemies(dt){
@@ -5417,7 +4917,7 @@ function render(){
   ctx.beginPath();ctx.rect(0,0,Math.max(1,play.w*DPR),Math.max(1,play.h*DPR));ctx.clip();
   ctx.fillStyle=(world&&world.isHub)?'#4e8a3c':peaceful()?'#120f1c':(world&&world.isDungeon)?'#040605':'#264ea0';ctx.fillRect(0,0,play.w*DPR+2,play.h*DPR+2);
   ctx.setTransform(S,0,0,S,-ox,-oy);
-  if(world&&world.isDungeon)drawDungeonVoid(world);
+  if(world&&(world.isDungeon||world.isHub))drawDungeonVoid(world);
   drawTerrain(world);
   const x0=camX-16,y0=camY-16,x1=camX+VW+16,y1=camY+VH+16;
   const labels=[];
@@ -5425,7 +4925,7 @@ function render(){
     for(const a of world.arches||[])drawGate(ctx,a);
     const p=world.portal;for(let i=4;i>=1;i--){ctx.fillStyle=['#2a1a5a','#5a3ad0','#9a6aff','#e0d0ff'][i-1];ctx.beginPath();ctx.arc(p.x,p.y,i*2.2+Math.sin(time*4+i)*0.8,0,TAU);ctx.fill();}
     labels.push([p.x,p.y-14,'Shardwild Portal','#c9b0ff']);
-    const f=world.fountain;drawSpr(SPR.fountain,f.x-10,f.y-10,20,20);labels.push([f.x,f.y-14,'Healing Fountain','#9fe0ff']);
+    const f=world.fountain;const fs=SPR.fountain;drawSpr(fs,f.x-9,f.y-8,fs.w,fs.h);labels.push([f.x,f.y-14,'Healing Fountain','#9fe0ff']);
     labels.push([world.spawn.x,world.spawn.y+14,'The Haven','#ffd34a']);
     for(const d of world.dress||[]){
       const s=SPR[d.k];if(!s)continue;
@@ -5523,25 +5023,26 @@ function render(){
         const last=i===e.segs.length-1;
         const sp=last&&SPR.serpenttail?SPR.serpenttail:SPR.serpentbody;
         const k=i/Math.max(1,e.segs.length-1);
-        const sc=(last?0.9:(1.7-k*0.95))*(sp.fit||1);
+        const taper=last?0.84:(1-k*0.12);
+        const sc=taper*(25/sp.h);
         const s=e.segs[i];
         drawSpr(sp,Math.round(s.x-sp.w*sc/2),Math.round(s.y-sp.h*sc/2),sp.w*sc,sp.h*sc,i&1);
       }
     }
-    const base=SPR[e.d.spr];if(!base)continue;const s=spriteFrame(e)||base;const sc=foeScale(e),w=s.w*sc,h=s.h*sc;const bob=Math.floor((time*5+e.bob)%2);
+    const base=SPR[e.d.spr];if(!base)continue;const s=spriteFrame(e)||base;const sc=foeScale(e),w=s.w*sc,h=s.h*sc;
     ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(e.x-w*0.35,e.y+h*0.4,w*0.7,2);
     if(e.d.god){ctx.globalAlpha=0.35;ctx.fillStyle='#ffd34a';ctx.beginPath();ctx.arc(e.x,e.y,e.d.r+2+Math.sin(time*3+e.id)*0.6,0,TAU);ctx.fill();ctx.globalAlpha=1;}
-    if(e.flash>0)ctx.globalAlpha=0.55;drawSpr(s,Math.round(e.x-w/2),Math.round(e.y-h/2-bob),w,h,P.x<e.x);ctx.globalAlpha=1;
+    if(e.flash>0)ctx.globalAlpha=0.55;drawSpr(s,Math.round(e.x-w/2),Math.round(e.y-h/2),w,h,P.x<e.x);ctx.globalAlpha=1;
     drawStatusPips(e.x-6,e.y-h/2-6,e);
     if(e.hp<e.maxhp&&!e.d.boss){const bw=Math.max(12,Math.round(e.d.r*1.6));ctx.fillStyle='#200';ctx.fillRect(e.x-bw/2,e.y+h/2+1,bw,2);ctx.fillStyle=e.d.god?'#ffd34a':e.elite?'#ffd34a':'#e8304a';ctx.fillRect(e.x-bw/2,e.y+h/2+1,bw*e.hp/e.maxhp,2);}
     if(e.elite||e.d.boss||e.d.god||e.d.event)labels.push([e.x,e.y-h/2-5,e.d.boss?e.name:e.name.split(' (')[0],e.d.event?(e.d.phaseCol||'#7ee0c8'):e.d.boss?'#e0b0ff':e.d.god?'#ffe9a0':'#ffd34a']);
   }
   // player
-  {const s=playerSprite();const bob=P.moving?Math.floor(time*8)%2:0;
+  {const s=playerSprite();
    ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(P.x-4,P.y+4,8,2);
    if(P.invis>0)ctx.globalAlpha=0.28+0.08*Math.sin(time*8);
    else if(P.hurt>0&&(time*30|0)%2)ctx.globalAlpha=0.5;
-   drawSpr(s,Math.round(P.x-5),Math.round(P.y-6-bob),s.w,s.h,P.face<0);ctx.globalAlpha=1;
+   drawSpr(s,Math.round(P.x-5),Math.round(P.y-6),s.w,s.h,P.face<0);ctx.globalAlpha=1;
    if(P.invuln>0){ctx.strokeStyle='rgba(159,208,255,.9)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(P.x,P.y-1,8+Math.sin(time*10),0,TAU);ctx.stroke();}
    drawStatusPips(P.x-6,P.y-12,P);
   }
@@ -6096,8 +5597,8 @@ function drawClassScreen(canBack){
   CLASSKEYS.forEach((k,i)=>{const C=CLASSES[k];
     const col=i%cols,row=(i/cols)|0,x=x0+col*(w+gap),y=top+row*(h+gap);
     panel(x,y,w,h,0.9);ctx.strokeStyle=C.col;ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,h-2);
-    const sp=SPR[C.spr];const bob=Math.floor(time*3+i)%2;
-    const q=Math.min(w*0.34,h*0.36,56);drawSpr(sp,x+w/2-q/2,y+6-bob,q,q);let ty=y+q+16;
+    const sp=SPR[C.spr];
+    const q=Math.min(w*0.34,h*0.36,56);drawSpr(sp,x+w/2-q/2,y+6,q,q);let ty=y+q+16;
     fitTxt(C.name,x+w/2,ty,14,C.col,w-12,'center');ty+=16;
     C.desc.forEach(d=>{fitTxt(d,x+w/2,ty,11,'#ddd',w-12,'center');ty+=13;});
     txt('HP '+C.base.hp+' MP '+C.base.mp+' DEF '+C.base.def,x+w/2,Math.min(ty+2,y+h-8),10,'#999','center');
@@ -6403,8 +5904,9 @@ function sampleTerrain(){
     for(let i=0;i<n&&seen<limit;i+=17){
       if(tileBase(wd,i,wd.tiles[i])!==base)continue;
       const tx=i%wd.w,ty=(i/wd.w)|0;
+      const layers=wtLayers(wd,tx,ty).layers;
       for(let py=0;py<TS;py++)for(let px=0;px<TS;px++){
-        const c=groundRGB(tx,ty,px,py,base);
+        const c=wtPixel(layers,px,py);
         r+=c[0];g+=c[1];b+=c[2];
         if(c[0]>160&&c[1]<90&&c[2]<80)reds++;
       }
@@ -6704,7 +6206,7 @@ function hubOverview(){
   const p=hub.portal;
   g.fillStyle='#9a6aff';g.beginPath();g.arc(p.x,p.y,8,0,TAU);g.fill();
   g.fillStyle='#e0d0ff';g.beginPath();g.arc(p.x,p.y,3,0,TAU);g.fill();
-  if(SPR.fountain)g.drawImage(SPR.fountain.c,hub.fountain.x-10,hub.fountain.y-10,20,20);
+  if(SPR.fountain)g.drawImage(SPR.fountain.c,hub.fountain.x-9,hub.fountain.y-8);
   for(const d of hub.dress||[]){
     const s=SPR[d.k];if(!s)continue;
     g.drawImage(s.c,d.x-s.w/2,d.y-s.h);
@@ -6822,8 +6324,8 @@ function exportArt(){
 function gameScaleSheet(){
   const zoom=4;
   const scaleFor=key=>{
-    if(key==='serpentbody')return 1.3*(SPR.serpentbody&&SPR.serpentbody.fit||1);
-    if(key==='serpenttail')return 0.9*(SPR.serpenttail&&SPR.serpenttail.fit||1);
+    if(key==='serpentbody')return 25/(SPR.serpentbody?SPR.serpentbody.h:14);
+    if(key==='serpenttail')return 0.84*25/(SPR.serpenttail?SPR.serpenttail.h:14);
     for(const id in EN){const d=EN[id];if(d.spr===key&&d.scale)return d.scale;}
     const sp=SPR[key];
     return sp&&sp.fit?sp.fit:1;

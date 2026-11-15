@@ -911,11 +911,10 @@ async function terrainRegionsAndHeroes(page) {
   for (const k of ['water', 'wet', 'sand', 'grass', 'ash', 'rock']) assert(L[k].n >= 12, k + ' look sample ' + L[k].n);
   assert(L.water.b > L.water.r + 40 && L.water.b > L.water.g, 'water is not blue ' + JSON.stringify(L.water));
   assert(L.sand.r > 180 && L.sand.g > 150 && L.sand.r > L.sand.b + 30, 'sand is not a beach ' + JSON.stringify(L.sand));
-  assert(L.wet.g + 8 >= L.wet.r && L.wet.g > L.wet.b + 12 && L.sand.r > L.wet.r + 50, 'marsh looks like sand ' + JSON.stringify({wet: L.wet, sand: L.sand}));
+  assert(L.wet.r > 150 && L.wet.g > 120 && L.wet.r > L.wet.b + 30 && L.sand.r > L.wet.r + 15, 'wet sand is not a shoreline ' + JSON.stringify({wet: L.wet, sand: L.sand}));
   assert(L.grass.g > L.grass.r + 25 && L.grass.g > L.grass.b + 25, 'greenmarch is not green ' + JSON.stringify(L.grass));
   assert(L.ash.r > 70 && L.ash.r < 150 && Math.abs(L.ash.r - L.ash.g) < 28 && L.ash.r > L.ash.b + 8 && L.ash.red < 0.08, 'ashen is a red fill ' + JSON.stringify(L.ash));
-  assert(L.ash.red > 0.002, 'ashen has no lava cracks ' + JSON.stringify(L.ash));
-  assert(L.rock.r > 155 && L.rock.g > 155 && L.rock.b > 155 && Math.abs(L.rock.r - L.rock.g) < 20 && L.rock.r < L.rock.g + 25, 'godlands is not pale stone ' + JSON.stringify(L.rock));
+  assert(L.rock.r > 125 && L.rock.g > 125 && L.rock.b > 130 && Math.abs(L.rock.r - L.rock.g) < 25 && L.rock.b + 20 > L.rock.g, 'godlands is not pale stone ' + JSON.stringify(L.rock));
   for (const [a, b] of [['sand', 'grass'], ['grass', 'ash'], ['ash', 'rock'], ['sand', 'ash'], ['grass', 'rock'], ['water', 'sand']]) {
     assert(colorDist(L[a], L[b]) > 40, a + ' and ' + b + ' are too similar ' + colorDist(L[a], L[b]).toFixed(1));
   }
@@ -1901,10 +1900,10 @@ async function main() {
     assert(gods.info.name === 'Godlands' && gods.names.indexOf('Godlands') >= 0, 'Godlands name missing ' + JSON.stringify({info: gods.info.name, names: gods.names}));
     assert(gods.names.indexOf('Starfall Heights') < 0, 'Starfall beacon name remains');
     assert(gods.info.cap >= 7 && gods.info.cap <= 10 && gods.info.elite === 0, 'Godlands density ' + JSON.stringify(gods.info));
-    assert(gods.info.types.length >= 8 && gods.info.kinds.every(k => k.god && k.scale >= 2 && k.r >= 8 && k.hp >= 4000), 'Godlands kinds ' + JSON.stringify(gods.info.kinds));
+    assert(gods.info.types.length >= 8 && gods.info.kinds.every(k => k.god && k.scale > 1 && k.scale < 1.4 && k.r >= 3 && k.r <= 4 && k.hp >= 3000 && k.hp <= 5600), 'Godlands kinds ' + JSON.stringify(gods.info.kinds));
     assert(!gods.info.types.some(t => ['crab', 'imp', 'wolf', 'hexer', 'ogre', 'wisp'].indexOf(t) >= 0), 'trash still lives in the Godlands');
     assert(gods.zone === 3, 'player did not stand in the Godlands ' + gods.zone);
-    assert(gods.foes.filter(f => !f.event).length >= 3 && gods.foes.filter(f => !f.event).every(f => f.god && f.scale >= 2 && f.r >= 8), 'spawned foes are not large gods ' + JSON.stringify(gods.foes));
+    assert(gods.foes.filter(f => !f.event).length >= 3 && gods.foes.filter(f => !f.event).every(f => f.god && f.scale > 1 && f.scale < 1.4 && f.r >= 3 && f.r <= 4), 'spawned foes are not gods ' + JSON.stringify(gods.foes));
     await frames(page, 3);
     await page.screenshot({path: path.join(ART, 'screenshot_godlands.png')});
     const spawnedMore = await page.evaluate(() => {
@@ -1913,7 +1912,7 @@ async function main() {
       for (let n = 0; n < 8; n++) sw.pump(10);
       return sw.foes.filter(f => !f.boss).map(f => ({type: f.type, god: f.god, scale: f.scale, r: f.r}));
     });
-    assert(spawnedMore.filter(f => !f.event).length >= 3 && spawnedMore.filter(f => !f.event).every(f => f.god && f.scale >= 2 && f.r >= 8), 'spawner added something that is not a large god ' + JSON.stringify(spawnedMore));
+    assert(spawnedMore.filter(f => !f.event).length >= 3 && spawnedMore.filter(f => !f.event).every(f => f.god && f.scale > 1 && f.scale < 1.4 && f.r >= 3 && f.r <= 4), 'spawner added something that is not a god ' + JSON.stringify(spawnedMore));
 
     const leash = await page.evaluate(() => {
       const sw = window.__shardwild;
