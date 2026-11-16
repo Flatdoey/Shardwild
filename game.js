@@ -139,6 +139,14 @@ function installV25Sprites(){
       SPR[k]=mkAnim(s.frames,s.pal,big[k]?1:V25_FIT);
     }
   }
+  if(typeof installShieldArt==='function'){
+    // shield_art.js lives outside this file, so the names it draws with have to be visible.
+    const g=window;
+    g.SPR=SPR;g.ctx=ctx;g.TS=TS;g.mkAnim=mkAnim;g.mkSprite=mkSprite;g.font=font;g.txt=txt;g.hudArtPx=hudArtPx;
+    if(!Object.getOwnPropertyDescriptor(g,'time')||!Object.getOwnPropertyDescriptor(g,'time').get)Object.defineProperty(g,'time',{get(){return time;}});
+    if(!Object.getOwnPropertyDescriptor(g,'world')||!Object.getOwnPropertyDescriptor(g,'world').get)Object.defineProperty(g,'world',{get(){return world;}});
+    installShieldArt();
+  }
   // v27 body is drawn 1:1. body16 is the foe-sheet stand-in for the old serpentbody.
   const S2=typeof SEG_SPRITES_V27!=='undefined'?SEG_SPRITES_V27:null;
   if(S2){
@@ -941,10 +949,11 @@ function throneLayers(wd,tx,ty){
     if(raw[name])L.push(raw[name]);
     else if(D.props[name])L.push(D.props[name]);
   }else if(t===T_MPILLAR)L.push(raw.pillar||D.props.pillar);
-  else if(t===T_MBROKEN)L.push(raw.brokenPillar||D.props.brokenPillar);
-  else if(t===T_MPYLON){
-    const alt=dtHash(tx,ty,4)<0.5;
-    L.push(alt?(raw.pylon2||D.props.pylon2):(raw.pylon||D.props.pylon));
+  else if(t===T_MBROKEN){
+    // A dead pylon keeps the floor. Its shattered frame is the sprite, not the broken pillar.
+    if(!(wd.pylons&&wd.pylons.some(p=>p.x===tx&&p.y===ty)))L.push(raw.brokenPillar||D.props.brokenPillar);
+  }else if(t===T_MPYLON){
+    // Floor only. drawPylons paints the 16x16 crystal on top.
   }else if(t===T_MBRAZIER)L.push(raw.brazier||D.props.brazier);
   else if(t===T_MFLOOR&&dtHash(tx,ty,5)<0.1){
     const d=Object.values(D.details||{});
@@ -3530,7 +3539,7 @@ const EN={
   shardling:{name:'Shardling',spr:'shardling',hp:420,def:2,spd:22,xp:24,r:3.6,aggro:110,ai:'chase',pats:[{t:'aim',cd:1.1,n:1,spd:120,dmg:14,r:2.2,col:'#ff4fa8',life:1}]},
   kingsguard:{name:'Kingsguard',spr:'kingsguard',hp:4200,def:14,spd:16,xp:180,r:5,scale:16/18,aggro:140,ai:'keep',keep:46,pats:[{t:'aim',cd:1.15,n:3,sp:8,spd:120,dmg:28,r:2.8,col:'#ffd34a',life:1.2},{t:'ring',cd:2.4,n:10,spd:58,dmg:24,r:3,col:'#ff4fa8',life:1.8}]},
   shardherald:{name:'Shard Herald',spr:'shardherald',hp:4800,def:12,spd:15,xp:200,r:5,scale:16/18,aggro:160,ai:'orbit',keep:70,pats:[{t:'aim',cd:1.3,n:2,sp:6,spd:130,dmg:26,r:2.6,col:'#c46aff',life:1.25},{t:'spiral',cd:0.22,arms:2,rot:0.32,spd:72,dmg:22,r:2.5,col:'#ffb8cc',life:1.6,burst:1.1,rest:1}]},
-  crownwarden:{name:'Crown Warden',spr:'kingsguard',hp:8000,def:16,spd:15,xp:240,r:5,scale:16/18,aggro:720,ai:'keep',keep:42,pats:[{t:'aim',cd:1.05,n:4,sp:9,spd:124,dmg:32,r:2.9,col:'#ffd34a',life:1.15},{t:'ring',cd:2.2,n:12,spd:60,dmg:28,r:3.1,col:'#ff4fa8',life:1.9}]},
+  crownwarden:{name:'Crown Warden',spr:'crownwarden',hp:8000,def:16,spd:15,xp:240,r:5,scale:16/18,aggro:720,ai:'keep',keep:42,pats:[{t:'aim',cd:1.05,n:4,sp:9,spd:124,dmg:32,r:2.9,col:'#ffd34a',life:1.15},{t:'ring',cd:2.2,n:12,spd:60,dmg:28,r:3.1,col:'#ff4fa8',life:1.9}]},
   megaking:{name:'Mega King',spr:'megaking_p1',hp:120000,def:28,spd:18,xp:8000,r:5,scale:32/34,aggro:420,orbit:48,ai:'boss',boss:true,dungeonBoss:true,mega:true,phaseCol:'#ff4fa8',
     phaseLines:['The Hollow Crown walks.','The court answers. The pylons wake.','The throne crumbles. The rift closes in.','The last crown splits.'],
     phases:[
@@ -5300,68 +5309,11 @@ function drawMegaShieldGoal(g,x,y,maxW){
   ctx.fillRect(Math.round(x-tw/2),Math.round(y-h/2),tw,h);
   txt(g.line,x,y,n,g.col,'center');
 }
-// Code-only tether and warden marker while the Mega King is shielded.
-// Sprites replaces this one function with the shield-link and marker art.
-function drawMegaShieldLink(){
-  const wd=world,e=wd&&wd.boss;
-  if(!wd||!e||!e.shield||!e.d||!e.d.mega)return;
-  const col=e.d.phaseCol||'#ff4fa8';
-  const pulse=0.5+0.5*Math.sin(time*5);
-  const targets=[];
-  if(e.mkPhase===1){
-    for(const w of wd.enemies){
-      if(!w.warden||w.dead)continue;
-      targets.push({x:w.x,y:w.y,mark:w});
-    }
-  }else if(e.mkPhase===3){
-    for(const p of wd.pylons||[]){
-      if(!p||p.dead)continue;
-      targets.push({x:(p.x+0.5)*TS,y:(p.y+0.5)*TS,mark:null});
-    }
-  }
-  if(!targets.length)return;
-  const kx=e.x,ky=e.y-2;
-  ctx.save();
-  ctx.lineCap='butt';
-  ctx.beginPath();
-  for(const t of targets){
-    const dx=kx-t.x,dy=ky-t.y,len=Math.hypot(dx,dy)||1;
-    const end=Math.max(0,len-16);
-    ctx.moveTo(Math.round(t.x)+0.5,Math.round(t.y)+0.5);
-    ctx.lineTo(Math.round(t.x+dx/len*end)+0.5,Math.round(t.y+dy/len*end)+0.5);
-  }
-  ctx.globalAlpha=0.7;
-  ctx.strokeStyle='#140c18';
-  ctx.lineWidth=2;
-  ctx.stroke();
-  ctx.globalAlpha=0.62+0.38*pulse;
-  ctx.strokeStyle=col;
-  ctx.lineWidth=1;
-  ctx.stroke();
-  for(const t of targets){
-    const w=t.mark;if(!w)continue;
-    const s=spriteFrame(w)||SPR[w.sprName||w.d.spr];
-    const h=s?s.h*foeScale(w):14;
-    const bob=Math.sin(time*3.4+w.id)*1.6;
-    const x=Math.round(w.x),y=Math.round(w.y-h/2-7+bob);
-    ctx.globalAlpha=1;
-    ctx.fillStyle='#140c18';
-    ctx.fillRect(x-4,y-5,9,5);
-    ctx.fillRect(x-2,y-6,5,7);
-    ctx.fillRect(x,y-1,1,3);
-    ctx.fillStyle=pulse>0.5?'#ffb8cc':col;
-    ctx.fillRect(x,y-5,1,1);
-    ctx.fillRect(x-1,y-4,3,1);
-    ctx.fillRect(x-2,y-3,5,1);
-    ctx.fillRect(x,y-2,1,1);
-    ctx.fillRect(x,y,1,1);
-  }
-  ctx.restore();
-}
 function breakMegaShield(e){
   if(!e||!e.shield)return;
   e.shield=false;
   e.shieldTold=0;
+  e.shieldBurst=0.3;
   if(e.mkPhase===1){
     e.mkPhase=2;e.sprName='megaking_p1';
     toast('The wardens fall. The Mega King walks.','#ffd34a');
@@ -5494,6 +5446,7 @@ function stepGhosts(e,hall){
 }
 function stepMega(e,dt){
   const wd=world;
+  if(e.shieldBurst>0)e.shieldBurst-=dt;
   if(e.mkPhase==null){e.mkPhase=1;e.shield=true;e.sprName='megaking_p1';}
   if(wd&&e.mkPhase===1&&e.shield&&!e.wardensReady){
     e.wardensReady=true;
@@ -5968,6 +5921,8 @@ function render(){
       }
     }
   }
+  if(typeof drawPylons==='function')drawPylons(world);
+  if(typeof drawShieldTethers==='function')drawShieldTethers(world);
   for(const e of world.enemies){if(e.x<x0-80||e.x>x1+80||e.y<y0-80||e.y>y1+80)continue;
     if(e.segs&&SPR.serpent_body16){
       for(let i=e.segs.length-1;i>=0;i--){
@@ -5991,18 +5946,7 @@ function render(){
     ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(e.x-w*0.35,e.y+h*0.4,w*0.7,2);
     if(e.d.god){ctx.globalAlpha=0.35;ctx.fillStyle='#ffd34a';ctx.beginPath();ctx.arc(e.x,e.y,e.d.r+2+Math.sin(time*3+e.id)*0.6,0,TAU);ctx.fill();ctx.globalAlpha=1;}
     if(e.flash>0)ctx.globalAlpha=0.55;drawSpr(s,Math.round(e.x-w/2),Math.round(e.y-h/2),w,h,P.x<e.x);ctx.globalAlpha=1;
-    if(e.shield){
-      ctx.save();
-      const pulse=0.5+0.5*Math.sin(time*3);
-      ctx.globalAlpha=0.16+0.08*pulse;
-      ctx.fillStyle='#c46aff';
-      ctx.beginPath();ctx.arc(e.x,e.y-2,17,0,TAU);ctx.fill();
-      ctx.globalAlpha=0.9;
-      ctx.strokeStyle=pulse>0.5?'#fff6c0':'#ffd34a';
-      ctx.lineWidth=1;
-      ctx.beginPath();ctx.arc(e.x,e.y-2,17,0,TAU);ctx.stroke();
-      ctx.restore();
-    }
+    if((e.shield||e.shieldBurst>0)&&typeof drawMegaShield==='function')drawMegaShield(e);
     if(e.mkPhase===5){
       ctx.fillStyle='#fff6c0';
       const gx=e.x,gy=e.y-h*0.38+(Math.sin(time*8)*0.6);
@@ -6012,7 +5956,6 @@ function render(){
     if(e.hp<e.maxhp&&!e.d.boss){const bw=Math.max(12,Math.round(e.d.r*1.6));ctx.fillStyle='#200';ctx.fillRect(e.x-bw/2,e.y+h/2+1,bw,2);ctx.fillStyle=e.d.god?'#ffd34a':e.elite?'#ffd34a':'#e8304a';ctx.fillRect(e.x-bw/2,e.y+h/2+1,bw*e.hp/e.maxhp,2);}
     if(e.elite||e.d.boss||e.d.god||e.d.event)labels.push([e.x,e.y-h/2-5,e.d.boss?e.name:e.name.split(' (')[0],e.d.event?(e.d.phaseCol||'#7ee0c8'):e.d.boss?'#e0b0ff':e.d.god?'#ffe9a0':'#ffd34a']);
   }
-  drawMegaShieldLink();
   // player
   {const s=playerSprite();
    ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(P.x-4,P.y+4,8,2);
@@ -6379,6 +6322,7 @@ function drawHUD(){
     txt(bs.name,play.x+play.w/2,by-10,12,'#e0b0ff','center');
     bar(bx2,by,w,12,bs.hp/bs.maxhp,'#c46aff',null);
     shieldGoal=megaShieldGoal(bs);
+    // The art hint says "Slay the Wardens", so the Crown Wardens line stays here.
     if(shieldGoal)drawMegaShieldGoal(shieldGoal,play.x+play.w/2,by+21,Math.max(96,Math.min(play.w-16,360)));
   }
   let nearEv=null,nearD=260;
