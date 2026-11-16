@@ -1,5 +1,5 @@
-const C='shardwild-v26';
-const FILES=['./','./index.html','./v25_art.js','./dungeon_tiles.js','./world_tiles.js','./game.js','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
+const C='shardwild-v27';
+const FILES=['./','./index.html','./v25_art.js','./dungeon_tiles.js','./world_tiles.js','./serpent_segments_v27.js','./megaking.js','./events2.js','./clearbar.js','./arrow.js','./lairs.js','./game.js','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
 self.addEventListener('fetch',e=>{
