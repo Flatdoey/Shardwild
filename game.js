@@ -3528,10 +3528,10 @@ const EN={
   royalhound:{name:'Royal Hound',spr:'royalhound',hp:680,def:3,spd:32,xp:36,r:4.4,aggro:130,ai:'chase',pats:[{t:'aim',cd:0.95,n:2,sp:8,spd:130,dmg:18,r:2.4,col:'#ffd34a',life:0.9}]},
   crownsentry:{name:'Crown Sentry',spr:'crownsentry',hp:840,def:8,spd:0,xp:44,r:4.6,aggro:150,ai:'keep',keep:1,pats:[{t:'aim',cd:1.5,n:4,sp:12,spd:100,dmg:22,r:2.8,col:'#ffd34a',life:1.3},{t:'ring',cd:2.8,n:8,spd:52,dmg:16,r:2.8,col:'#ff4fa8',life:1.8}]},
   shardling:{name:'Shardling',spr:'shardling',hp:420,def:2,spd:22,xp:24,r:3.6,aggro:110,ai:'chase',pats:[{t:'aim',cd:1.1,n:1,spd:120,dmg:14,r:2.2,col:'#ff4fa8',life:1}]},
-  kingsguard:{name:'Kingsguard',spr:'kingsguard',hp:4200,def:14,spd:16,xp:180,r:7,scale:1.2,aggro:140,ai:'keep',keep:46,pats:[{t:'aim',cd:1.15,n:3,sp:8,spd:120,dmg:28,r:2.8,col:'#ffd34a',life:1.2},{t:'ring',cd:2.4,n:10,spd:58,dmg:24,r:3,col:'#ff4fa8',life:1.8}]},
-  shardherald:{name:'Shard Herald',spr:'shardherald',hp:4800,def:12,spd:15,xp:200,r:7,scale:1.2,aggro:160,ai:'orbit',keep:70,pats:[{t:'aim',cd:1.3,n:2,sp:6,spd:130,dmg:26,r:2.6,col:'#c46aff',life:1.25},{t:'spiral',cd:0.22,arms:2,rot:0.32,spd:72,dmg:22,r:2.5,col:'#ffb8cc',life:1.6,burst:1.1,rest:1}]},
-  crownwarden:{name:'Crown Warden',spr:'kingsguard',hp:8000,def:16,spd:15,xp:240,r:7.5,scale:1.2,aggro:200,ai:'keep',keep:42,pats:[{t:'aim',cd:1.05,n:4,sp:9,spd:124,dmg:32,r:2.9,col:'#ffd34a',life:1.15},{t:'ring',cd:2.2,n:12,spd:60,dmg:28,r:3.1,col:'#ff4fa8',life:1.9}]},
-  megaking:{name:'Mega King',spr:'megaking_p1',hp:120000,def:28,spd:18,xp:8000,r:14,scale:34*2.2/26,aggro:420,orbit:90,ai:'boss',boss:true,dungeonBoss:true,mega:true,phaseCol:'#ff4fa8',
+  kingsguard:{name:'Kingsguard',spr:'kingsguard',hp:4200,def:14,spd:16,xp:180,r:5,scale:16/18,aggro:140,ai:'keep',keep:46,pats:[{t:'aim',cd:1.15,n:3,sp:8,spd:120,dmg:28,r:2.8,col:'#ffd34a',life:1.2},{t:'ring',cd:2.4,n:10,spd:58,dmg:24,r:3,col:'#ff4fa8',life:1.8}]},
+  shardherald:{name:'Shard Herald',spr:'shardherald',hp:4800,def:12,spd:15,xp:200,r:5,scale:16/18,aggro:160,ai:'orbit',keep:70,pats:[{t:'aim',cd:1.3,n:2,sp:6,spd:130,dmg:26,r:2.6,col:'#c46aff',life:1.25},{t:'spiral',cd:0.22,arms:2,rot:0.32,spd:72,dmg:22,r:2.5,col:'#ffb8cc',life:1.6,burst:1.1,rest:1}]},
+  crownwarden:{name:'Crown Warden',spr:'kingsguard',hp:8000,def:16,spd:15,xp:240,r:5,scale:16/18,aggro:200,ai:'keep',keep:42,pats:[{t:'aim',cd:1.05,n:4,sp:9,spd:124,dmg:32,r:2.9,col:'#ffd34a',life:1.15},{t:'ring',cd:2.2,n:12,spd:60,dmg:28,r:3.1,col:'#ff4fa8',life:1.9}]},
+  megaking:{name:'Mega King',spr:'megaking_p1',hp:120000,def:28,spd:18,xp:8000,r:5,scale:32/34,aggro:420,orbit:48,ai:'boss',boss:true,dungeonBoss:true,mega:true,phaseCol:'#ff4fa8',
     phaseLines:['The Hollow Crown walks.','The court answers. The pylons wake.','The throne crumbles. The rift closes in.','The last crown splits.'],
     phases:[
       {above:1,pats:[]},
@@ -5226,11 +5226,11 @@ function stepSerpent(e){
   }
 }
 function throwCrown(e,ang,dmg){
-  addEB(e.x,e.y,ang,92,dmg,9,2.6,'#ffd34a',null,e.name);
+  addEB(e.x,e.y,ang,78,dmg,4,2.4,'#ffd34a',null,e.name);
   if(!ebN)return;
   const b=EB[ebN-1];
-  b.crown=1;b.ox=e.x;b.oy=e.y;b.ang=ang;b.spd=92;b.age=0;b.r=9;
-  b.spr=bulletSpr('#ffd34a',9,'crown');
+  b.crown=1;b.ox=e.x;b.oy=e.y;b.ang=ang;b.spd=78;b.age=0;b.r=4;
+  b.spr=bulletSpr('#ffd34a',4,'crown');
   e.atkPose=3;e.atkHold=ATK_FIRE;
 }
 function fireGapAt(e,x,y,n,gap,rot,spd,dmg,col){
@@ -5349,7 +5349,7 @@ function megaAttack(e,dt){
 }
 function stepGhosts(e,hall){
   const base=time*0.32;
-  const slots=[0,1,2].map(i=>{const a=base+i*TAU/3;return {x:hall.x+Math.cos(a)*88,y:hall.y+Math.sin(a)*70};});
+  const slots=[0,1,2].map(i=>{const a=base+i*TAU/3;return {x:hall.x+Math.cos(a)*56,y:hall.y+Math.sin(a)*44};});
   if(e.slot==null)e.slot=0;
   e.ghostT=(e.ghostT||0)+0;
   e.swap=(e.swap||0);
@@ -5376,12 +5376,12 @@ function stepMega(e,dt){
   const hall=wd&&wd.hall?wd.hall:{x:e.ax,y:e.ay};
   const throne=wd&&wd.throne?wd.throne:{x:e.ax,y:e.ay};
   let tx=hall.x,ty=hall.y,sp=e.d.spd;
-  if(e.mkPhase===1||e.mkPhase===3){tx=throne.x;ty=throne.y;}
-  else if(e.mkPhase===2){const a=time*0.5;tx=hall.x+Math.cos(a)*76;ty=hall.y+Math.sin(a*1.13)*58;}
-  else if(e.mkPhase===4){creepRift(wd,dt);const a=time*0.72;tx=hall.x+Math.cos(a)*34;ty=hall.y+Math.sin(a)*34;}
+  if(e.mkPhase===1||e.mkPhase===3){tx=throne.x;ty=throne.y-6;}
+  else if(e.mkPhase===2){const a=time*0.5;tx=hall.x+Math.cos(a)*52;ty=hall.y+Math.sin(a*1.13)*40;}
+  else if(e.mkPhase===4){creepRift(wd,dt);const a=time*0.72;tx=hall.x+Math.cos(a)*28;ty=hall.y+Math.sin(a)*28;}
   else{
     e.swapT=(e.swapT||0)+dt;
-    if(e.swapT>5.4){e.swapT=0;e.slot=((e.slot||0)+1+((Math.random()*2)|0))%3;addFX(e.x,e.y,4,16,0.25,'#ffd34a');}
+    if(e.swapT>5.4){e.swapT=0;e.slot=((e.slot||0)+1+((Math.random()*2)|0))%3;addFX(e.x,e.y,3,10,0.25,'#ffd34a');}
     stepGhosts(e,hall);
     tx=e.gx;ty=e.gy;sp=e.d.spd*1.1;
   }
@@ -5775,7 +5775,7 @@ function render(){
     }
     if(e.ghosts&&SPR.megaking_ghost){
       const gs=SPR.megaking_ghost,gsc=foeScale(e),gw=gs.w*gsc,gh=gs.h*gsc;
-      ctx.save();ctx.globalAlpha=0.42;
+      ctx.save();ctx.globalAlpha=0.55;
       for(const c of e.ghosts){
         if(c.x<x0-80||c.x>x1+80||c.y<y0-80||c.y>y1+80)continue;
         drawSpr(gs,Math.round(c.x-gw/2),Math.round(c.y-gh/2),gw,gh,P.x<c.x);
@@ -5791,11 +5791,11 @@ function render(){
       const pulse=0.5+0.5*Math.sin(time*3);
       ctx.globalAlpha=0.16+0.08*pulse;
       ctx.fillStyle='#c46aff';
-      ctx.beginPath();ctx.arc(e.x,e.y-8,48,0,TAU);ctx.fill();
-      ctx.globalAlpha=0.85;
+      ctx.beginPath();ctx.arc(e.x,e.y-2,17,0,TAU);ctx.fill();
+      ctx.globalAlpha=0.9;
       ctx.strokeStyle=pulse>0.5?'#fff6c0':'#ffd34a';
-      ctx.lineWidth=2;
-      ctx.beginPath();ctx.arc(e.x,e.y-8,48,0,TAU);ctx.stroke();
+      ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(e.x,e.y-2,17,0,TAU);ctx.stroke();
       ctx.restore();
     }
     if(e.mkPhase===5){
@@ -6023,11 +6023,15 @@ function drawEventArrow(ax,ay,a,questIsEvent,spr,label,dist){
   const i=Math.round(a/(Math.PI/4))&7;
   const pulse=questIsEvent&&((time*2)%1)<0.35;
   const can=arrowCanvas(key,i,pulse);
-  const px=Math.max(2,Math.round(S/DPR));
+  const px=hudArtPx();
   ctx.imageSmoothingEnabled=false;
   ctx.drawImage(can,Math.round(ax-can.width*px/2),Math.round(ay-can.height*px/2),can.width*px,can.height*px);
   const text=(label||'')+(questIsEvent?'  '+Math.round(dist/TS)+'m':'');
-  txt(text,ax,ay+can.height*px/2+8,10,(EVENT_ARROW.label&&EVENT_ARROW.label[key])||'#ff9ecf','center');
+  txt(text,ax,ay+can.height*px/2+5,9,(EVENT_ARROW.label&&EVENT_ARROW.label[key])||'#ff9ecf','center');
+}
+function hudArtPx(){
+  // Half the world pixel scale, so the clear bar and quest arrow stay small HUD marks.
+  return Math.max(1,Math.round(S/DPR/2));
 }
 let clearBarCache={k:-1,c:null};
 function clearBarCanvas(kills){
@@ -6040,13 +6044,13 @@ function clearBarCanvas(kills){
 function drawClearBar(play){
   if(!world||world!==realm||typeof CLEAR_BAR==='undefined')return 0;
   const kills=realm.clearKills||0,can=clearBarCanvas(kills);
-  const px=Math.max(2,Math.round(S/DPR));
+  const px=hudArtPx();
   const dw=can.width*px,dh=can.height*px;
-  const x=Math.round(play.x+(play.w-dw)/2),y=Math.round(6*px);
+  const x=Math.round(play.x+(play.w-dw)/2),y=Math.max(3,Math.round(3*px));
   ctx.imageSmoothingEnabled=false;
   ctx.drawImage(can,x,y,dw,dh);
-  txt('Shardwild cleared: '+clearPct(kills)+'%',play.x+play.w/2,y+dh+8,11,'#ffd6ec','center');
-  return y+dh+16;
+  txt('Shardwild cleared: '+clearPct(kills)+'%',play.x+play.w/2,y+dh+6,9,'#ffd6ec','center');
+  return y+dh+12;
 }
 function drawHUD(){
   const L=layoutC,u=L.u,C=CLASSES[P.cls],play=L.play;
