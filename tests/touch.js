@@ -1508,7 +1508,7 @@ async function main() {
     }, 16);
     assert(await page.evaluate(() => window.__shardwild.chestOpen), 'chest did not open');
     const cat = await page.evaluate(() => window.__shardwild.catalog);
-    assert(cat.weapons === 52 && cat.abilities === 42 && cat.armors === 27 && cat.rings === 64 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.dungeonKeys === 5 && cat.test === 3 && cat.n === 202, 'catalog ' + JSON.stringify(cat));
+    assert(cat.weapons === 52 && cat.abilities === 42 && cat.armors === 27 && cat.rings === 64 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.dungeonKeys === 6 && cat.test === 3 && cat.n === 203, 'catalog ' + JSON.stringify(cat));
     assert(cat.testNames && cat.testNames.join(',') === 'Godslayer Staff,Godslayer Bow,Godslayer Blade', 'test weapons ' + JSON.stringify(cat.testNames));
 
     let staff = null;
@@ -1830,7 +1830,13 @@ async function main() {
     assert(realm.w * realm.h >= 400 * 400 * 3.5, 'playable area is not about four times the 400-tile realm ' + (realm.w * realm.h));
     assert(realm.chunked === true && !realm.canvas && realm.mini, 'realm should draw chunks and keep a prerendered minimap');
     assert(realm.zone === 0, 'shore entry landed inland, zone ' + realm.zone);
-    assert(realm.boss && Math.hypot(realm.boss.x - realm.w * 8 / 2, realm.boss.y - realm.h * 8 / 2) < 8, 'boss is not at the center ' + JSON.stringify(realm.boss));
+    assert(!realm.boss, 'Hollow Guard should wait for a full clear ' + JSON.stringify(realm.boss));
+    const rose = await page.evaluate(() => {
+      window.__shardwild.setClear(8);
+      const b = window.__shardwild.world.boss;
+      return b ? {x: b.x, y: b.y, name: b.name} : null;
+    });
+    assert(rose && rose.name === 'Morvane, the Hollow Guard' && Math.hypot(rose.x - realm.w * 8 / 2, rose.y - realm.h * 8 / 2) < 8, 'boss is not at the center ' + JSON.stringify(rose));
     assert(realm.n === 4, 'expected 4 realm beacons, got ' + JSON.stringify(realm));
     assert(realm.bands[0] > 0.72 && realm.bands[0] < 0.93, 'shore beacon band ' + realm.bands[0]);
     assert(realm.bands[3] > 0.12 && realm.bands[3] < 0.32, 'star beacon band ' + realm.bands[3]);

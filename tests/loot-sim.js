@@ -66,13 +66,16 @@ async function main() {
     assert(sim.regions.some(r => r.name === 'Godlands'), 'Godlands missing from loot regions');
     assert(!sim.regions.some(r => /Starfall/.test(r.name)), 'old Starfall region still in the loot sim');
     assert(sim.bossSolid === N, 'boss did not always drop solid tiered loot ' + sim.bossSolid + '/' + N);
-    const utRate = sim.boss.ut / N;
-    assert(utRate > 0.15 && utRate < 0.45, 'boss UT rate should be modest, got ' + utRate.toFixed(3));
+    assert(sim.boss.ut === 0 && !sim.boss.gear[8], 'Hollow Guard should not drop generic UT ' + fmtGear(sim.boss.gear));
     for (let t = 0; t <= 5; t++) assert(!sim.boss.gear[t], 'boss gear leaked T' + t + ': ' + fmtGear(sim.boss.gear));
-    assert(sim.boss.gear[8] === sim.boss.ut && sim.boss.gear[6] > 0 && sim.boss.gear[7] > 0, 'boss tier mix ' + fmtGear(sim.boss.gear));
+    assert(sim.boss.gear[6] > 0 && sim.boss.gear[7] > 0, 'boss tier mix ' + fmtGear(sim.boss.gear));
+    const megaRate = sim.mega.ut / N;
+    assert(sim.megaT7 === N, 'Mega King did not always drop a T7 piece ' + sim.megaT7 + '/' + N);
+    assert(megaRate > 0.25 && megaRate < 0.55, 'Mega King UT rate should be about 40%, got ' + megaRate.toFixed(3));
+    assert(sim.mega.elixirs >= N, 'Mega King elixirs ' + sim.mega.elixirs);
     assert(!sim.boss.abilityBad, 'boss dropped a T6 or T7 ability');
 
-    console.log('Loot sim, ' + N + ' kills each (normal, elite, and the Hollow King)');
+    console.log('Loot sim, ' + N + ' kills each (normal, elite, and the Hollow Guard)');
     for (const reg of sim.regions) {
       for (const [label, row, span] of [['normal', reg.normal, reg.span], ['elite', reg.elite, reg.eliteSpan]]) {
         const outside = gearInSpan(row.gear, span[0], span[1]);
@@ -105,7 +108,8 @@ async function main() {
     console.log(
       'Morvane  guaranteed T6-T7 x' + sim.bossSolid +
       '  gear ' + fmtGear(sim.boss.gear) +
-      '  UT ' + sim.boss.ut + '/' + N + ' (' + pct(sim.boss.ut, N) + ')' +
+      '  UT ' + sim.boss.ut + '/' + N +
+      '  Mega King UT ' + sim.mega.ut + '/' + N + ' (' + pct(sim.mega.ut, N) + ')' +
       '  weapons staff/bow/sword ' + bw.staff + '/' + bw.bow + '/' + bw.sword +
       '  elixirs ' + sim.boss.elixirs
     );

@@ -330,7 +330,9 @@ function dtLayers(set,isWall,kind,tx,ty){
   if(isWall(tx,ty)){
     if(kind(tx,ty)==='breakWall'){L.push(S?D.props.breakTop:D.props.breakWall);return L;}
     if(!S){
-      L.push(dtHash(tx,ty,7)<0.2?D.wallFace2:D.wallFace);
+      // wallBanner is a north-face variant (Throne of Ruin uses it on ~1 in 6 faces).
+      const face=D.wallBanner&&dtHash(tx,ty,13)<1/6?D.wallBanner:(dtHash(tx,ty,7)<0.2?D.wallFace2:D.wallFace);
+      L.push(face);
       if(!N)L.push(E.edgeN);if(!W)L.push(E.faceEdgeL);if(!Ea)L.push(E.faceEdgeR);
       return L;
     }
