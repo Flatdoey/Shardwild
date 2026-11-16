@@ -1,7 +1,7 @@
 'use strict';
 /* Shardwild: an original mobile bullet-hell realm crawler. Plain JS + canvas, no build step. */
 (function(){
-const GAME_VERSION='v28';
+const GAME_VERSION='v29';
 const cv=document.getElementById('game');
 const ctx=cv.getContext('2d',{alpha:false});
 let W=1,H=1,DPR=1,S=4,VW=1,VH=1;
@@ -5264,9 +5264,104 @@ function fireGapAt(e,x,y,n,gap,rot,spd,dmg,col){
   e.atkPose=3;e.atkHold=0.12;
 }
 function megaSpr(phase){return phase<=2?'megaking_p1':phase===3?'megaking_p2':phase===4?'megaking_p3':'megaking_p4';}
+function megaShieldGoal(e){
+  const wd=world;
+  if(!e||!e.shield||!wd||!e.d||!e.d.mega)return null;
+  const col=e.d.phaseCol||'#ff4fa8';
+  if(e.mkPhase===1){
+    let alive=0;
+    for(const o of wd.enemies)if(o.warden&&!o.dead)alive++;
+    const n=clamp(4-alive,0,4);
+    return {line:'Slay the Crown Wardens '+n+'/4',toast:'Shielded! Slay the Crown Wardens',col};
+  }
+  if(e.mkPhase===3){
+    let broken=0;
+    for(const p of wd.pylons||[])if(p&&p.dead)broken++;
+    const n=clamp(broken,0,4);
+    return {line:'Shatter the Pylons '+n+'/4',toast:'Shielded! Shatter the Pylons',col};
+  }
+  return null;
+}
+function announceMegaShield(e){
+  if(!e)return;
+  if(!e.shield||(e.mkPhase!==1&&e.mkPhase!==3)){e.shieldTold=0;return;}
+  if(e.shieldTold===e.mkPhase)return;
+  e.shieldTold=e.mkPhase;
+  const g=megaShieldGoal(e);
+  if(g)toast(g.toast,g.col);
+}
+function drawMegaShieldGoal(g,x,y,maxW){
+  let n=11;
+  font(n);
+  while(n>9&&ctx.measureText(g.line).width>maxW-8){n-=1;font(n);}
+  const tw=Math.min(maxW,Math.ceil(ctx.measureText(g.line).width+10));
+  const h=n+4;
+  ctx.fillStyle='rgba(8,6,14,.78)';
+  ctx.fillRect(Math.round(x-tw/2),Math.round(y-h/2),tw,h);
+  txt(g.line,x,y,n,g.col,'center');
+}
+// Code-only tether and warden marker while the Mega King is shielded.
+// Sprites replaces this one function with the shield-link and marker art.
+function drawMegaShieldLink(){
+  const wd=world,e=wd&&wd.boss;
+  if(!wd||!e||!e.shield||!e.d||!e.d.mega)return;
+  const col=e.d.phaseCol||'#ff4fa8';
+  const pulse=0.5+0.5*Math.sin(time*5);
+  const targets=[];
+  if(e.mkPhase===1){
+    for(const w of wd.enemies){
+      if(!w.warden||w.dead)continue;
+      targets.push({x:w.x,y:w.y,mark:w});
+    }
+  }else if(e.mkPhase===3){
+    for(const p of wd.pylons||[]){
+      if(!p||p.dead)continue;
+      targets.push({x:(p.x+0.5)*TS,y:(p.y+0.5)*TS,mark:null});
+    }
+  }
+  if(!targets.length)return;
+  const kx=e.x,ky=e.y-2;
+  ctx.save();
+  ctx.lineCap='butt';
+  ctx.beginPath();
+  for(const t of targets){
+    const dx=kx-t.x,dy=ky-t.y,len=Math.hypot(dx,dy)||1;
+    const end=Math.max(0,len-16);
+    ctx.moveTo(Math.round(t.x)+0.5,Math.round(t.y)+0.5);
+    ctx.lineTo(Math.round(t.x+dx/len*end)+0.5,Math.round(t.y+dy/len*end)+0.5);
+  }
+  ctx.globalAlpha=0.7;
+  ctx.strokeStyle='#140c18';
+  ctx.lineWidth=2;
+  ctx.stroke();
+  ctx.globalAlpha=0.62+0.38*pulse;
+  ctx.strokeStyle=col;
+  ctx.lineWidth=1;
+  ctx.stroke();
+  for(const t of targets){
+    const w=t.mark;if(!w)continue;
+    const s=spriteFrame(w)||SPR[w.sprName||w.d.spr];
+    const h=s?s.h*foeScale(w):14;
+    const bob=Math.sin(time*3.4+w.id)*1.6;
+    const x=Math.round(w.x),y=Math.round(w.y-h/2-7+bob);
+    ctx.globalAlpha=1;
+    ctx.fillStyle='#140c18';
+    ctx.fillRect(x-4,y-5,9,5);
+    ctx.fillRect(x-2,y-6,5,7);
+    ctx.fillRect(x,y-1,1,3);
+    ctx.fillStyle=pulse>0.5?'#ffb8cc':col;
+    ctx.fillRect(x,y-5,1,1);
+    ctx.fillRect(x-1,y-4,3,1);
+    ctx.fillRect(x-2,y-3,5,1);
+    ctx.fillRect(x,y-2,1,1);
+    ctx.fillRect(x,y,1,1);
+  }
+  ctx.restore();
+}
 function breakMegaShield(e){
   if(!e||!e.shield)return;
   e.shield=false;
+  e.shieldTold=0;
   if(e.mkPhase===1){
     e.mkPhase=2;e.sprName='megaking_p1';
     toast('The wardens fall. The Mega King walks.','#ffd34a');
@@ -5433,6 +5528,7 @@ function stepMega(e,dt){
   }
   if(e.mkPhase>1)megaAttack(e,dt);
   if(e.shield&&!megaShieldHeld(e))breakMegaShield(e);
+  announceMegaShield(e);
   return {x:tx-e.x,y:ty-e.y,sp:sp};
 }
 function wardenAnchor(wd,x,y){
@@ -5456,6 +5552,7 @@ function setupMega(wd){
   const hall=wd.hall||{x:king.x,y:king.y};
   const throne=wd.throne||hall;
   king.x=throne.x;king.y=throne.y;king.ax=throne.x;king.ay=throne.y;
+  announceMegaShield(king);
   if(wd.enemies.some(o=>o.warden))return;
   let spots=wd.pylons&&wd.pylons.length?wd.pylons:null;
   if(!spots){
@@ -5915,6 +6012,7 @@ function render(){
     if(e.hp<e.maxhp&&!e.d.boss){const bw=Math.max(12,Math.round(e.d.r*1.6));ctx.fillStyle='#200';ctx.fillRect(e.x-bw/2,e.y+h/2+1,bw,2);ctx.fillStyle=e.d.god?'#ffd34a':e.elite?'#ffd34a':'#e8304a';ctx.fillRect(e.x-bw/2,e.y+h/2+1,bw*e.hp/e.maxhp,2);}
     if(e.elite||e.d.boss||e.d.god||e.d.event)labels.push([e.x,e.y-h/2-5,e.d.boss?e.name:e.name.split(' (')[0],e.d.event?(e.d.phaseCol||'#7ee0c8'):e.d.boss?'#e0b0ff':e.d.god?'#ffe9a0':'#ffd34a']);
   }
+  drawMegaShieldLink();
   // player
   {const s=playerSprite();
    ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(P.x-4,P.y+4,8,2);
@@ -6274,14 +6372,22 @@ function drawHUD(){
   if(quest){const p=w2s(quest.x,quest.y);const hb=L.haven;const left=play.x+18,top=my+m+Math.max(12,sb)*2+10,right=hb?hb.x-hb.r-12:play.x+play.w-18,bot=play.h-18;
     if(p.x<left||p.y<top||p.x>right||p.y>bot){const c=w2s(P.x,P.y),a=Math.atan2(p.y-c.y,p.x-c.x);const rx=Math.min(play.w,play.h)*0.3;let ax=clamp(c.x+Math.cos(a)*rx,left,right),ay=clamp(c.y+Math.sin(a)*rx,top,bot);
       drawEventArrow(ax,ay,a,!!quest.event,quest.spr||'biome',quest.label,Math.hypot(quest.x-P.x,quest.y-P.y));}}
-  const bs=world.boss;if(bs&&Math.hypot(bs.x-P.x,bs.y-P.y)<240){const w=Math.min(280,play.w*0.55),bx2=play.x+(play.w-w)/2,by=my+m+18;txt(bs.name,play.x+play.w/2,by-10,12,'#e0b0ff','center');bar(bx2,by,w,12,bs.hp/bs.maxhp,'#c46aff',null);}
+  const bs=world.boss;
+  let shieldGoal=null;
+  if(bs&&Math.hypot(bs.x-P.x,bs.y-P.y)<240){
+    const w=Math.min(280,play.w*0.55),bx2=play.x+(play.w-w)/2,by=my+m+18;
+    txt(bs.name,play.x+play.w/2,by-10,12,'#e0b0ff','center');
+    bar(bx2,by,w,12,bs.hp/bs.maxhp,'#c46aff',null);
+    shieldGoal=megaShieldGoal(bs);
+    if(shieldGoal)drawMegaShieldGoal(shieldGoal,play.x+play.w/2,by+21,Math.max(96,Math.min(play.w-16,360)));
+  }
   let nearEv=null,nearD=260;
   for(const e of world.enemies){if(!e.d.event)continue;const d=Math.hypot(e.x-P.x,e.y-P.y);if(d<nearD){nearD=d;nearEv=e;}}
   if(nearEv){const w=Math.min(300,play.w*0.6),bx2=play.x+(play.w-w)/2,by=my+m+(bs&&Math.hypot(bs.x-P.x,bs.y-P.y)<240?40:18);txt(nearEv.name,play.x+play.w/2,by-10,12,nearEv.d.phaseCol||'#ffd34a','center');bar(bx2,by,w,12,nearEv.hp/nearEv.maxhp,nearEv.d.phaseCol||'#ffd34a',null);}
   const barBottom=drawClearBar(play);
   const evs=world.enemies.filter(e=>e.d.event);
   if(evs.length){const banner=evs.map(e=>e.d.short||e.name).join('  ·  ');ctx.fillStyle='rgba(20,12,8,.72)';const bw=Math.min(play.w-16,Math.max(160,banner.length*8+28));const by=Math.max(my+4,barBottom+2);ctx.fillRect(play.x+(play.w-bw)/2,by,bw,18);txt('EVENT  '+banner,play.x+play.w/2,by+9,11,'#ffe9a0','center',false);}
-  let ty2=my+m+28;for(const t of toasts){ctx.globalAlpha=Math.min(1,t.life);fitTxt(t.t,play.x+play.w/2,ty2,13,t.col,Math.max(40,play.w-24),'center');ty2+=16;}ctx.globalAlpha=1;
+  let ty2=shieldGoal?my+m+56:my+m+28;for(const t of toasts){ctx.globalAlpha=Math.min(1,t.life);fitTxt(t.t,play.x+play.w/2,ty2,13,t.col,Math.max(40,play.w-24),'center');ty2+=16;}ctx.globalAlpha=1;
   drawSidePanel();
   drawEnterButton();
   const tipRef=(ptr&&ptr.tip&&ptr.ref)||(heldTip&&heldTip.ref);
