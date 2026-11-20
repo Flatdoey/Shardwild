@@ -1,7 +1,7 @@
 'use strict';
 /* Shardwild: an original mobile bullet-hell realm crawler. Plain JS + canvas, no build step. */
 (function(){
-const GAME_VERSION='v28';
+const GAME_VERSION='v29';
 const cv=document.getElementById('game');
 const ctx=cv.getContext('2d',{alpha:false});
 let W=1,H=1,DPR=1,S=4,VW=1,VH=1;
@@ -138,6 +138,14 @@ function installV25Sprites(){
       const s=MEGAKING_ENEMIES[k];
       SPR[k]=mkAnim(s.frames,s.pal,big[k]?1:V25_FIT);
     }
+  }
+  if(typeof installShieldArt==='function'){
+    // shield_art.js lives outside this file, so the names it draws with have to be visible.
+    const g=window;
+    g.SPR=SPR;g.ctx=ctx;g.TS=TS;g.mkAnim=mkAnim;g.mkSprite=mkSprite;g.font=font;g.txt=txt;g.hudArtPx=hudArtPx;
+    if(!Object.getOwnPropertyDescriptor(g,'time')||!Object.getOwnPropertyDescriptor(g,'time').get)Object.defineProperty(g,'time',{get(){return time;}});
+    if(!Object.getOwnPropertyDescriptor(g,'world')||!Object.getOwnPropertyDescriptor(g,'world').get)Object.defineProperty(g,'world',{get(){return world;}});
+    installShieldArt();
   }
   // v27 body is drawn 1:1. body16 is the foe-sheet stand-in for the old serpentbody.
   const S2=typeof SEG_SPRITES_V27!=='undefined'?SEG_SPRITES_V27:null;
@@ -941,10 +949,11 @@ function throneLayers(wd,tx,ty){
     if(raw[name])L.push(raw[name]);
     else if(D.props[name])L.push(D.props[name]);
   }else if(t===T_MPILLAR)L.push(raw.pillar||D.props.pillar);
-  else if(t===T_MBROKEN)L.push(raw.brokenPillar||D.props.brokenPillar);
-  else if(t===T_MPYLON){
-    const alt=dtHash(tx,ty,4)<0.5;
-    L.push(alt?(raw.pylon2||D.props.pylon2):(raw.pylon||D.props.pylon));
+  else if(t===T_MBROKEN){
+    // A dead pylon keeps the floor. Its shattered frame is the sprite, not the broken pillar.
+    if(!(wd.pylons&&wd.pylons.some(p=>p.x===tx&&p.y===ty)))L.push(raw.brokenPillar||D.props.brokenPillar);
+  }else if(t===T_MPYLON){
+    // Floor only. drawPylons paints the 16x16 crystal on top.
   }else if(t===T_MBRAZIER)L.push(raw.brazier||D.props.brazier);
   else if(t===T_MFLOOR&&dtHash(tx,ty,5)<0.1){
     const d=Object.values(D.details||{});
@@ -3530,7 +3539,7 @@ const EN={
   shardling:{name:'Shardling',spr:'shardling',hp:420,def:2,spd:22,xp:24,r:3.6,aggro:110,ai:'chase',pats:[{t:'aim',cd:1.1,n:1,spd:120,dmg:14,r:2.2,col:'#ff4fa8',life:1}]},
   kingsguard:{name:'Kingsguard',spr:'kingsguard',hp:4200,def:14,spd:16,xp:180,r:5,scale:16/18,aggro:140,ai:'keep',keep:46,pats:[{t:'aim',cd:1.15,n:3,sp:8,spd:120,dmg:28,r:2.8,col:'#ffd34a',life:1.2},{t:'ring',cd:2.4,n:10,spd:58,dmg:24,r:3,col:'#ff4fa8',life:1.8}]},
   shardherald:{name:'Shard Herald',spr:'shardherald',hp:4800,def:12,spd:15,xp:200,r:5,scale:16/18,aggro:160,ai:'orbit',keep:70,pats:[{t:'aim',cd:1.3,n:2,sp:6,spd:130,dmg:26,r:2.6,col:'#c46aff',life:1.25},{t:'spiral',cd:0.22,arms:2,rot:0.32,spd:72,dmg:22,r:2.5,col:'#ffb8cc',life:1.6,burst:1.1,rest:1}]},
-  crownwarden:{name:'Crown Warden',spr:'kingsguard',hp:8000,def:16,spd:15,xp:240,r:5,scale:16/18,aggro:720,ai:'keep',keep:42,pats:[{t:'aim',cd:1.05,n:4,sp:9,spd:124,dmg:32,r:2.9,col:'#ffd34a',life:1.15},{t:'ring',cd:2.2,n:12,spd:60,dmg:28,r:3.1,col:'#ff4fa8',life:1.9}]},
+  crownwarden:{name:'Crown Warden',spr:'crownwarden',hp:8000,def:16,spd:15,xp:240,r:5,scale:16/18,aggro:720,ai:'keep',keep:42,pats:[{t:'aim',cd:1.05,n:4,sp:9,spd:124,dmg:32,r:2.9,col:'#ffd34a',life:1.15},{t:'ring',cd:2.2,n:12,spd:60,dmg:28,r:3.1,col:'#ff4fa8',life:1.9}]},
   megaking:{name:'Mega King',spr:'megaking_p1',hp:120000,def:28,spd:18,xp:8000,r:5,scale:32/34,aggro:420,orbit:48,ai:'boss',boss:true,dungeonBoss:true,mega:true,phaseCol:'#ff4fa8',
     phaseLines:['The Hollow Crown walks.','The court answers. The pylons wake.','The throne crumbles. The rift closes in.','The last crown splits.'],
     phases:[
@@ -5264,9 +5273,47 @@ function fireGapAt(e,x,y,n,gap,rot,spd,dmg,col){
   e.atkPose=3;e.atkHold=0.12;
 }
 function megaSpr(phase){return phase<=2?'megaking_p1':phase===3?'megaking_p2':phase===4?'megaking_p3':'megaking_p4';}
+function megaShieldGoal(e){
+  const wd=world;
+  if(!e||!e.shield||!wd||!e.d||!e.d.mega)return null;
+  const col=e.d.phaseCol||'#ff4fa8';
+  if(e.mkPhase===1){
+    let alive=0;
+    for(const o of wd.enemies)if(o.warden&&!o.dead)alive++;
+    const n=clamp(4-alive,0,4);
+    return {line:'Slay the Crown Wardens '+n+'/4',toast:'Shielded! Slay the Crown Wardens',col};
+  }
+  if(e.mkPhase===3){
+    let broken=0;
+    for(const p of wd.pylons||[])if(p&&p.dead)broken++;
+    const n=clamp(broken,0,4);
+    return {line:'Shatter the Pylons '+n+'/4',toast:'Shielded! Shatter the Pylons',col};
+  }
+  return null;
+}
+function announceMegaShield(e){
+  if(!e)return;
+  if(!e.shield||(e.mkPhase!==1&&e.mkPhase!==3)){e.shieldTold=0;return;}
+  if(e.shieldTold===e.mkPhase)return;
+  e.shieldTold=e.mkPhase;
+  const g=megaShieldGoal(e);
+  if(g)toast(g.toast,g.col);
+}
+function drawMegaShieldGoal(g,x,y,maxW){
+  let n=11;
+  font(n);
+  while(n>9&&ctx.measureText(g.line).width>maxW-8){n-=1;font(n);}
+  const tw=Math.min(maxW,Math.ceil(ctx.measureText(g.line).width+10));
+  const h=n+4;
+  ctx.fillStyle='rgba(8,6,14,.78)';
+  ctx.fillRect(Math.round(x-tw/2),Math.round(y-h/2),tw,h);
+  txt(g.line,x,y,n,g.col,'center');
+}
 function breakMegaShield(e){
   if(!e||!e.shield)return;
   e.shield=false;
+  e.shieldTold=0;
+  e.shieldBurst=0.3;
   if(e.mkPhase===1){
     e.mkPhase=2;e.sprName='megaking_p1';
     toast('The wardens fall. The Mega King walks.','#ffd34a');
@@ -5399,6 +5446,7 @@ function stepGhosts(e,hall){
 }
 function stepMega(e,dt){
   const wd=world;
+  if(e.shieldBurst>0)e.shieldBurst-=dt;
   if(e.mkPhase==null){e.mkPhase=1;e.shield=true;e.sprName='megaking_p1';}
   if(wd&&e.mkPhase===1&&e.shield&&!e.wardensReady){
     e.wardensReady=true;
@@ -5433,6 +5481,7 @@ function stepMega(e,dt){
   }
   if(e.mkPhase>1)megaAttack(e,dt);
   if(e.shield&&!megaShieldHeld(e))breakMegaShield(e);
+  announceMegaShield(e);
   return {x:tx-e.x,y:ty-e.y,sp:sp};
 }
 function wardenAnchor(wd,x,y){
@@ -5456,6 +5505,7 @@ function setupMega(wd){
   const hall=wd.hall||{x:king.x,y:king.y};
   const throne=wd.throne||hall;
   king.x=throne.x;king.y=throne.y;king.ax=throne.x;king.ay=throne.y;
+  announceMegaShield(king);
   if(wd.enemies.some(o=>o.warden))return;
   let spots=wd.pylons&&wd.pylons.length?wd.pylons:null;
   if(!spots){
@@ -5871,6 +5921,8 @@ function render(){
       }
     }
   }
+  if(typeof drawPylons==='function')drawPylons(world);
+  if(typeof drawShieldTethers==='function')drawShieldTethers(world);
   for(const e of world.enemies){if(e.x<x0-80||e.x>x1+80||e.y<y0-80||e.y>y1+80)continue;
     if(e.segs&&SPR.serpent_body16){
       for(let i=e.segs.length-1;i>=0;i--){
@@ -5894,18 +5946,7 @@ function render(){
     ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(e.x-w*0.35,e.y+h*0.4,w*0.7,2);
     if(e.d.god){ctx.globalAlpha=0.35;ctx.fillStyle='#ffd34a';ctx.beginPath();ctx.arc(e.x,e.y,e.d.r+2+Math.sin(time*3+e.id)*0.6,0,TAU);ctx.fill();ctx.globalAlpha=1;}
     if(e.flash>0)ctx.globalAlpha=0.55;drawSpr(s,Math.round(e.x-w/2),Math.round(e.y-h/2),w,h,P.x<e.x);ctx.globalAlpha=1;
-    if(e.shield){
-      ctx.save();
-      const pulse=0.5+0.5*Math.sin(time*3);
-      ctx.globalAlpha=0.16+0.08*pulse;
-      ctx.fillStyle='#c46aff';
-      ctx.beginPath();ctx.arc(e.x,e.y-2,17,0,TAU);ctx.fill();
-      ctx.globalAlpha=0.9;
-      ctx.strokeStyle=pulse>0.5?'#fff6c0':'#ffd34a';
-      ctx.lineWidth=1;
-      ctx.beginPath();ctx.arc(e.x,e.y-2,17,0,TAU);ctx.stroke();
-      ctx.restore();
-    }
+    if((e.shield||e.shieldBurst>0)&&typeof drawMegaShield==='function')drawMegaShield(e);
     if(e.mkPhase===5){
       ctx.fillStyle='#fff6c0';
       const gx=e.x,gy=e.y-h*0.38+(Math.sin(time*8)*0.6);
@@ -6274,14 +6315,23 @@ function drawHUD(){
   if(quest){const p=w2s(quest.x,quest.y);const hb=L.haven;const left=play.x+18,top=my+m+Math.max(12,sb)*2+10,right=hb?hb.x-hb.r-12:play.x+play.w-18,bot=play.h-18;
     if(p.x<left||p.y<top||p.x>right||p.y>bot){const c=w2s(P.x,P.y),a=Math.atan2(p.y-c.y,p.x-c.x);const rx=Math.min(play.w,play.h)*0.3;let ax=clamp(c.x+Math.cos(a)*rx,left,right),ay=clamp(c.y+Math.sin(a)*rx,top,bot);
       drawEventArrow(ax,ay,a,!!quest.event,quest.spr||'biome',quest.label,Math.hypot(quest.x-P.x,quest.y-P.y));}}
-  const bs=world.boss;if(bs&&Math.hypot(bs.x-P.x,bs.y-P.y)<240){const w=Math.min(280,play.w*0.55),bx2=play.x+(play.w-w)/2,by=my+m+18;txt(bs.name,play.x+play.w/2,by-10,12,'#e0b0ff','center');bar(bx2,by,w,12,bs.hp/bs.maxhp,'#c46aff',null);}
+  const bs=world.boss;
+  let shieldGoal=null;
+  if(bs&&Math.hypot(bs.x-P.x,bs.y-P.y)<240){
+    const w=Math.min(280,play.w*0.55),bx2=play.x+(play.w-w)/2,by=my+m+18;
+    txt(bs.name,play.x+play.w/2,by-10,12,'#e0b0ff','center');
+    bar(bx2,by,w,12,bs.hp/bs.maxhp,'#c46aff',null);
+    shieldGoal=megaShieldGoal(bs);
+    // The art hint says "Slay the Wardens", so the Crown Wardens line stays here.
+    if(shieldGoal)drawMegaShieldGoal(shieldGoal,play.x+play.w/2,by+21,Math.max(96,Math.min(play.w-16,360)));
+  }
   let nearEv=null,nearD=260;
   for(const e of world.enemies){if(!e.d.event)continue;const d=Math.hypot(e.x-P.x,e.y-P.y);if(d<nearD){nearD=d;nearEv=e;}}
   if(nearEv){const w=Math.min(300,play.w*0.6),bx2=play.x+(play.w-w)/2,by=my+m+(bs&&Math.hypot(bs.x-P.x,bs.y-P.y)<240?40:18);txt(nearEv.name,play.x+play.w/2,by-10,12,nearEv.d.phaseCol||'#ffd34a','center');bar(bx2,by,w,12,nearEv.hp/nearEv.maxhp,nearEv.d.phaseCol||'#ffd34a',null);}
   const barBottom=drawClearBar(play);
   const evs=world.enemies.filter(e=>e.d.event);
   if(evs.length){const banner=evs.map(e=>e.d.short||e.name).join('  ·  ');ctx.fillStyle='rgba(20,12,8,.72)';const bw=Math.min(play.w-16,Math.max(160,banner.length*8+28));const by=Math.max(my+4,barBottom+2);ctx.fillRect(play.x+(play.w-bw)/2,by,bw,18);txt('EVENT  '+banner,play.x+play.w/2,by+9,11,'#ffe9a0','center',false);}
-  let ty2=my+m+28;for(const t of toasts){ctx.globalAlpha=Math.min(1,t.life);fitTxt(t.t,play.x+play.w/2,ty2,13,t.col,Math.max(40,play.w-24),'center');ty2+=16;}ctx.globalAlpha=1;
+  let ty2=shieldGoal?my+m+56:my+m+28;for(const t of toasts){ctx.globalAlpha=Math.min(1,t.life);fitTxt(t.t,play.x+play.w/2,ty2,13,t.col,Math.max(40,play.w-24),'center');ty2+=16;}ctx.globalAlpha=1;
   drawSidePanel();
   drawEnterButton();
   const tipRef=(ptr&&ptr.tip&&ptr.ref)||(heldTip&&heldTip.ref);
