@@ -522,9 +522,13 @@ async function tideclawAndStatus(page, cdp) {
   await frames(page, 4);
   const chest = await page.evaluate(() => window.__shardwild.world.chest);
   await walkTo(page, cdp, chest.x, chest.y, () => window.__shardwild.chestOpen, 20);
-  await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'keys');
+  await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'pots');
   await frames(page, 3);
-  const keyNames = await chestNames(page);
+  let keyNames = await chestNames(page);
+  for (let i = 0; i < 4 && keyNames.indexOf('Tideclaw Burrow Key') < 0; i++) {
+    await tapTag(page, r => r.tag === 'chest-next');
+    keyNames = await chestNames(page);
+  }
   assert(keyNames.indexOf('Tideclaw Burrow Key') >= 0, 'Keys tab ' + keyNames.join(','));
   await page.screenshot({path: path.join(ART, 'screenshot_test_chest_keys.png')});
   const keySlot = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'chest' && s.name === 'Tideclaw Burrow Key'));
@@ -646,8 +650,12 @@ async function tideclawAndStatus(page, cdp) {
 
   const again = await page.evaluate(() => window.__shardwild.world.chest);
   await walkTo(page, cdp, again.x, again.y, () => window.__shardwild.chestOpen, 18);
-  await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'keys');
-  const key2 = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'chest' && s.name === 'Tideclaw Burrow Key'));
+  await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'pots');
+  let key2 = null;
+  for (let i = 0; i < 4 && !key2; i++) {
+    key2 = await page.evaluate(() => window.__shardwild.slots.find(s => s.area === 'chest' && s.name === 'Tideclaw Burrow Key'));
+    if (!key2) await tapTag(page, r => r.tag === 'chest-next');
+  }
   assert(key2, 'second key missing');
   await page.touchscreen.tap(key2.x + key2.w / 2, key2.y + key2.h / 2);
   await frames(page, 2);
@@ -751,7 +759,7 @@ async function v12Coverage(page, cdp) {
     }
     return {info, filled};
   });
-  assert(density.info.length === 4, 'spawn info ' + JSON.stringify(density.info));
+  assert(density.info.length >= 4, 'spawn info ' + JSON.stringify(density.info));
   for (let z = 0; z < 4; z++) {
     const row = density.info[z];
     const lo = Math.ceil(OLD[z] * 1.5), hi = OLD[z] * 2;
@@ -1508,8 +1516,8 @@ async function main() {
     }, 16);
     assert(await page.evaluate(() => window.__shardwild.chestOpen), 'chest did not open');
     const cat = await page.evaluate(() => window.__shardwild.catalog);
-    assert(cat.weapons === 52 && cat.abilities === 42 && cat.armors === 27 && cat.rings === 64 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.dungeonKeys === 6 && cat.test === 3 && cat.n === 203, 'catalog ' + JSON.stringify(cat));
-    assert(cat.testNames && cat.testNames.join(',') === 'Godslayer Staff,Godslayer Bow,Godslayer Blade', 'test weapons ' + JSON.stringify(cat.testNames));
+    assert(cat.weapons === 66 && cat.abilities === 128 && cat.armors === 28 && cat.rings === 64 && cat.elixirs === 8 && cat.pots === 2 && cat.mastery === 1 && cat.key && cat.dungeonKeys === 9 && cat.test === 4 && cat.n === 307, 'catalog ' + JSON.stringify(cat));
+    assert(cat.testNames && cat.testNames.join(',') === 'Godslayer Staff,Godslayer Bow,Godslayer Blade,Godslayer Katana', 'test weapons ' + JSON.stringify(cat.testNames));
 
     let staff = null;
     for (let i = 0; i < 8 && !staff; i++) {
@@ -1528,7 +1536,7 @@ async function main() {
     assert(equipped.name === 'Iron Staff' && equipped.tier === 1, 'did not equip Iron Staff: ' + JSON.stringify(equipped));
     assert(equipped.still, 'chest lost Iron Staff; it should copy');
 
-    await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'all');
+    await tapTag(page, r => r.tag === 'chest-tab' && r.tab === 'any');
     let sawDim = false, sawUsable = false;
     for (let i = 0; i < 14; i++) {
       const slots = await page.evaluate(() => window.__shardwild.slots.filter(s => s.area === 'chest'));
@@ -1832,18 +1840,18 @@ async function main() {
     assert(realm.zone === 0, 'shore entry landed inland, zone ' + realm.zone);
     assert(!realm.boss, 'Hollow Guard should wait for a full clear ' + JSON.stringify(realm.boss));
     const rose = await page.evaluate(() => {
-      window.__shardwild.setClear(8);
+      window.__shardwild.setClear(12);
       const b = window.__shardwild.world.boss;
       return b ? {x: b.x, y: b.y, name: b.name} : null;
     });
     assert(rose && rose.name === 'Morvane, the Hollow Guard' && Math.hypot(rose.x - realm.w * 8 / 2, rose.y - realm.h * 8 / 2) < 8, 'boss is not at the center ' + JSON.stringify(rose));
-    assert(realm.n === 4, 'expected 4 realm beacons, got ' + JSON.stringify(realm));
+    assert(realm.n === 6, 'expected 6 realm beacons, got ' + JSON.stringify(realm));
     assert(realm.bands[0] > 0.72 && realm.bands[0] < 0.93, 'shore beacon band ' + realm.bands[0]);
     assert(realm.bands[3] > 0.12 && realm.bands[3] < 0.32, 'star beacon band ' + realm.bands[3]);
     await tapTag(page, r => r.tag === 'minimap');
     assert(await page.evaluate(() => window.__shardwild.mapOpen), 'realm map did not open');
     const locked = await page.evaluate(() => window.__shardwild.ui.filter(r => r.tag === 'beacon' && r.where === 'map'));
-    assert(locked.length === 4, 'map beacon icons ' + locked.length);
+    assert(locked.length === 6, 'map beacon icons ' + locked.length);
     assert(locked.every(b => !b.unlocked), 'realm beacons should start locked: ' + JSON.stringify(locked.map(b => b.beacon)));
     await page.evaluate(() => {
       const sw = window.__shardwild;

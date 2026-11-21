@@ -117,7 +117,12 @@ async function main() {
     assert(sim.dungeonUtOutside === 0, 'dungeon UT leaked into the overworld: ' + sim.dungeonUtOutside);
     assert(sim.keysOutside === 0, 'dungeon key leaked into the overworld: ' + sim.keysOutside);
     const portals = sim.portalByType || {};
-    const portalBand = {crab: [0.01, 0.06], hexer: [0.01, 0.06], beetle: [0.01, 0.06], voidkeeper: [0.04, 0.16], serpent: [0.04, 0.16]};
+    const portalBand = {
+      crab: [0.01, 0.06], hexer: [0.01, 0.06], beetle: [0.01, 0.06], voidkeeper: [0.04, 0.16], serpent: [0.04, 0.16],
+      frostwolf: [0.01, 0.06], yeti: [0.01, 0.06], rimeshard: [0.01, 0.06], tundraarcher: [0.01, 0.06], snowowl: [0.01, 0.06], mammoth: [0.01, 0.06],
+      bonescorp: [0.015, 0.09], skelnomad: [0.015, 0.09], vulture: [0.015, 0.09], dustdevil: [0.015, 0.09], graveworm: [0.015, 0.09], mummy: [0.015, 0.09],
+      titan: [0.008, 0.055], colossus: [0.008, 0.055], idol: [0.006, 0.05], saint: [0.006, 0.05]
+    };
     for (const t of Object.keys(portals)) {
       const band = portalBand[t];
       if (!band) assert(portals[t] === 0, 'portal dropped from ' + t + ': ' + portals[t]);
