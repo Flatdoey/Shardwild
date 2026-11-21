@@ -503,12 +503,12 @@ const HAVEN_TILES={
 // Tile ids as in game.js v25 (T_WATER=0 ... T_LAVA=82). If you paste this inside game.js you can swap these for the T_* consts.
 const WT_ID={WATER:0,WET:1,SAND:2,GRASS:3,DARK:4,ROCK:5,ARENA:6,TREE:7,BOULDER:8,FLOOR:10,WALL:11,CARPET:12,REED:13,DRIFT:14,
   FLOWER:15,STUMP:16,VENT:17,PILLAR:18,RUIN:19,RUG:20,PLANTER:21,BENCH:22,CRATE:23,FIRE:80,STATUE:81,LAVA:82};
-const WT_ZSET=['shore','greenmarch','ashen','godlands'];
+const WT_ZSET=['shore','greenmarch','ashen','godlands','frostreach','bonewaste'];
 // Higher priority terrain draws its edge pieces onto lower neighbours. path>meadow so thin Haven paths stay continuous.
-const WT_PRIO={water:0,pond:0,wet:1,sand:2,grass:3,meadow:3,path:3.5,ash:4,rock:5,arena:6,floor:7,lava:-1};
+const WT_PRIO={water:0,pond:0,wet:1,sand:2,grass:3,meadow:3,path:3.5,frost:3.6,ash:4,bone:4.5,rock:5,arena:6,floor:7,lava:-1};
 // terrain -> [tile set, ground key, edge key]
 const WT_TER={water:['shore','water',null],wet:['shore','wet','wet'],sand:['shore','sand','sand'],grass:['greenmarch','grass','grass'],
-  ash:['ashen','ash','ash'],rock:['godlands','rock','rock'],arena:['godlands','arena','arena'],lava:['ashen','lava',null],
+  frost:['frostreach','snow','snow'],ice:['frostreach','ice',null],ash:['ashen','ash','ash'],bone:['bonewaste','bone','bone'],rock:['godlands','rock','rock'],arena:['godlands','arena','arena'],lava:['ashen','lava',null],
   pond:['haven','pond',null],path:['haven','path','path'],meadow:['haven','meadow','meadow'],floor:['haven','floor','floorCurb'],
   carpet:['haven','carpet',null],vfloor:['haven','vaultFloor',null]};
 const WT_DECO={7:'tree',8:'boulder',13:'reed',14:'drift',15:'flower',16:'stump',17:'vent',18:'pillar',19:'ruin',80:'campfire',81:'statue',21:'planter',22:'bench',23:'crate'};
@@ -536,9 +536,9 @@ function wtClassify(wd,x,y){
     return {k:'ground',ter:b,deco};
   }
   if(wd.isVault)return {k:'ground',ter:T===I.CARPET?'carpet':'vfloor',deco};
-  const zg=Z===0?'sand':Z===1?'grass':Z===2?'ash':Z===3?'rock':'water';
-  const B={0:'water',1:'wet',2:'sand',3:'grass',4:'ash',5:'rock',6:'arena',82:'lava',13:'wet',14:'sand',17:'ash',18:'rock',
-    19:Z===2?'ash':'rock',81:'rock',23:'sand',7:Z>=2?'ash':'grass',15:'grass',16:Z>=2?'ash':'grass',8:zg,80:zg};
+  const zg=Z===0?'sand':Z===1?'grass':Z===2?'ash':Z===3?'rock':Z===4?'frost':Z===5?'bone':'water';
+  const B={0:'water',1:'wet',2:'sand',3:'grass',4:'ash',5:'rock',6:'arena',82:'lava',101:'frost',102:'bone',103:'ice',13:'wet',14:'sand',17:'ash',18:'rock',
+    19:Z===4?'frost':Z===5?'bone':Z===2?'ash':'rock',81:'rock',23:'sand',7:Z===4?'frost':Z===5?'bone':Z>=2?'ash':'grass',15:Z===4?'frost':'grass',16:Z===4?'frost':Z===5?'bone':Z>=2?'ash':'grass',8:zg,80:zg};
   return {k:'ground',ter:(T in B)?B[T]:zg,deco};
 }
 // Returns {layers:[[setName,rows],...], deco:[setName,spriteName]|null}. Paint layers in order ('.' = skip).
@@ -592,6 +592,21 @@ function wtLayers(wd,x,y){
       for(const [d,a1,a2] of [['nw','n','w'],['ne','n','e'],['sw','s','w'],['se','s','e']])
         if(nb[d]===b&&nb[a1]!==b&&nb[a2]!==b){L.push([bs,es[d]]);over=true;}
     }
+    if(ter==='ice'){
+      const rm=wtSet('frostreach').iceRims;
+      if(rm)for(const [d,dx,dy] of D4)if(terOf(x+dx,y+dy)!=='ice')L.push(['frostreach',rm[d]]);
+    }
+    const near=(name,rad)=>{
+      for(let dy=-rad;dy<=rad;dy++)for(let dx=-rad;dx<=rad;dx++){
+        if(!dx&&!dy)continue;
+        if(terOf(x+dx,y+dy)===name)return true;
+      }
+      return false;
+    };
+    if(ter==='grass'&&near('frost',2))L[0]=['frostreach',wtPick(wtSet('frostreach').blend.frostGrass,x,y)];
+    else if(ter==='ash'&&near('frost',2))L[0]=['frostreach',wtPick(wtSet('frostreach').blend.slush,x,y)];
+    else if(ter==='ash'&&near('bone',2))L[0]=['bonewaste',wtPick(wtSet('bonewaste').blend.ashDust,x,y)];
+    else if(ter==='rock'&&near('bone',2))L[0]=['bonewaste',wtPick(wtSet('bonewaste').blend.rockDust,x,y)];
   }
   if(!over&&!c.deco&&!['carpet','lava','floor','vfloor','wet','arena','path','pond'].includes(ter)&&wtHash(x,y,5)<(ter==='meadow'?0.03:0.05)){
     const dets=wtSet(st)[ter==='water'?'waterDetails':'details']||{},dl=Object.values(dets);
@@ -611,7 +626,7 @@ function wtLayers(wd,x,y){
     else{
       const Z=wd.zone[y*wd.w+x];
       ds={tree:'greenmarch',flower:'greenmarch',campfire:'greenmarch',reed:'shore',drift:'shore',crate:'shore',vent:'ashen',pillar:'godlands',statue:'godlands'}[c.deco]||WT_ZSET[Z]||'godlands';
-      if(c.deco==='stump')ds=Z>=2?'ashen':'greenmarch';
+      if(c.deco==='stump')ds=Z===4?'frostreach':Z===5?'bonewaste':Z>=2?'ashen':'greenmarch';
     }
     if(!wtSet(ds).props[c.deco])ds=['greenmarch','godlands','shore','ashen','haven'].find(s=>wtSet(s).props[c.deco]);
     deco=[ds,c.deco];
