@@ -4054,18 +4054,21 @@ function createAudio(){
 const AUD=createAudio();
 function loadRuns(){try{return JSON.parse(store.get(RUNSK))||[];}catch(e){return [];}}
 function loadSave(){try{return JSON.parse(store.get(SAVEK));}catch(e){return null;}}
-function toast(t,col){
+function toast(t,col,kind){
   const i=toasts.findIndex(o=>o.t===t);
   if(i>=0){
     const o=toasts[i];
     if(col)o.col=col;
+    if(kind)o.kind=kind;
     toasts.splice(i,1);
     toasts.push(o);
     return;
   }
-  toasts.push({t,col:col||'#fff',life:2.6});
-  if(toasts.length>4)toasts.shift();
+  toasts.push({t,col:col||'#fff',life:2.4,kind:kind||''});
+  while(toasts.length>3)toasts.shift();
 }
+function clearToasts(){toasts.length=0;}
+function dropToasts(kind){toasts=toasts.filter(t=>t.kind!==kind);}
 const CLASS_OLD={pyro:'wizard',strider:'archer',bulwark:'knight'};
 function canonCls(k){return CLASS_OLD[k]||k;}
 function migrateItem(it){
@@ -4251,8 +4254,8 @@ function startNew(k){
   state='play';
   titleMode='roster';
   enterHub();
-  toast('Welcome to the Haven, '+CLASSES[k].name+'!','#ffd34a');
-  toast('Stand on the portal and tap Enter','#9fe0ff');
+  toast('Welcome to the Haven, '+CLASSES[k].name+'!','#ffd34a','place');
+  toast('Stand on the portal and tap Enter','#9fe0ff','place');
   saveGame();
 }
 function continueGame(slotIndex){
@@ -4268,11 +4271,11 @@ function continueGame(slotIndex){
   titleMode='roster';
   enterHub();
   persistRoster();
-  toast('Welcome back. Lv '+P.lvl+' '+CLASSES[P.cls].name,'#ffd34a');
+  toast('Welcome back. Lv '+P.lvl+' '+CLASSES[P.cls].name,'#ffd34a','place');
 }
 function clearBullets(){ebN=0;pbN=0;ptN=0;FX.length=0;}
 function peaceful(){return !!(world&&(world.isHub||world.isVault));}
-function enterHub(){if(!hub)hub=genHub();world=hub;P.x=hub.spawn.x;P.y=hub.spawn.y;clearBullets();saveGame();}
+function enterHub(){clearToasts();if(!hub)hub=genHub();world=hub;P.x=hub.spawn.x;P.y=hub.spawn.y;clearBullets();saveGame();}
 function enterVault(){
   if(!vault)vault=genVault();
   world=vault;P.x=vault.spawn.x;P.y=vault.spawn.y;clearBullets();
@@ -4297,7 +4300,7 @@ function enterRealm(){
   realm.entry={x:P.x,y:P.y};
   if(!P.seen)P.seen=[];if(P.seen.indexOf('r:entry')<0)P.seen.push('r:entry');
   realm.enemies=realm.enemies.filter(e=>e.d.boss);
-  toast('Entered the Shardwild — the shore is quiet, the center is not','#ffd34a');
+  toast('Entered the Shardwild — the shore is quiet, the center is not','#ffd34a','place');
   AUD.portal();
 }
 function spawnBoss(wd){wd.boss=spawnEnemy(wd,'king',wd.cx,wd.cy,3,false);AUD.roar();}
@@ -5628,7 +5631,8 @@ function updateEnemies(dt){
       if(ph!==e.phase){
         const prev=e.phase;e.phase=ph;e.pats=d0.phases[ph].pats;resetPats(e);
         if(ph>0){
-          if(d0.phaseLines&&d0.phaseLines[ph-1])toast(d0.phaseLines[ph-1],d0.phaseCol||'#ffb070');
+          if(d0.v30){}
+          else if(d0.phaseLines&&d0.phaseLines[ph-1])toast(d0.phaseLines[ph-1],d0.phaseCol||'#ffb070');
           else if(!d0.dungeonBoss)toast(ph===1?'Morvane: "You dare wound the Guard?"':'Morvane: "THE CROWN STILL DEMANDS YOUR SOUL!"','#c46aff');
         }
         if(prev>=0&&ph>prev)AUD.phase();
@@ -6379,8 +6383,7 @@ function drawHUD(){
     txt(bs.name,play.x+play.w/2,by-10,12,'#e0b0ff','center');
     bar(bx2,by,w,12,bs.hp/bs.maxhp,'#c46aff',null);
     shieldGoal=megaShieldGoal(bs);
-    // The art hint says "Slay the Wardens", so the Crown Wardens line stays here.
-    if(shieldGoal)drawMegaShieldGoal(shieldGoal,play.x+play.w/2,by+21,Math.max(96,Math.min(play.w-16,360)));
+    if(shieldGoal)drawMegaShieldGoal(shieldGoal,play.x+play.w/2,by+22,Math.max(96,Math.min(play.w-16,360)));
   }
   let nearEv=null,nearD=260;
   for(const e of world.enemies){if(!e.d.event)continue;const d=Math.hypot(e.x-P.x,e.y-P.y);if(d<nearD){nearD=d;nearEv=e;}}
@@ -6388,7 +6391,12 @@ function drawHUD(){
   const barBottom=drawClearBar(play);
   const evs=world.enemies.filter(e=>e.d.event);
   if(evs.length){const banner=evs.map(e=>e.d.short||e.name).join('  ·  ');ctx.fillStyle='rgba(20,12,8,.72)';const bw=Math.min(play.w-16,Math.max(160,banner.length*8+28));const by=Math.max(my+4,barBottom+2);ctx.fillRect(play.x+(play.w-bw)/2,by,bw,18);txt('EVENT  '+banner,play.x+play.w/2,by+9,11,'#ffe9a0','center',false);}
-  let ty2=shieldGoal?my+m+56:my+m+28;for(const t of toasts){ctx.globalAlpha=Math.min(1,t.life);fitTxt(t.t,play.x+play.w/2,ty2,13,t.col,Math.max(40,play.w-24),'center');ty2+=16;}ctx.globalAlpha=1;
+  const bossNear=bs&&Math.hypot(bs.x-P.x,bs.y-P.y)<240;
+  let ty2=my+m+30;
+  if(bossNear)ty2=(shieldGoal?my+m+58:my+m+36);
+  if(nearEv)ty2=Math.max(ty2,my+m+(bossNear?40:18)+28);
+  ty2=Math.max(ty2,barBottom+14);
+  for(const t of toasts.slice(-3)){ctx.globalAlpha=Math.min(1,t.life);fitTxt(t.t,play.x+play.w/2,ty2,13,t.col,Math.max(40,play.w-24),'center');ty2+=16;}ctx.globalAlpha=1;
   drawSidePanel();
   drawEnterButton();
   const tipRef=(ptr&&ptr.tip&&ptr.ref)||(heldTip&&heldTip.ref);
@@ -7934,7 +7942,7 @@ Object.assign(EN,{
     phaseLines:['The core vents. Strike the glowing heart.','Drones pour from the foundry.','The core goes berserk.'],
     phases:[{above:0.75,pats:[]},{above:0.5,pats:[]},{above:0.25,pats:[]},{above:0,pats:[]}]},
   bonemother:{name:'Bone Mother',spr:'boneMother_p1',hp:42000,def:22,spd:16,xp:3200,r:12,scale:1,aggro:260,orbit:46,ai:'boss',boss:true,dungeonBoss:true,v30:true,phaseCol:'#f0d8c8',
-    phaseLines:['She splits. Only the glinting one is real.','Thorns crawl the floor.','The mother unmakes the room.'],
+    phaseLines:['Thorns crawl the floor.','She splits. Only the glinting one is real.','The mother unmakes the room.'],
     phases:[{above:0.75,pats:[]},{above:0.5,pats:[]},{above:0.25,pats:[]},{above:0,pats:[]}]},
   frostwyrm:{name:'Frost Wyrm',short:'Frost Wyrm',spr:'frostwyrm',hp:18000,def:14,spd:20,xp:1400,r:5,scale:27/24,event:true,zone:4,portal:'rime',phaseCol:'#7ae8ff',music:'evtFrost',
     announce:'A Frost Wyrm uncoils over Frostreach!',fall:'The Frost Wyrm stills',
@@ -7969,7 +7977,7 @@ Object.assign(DUNGEONS,{
     loot:{bossHi:0.6,bossN:[2,3],bossTier:[5,7],hp:0.75,mp:0.55,elixir:0.6,elixir2:0.3,ut:0.12,key:0.07,minP:0.34,minTier:[4,6],minHp:0.28,chest:[5,7],chestHp:0.5}},
   ossuary:{id:'ossuary',name:'Ossuary of Thorns',enemy:null,portalFrom:ZONES[5].types.concat(['idol','saint']),portalRate:0.02,
     keyName:'Ossuary of Thorns Key',blurb:'A thorn maze before the last bone.',lore:'Only the glinting mother can be wounded.',
-    utName:"Matriarch's Thornblade",boss:'bonemother',theme:'ossuary',keySpr:'keyOssuary',portalSpr:'portalOssuary',col:'#f0d8c8',loreCol:'#e8ffc0',
+    utName:'Marrowthorn Blade',boss:'bonemother',theme:'ossuary',keySpr:'keyOssuary',portalSpr:'portalOssuary',col:'#f0d8c8',loreCol:'#e8ffc0',
     music:'ossuary',musicBoss:'ossuaryBoss',bossHear:260,fallLine:'THE BONE MOTHER UNWINDS',tier:'end',
     mapBlurb:'A maze of levers. The gold portal leaves when the Mother falls.',
     legend:['#f0d8c8','Bone Mother','#6aaa48','Thorns'],inspired:'Manor of the Immortals',
@@ -8106,6 +8114,7 @@ function genOssuary(seed){
 }
 const _enterDungeon=enterDungeon;
 enterDungeon=function(id,seed){
+  clearToasts();
   if(id!=='rime'&&id!=='foundry'&&id!=='ossuary')return _enterDungeon(id,seed);
   if(seed==null)seed=(Math.random()*0x7fffffff)|0;
   dungeon=id==='rime'?genRimeCrypt(seed):id==='foundry'?genFoundry(seed):genOssuary(seed);
@@ -8247,7 +8256,7 @@ function mkColossusPlate(){
 }
 function mkMothersThorn(){
   const it=mkWeapon('sword',7);
-  return Object.assign(it,{tier:8,name:"Matriarch's Thornblade",dungeonUt:true,utSource:'ossuary',sprId:'thornblade',dmin:124,dmax:172,shots:1,spread:0,range:56,speed:200,rate:0.82,r:3.4,col:'#c8ff90',shot:'slash',fx:{poison:2.2,pdmg:28},selfHp:12});
+  return Object.assign(it,{tier:8,name:'Marrowthorn Blade',dungeonUt:true,utSource:'ossuary',sprId:'thornblade',dmin:124,dmax:172,shots:1,spread:0,range:56,speed:200,rate:0.82,r:3.4,col:'#c8ff90',shot:'slash',fx:{poison:2.2,pdmg:28},selfHp:12});
 }
 function mkWyrmwing(){
   const it=mkWeapon('bow',6);
@@ -8294,7 +8303,7 @@ itemLines=function(it){
   if(it.kind==='weapon'&&it.w==='katana'&&it.selfHp)L.push('Each shot costs '+it.selfHp+' HP');
   if(it.name==='Rimecaller Staff')L.push('About a T5 staff. Shots slow and throw a frost ring.');
   if(it.name==='Colossus Plate')L.push('Heavier than T7 plate, and it cuts your stride.');
-  if(it.name==="Matriarch's Thornblade")L.push('Stronger than T7. Short range, and it drinks your blood.');
+  if(it.name==='Marrowthorn Blade')L.push('Stronger than T7. Short range, and it drinks your blood.');
   if(it.name==='Wyrmwing Bow')L.push('A long bow that leaves frost on the wound.');
   if(it.name==="Leviathan's Tooth")L.push('A heavy dagger from the sand.');
   if(it.name==='Cogwall')L.push('A foundry shield.');
@@ -8466,10 +8475,9 @@ function onV30Phase(e){
       const a=i*TAU/4,s=spawnEnemy(world,'icestatue',e.x+Math.cos(a)*40,e.y+Math.sin(a)*40,0,false);
       s.iceStatue=true;s.noLoot=true;s.lich=e;
     }
-    toast('Shielded! Shatter the ice statues','#bfe8ff');
   }
-  if(e.type==='rimelich'&&e.phase===2){e.shield=false;e.iceGoal=false;if(world.blizzard)world.blizzard.on=true;}
-  if(e.type==='brasscolossus'&&e.phase===1){e.exposed=true;toast('The heart is exposed','#ffd060');}
+  if(e.type==='rimelich'&&e.phase===2){e.shield=false;e.iceGoal=false;if(world&&world.theme==='rime'&&world.blizzard)world.blizzard.on=true;}
+  if(e.type==='brasscolossus'&&e.phase===1){e.exposed=true;}
   if(e.type==='bonemother'&&e.phase===2){
     for(let i=0;i<3;i++){
       const a=i*TAU/3,c=spawnEnemy(world,'bonemother',e.x+Math.cos(a)*28,e.y+Math.sin(a)*28,0,false);
@@ -8485,10 +8493,13 @@ window.stepV30Boss=stepV30Boss;
 const _goal=megaShieldGoal;
 megaShieldGoal=function(e){
   const g=_goal(e);if(g)return g;
-  if(e&&e.iceGoal){
-    let alive=0;for(const o of world.enemies)if(o.iceStatue&&!o.dead)alive++;
-    return {line:'Shatter the ice statues '+(4-alive)+'/4',toast:'Shielded! Shatter the ice statues',col:'#bfe8ff'};
+  if(!e||!world||world.boss!==e||!e.d||!e.d.v30)return null;
+  if(e.iceGoal&&e.type!=='rimelich')e.iceGoal=false;
+  if(e.type==='rimelich'&&world.theme==='rime'&&e.iceGoal){
+    let alive=0;for(const o of world.enemies)if(o.iceStatue&&o.lich===e&&!o.dead)alive++;
+    return {line:'Shatter the ice statues '+(4-alive)+'/4',col:'#bfe8ff'};
   }
+  if(e.phase>0&&e.d.phaseLines&&e.d.phaseLines[e.phase-1])return {line:e.d.phaseLines[e.phase-1],col:e.d.phaseCol||'#fff'};
   return null;
 };
 const _dmg=dmgEnemy;
@@ -8642,6 +8653,7 @@ const _hydrate=hydrate;
 hydrate=function(s){migrateClear(s);_hydrate(s);};
 const _enterRealm=enterRealm;
 enterRealm=function(){
+  clearToasts();
   if(P)migrateClear(P);
   _enterRealm();
   if(realm&&P){
@@ -8752,7 +8764,8 @@ window.v30Tick=function(dt){
     const z=zoneAt(world,P.x,P.y);
     if(z>=0&&z!==P.v30Zone){
       const prev=P.v30Zone;P.v30Zone=z;
-      if(prev!=null&&z<P.maxZone&&ZONES[z])toast('Now entering '+ZONES[z].name,ZONES[z].col);
+      dropToasts('zone');dropToasts('place');
+      if(prev!=null&&z<P.maxZone&&ZONES[z])toast('Now entering '+ZONES[z].name,ZONES[z].col,'zone');
     }
   }
   if(chestModal&&!nearChest())chestModal=false;
@@ -9276,13 +9289,18 @@ if(window.__shardwild){
     return _make(s);
   };
   window.__shardwild.enterDungeon=enterDungeon;
+  window.__shardwild.useAbility=function(){return useAbility();};
   window.__shardwild.setBossPhase=function(n){
     const e=world&&world.boss;if(!e||!e.d||!e.d.phases)return null;
     n=clamp(n|0,0,e.d.phases.length-1);
+    clearToasts();
+    e.iceGoal=false;e.shield=false;e.exposed=false;e.berserkCore=false;
+    if(world.blizzard)world.blizzard.on=false;
+    for(const o of world.enemies.slice())if(o!==e&&(o.iceStatue||o.motherClone)){o.dead=true;const i=world.enemies.indexOf(o);if(i>=0)world.enemies.splice(i,1);}
     const above=e.d.phases[n].above;
     const prev=n===0?1:e.d.phases[n-1].above;
-    e.hp=e.maxhp*((above+prev)/2);
-    e.v30Ph=-1;
+    e.hp=e.maxhp*Math.min(0.98,(above+prev)/2);
+    e.phase=-1;e.v30Ph=-1;
     return {n,hp:e.hp,max:e.maxhp};
   };
 }
